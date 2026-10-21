@@ -6,5 +6,5 @@ REM Por si quedo el puerto 5000 ocupado por otro proceso:
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5000 ^| findstr LISTENING') do taskkill /F /PID %%a >nul 2>&1
 timeout /t 1 /nobreak >nul
 start "" python app.py
-timeout /t 2 /nobreak >nul
-start "" http://127.0.0.1:5000
+echo Esperando a que la app responda...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ok=$false; for($i=0;$i -lt 90;$i++){ try { $c=New-Object Net.Sockets.TcpClient('127.0.0.1',5000); $c.Close(); $ok=$true; break } catch { Start-Sleep -Seconds 1 } }; if($ok){ Start-Process 'http://127.0.0.1:5000/' } else { Write-Host 'La app no respondio en 90 segundos.' }"
