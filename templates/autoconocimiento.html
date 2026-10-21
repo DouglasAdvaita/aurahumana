@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Autoconocimiento - RAVE</title>
+<style>
+body{font-family:'Segoe UI',sans-serif;background:#eef1f5;color:#333;padding:20px;max-width:760px;margin:auto}
+.card{background:#fff;padding:18px;border-radius:10px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+h1{color:#1a237e}h2{color:#2c3e50;font-size:16px;margin:14px 0 8px}
+label{display:block;margin:6px 0;font-size:14px}
+select,input{width:100%;padding:7px;margin-top:3px;border:1px solid #cfd8dc;border-radius:6px}
+button{padding:10px 20px;background:#1a237e;color:#fff;border:none;border-radius:6px;font-weight:800;cursor:pointer}
+#informe{white-space:pre-wrap;background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;padding:14px;font-size:14px}
+a{color:#1a237e}
+</style>
+</head>
+<body>
+<a href="/">← Volver a RAVE</a>
+<h1>Autoconocimiento</h1>
+<p style="font-size:13px;color:#616161">Test corto: 3 datos + 10 preguntas. Orientativo, no diagnóstico.</p>
+<div class="card">
+<h2>Datos (DH + numerología + solar)</h2>
+<label>Nombre completo<input id="nombre" placeholder="Para número de destino"></label>
+<label>Fecha nacimiento<input id="fecha" type="date"></label>
+<label>Lugar / hora nacimiento (opcional, para DH completo)<input id="lugar" placeholder="Ej: Montevideo 14:30"></label>
+</div>
+<div class="card">
+<h2>1. Eneatipo (2 preguntas)</h2>
+<label>¿Qué te pesa más?<select id="triada"><option value="ira">IRA: enojo si hay injusticia / te controlan</option><option value="verguenza">VERGÜENZA: valer / imagen / rechazo</option><option value="miedo">MIEDO: inseguridad / anticipar peligro</option></select></label>
+<label>Tu modo típico<select id="modo"><option value="combativo">COMBATIVO: voy al frente, impongo</option><option value="sumiso">SUMISO: cumplo, ayudo, me adapto</option><option value="reservado">RESERVADO: me repliego, observo</option></select></label>
+</div>
+<div class="card">
+<h2>2. Neurodivergencia (screening)</h2>
+<label>Foco<select id="foco"><option value="pierdo">Pierdo el hilo / me distraigo</option><option value="hiper">Hiperfoco largo</option><option value="ambos">Ambos</option><option value="ninguno">Ninguno</option></select></label>
+<label>Sensorial / social<select id="sensorial"><option value="mucho">Ruido/luces/contacto me agotan mucho</option><option value="aveces">A veces</option><option value="no">No</option></select></label>
+<label>Rutinas<label><select id="rutina"><option value="rutina">Necesito rutina, el cambio me cuesta</option><option value="aburro">Me aburro, busco novedad</option><option value="ambas">Ambas</option></select></label>
+<label>Vínculos / intereses<select id="social"><option value="lectura">Me cuesta leer entre líneas</option><option value="intenso">Intereses muy intensos</option><option value="ambos2">Ambos</option><option value="ninguno2">Ninguno</option></select></label>
+</div>
+<div class="card">
+<h2>3. Dosha (ayurveda)</h2>
+<label>Cuerpo / energía<select id="cuerpo"><option value="vata">Liviano, variable, se enfría</option><option value="pitta">Medio, intenso, caluroso</option><option value="kapha">Pesado, estable, constante</option></select></label>
+<label>Digestión / carácter<select id="diges"><option value="vata">Irregular + ansioso</option><option value="pitta">Fuerte + irritable</option><option value="kapha">Lenta + tranquilo</option></select></label>
+<label>Sueño / mente<select id="sueno"><option value="vata">Liviano + mente activa</option><option value="pitta">Corto + intensa</option><option value="kapha">Largo + calma</option></select></label>
+</div>
+<div class="card">
+<h2>4. Hoy buscas</h2>
+<label><select id="busco"><option value="calma">Calma</option><option value="claridad">Claridad</option><option value="energia">Energía</option><option value="vinculo">Vínculo</option></select></label>
+<button id="btn">Ver informe</button>
+</div>
+<div class="card"><h2>Informe</h2><div id="informe">Completá y tocá Ver informe.</div></div>
+<script>
+document.getElementById('btn').onclick=async()=>{
+ const p={nombre:val('nombre'),fecha:val('fecha'),lugar:val('lugar'),triada:val('triada'),modo:val('modo'),foco:val('foco'),sensorial:val('sensorial'),rutina:val('rutina'),social:val('social'),cuerpo:val('cuerpo'),diges:val('diges'),sueno:val('sueno'),busco:val('busco')};
+ function val(id){return document.getElementById(id).value}
+ const r=await fetch('/api/autoconocimiento',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
+ const j=await r.json();
+ document.getElementById('informe').textContent=j.informe||j.error;
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Personas públicas por categoría</title>
+<style>
+body{font-family:'Segoe UI',Tahoma,sans-serif;padding:15px 20px;background:#eef1f5;color:#333}
+h2{color:#1a237e;font-size:16px;margin-bottom:4px}
+.sub{font-size:12px;color:#616161;margin-bottom:12px}
+.fila{display:flex;gap:12px;align-items:flex-start;overflow-x:auto}
+.col{flex:1;min-width:230px;background:#fff;border-radius:8px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.col h3{font-size:13px;color:#1a237e;margin-bottom:6px}
+.col select{width:100%;padding:7px 9px;font-size:12.5px;border:1px solid #cfd8dc;border-radius:6px;margin-bottom:8px}
+.ficha{font-size:11.5px;line-height:1.5;min-height:120px}
+.ficha b{color:#1a237e}
+.svgbox{width:100%;overflow:hidden}
+.svgbox svg{width:100%;height:auto;display:block}
+</style>
+</head>
+<body>
+<h2>Personas públicas por categoría</h2>
+<div class="sub">Independiente de datos y vínculos. Elegí una persona por categoría: abajo ves su ficha y su gráfica.</div>
+<div class="fila" id="fila"></div>
+<div id="svg-tpl" style="display:none">{{ svg_content | safe }}</div>
+<script>
+const CATS = {{ categorias | tojson }};
+function pintarMini(scope, d){
+  const pin = new Set(d.puertas_incon||[]);
+  const pco = new Set(d.puertas_con||[]);
+  const todas = new Set([...pin, ...pco]);
+  for(let i=1;i<=64;i++){
+    const t = scope.querySelector('#tramo'+i);
+    if(!t) continue;
+    if(!todas.has(i)){ t.style.visibility='hidden'; continue; }
+    t.style.visibility='visible';
+    t.style.stroke = (pin.has(i)&&pco.has(i)) ? '#00AA00' : (pin.has(i) ? '#FF0000' : '#000000');
+    t.style.strokeWidth='3';
+  }
+  scope.querySelectorAll('[id^="c"]').forEach(c=>{
+    const m = c.id.match(/^c(\d+)-(\d+)$/);
+    if(!m) return;
+    const ok = todas.has(+m[1]) && todas.has(+m[2]);
+    c.style.opacity = ok ? '1' : '0.12';
+    if(ok){ c.style.stroke='#1a237e'; c.style.strokeWidth='3'; }
+  });
+}
+function fichaHtml(d){
+  return `<b>${d.nombre}</b> · ${d.copia||''} · ${d.hora_usada||''}<br>`+
+    `Tipo <b>${d.tipo||'-'}</b> · Perfil <b>${d.perfil||'-'}</b><br>`+
+    `Autoridad ${d.autoridad||'-'} · Def ${d.definicion||'-'}<br>`+
+    `${d.fecha||''} · ${d.lugar||''}<br>`+
+    `Canales: ${(d.canales||[]).join(', ')||'-'}<br>`+
+    `Centros: ${(d.centros||[]).join(', ')||'-'}`+
+    (d.warnings?`<br><span style="color:#e65100">${d.warnings}</span>`:'');
+}
+async function init(){
+  const fila = document.getElementById('fila');
+  const tpl = document.getElementById('svg-tpl').innerHTML;
+  for(const c of CATS){
+    const col = document.createElement('div');
+    col.className='col';
+    col.innerHTML = `<h3>${c.cat} (<span id="n-${c.cat}">…</span>)</h3>`+
+      `<select id="s-${c.cat}"><option value="">— Elegir —</option></select>`+
+      `<div class="ficha" id="f-${c.cat}">…</div><div class="svgbox" id="g-${c.cat}">${tpl}</div>`;
+    fila.appendChild(col);
+    const sel = col.querySelector('select');
+    try{
+      const r = await fetch('/api/publicas?categoria='+encodeURIComponent(c.cat));
+      const lista = await r.json();
+      document.getElementById('n-'+c.cat).textContent = lista.length;
+      lista.forEach(p=>{
+        const o = document.createElement('option');
+        o.value = p.nombre;
+        o.textContent = `${p.nombre} · ${p.perfil||''}`;
+        sel.appendChild(o);
+      });
+    }catch(e){ col.querySelector('.ficha').textContent='Error al cargar lista'; }
+    sel.addEventListener('change', async ()=>{
+      const box = document.getElementById('g-'+c.cat);
+      const fi = document.getElementById('f-'+c.cat);
+      if(!sel.value){ fi.textContent='…'; return; }
+      fi.textContent='Calculando…';
+      try{
+        const r = await fetch('/api/publica/'+encodeURIComponent(sel.value));
+        const d = await r.json();
+        if(d.error){ fi.textContent=d.error; return; }
+        fi.innerHTML = fichaHtml(d);
+        pintarMini(box, d);
+        try{ localStorage.setItem('dhPub_'+c.cat, sel.value); }catch(e){}
+      }catch(e){ fi.textContent='Error de red'; }
+    });
+    try{
+      const g = localStorage.getItem('dhPub_'+c.cat);
+      if(g){ sel.value=g; sel.dispatchEvent(new Event('change')); }
+    }catch(e){}
+  }
+}
+init();
+</script>
+</body>
+</html>

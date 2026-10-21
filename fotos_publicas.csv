@@ -1,0 +1,953 @@
+﻿nombre_base;foto;fuente;bytes
+Dalai Lama;Publicos/dalai_lama.jpg;wikipedia_es;23105
+Tom Cruise;Publicos/tom_cruise.jpg;wikipedia_es;19265
+Pound;Publicos/pound.jpg;wikipedia_es;24214
+Volta;Publicos/volta.jpg;wikipedia_es;17635
+Robert Redford;Publicos/robert_redford.jpg;wikipedia_es;25752
+Sebastian Sabini;Publicos/sebastian_sabini.jpg;wikipedia_es;12787
+Dirac;Publicos/dirac.jpg;wikipedia_es;19571
+Hailee Steinfeld;Publicos/hailee_steinfeld.jpg;wikipedia_es;32505
+Dumas;Publicos/dumas.jpg;wikipedia_en;15988
+Sergio Abreu;Publicos/sergio_abreu.jpg;wikipedia_es;18246
+Zamenhof;Publicos/zamenhof.jpg;wikipedia_en;18171
+Nansen;Publicos/nansen.jpg;wikipedia_en;23310
+Tom Holland;Publicos/tom_holland.jpg;wikipedia_es;18090
+Robert Duvall;Publicos/robert_duvall.jpg;wikipedia_es;22297
+Selena Gomez;Publicos/selena_gomez.jpg;wikidata;26351
+Eduardo Rubio;Publicos/eduardo_rubio.jpg;wikidata;24869
+James McAvoy;Publicos/james_mcavoy.jpg;wikipedia_es;21279
+Sergey Brin;Publicos/sergey_brin.jpg;wikipedia_es;19169
+Bruno Mars;Publicos/bruno_mars.jpg;wikipedia_es;28882
+Sartre;Publicos/sartre.jpg;wikipedia_es;29451
+Aaron Paul;Publicos/aaron_paul.jpg;wikipedia_es;20119
+Isabel I;Publicos/isabel_i.jpg;wikipedia_en;18804
+Jose Diaz;Publicos/jose_diaz.jpg;wikipedia_en;17918
+Charli DAmelio;Publicos/charli_damelio.jpg;wikipedia_es;21589
+Lisa Kudrow;Publicos/lisa_kudrow.jpg;wikipedia_es;19729
+Nasser;Publicos/nasser.jpg;wikipedia_en;20918
+Max Weber;Publicos/max_weber.jpg;wikipedia_es;25711
+Judy Garland;Publicos/judy_garland.jpg;wikipedia_es;21813
+Hugo Chavez;Publicos/hugo_chavez.jpg;wikipedia_es;25786
+Netanyahu;Publicos/netanyahu.jpg;wikipedia_es;22666
+Adam Smith;Publicos/adam_smith.jpg;wikipedia_es;17564
+Dostoievski;Publicos/dostoievski.jpg;wikipedia_es;15405
+Bukele;Publicos/bukele.jpg;wikipedia_es;24828
+Chris Hemsworth;Publicos/chris_hemsworth.jpg;wikipedia_es;23542
+Gabriel Oddone;Publicos/gabriel_oddone.jpg;wikipedia_es;15281
+Mark Ruffalo;Publicos/mark_ruffalo.jpg;wikipedia_es;25021
+Viola Davis;Publicos/viola_davis.jpg;wikipedia_es;26552
+Boric;Publicos/boric.jpg;wikipedia_es;17684
+Javier Milei;Publicos/javier_milei.jpg;wikipedia_es;20022
+Marie Curie;Publicos/marie_curie.jpg;wikipedia_es;13840
+Bergson;Publicos/bergson.jpg;wikipedia_es;14605
+Jinnah;Publicos/jinnah.jpg;wikipedia_es;23090
+Johann Sebastian Bach;Publicos/johann_sebastian_bach.jpg;wikipedia_es;20095
+Vesalio;Publicos/vesalio.jpg;wikipedia_es;51569
+Leonardo de Leon;;;0
+Ohtani;Publicos/ohtani.jpg;wikipedia_es;31242
+Maduro;Publicos/maduro.jpg;wikipedia_en;26347
+Robert Downey Jr.;Publicos/robert_downey_jr.jpg;wikipedia_en;27320
+Eddie Murphy;Publicos/eddie_murphy.jpg;wikipedia_es;21559
+Duki;Publicos/duki.jpg;wikipedia_es;13440
+Tu Youyou;Publicos/tu_youyou.jpg;wikipedia_es;19047
+Garcia Lorca;Publicos/garcia_lorca.jpg;wikipedia_es;16553
+Checo Perez;Publicos/checo_perez.jpg;wikipedia_en;23818
+Daniel Peña;Publicos/daniel_pena.jpg;wikidata;17908
+Theodore Roosevelt;Publicos/theodore_roosevelt.jpg;wikipedia_es;14655
+Silvana Perez;;;0
+Viggo Mortensen;Publicos/viggo_mortensen.jpg;wikipedia_es;24014
+Harrison Ford;Publicos/harrison_ford.jpg;wikipedia_es;16159
+Jorge Larrañaga;Publicos/jorge_larranaga.jpg;wikipedia_es;27881
+Barack Obama;Publicos/barack_obama.jpg;wikipedia_es;25205
+Sundar Pichai;Publicos/sundar_pichai.jpg;wikipedia_es;24169
+Oscar Isaac;Publicos/oscar_isaac.jpg;wikipedia_es;22801
+Thoreau;Publicos/thoreau.jpg;wikipedia_es;18075
+Tomas de Aquino;Publicos/tomas_de_aquino.jpg;wikipedia_es;40535
+Jessica Lange;Publicos/jessica_lange.jpg;wikipedia_es;21651
+Dua Lipa;Publicos/dua_lipa.jpg;wikipedia_es;16947
+Habermas;Publicos/habermas.jpg;wikipedia_es;21209
+Cesar Vega;Publicos/cesar_vega.jpg;wikipedia_es;27855
+Susan Sarandon;Publicos/susan_sarandon.jpg;wikipedia_es;19917
+Sophie Turner;Publicos/sophie_turner.jpg;wikipedia_es;22293
+Yogananda;Publicos/yogananda.jpg;wikipedia_es;8425
+Luis Mosca;Publicos/luis_mosca.jpg;wikipedia_en;11515
+Aung San Suu Kyi;Publicos/aung_san_suu_kyi.jpg;wikipedia_es;19732
+Graham Norton;Publicos/graham_norton.jpg;wikipedia_es;20211
+Pedro Pascal;Publicos/pedro_pascal.jpg;wikipedia_es;24071
+Jean-Jacques Rousseau;Publicos/jean_jacques_rousseau.jpg;wikipedia_es;29203
+Maxwell;Publicos/maxwell.jpg;wikipedia_es;16490
+Wiesenthal;Publicos/wiesenthal.jpg;wikipedia_es;15927
+Jane Austen;Publicos/jane_austen.jpg;wikipedia_es;19925
+Liszt;Publicos/liszt.jpg;wikipedia_es;16806
+Fernando Muslera;Publicos/fernando_muslera.jpg;wikipedia_es;27051
+LeBron James;Publicos/lebron_james.jpg;wikipedia_en;29621
+Lavoisier;Publicos/lavoisier.jpg;wikipedia_es;16050
+Jennifer Aniston;Publicos/jennifer_aniston.jpg;wikipedia_es;22873
+Canelo Alvarez;Publicos/canelo_alvarez.jpg;wikipedia_es;21668
+Vivekananda;Publicos/vivekananda.jpg;wikipedia_es;26360
+Donald Trump;Publicos/donald_trump.jpg;wikipedia_es;15141
+Carolina Cosse;Publicos/carolina_cosse.jpg;wikipedia_es;20392
+Stephen Curry;Publicos/stephen_curry.jpg;wikipedia_es;22601
+Schumann;Publicos/schumann.jpg;wikipedia_en;15305
+Danilo Astori;Publicos/danilo_astori.jpg;wikipedia_es;17311
+Ramon y Cajal;Publicos/ramon_y_cajal.jpg;wikipedia_es;24120
+Muhammad Ali;Publicos/muhammad_ali.jpg;wikipedia_es;15958
+Frida Kahlo;Publicos/frida_kahlo.jpg;wikipedia_es;29224
+Kepler;Publicos/kepler.jpg;wikipedia_es;23677
+Djokovic;Publicos/djokovic.jpg;wikipedia_es;20145
+Harvey;Publicos/harvey.jpg;wikipedia_es;38917
+Juan Andres Ramirez;Publicos/juan_andres_ramirez.jpg;wikipedia_es;23972
+Daisy Ridley;Publicos/daisy_ridley.jpg;wikipedia_es;19822
+Mike Tyson;Publicos/mike_tyson.jpg;wikipedia_es;18164
+Gauss;Publicos/gauss.jpg;wikipedia_es;18771
+Luis Suarez;Publicos/luis_suarez.jpg;wikipedia_es;22945
+Hitchcock;Publicos/hitchcock.jpg;wikipedia_es;11945
+Friedan;Publicos/friedan.jpg;wikipedia_es;15581
+Marcos Galperin;Publicos/marcos_galperin.jpg;wikipedia_es;14908
+Amancio Ortega;Publicos/amancio_ortega.jpg;wikipedia_en;33511
+Mary Wollstonecraft;Publicos/mary_wollstonecraft.jpg;wikipedia_es;14663
+Jake Paul;Publicos/jake_paul.jpg;wikipedia_es;26753
+Ayn Rand;Publicos/ayn_rand.jpg;wikipedia_es;13436
+Rosa Parks;Publicos/rosa_parks.jpg;wikipedia_es;16659
+Shakira;Publicos/shakira.jpg;wikipedia_es;28758
+Daniel Martinez;Publicos/daniel_martinez.jpg;wikipedia_es;18705
+Krishnamurti;Publicos/krishnamurti.jpg;wikipedia_es;25007
+Nehru;Publicos/nehru.jpg;wikidata;13468
+Rembrandt;Publicos/rembrandt.jpg;wikipedia_es;12071
+Marilyn Monroe;Publicos/marilyn_monroe.jpg;wikipedia_es;18306
+Maisie Williams;Publicos/maisie_williams.jpg;wikipedia_es;19444
+Bruce Willis;Publicos/bruce_willis.jpg;wikipedia_es;23538
+Emilia Mernes;Publicos/emilia_mernes.jpg;wikipedia_es;21735
+George Clooney;Publicos/george_clooney.jpg;wikipedia_es;20259
+Enrique Iglesias;Publicos/enrique_iglesias.jpg;wikipedia_es;17382
+Jeremy Renner;Publicos/jeremy_renner.jpg;wikipedia_es;18296
+Papa Leon XIV;Publicos/papa_leon_xiv.jpg;wikipedia_es;20904
+Borlaug;Publicos/borlaug.jpg;wikipedia_es;16934
+Octavia Spencer;Publicos/octavia_spencer.jpg;wikipedia_es;17635
+Luis Hierro Lopez;Publicos/luis_hierro_lopez.jpg;wikipedia_es;21035
+Ryan Gosling;Publicos/ryan_gosling.jpg;wikipedia_es;20245
+Septima Clark;Publicos/septima_clark.jpg;wikipedia_es;28117
+Teresa de Calcuta;Publicos/teresa_de_calcuta.jpg;wikipedia_es;23049
+Kaley Cuoco;Publicos/kaley_cuoco.jpg;wikipedia_es;30484
+Antonio Marchesano;Publicos/antonio_marchesano.jpg;wikipedia_es;10286
+Will Ferrell;Publicos/will_ferrell.jpg;wikipedia_es;21241
+Daddy Yankee;Publicos/daddy_yankee.jpg;wikipedia_es;29347
+Satya Nadella;Publicos/satya_nadella.jpg;wikipedia_es;19995
+Keira Knightley;Publicos/keira_knightley.jpg;wikipedia_es;26379
+Dorothy Hodgkin;Publicos/dorothy_hodgkin.jpg;wikipedia_es;31297
+Lucia Topolansky;Publicos/lucia_topolansky.jpg;wikipedia_es;36440
+Richard Branson;Publicos/richard_branson.jpg;wikipedia_es;19706
+McIlroy;Publicos/mcilroy.jpg;wikipedia_es;20335
+Cristina Lustemberg;Publicos/cristina_lustemberg.jpg;wikipedia_en;13202
+Eduardo Elinger;;;0
+Doncic;Publicos/doncic.jpg;wikipedia_es;26298
+Steve Carell;Publicos/steve_carell.jpg;wikipedia_es;18598
+Brecht;Publicos/brecht.jpg;wikipedia_en;32185
+Baroja;Publicos/baroja.jpg;wikipedia_es;20406
+Beauvoir;Publicos/beauvoir.jpg;wikipedia_es;22498
+William Shakespeare;Publicos/william_shakespeare.jpg;wikidata;18586
+Indira Gandhi;Publicos/indira_gandhi.jpg;wikipedia_es;23528
+Sam Altman;Publicos/sam_altman.jpg;wikipedia_es;17376
+Chaikovski;Publicos/chaikovski.jpg;wikipedia_es;18332
+Finn Wolfhard;Publicos/finn_wolfhard.jpg;wikipedia_es;14024
+Diego Godin;Publicos/diego_godin.jpg;wikipedia_es;17700
+Leonardo DiCaprio;Publicos/leonardo_dicaprio.jpg;wikipedia_es;23739
+Jonas Salk;Publicos/jonas_salk.jpg;wikipedia_es;16097
+Rosalind Franklin;Publicos/rosalind_franklin.jpg;wikipedia_es;20205
+Vandana Shiva;Publicos/vandana_shiva.jpg;wikipedia_es;23752
+Nikola Tesla;Publicos/nikola_tesla.jpg;wikipedia_es;22819
+Daniel Radcliffe;Publicos/daniel_radcliffe.jpg;wikipedia_es;25026
+Thich Nhat Hanh;Publicos/thich_nhat_hanh.jpg;wikipedia_es;19766
+Marina Arismendi;Publicos/marina_arismendi.jpg;wikipedia_es;16749
+Ignacio de Posadas;Publicos/ignacio_de_posadas.jpg;wikipedia_es;11806
+Alejandro Atchugarry;Publicos/alejandro_atchugarry.jpg;wikipedia_es;14101
+Christian Bale;Publicos/christian_bale.jpg;wikipedia_es;16564
+Christian Morel;Publicos/christian_morel.jpg;wikipedia_es;20456
+Verstappen;Publicos/verstappen.jpg;wikipedia_en;32439
+Bizarrap;Publicos/bizarrap.jpg;wikipedia_es;19362
+Mahomes;Publicos/mahomes.jpg;wikipedia_es;25096
+John Locke;Publicos/john_locke.jpg;wikipedia_es;20622
+Sankara;Publicos/sankara.jpg;wikipedia_es;22942
+Benjamin Franklin;Publicos/benjamin_franklin.jpg;wikipedia_es;13847
+Berlioz;Publicos/berlioz.jpg;wikipedia_es;21374
+Julia Roberts;Publicos/julia_roberts.jpg;wikipedia_es;21439
+Robert Pattinson;Publicos/robert_pattinson.jpg;wikipedia_es;16693
+Courteney Cox;Publicos/courteney_cox.jpg;wikipedia_es;28021
+Bill Gates;Publicos/bill_gates.jpg;wikipedia_es;23465
+Rodrigo Goñi;Publicos/rodrigo_goni.jpg;wikipedia_en;25945
+Taylor Swift;Publicos/taylor_swift.jpg;wikipedia_es;23645
+Steinem;Publicos/steinem.jpg;wikipedia_es;23334
+Jose Bayardi;Publicos/jose_bayardi.jpg;wikipedia_es;5077
+Sheinbaum;Publicos/sheinbaum.jpg;wikipedia_es;23999
+Thomas Jefferson;Publicos/thomas_jefferson.jpg;wikipedia_es;14925
+Salvador Allende;Publicos/salvador_allende.jpg;wikipedia_en;22161
+Rosalia;Publicos/rosalia.jpg;wikipedia_en;18100
+Jason Momoa;Publicos/jason_momoa.jpg;wikipedia_es;24485
+Cocteau;Publicos/cocteau.jpg;wikipedia_es;23837
+James Franco;Publicos/james_franco.jpg;wikipedia_es;21911
+Rupert Grint;Publicos/rupert_grint.jpg;wikipedia_es;19033
+Tini Stoessel;Publicos/tini_stoessel.jpg;wikipedia_es;17165
+Martin Caceres;Publicos/martin_caceres.jpg;wikipedia_es;29017
+Warren Buffett;Publicos/warren_buffett.jpg;wikipedia_es;17196
+John Travolta;Publicos/john_travolta.jpg;wikipedia_es;18564
+Mandela;Publicos/mandela.jpg;wikipedia_es;21124
+Isaac Newton;Publicos/isaac_newton.jpg;wikipedia_es;16154
+Simu Liu;Publicos/simu_liu.jpg;wikipedia_es;25321
+Jane Fonda;Publicos/jane_fonda.jpg;wikipedia_es;28956
+Matt Damon;Publicos/matt_damon.jpg;wikipedia_es;22616
+Kai Cenat;Publicos/kai_cenat.jpg;wikipedia_es;14925
+Jordi Evole;Publicos/jordi_evole.jpg;wikipedia_es;11459
+Nietzsche;Publicos/nietzsche.jpg;wikipedia_es;24079
+Calvin Harris;Publicos/calvin_harris.jpg;wikipedia_es;33272
+Jack Black;Publicos/jack_black.jpg;wikipedia_es;19598
+Topuria;Publicos/topuria.jpg;wikipedia_es;25421
+Keanu Reeves;Publicos/keanu_reeves.jpg;wikipedia_es;20342
+Saint-Saens;Publicos/saint_saens.jpg;wikipedia_es;25451
+Sarah Jessica Parker;Publicos/sarah_jessica_parker.jpg;wikipedia_es;30474
+Jodie Foster;Publicos/jodie_foster.jpg;wikipedia_es;18145
+Patrick Stewart;Publicos/patrick_stewart.jpg;wikidata;20498
+Lupita Nyongo;Publicos/lupita_nyongo.jpg;wikipedia_es;23665
+Patricia Ayala;Publicos/patricia_ayala.jpg;wikipedia_es;17014
+Thomas Mann;Publicos/thomas_mann.jpg;wikipedia_es;16882
+Goethe;Publicos/goethe.jpg;wikipedia_es;16770
+Rodolfo Nin Novoa;Publicos/rodolfo_nin_novoa.jpg;wikipedia_es;37428
+Greta Thunberg;Publicos/greta_thunberg.jpg;wikipedia_es;21863
+Luis Almagro;Publicos/luis_almagro.jpg;wikipedia_es;24521
+Chomsky;Publicos/chomsky.jpg;wikipedia_es;16427
+Vitalik Buterin;Publicos/vitalik_buterin.jpg;wikipedia_es;16797
+Sylvester Stallone;Publicos/sylvester_stallone.jpg;wikipedia_es;23645
+Gal Gadot;Publicos/gal_gadot.jpg;wikipedia_es;21117
+Adam Sandler;Publicos/adam_sandler.jpg;wikipedia_es;27627
+Lionel Messi;Publicos/lionel_messi.jpg;wikipedia_es;27066
+Bahá'u'lláh;Publicos/baha_u_llah.jpg;wikipedia_es;29079
+Tocqueville;Publicos/tocqueville.jpg;wikipedia_en;20850
+Larry Ellison;Publicos/larry_ellison.jpg;wikipedia_es;14831
+Bono;Publicos/bono.jpg;wikipedia_en;20328
+Pablo Constenla;Publicos/pablo_constenla.jpg;wikipedia_es;24896
+Will Smith;Publicos/will_smith.jpg;wikipedia_es;27289
+Galileo Galilei;Publicos/galileo_galilei.jpg;wikipedia_es;20594
+Immanuel Kant;Publicos/immanuel_kant.jpg;wikipedia_es;20788
+Didier Opertti;Publicos/didier_opertti.jpg;wikipedia_es;6281
+Vaclav Havel;Publicos/vaclav_havel.jpg;wikipedia_es;21970
+Juarez;Publicos/juarez.jpg;wikipedia_es;11260
+Florence Pugh;Publicos/florence_pugh.jpg;wikipedia_es;21376
+Jomeini;Publicos/jomeini.jpg;wikipedia_es;23965
+Andrew Garfield;Publicos/andrew_garfield.jpg;wikipedia_es;20396
+Macron;Publicos/macron.jpg;wikidata;9225
+Voltaire;Publicos/voltaire.jpg;wikipedia_es;20957
+Humphrey Bogart;Publicos/humphrey_bogart.jpg;wikipedia_es;19179
+Bradley Cooper;Publicos/bradley_cooper.jpg;wikipedia_es;18205
+Mila Kunis;Publicos/mila_kunis.jpg;wikidata;17242
+Chadwick Boseman;Publicos/chadwick_boseman.jpg;wikipedia_es;27178
+Rodin;Publicos/rodin.jpg;wikipedia_es;15571
+Glenn Close;Publicos/glenn_close.jpg;wikipedia_es;18783
+Wangari Maathai;Publicos/wangari_maathai.jpg;wikipedia_es;24212
+Emma Stone;Publicos/emma_stone.jpg;wikipedia_es;19141
+Ohm;Publicos/ohm.jpg;wikipedia_es;19764
+Mahler;Publicos/mahler.jpg;wikipedia_es;14189
+Oprah Winfrey;Publicos/oprah_winfrey.jpg;wikidata;21511
+Martin Lutero;Publicos/martin_lutero.jpg;wikipedia_es;14022
+Stuart Mill;Publicos/stuart_mill.jpg;wikipedia_es;22935
+Andreu Buenafuente;Publicos/andreu_buenafuente.jpg;wikipedia_es;16014
+Diane Keaton;Publicos/diane_keaton.jpg;wikipedia_es;24964
+Larry Page;Publicos/larry_page.jpg;wikipedia_es;24400
+Enrique VIII;Publicos/enrique_viii.jpg;wikipedia_es;41644
+Kim Kardashian;Publicos/kim_kardashian.jpg;wikipedia_es;27555
+Jose Marti;Publicos/jose_marti.jpg;wikipedia_es;30206
+Charlie Chaplin;Publicos/charlie_chaplin.jpg;wikipedia_es;18949
+John Wesley;Publicos/john_wesley.jpg;wikipedia_es;11638
+Cristiano Ronaldo;Publicos/cristiano_ronaldo.jpg;wikipedia_es;31663
+Saoirse Ronan;Publicos/saoirse_ronan.jpg;wikidata;20229
+Modi;Publicos/modi.jpg;wikipedia_en;14339
+Adela Reta;Publicos/adela_reta.jpg;wikipedia_es;18785
+Rosa Luxemburg;Publicos/rosa_luxemburg.jpg;wikipedia_es;16987
+Aung San;Publicos/aung_san.jpg;wikipedia_es;34051
+Mark Zuckerberg;Publicos/mark_zuckerberg.jpg;wikipedia_es;19737
+Schweitzer;Publicos/schweitzer.jpg;wikipedia_es;21702
+Bill Murray;Publicos/bill_murray.jpg;wikipedia_es;24804
+Meryl Streep;Publicos/meryl_streep.jpg;wikipedia_en;19281
+Gauguin;Publicos/gauguin.jpg;wikipedia_es;31063
+Robin Williams;Publicos/robin_williams.jpg;wikipedia_es;19735
+Cesar Chavez;Publicos/cesar_chavez.jpg;wikipedia_es;22394
+Hedy Lamarr;Publicos/hedy_lamarr.jpg;wikidata;22849
+Anya Taylor-Joy;Publicos/anya_taylor_joy.jpg;wikipedia_es;20555
+Kylie Jenner;Publicos/kylie_jenner.jpg;wikipedia_es;12111
+Ryan Reynolds;Publicos/ryan_reynolds.jpg;wikipedia_es;22729
+Dorothy Day;Publicos/dorothy_day.jpg;wikipedia_es;19480
+Brunel;Publicos/brunel.jpg;wikipedia_es;25805
+Madonna;Publicos/madonna.jpg;wikipedia_es;24077
+Ben Affleck;Publicos/ben_affleck.jpg;wikipedia_es;28320
+Anthony Hopkins;Publicos/anthony_hopkins.jpg;wikidata;15912
+Elle Fanning;Publicos/elle_fanning.jpg;wikipedia_es;22010
+Anne Hathaway;Publicos/anne_hathaway.jpg;wikipedia_es;28995
+Dakota Fanning;Publicos/dakota_fanning.jpg;wikipedia_es;24927
+Eber da Rosa;Publicos/eber_da_rosa.jpg;wikipedia_es;18851
+Malala;Publicos/malala.jpg;wikipedia_en;26099
+Mao Zedong;Publicos/mao_zedong.jpg;wikipedia_es;28053
+Usain Bolt;Publicos/usain_bolt.jpg;wikipedia_es;22012
+Kim Jong-un;Publicos/kim_jong_un.jpg;wikipedia_es;19610
+Joan Laporta;Publicos/joan_laporta.jpg;wikidata;16010
+Arnold Schwarzenegger;Publicos/arnold_schwarzenegger.jpg;wikipedia_es;22138
+Rilke;Publicos/rilke.jpg;wikipedia_es;18263
+Samuel L. Jackson;Publicos/samuel_l_jackson.jpg;wikipedia_es;26537
+Zoe Saldana;Publicos/zoe_saldana.jpg;wikipedia_es;28449
+Lele Pons;Publicos/lele_pons.jpg;wikidata;25964
+Schrodinger;Publicos/schrodinger.jpg;wikipedia_en;25738
+Millie Bobby Brown;Publicos/millie_bobby_brown.jpg;wikipedia_es;22591
+Simone Veil;Publicos/simone_veil.jpg;wikipedia_es;31847
+Duke Ellington;Publicos/duke_ellington.jpg;wikipedia_es;15645
+Jensen Huang;Publicos/jensen_huang.jpg;wikipedia_es;16645
+Jennifer Lopez;Publicos/jennifer_lopez.jpg;wikipedia_es;32124
+Logan Paul;Publicos/logan_paul.jpg;wikipedia_es;33211
+Van Gogh;Publicos/van_gogh.jpg;wikipedia_es;37359
+Jonah Hill;Publicos/jonah_hill.jpg;wikipedia_es;29796
+Freud;Publicos/freud.jpg;wikipedia_es;18465
+Lumumba;Publicos/lumumba.jpg;wikidata;28432
+Joaquin Phoenix;Publicos/joaquin_phoenix.jpg;wikipedia_es;23418
+Hugh Jackman;Publicos/hugh_jackman.jpg;wikipedia_es;20207
+Lech Walesa;Publicos/lech_walesa.jpg;wikipedia_es;25295
+Billie Eilish;Publicos/billie_eilish.jpg;wikipedia_es;25774
+Lali Esposito;Publicos/lali_esposito.jpg;wikipedia_es;15655
+Lula da Silva;Publicos/lula_da_silva.jpg;wikipedia_es;20487
+Arafat;Publicos/arafat.jpg;wikipedia_en;32710
+Fannie Lou Hamer;Publicos/fannie_lou_hamer.jpg;wikidata;31611
+Mozart;Publicos/mozart.jpg;wikipedia_es;25320
+Rutherford;Publicos/rutherford.jpg;wikipedia_es;23946
+Richard Gere;Publicos/richard_gere.jpg;wikipedia_es;16347
+Gene Hackman;Publicos/gene_hackman.jpg;wikipedia_es;23856
+Zhou Enlai;Publicos/zhou_enlai.jpg;wikipedia_es;19142
+Ambedkar;Publicos/ambedkar.jpg;wikipedia_es;16110
+Adam Driver;Publicos/adam_driver.jpg;wikipedia_es;13718
+Peter Dinklage;Publicos/peter_dinklage.jpg;wikipedia_es;26672
+Xi Jinping;Publicos/xi_jinping.jpg;wikipedia_es;26296
+Morgan Freeman;Publicos/morgan_freeman.jpg;wikipedia_es;24377
+Hegel;Publicos/hegel.jpg;wikipedia_es;21199
+Gwyneth Paltrow;Publicos/gwyneth_paltrow.jpg;wikipedia_es;20919
+Mario Bergara;Publicos/mario_bergara.jpg;wikipedia_es;16482
+Maria Julia Muñoz;Publicos/maria_julia_munoz.jpg;wikipedia_es;24781
+Seth Rogen;Publicos/seth_rogen.jpg;wikipedia_es;20057
+Bayard Rustin;Publicos/bayard_rustin.jpg;wikipedia_es;23709
+Lazaro Cardenas;Publicos/lazaro_cardenas.jpg;wikipedia_es;12807
+Leonardo da Vinci;Publicos/leonardo_da_vinci.jpg;wikipedia_es;36213
+Beethoven;Publicos/beethoven.jpg;wikipedia_es;24912
+Emily Blunt;Publicos/emily_blunt.jpg;wikipedia_en;16941
+Stravinski;Publicos/stravinski.jpg;wikipedia_es;16092
+Meloni;Publicos/meloni.jpg;wikipedia_es;20610
+George Washington;Publicos/george_washington.jpg;wikipedia_es;10633
+Jack Ma;Publicos/jack_ma.jpg;wikipedia_es;10088
+Ivonne Passada;Publicos/ivonne_passada.jpg;wikidata;11877
+Jorge Amado;Publicos/jorge_amado.jpg;wikipedia_es;18055
+Marc Anthony;Publicos/marc_anthony.jpg;wikipedia_es;15999
+Scarlett Johansson;Publicos/scarlett_johansson.jpg;wikipedia_es;27368
+Debussy;Publicos/debussy.jpg;wikipedia_en;21917
+Dorothy Height;Publicos/dorothy_height.jpg;wikipedia_es;25228
+Rafael Michelini;Publicos/rafael_michelini.jpg;wikipedia_es;21382
+Desmond Tutu;Publicos/desmond_tutu.jpg;wikipedia_es;24056
+Fernando Echeverria;Publicos/fernando_echeverria.jpg;wikipedia_es;17256
+Louis Armstrong;Publicos/louis_armstrong.jpg;wikipedia_es;15726
+Daniel Kaluuya;Publicos/daniel_kaluuya.jpg;wikipedia_es;19493
+Ella Baker;Publicos/ella_baker.jpg;wikipedia_es;15311
+Graham Bell;Publicos/graham_bell.jpg;wikipedia_es;18893
+Sigourney Weaver;Publicos/sigourney_weaver.jpg;wikipedia_es;27166
+Jim Carrey;Publicos/jim_carrey.jpg;wikipedia_es;22506
+Jose Yurramendi;Publicos/jose_yurramendi.jpg;wikipedia_en;14705
+Wagner;Publicos/wagner.jpg;wikipedia_es;26994
+John Boyega;Publicos/john_boyega.jpg;wikipedia_es;21755
+Verdi;Publicos/verdi.jpg;wikipedia_es;16696
+Deng Xiaoping;Publicos/deng_xiaoping.jpg;wikipedia_es;22275
+Verne;Publicos/verne.jpg;wikipedia_en;13993
+Edinson Cavani;Publicos/edinson_cavani.jpg;wikipedia_es;29334
+Awkwafina;Publicos/awkwafina.jpg;wikipedia_es;20840
+Walt Disney;Publicos/walt_disney.jpg;wikipedia_es;31959
+Farmer;Publicos/farmer.jpg;wikipedia_en;30510
+Raul Sendic;Publicos/raul_sendic.jpg;wikipedia_en;22618
+Carlos Albisu;Publicos/carlos_albisu.jpg;wikipedia_en;34581
+Mohandas Gandhi;Publicos/mohandas_gandhi.jpg;wikipedia_es;19484
+Pablo Ferreri;;;0
+Pedro Sanchez;Publicos/pedro_sanchez.jpg;wikipedia_es;19016
+Fito Paez;Publicos/fito_paez.jpg;wikipedia_es;20767
+Beatriz Argimon;Publicos/beatriz_argimon.jpg;wikipedia_es;16037
+Adrian Peña;Publicos/adrian_pena.jpg;wikipedia_es;15387
+Jesus Bentancur;;;0
+Jose Korzeniak;Publicos/jose_korzeniak.jpg;wikipedia_es;16410
+Ian Fleming;Publicos/ian_fleming.jpg;wikipedia_es;19792
+Jeff Bezos;Publicos/jeff_bezos.jpg;wikipedia_es;22616
+Jennifer Lawrence;Publicos/jennifer_lawrence.jpg;wikipedia_es;20133
+Mondrian;Publicos/mondrian.jpg;wikipedia_es;16490
+Nicole Kidman;Publicos/nicole_kidman.jpg;wikipedia_es;27170
+Fermi;Publicos/fermi.jpg;wikipedia_en;26489
+Cate Blanchett;Publicos/cate_blanchett.jpg;wikipedia_es;20384
+Alvaro Perrone;Publicos/alvaro_perrone.jpg;wikipedia_es;4433
+Paulo Freire;Publicos/paulo_freire.jpg;wikipedia_es;22370
+IShowSpeed;Publicos/ishowspeed.jpg;wikipedia_es;25273
+Jessica Chastain;Publicos/jessica_chastain.jpg;wikipedia_es;20317
+Rene Descartes;Publicos/rene_descartes.jpg;wikipedia_es;18194
+Joan Crawford;Publicos/joan_crawford.jpg;wikipedia_es;21338
+Grace Kelly;Publicos/grace_kelly.jpg;wikipedia_es;19436
+Johnny Depp;Publicos/johnny_depp.jpg;wikipedia_es;28608
+Unamuno;Publicos/unamuno.jpg;wikipedia_es;21405
+Emilia Clarke;Publicos/emilia_clarke.jpg;wikipedia_es;23161
+Kit Harington;Publicos/kit_harington.jpg;wikipedia_es;18999
+Cillian Murphy;Publicos/cillian_murphy.jpg;wikipedia_es;26421
+Tom Hardy;Publicos/tom_hardy.jpg;wikipedia_es;18294
+Miguel de Cervantes;Publicos/miguel_de_cervantes.jpg;wikipedia_es;16324
+Jose de San Martin;Publicos/jose_de_san_martin.jpg;wikipedia_es;25618
+Gregor Mendel;Publicos/gregor_mendel.jpg;wikipedia_es;25519
+Monet;Publicos/monet.jpg;wikipedia_es;20418
+Max Planck;Publicos/max_planck.jpg;wikipedia_es;18515
+Munch;Publicos/munch.jpg;wikipedia_es;12903
+Stalin;Publicos/stalin.jpg;wikipedia_es;24274
+Ataturk;Publicos/ataturk.jpg;wikipedia_en;18806
+Karl Popper;Publicos/karl_popper.jpg;wikipedia_es;26610
+Ampere;Publicos/ampere.jpg;wikipedia_es;21498
+Avogadro;Publicos/avogadro.jpg;wikipedia_es;27803
+Oersted;Publicos/oersted.jpg;wikipedia_es;20695
+Kierkegaard;Publicos/kierkegaard.jpg;wikipedia_es;20832
+Grieg;Publicos/grieg.jpg;wikipedia_es;19116
+Stevenson;Publicos/stevenson.jpg;wikipedia_es;13255
+Julio Maria Sanguinetti;Publicos/julio_maria_sanguinetti.jpg;wikipedia_es;20010
+Jorge Batlle;Publicos/jorge_batlle.jpg;wikipedia_es;29653
+Tabare Vazquez;Publicos/tabare_vazquez.jpg;wikipedia_es;14381
+Luis Lacalle Pou;Publicos/luis_lacalle_pou.jpg;wikipedia_es;22080
+Yamandu Orsi;Publicos/yamandu_orsi.jpg;wikipedia_es;23184
+Gonzalo Aguirre;Publicos/gonzalo_aguirre.jpg;wikipedia_es;18674
+Hugo Batalla;Publicos/hugo_batalla.jpg;wikipedia_es;2956
+Hugo Fernandez Faingold;Publicos/hugo_fernandez_faingold.jpg;wikipedia_es;21035
+Ernesto Talvi;Publicos/ernesto_talvi.jpg;wikipedia_es;31747
+Guido Manini Rios;Publicos/guido_manini_rios.jpg;wikipedia_es;16720
+Pedro Bordaberry;Publicos/pedro_bordaberry.jpg;wikipedia_es;15864
+Jorge Gandini;Publicos/jorge_gandini.jpg;wikipedia_es;13069
+Alvaro Delgado;Publicos/alvaro_delgado.jpg;wikidata;17296
+Javier Garcia;Publicos/javier_garcia.jpg;wikipedia_en;29177
+Azucena Arbeleche;Publicos/azucena_arbeleche.jpg;wikipedia_es;28497
+Pablo Mieres;Publicos/pablo_mieres.jpg;wikipedia_es;23331
+Eduardo Bonomi;Publicos/eduardo_bonomi.jpg;wikipedia_es;23683
+Eleuterio Fernandez Huidobro;Publicos/eleuterio_fernandez_huidobro.jpg;wikipedia_es;11392
+Ricardo Ehrlich;Publicos/ricardo_ehrlich.jpg;wikipedia_es;12313
+Constanza Moreira;Publicos/constanza_moreira.jpg;wikipedia_es;18929
+Monica Xavier;Publicos/monica_xavier.jpg;wikipedia_es;9351
+Liliam Kechichian;Publicos/liliam_kechichian.jpg;wikipedia_es;18130
+Fernando Amado;Publicos/fernando_amado.jpg;wikipedia_es;13072
+Ope Pasquet;Publicos/ope_pasquet.jpg;wikipedia_es;13479
+Blanca Rodriguez;Publicos/blanca_rodriguez.jpg;wikipedia_es;14846
+Alejandro Sanchez;Publicos/alejandro_sanchez.jpg;wikipedia_en;23949
+Martin Lema;Publicos/martin_lema.jpg;wikidata;10395
+Laura Raffo;Publicos/laura_raffo.jpg;wikipedia_es;19968
+Marcos Carambula;Publicos/marcos_carambula.jpg;wikipedia_es;20183
+Jose Luis Falero;Publicos/jose_luis_falero.jpg;wikipedia_es;28996
+Carmelo Vidalin;Publicos/carmelo_vidalin.jpg;wikipedia_es;20655
+Sergio Botana;Publicos/sergio_botana.jpg;wikipedia_es;15903
+Andres Ojeda;Publicos/andres_ojeda.jpg;wikipedia_es;13042
+Robert Silva;Publicos/robert_silva.jpg;wikipedia_es;14108
+Gustavo Zubia;Publicos/gustavo_zubia.jpg;wikipedia_es;19329
+Tabare Viera;Publicos/tabare_viera.jpg;wikipedia_es;19113
+Nicolas Olivera;;;0
+Ivan Posada;Publicos/ivan_posada.jpg;wikipedia_es;15293
+Daniel Radio;;;0
+Daniel Olesker;Publicos/daniel_olesker.jpg;wikipedia_es;25170
+Daisy Tourne;Publicos/daisy_tourne.jpg;wikidata;11501
+Andres Lima;Publicos/andres_lima.jpg;wikipedia_es;18399
+German Coutinho;Publicos/german_coutinho.jpg;wikipedia_es;22008
+Veronica Alonso;Publicos/veronica_alonso.jpg;wikipedia_es;19470
+Daniel Caggiani;Publicos/daniel_caggiani.jpg;wikipedia_es;24510
+Gustavo Penades;Publicos/gustavo_penades.jpg;wikipedia_es;13936
+Oscar Andrade;Publicos/oscar_andrade.jpg;wikipedia_es;20046
+Gonzalo Civila;Publicos/gonzalo_civila.jpg;wikipedia_es;20831
+Gustavo Leal;;;0
+Alfredo Fratti;Publicos/alfredo_fratti.jpg;wikipedia_es;27812
+Edgardo Ortuño;Publicos/edgardo_ortuno.jpg;wikidata;16920
+Felipe Carballo;Publicos/felipe_carballo.jpg;wikipedia_es;15037
+Bettiana Diaz;Publicos/bettiana_diaz.jpg;wikipedia_es;17565
+Graciela Bianchi;Publicos/graciela_bianchi.jpg;wikipedia_es;11067
+Enrique Tarigo;Publicos/enrique_tarigo.jpg;wikipedia_es;20087
+Alvaro Ramos;Publicos/alvaro_ramos.jpg;wikipedia_es;13318
+Francisco Gallinal;;;0
+Gabriel Gurendez;;;0
+Felipe Michelini;Publicos/felipe_michelini.jpg;wikipedia_es;11084
+Pablo Iturralde;Publicos/pablo_iturralde.jpg;wikipedia_es;7389
+Javier de Haedo;Publicos/javier_de_haedo.jpg;wikipedia_en;25958
+Alfredo Solari;Publicos/alfredo_solari.jpg;wikipedia_en;23874
+Martha Montaner;;;0
+Daniela Paisse;Publicos/daniela_paisse.jpg;wikipedia_es;23090
+Walter Zimmer;Publicos/walter_zimmer.jpg;wikipedia_es;20966
+Margarita Percovich;Publicos/margarita_percovich.jpg;wikipedia_es;20548
+Ana Olivera;Publicos/ana_olivera.jpg;wikipedia_es;19874
+Alvaro Garcia;Publicos/alvaro_garcia.jpg;wikipedia_es;23049
+Fernando Lorenzo;Publicos/fernando_lorenzo.jpg;wikipedia_es;23049
+Pablo Bartol;Publicos/pablo_bartol.jpg;wikipedia_es;15279
+Victor Rossi;Publicos/victor_rossi.jpg;wikipedia_es;17673
+Reinaldo Gargano;Publicos/reinaldo_gargano.jpg;wikipedia_es;23554
+Mariano Arana;Publicos/mariano_arana.jpg;wikipedia_en;21870
+Diego Canepa;Publicos/diego_canepa.jpg;wikipedia_es;12527
+Alvaro Villar;Publicos/alvaro_villar.jpg;wikipedia_es;12232
+Carlos Enciso;;;0
+Adriana Peña;Publicos/adriana_pena.jpg;wikipedia_es;16762
+Marne Osorio;Publicos/marne_osorio.jpg;wikipedia_es;16464
+Armando Castaingdebat;Publicos/armando_castaingdebat.jpg;wikipedia_es;18614
+Carlos Moreira;Publicos/carlos_moreira.jpg;wikipedia_es;16438
+Omar Lafluf;Publicos/omar_lafluf.jpg;wikipedia_es;22655
+Isaac Alfie;Publicos/isaac_alfie.jpg;wikipedia_es;14576
+Guillermo Stirling;;wikipedia_es;0
+Enrique Rubio;Publicos/enrique_rubio.jpg;wikidata;27924
+Hector Lescano;Publicos/hector_lescano.jpg;wikipedia_es;30568
+Enrique Pintado;Publicos/enrique_pintado.jpg;wikipedia_es;15809
+Roberto Kreimerman;;wikipedia_es;0
+Gloria Rodriguez;Publicos/gloria_rodriguez.jpg;wikidata;20638
+Carlos Camy;;;0
+Luis Gallo;;wikipedia_en;0
+Dario Perez;;;0
+Oscar de los Santos;;wikipedia_es;0
+Enrique Antia;Publicos/enrique_antia.jpg;wikipedia_es;20418
+Rodrigo Blas;Publicos/rodrigo_blas.jpg;wikipedia_es;25772
+German Cardoso;;wikipedia_es;0
+Alejo Umpierrez;Publicos/alejo_umpierrez.jpg;wikipedia_es;24842
+Wilson Ezquerra;Publicos/wilson_ezquerra.jpg;wikipedia_en;25377
+Raul Iturria;;;0
+Juan Chiruchi;;;0
+Lucio Caceres;;wikipedia_es;0
+Alvaro Alonso;Publicos/alvaro_alonso.jpg;wikipedia_es;17311
+Dardo Sanchez;Publicos/dardo_sanchez.jpg;wikipedia_es;19772
+Richard Sander;;wikipedia_es;0
+Amin Niffouri;;;0
+Gerardo Nuñez;;wikipedia_es;0
+Jorge Sanguinetti;Publicos/jorge_sanguinetti.jpg;wikipedia_es;20010
+Santiago Perez del Castillo;Publicos/santiago_perez_del_castillo.jpg;wikipedia_en;23979
+Gonzalo Fernandez;Publicos/gonzalo_fernandez.jpg;wikipedia_en;10885
+Carlos Baraibar;Publicos/carlos_baraibar.jpg;wikipedia_es;20965
+Carlos Gamou;;;0
+Benjamin Irazabal;;;0
+Mario Silvera;Publicos/mario_silvera.jpg;wikipedia_en;27059
+Ramon Fonticiella;;wikipedia_es;0
+Daniel Garcia Pintos;;wikipedia_en;0
+Martin Laventure;;;0
+Miguel Abella;Publicos/miguel_abella.jpg;wikipedia_en;20448
+Javier Miranda;Publicos/javier_miranda.jpg;wikipedia_es;9561
+Anibal Pereyra;Publicos/anibal_pereyra.jpg;wikipedia_es;13352
+Artigas Barrios;Publicos/artigas_barrios.jpg;wikipedia_es;13606
+Jose Carlos Cardoso;;;0
+Mario Garcia;Publicos/mario_garcia.jpg;wikipedia_es;14457
+Eduardo Brenta;Publicos/eduardo_brenta.jpg;wikipedia_es;13087
+Guillermo Besozzi;;wikipedia_es;0
+Cecilia Bottino;;;0
+Guillermo Caraballo;;wikipedia_es;0
+Gonzalo Mujica;Publicos/gonzalo_mujica.jpg;wikipedia_es;14636
+Oscar Magurno;;;0
+Ana Lia Piñeyrua;;;0
+Carlos Mahia;Publicos/carlos_mahia.jpg;wikipedia_es;20639
+Sebastian Andujar;;;0
+Alfonso Lerete;Publicos/alfonso_lerete.jpg;wikipedia_es;19386
+Daniel Gerhard;Publicos/daniel_gerhard.jpg;wikipedia_en;23789
+Alem Garcia;Publicos/alem_garcia.jpg;wikipedia_es;19709
+Alberto Bension;;;0
+Alberto Cid;;;0
+Juan Dominguez;;;0
+Doreen Ibarra;;;0
+Martin Vallarino;;;0
+Nilo Perez;Publicos/nilo_perez.jpg;wikipedia_es;22058
+Graciela Matiaude;;wikipedia_es;0
+Mariano Brito;Publicos/mariano_brito.jpg;wikipedia_es;16568
+Angel Maria Gianola;Publicos/angel_maria_gianola.jpg;wikipedia_es;19577
+Carlos Cat;;;0
+Tabare Hackenbruch;Publicos/tabare_hackenbruch.jpg;wikipedia_es;27801
+Alberto Scavarelli;Publicos/alberto_scavarelli.jpg;wikipedia_es;14201
+Erling Haaland;Publicos/erling_haaland.jpg;wikipedia_es;22839
+Jude Bellingham;Publicos/jude_bellingham.jpg;wikipedia_es;25706
+Vinicius Junior;Publicos/vinicius_junior.jpg;wikipedia_es;25296
+Lamine Yamal;Publicos/lamine_yamal.jpg;wikipedia_es;27696
+De Bruyne;Publicos/de_bruyne.jpg;wikipedia_es;17076
+Swiatek;Publicos/swiatek.jpg;wikipedia_es;20050
+Sabalenka;Publicos/sabalenka.jpg;wikipedia_es;21664
+Jokic;Publicos/jokic.jpg;wikidata;28162
+Alonso;Publicos/alonso.jpg;wikipedia_en;23653
+Giannis;Publicos/giannis.jpg;wikipedia_es;13562
+Pogacar;Publicos/pogacar.jpg;wikipedia_es;19043
+Marquez;Publicos/marquez.jpg;wikipedia_en;23357
+Putellas;Publicos/putellas.jpg;wikipedia_es;28899
+Bad Bunny;Publicos/bad_bunny.jpg;wikipedia_es;27531
+Karol G;Publicos/karol_g.jpg;wikipedia_es;27826
+Ed Sheeran;Publicos/ed_sheeran.jpg;wikipedia_es;26713
+Post Malone;Publicos/post_malone.jpg;wikipedia_es;22400
+Travis Scott;Publicos/travis_scott.jpg;wikipedia_es;22911
+Feid;Publicos/feid.jpg;wikipedia_es;29079
+Rauw Alejandro;Publicos/rauw_alejandro.jpg;wikipedia_es;20154
+J Balvin;Publicos/j_balvin.jpg;wikipedia_es;15251
+Maluma;Publicos/maluma.jpg;wikipedia_es;20356
+Peso Pluma;Publicos/peso_pluma.jpg;wikipedia_es;27565
+Nodal;Publicos/nodal.jpg;wikipedia_es;14238
+Aitana;Publicos/aitana.jpg;wikipedia_en;21707
+MrBeast;Publicos/mrbeast.jpg;wikipedia_es;17678
+KSI;Publicos/ksi.jpg;wikipedia_en;22158
+PewDiePie;Publicos/pewdiepie.jpg;wikipedia_es;14924
+Khaby Lame;Publicos/khaby_lame.jpg;wikidata;15740
+Bella Poarch;Publicos/bella_poarch.jpg;wikipedia_es;13356
+Zach King;Publicos/zach_king.jpg;wikipedia_es;16634
+Ibai Llanos;Publicos/ibai_llanos.jpg;wikipedia_es;18762
+Auronplay;Publicos/auronplay.jpg;wikipedia_es;17304
+El Rubius;Publicos/el_rubius.jpg;wikipedia_es;18508
+TheGrefg;Publicos/thegrefg.jpg;wikipedia_es;18738
+Rivers GG;Publicos/rivers_gg.jpg;wikipedia_es;18959
+German Garmendia;Publicos/german_garmendia.jpg;wikipedia_es;20802
+Luisito Comunica;Publicos/luisito_comunica.jpg;wikipedia_es;20806
+Mukesh Ambani;Publicos/mukesh_ambani.jpg;wikipedia_es;11874
+Carlos Slim;Publicos/carlos_slim.jpg;wikipedia_es;23116
+Pablo Motos;Publicos/pablo_motos.jpg;wikipedia_es;24905
+Susanna Griso;Publicos/susanna_griso.jpg;wikipedia_es;15371
+Jorge Javier Vazquez;Publicos/jorge_javier_vazquez.jpg;wikipedia_en;16212
+David Broncano;Publicos/david_broncano.jpg;wikipedia_es;22372
+Pampita;Publicos/pampita.jpg;wikipedia_es;13256
+Susana Gimenez;Publicos/susana_gimenez.jpg;wikipedia_es;27513
+Yuya;Publicos/yuya.jpg;wikipedia_es;28602
+Kimberly Loaiza;Publicos/kimberly_loaiza.jpg;wikipedia_es;32175
+Georgina Rodriguez;Publicos/georgina_rodriguez.jpg;wikipedia_en;19165
+Antonela Roccuzzo;;;0
+Santiago Maratea;;;0
+Ana Rosa Quintana;Publicos/ana_rosa_quintana.jpg;wikipedia_es;18280
+Angel de Brito;;;0
+Guido Kaczka;Publicos/guido_kaczka.jpg;wikipedia_es;14469
+Stephen Colbert;Publicos/stephen_colbert.jpg;wikipedia_es;20366
+James Corden;Publicos/james_corden.jpg;wikipedia_es;17869
+Keir Starmer;Publicos/keir_starmer.jpg;wikipedia_es;19316
+Gautam Adani;Publicos/gautam_adani.jpg;wikipedia_es;15145
+Ricardo Salinas;Publicos/ricardo_salinas.jpg;wikipedia_es;14531
+Bartolome de las Casas;Publicos/bartolome_de_las_casas.jpg;wikipedia_es;23592
+Harriet Tubman;Publicos/harriet_tubman.jpg;wikipedia_es;32159
+Sojourner Truth;Publicos/sojourner_truth.jpg;wikidata;15527
+Frederick Douglass;Publicos/frederick_douglass.jpg;wikipedia_es;22699
+W.E.B. Du Bois;Publicos/w_e_b_du_bois.jpg;wikipedia_es;12662
+Medgar Evers;Publicos/medgar_evers.jpg;wikipedia_es;23535
+John Lewis;Publicos/john_lewis.jpg;wikipedia_en;23252
+James Baldwin;Publicos/james_baldwin.jpg;wikipedia_es;21589
+Rigoberta Menchu;Publicos/rigoberta_menchu.jpg;wikipedia_es;27307
+Berta Caceres;Publicos/berta_caceres.jpg;wikipedia_es;19274
+Marielle Franco;Publicos/marielle_franco.jpg;wikipedia_es;26136
+Nkrumah;Publicos/nkrumah.jpg;wikipedia_es;38195
+Kenyatta;Publicos/kenyatta.jpg;wikipedia_es;17891
+Nyerere;Publicos/nyerere.jpg;wikipedia_es;23864
+Ben-Gurion;Publicos/ben_gurion.jpg;wikipedia_es;17673
+Golda Meir;Publicos/golda_meir.jpg;wikipedia_es;26472
+Hammarskjold;Publicos/hammarskjold.jpg;wikipedia_es;25541
+Samuel Morse;Publicos/samuel_morse.jpg;wikipedia_es;21947
+Wilbur Wright;Publicos/wilbur_wright.jpg;wikipedia_es;14275
+Orville Wright;Publicos/orville_wright.jpg;wikidata;11837
+James Watt;Publicos/james_watt.jpg;wikipedia_es;16601
+Faraday;Publicos/faraday.jpg;wikipedia_es;17275
+Braille;Publicos/braille.jpg;wikipedia_es;39513
+Gutenberg;Publicos/gutenberg.jpg;wikipedia_es;39692
+Berners-Lee;Publicos/berners_lee.jpg;wikipedia_es;18919
+Ada Lovelace;Publicos/ada_lovelace.jpg;wikipedia_es;25617
+Grace Hopper;Publicos/grace_hopper.jpg;wikipedia_es;21846
+Katherine Johnson;Publicos/katherine_johnson.jpg;wikipedia_es;17507
+Susan B. Anthony;Publicos/susan_b_anthony.jpg;wikipedia_es;23173
+Cady Stanton;Publicos/cady_stanton.jpg;wikipedia_es;21706
+Schindler;Publicos/schindler.jpg;wikipedia_es;28538
+Elie Wiesel;Publicos/elie_wiesel.jpg;wikipedia_es;25116
+Amartya Sen;Publicos/amartya_sen.jpg;wikipedia_es;23543
+Shirin Ebadi;Publicos/shirin_ebadi.jpg;wikipedia_es;28624
+Tawakkol Karman;Publicos/tawakkol_karman.jpg;wikipedia_es;24358
+Leymah Gbowee;Publicos/leymah_gbowee.jpg;wikipedia_es;31955
+Satyarthi;Publicos/satyarthi.jpg;wikipedia_es;26847
+Yunus;Publicos/yunus.jpg;wikipedia_en;23330
+Chico Mendes;Publicos/chico_mendes.jpg;wikipedia_es;23342
+Swartz;Publicos/swartz.jpg;wikipedia_es;20862
+Torvalds;Publicos/torvalds.jpg;wikipedia_es;14293
+Booker T. Washington;Publicos/booker_t_washington.jpg;wikipedia_es;20077
+Daisaku Ikeda;Publicos/daisaku_ikeda.jpg;wikidata;19966
+Thich Quang Duc;Publicos/thich_quang_duc.jpg;wikipedia_es;24621
+Dorothy Stang;Publicos/dorothy_stang.jpg;wikipedia_es;21410
+Lauren Bacall;Publicos/lauren_bacall.jpg;wikipedia_es;22416
+Confucio;Publicos/confucio.jpg;wikipedia_es;16030
+Aristoteles;Publicos/aristoteles.jpg;wikipedia_es;26400
+Platon;Publicos/platon.jpg;wikipedia_es;21089
+Socrates;Publicos/socrates.jpg;wikipedia_es;23200
+Arquimedes;Publicos/arquimedes.jpg;wikipedia_es;19519
+Euclides;Publicos/euclides.jpg;wikipedia_es;28985
+Ptolomeo;Publicos/ptolomeo.jpg;wikipedia_es;35905
+Hipocrates;Publicos/hipocrates.jpg;wikipedia_es;23859
+Avicena;Publicos/avicena.jpg;wikipedia_es;10641
+Averroes;Publicos/averroes.jpg;wikipedia_es;37008
+Feynman;Publicos/feynman.jpg;wikipedia_es;22139
+Aparicio Mendez;Publicos/aparicio_mendez.jpg;wikipedia_es;19965
+Gregorio Alvarez;Publicos/gregorio_alvarez.jpg;wikipedia_en;29632
+Rafael Addiego;;;0
+Carlos Julio Pereyra;Publicos/carlos_julio_pereyra.jpg;wikipedia_es;15260
+Jorge Pacheco Areco;Publicos/jorge_pacheco_areco.jpg;wikipedia_es;21676
+Alvaro Morata;Publicos/alvaro_morata.jpg;wikipedia_es;22180
+Julian Alvarez;Publicos/julian_alvarez.jpg;wikipedia_es;25089
+Emiliano Martinez;Publicos/emiliano_martinez.jpg;wikipedia_es;22968
+Federico Valverde;Publicos/federico_valverde.jpg;wikipedia_es;10027
+Darwin Nuñez;Publicos/darwin_nunez.jpg;wikipedia_es;22733
+Ronald Araujo;Publicos/ronald_araujo.jpg;wikipedia_es;26475
+Facundo Pellistri;Publicos/facundo_pellistri.jpg;wikipedia_es;22388
+Giorgian De Arrascaeta;Publicos/giorgian_de_arrascaeta.jpg;wikipedia_es;22038
+Beyonce;Publicos/beyonce.jpg;wikipedia_es;31213
+Abraham Lincoln;Publicos/abraham_lincoln.jpg;wikipedia_es;19379
+Addison Rae;Publicos/addison_rae.jpg;wikipedia_es;27399
+Adele;Publicos/adele.jpg;wikipedia_es;25682
+Albert Einstein;Publicos/albert_einstein.jpg;wikipedia_es;26182
+Alicia Keys;Publicos/alicia_keys.jpg;wikipedia_es;23780
+Amy Adams;Publicos/amy_adams.jpg;wikipedia_es;21253
+Ana Frank;Publicos/ana_frank.jpg;wikipedia_es;19543
+Andersen;Publicos/andersen.jpg;wikipedia_en;26431
+Andrew Tate;Publicos/andrew_tate.jpg;wikipedia_es;19549
+Angela Davis;Publicos/angela_davis.jpg;wikipedia_es;23117
+Anton Chejov;Publicos/anton_chejov.jpg;wikipedia_es;26683
+Ariana Grande;Publicos/ariana_grande.jpg;wikipedia_es;17655
+Arthur Conan Doyle;Publicos/arthur_conan_doyle.jpg;wikipedia_es;17581
+Camus;Publicos/camus.jpg;wikipedia_es;26654
+Che Guevara;Publicos/che_guevara.jpg;wikipedia_es;17289
+Chris Martin;Publicos/chris_martin.jpg;wikipedia_es;29524
+Cristina Pedroche;Publicos/cristina_pedroche.jpg;wikipedia_es;10785
+Clara Barton;Publicos/clara_barton.jpg;wikipedia_es;24930
+Colapinto;Publicos/colapinto.jpg;wikipedia_es;24476
+Copernico;Publicos/copernico.jpg;wikipedia_es;14056
+Cousteau;Publicos/cousteau.jpg;wikipedia_es;31362
+Dunant;Publicos/dunant.jpg;wikipedia_en;23195
+Durkheim;Publicos/durkheim.jpg;wikipedia_es;25618
+Dvorak;Publicos/dvorak.jpg;wikipedia_en;22015
+Eleanor Roosevelt;Publicos/eleanor_roosevelt.jpg;wikipedia_es;16998
+Eva Peron;Publicos/eva_peron.jpg;wikipedia_es;23550
+Evo Morales;Publicos/evo_morales.jpg;wikipedia_es;25693
+Fidel Castro;Publicos/fidel_castro.jpg;wikipedia_es;25823
+Foucault;Publicos/foucault.jpg;wikipedia_en;19522
+Hamilton;Publicos/hamilton.jpg;wikipedia_es;19833
+Harvey Milk;Publicos/harvey_milk.jpg;wikipedia_es;24979
+Hawking;Publicos/hawking.jpg;wikipedia_en;29428
+Hitler;Publicos/hitler.jpg;wikipedia_es;17747
+Joe Biden;Publicos/joe_biden.jpg;wikipedia_es;15568
+Jose Mujica;Publicos/jose_mujica.jpg;wikipedia_es;24985
+Juan Pablo II;Publicos/juan_pablo_ii.jpg;wikipedia_es;23709
+Carl Jung;Publicos/carl_jung.jpg;wikipedia_es;18355
+Justin Bieber;Publicos/justin_bieber.jpg;wikipedia_es;27467
+Kant;Publicos/kant.jpg;wikipedia_es;20788
+Kendall Jenner;Publicos/kendall_jenner.jpg;wikipedia_es;9735
+Kevin Costner;Publicos/kevin_costner.jpg;wikipedia_es;21638
+Kevin Hart;Publicos/kevin_hart.jpg;wikipedia_es;20066
+Lyndon Johnson;Publicos/lyndon_johnson.jpg;wikipedia_es;20873
+Mark Wahlberg;Publicos/mark_wahlberg.jpg;wikipedia_es;25365
+Marlene Dietrich;Publicos/marlene_dietrich.jpg;wikipedia_es;18098
+Michael B. Jordan;Publicos/michael_b_jordan.jpg;wikipedia_es;14867
+Michael Caine;Publicos/michael_caine.jpg;wikipedia_es;19540
+Michael Fassbender;Publicos/michael_fassbender.jpg;wikipedia_es;16532
+Michelle Pfeiffer;Publicos/michelle_pfeiffer.jpg;wikipedia_es;18556
+Mick Jagger;Publicos/mick_jagger.jpg;wikipedia_es;21986
+Miguel Angel Buonarroti;Publicos/miguel_angel_buonarroti.jpg;wikipedia_es;20260
+Nadal;Publicos/nadal.jpg;wikipedia_en;17188
+Napoleon Bonaparte;Publicos/napoleon_bonaparte.jpg;wikipedia_es;21741
+Natalie Portman;Publicos/natalie_portman.jpg;wikipedia_es;15007
+Papa Francisco;Publicos/papa_francisco.jpg;wikipedia_es;17528
+Paul Newman;Publicos/paul_newman.jpg;wikipedia_es;15277
+Pele;Publicos/pele.jpg;wikipedia_en;23306
+Peter O'Toole;Publicos/peter_o_toole.jpg;wikipedia_es;22628
+Phelps;Publicos/phelps.jpg;wikipedia_es;25021
+Picasso;Publicos/picasso.jpg;wikipedia_es;24806
+Rafael Sanzio;Publicos/rafael_sanzio.jpg;wikipedia_es;15556
+Ravel;Publicos/ravel.jpg;wikipedia_es;18592
+Reese Witherspoon;Publicos/reese_witherspoon.jpg;wikipedia_es;34386
+Renoir;Publicos/renoir.jpg;wikipedia_en;15114
+Rihanna;Publicos/rihanna.jpg;wikipedia_es;32292
+Rita Hayworth;Publicos/rita_hayworth.jpg;wikipedia_es;21359
+Carl Sagan;Publicos/carl_sagan.jpg;wikipedia_es;27467
+Sandra Bullock;Publicos/sandra_bullock.jpg;wikipedia_es;15164
+Vladimir Putin;Publicos/vladimir_putin.jpg;wikipedia_es;19435
+Federer;Publicos/federer.jpg;wikipedia_es;25805
+Marlon Brando;Publicos/marlon_brando.jpg;wikipedia_es;15690
+Katharine Hepburn;Publicos/katharine_hepburn.jpg;wikipedia_es;21390
+Cary Grant;Publicos/cary_grant.jpg;wikipedia_es;22817
+Ingrid Bergman;Publicos/ingrid_bergman.jpg;wikipedia_es;22021
+James Stewart;Publicos/james_stewart.jpg;wikipedia_es;25314
+Bette Davis;Publicos/bette_davis.jpg;wikipedia_es;14747
+Gregory Peck;Publicos/gregory_peck.jpg;wikipedia_es;19499
+Audrey Hepburn;Publicos/audrey_hepburn.jpg;wikipedia_es;23965
+Elizabeth Taylor;Publicos/elizabeth_taylor.jpg;wikipedia_es;18333
+Steve McQueen;Publicos/steve_mcqueen.jpg;wikipedia_es;25259
+Margot Robbie;Publicos/margot_robbie.jpg;wikipedia_es;22557
+Kristen Stewart;Publicos/kristen_stewart.jpg;wikipedia_es;10591
+Brie Larson;Publicos/brie_larson.jpg;wikipedia_es;22991
+Halle Berry;Publicos/halle_berry.jpg;wikipedia_es;23543
+Winona Ryder;Publicos/winona_ryder.jpg;wikipedia_es;22400
+Meg Ryan;Publicos/meg_ryan.jpg;wikipedia_es;19880
+Sharon Stone;Publicos/sharon_stone.jpg;wikipedia_es;28095
+Zendaya;Publicos/zendaya.jpg;wikipedia_es;21677
+Timothee Chalamet;Publicos/timothee_chalamet.jpg;wikipedia_es;21321
+Tobey Maguire;Publicos/tobey_maguire.jpg;wikipedia_es;21065
+Kirsten Dunst;Publicos/kirsten_dunst.jpg;wikipedia_es;20623
+Orlando Bloom;Publicos/orlando_bloom.jpg;wikipedia_es;17258
+Ian McKellen;Publicos/ian_mckellen.jpg;wikipedia_es;21457
+McGregor;Publicos/mcgregor.jpg;wikipedia_es;21246
+Tom Brady;Publicos/tom_brady.jpg;wikipedia_es;18564
+Olivia Rodrigo;Publicos/olivia_rodrigo.jpg;wikipedia_es;21388
+Miley Cyrus;Publicos/miley_cyrus.jpg;wikipedia_es;31794
+Lady Gaga;Publicos/lady_gaga.jpg;wikipedia_es;23911
+The Weeknd;Publicos/the_weeknd.jpg;wikipedia_es;13358
+Anitta;Publicos/anitta.jpg;wikipedia_en;16788
+Guetta;Publicos/guetta.jpg;wikipedia_es;19941
+Harry Styles;Publicos/harry_styles.jpg;wikipedia_es;30803
+Giorgio Armani;Publicos/giorgio_armani.jpg;wikipedia_es;25025
+Ellen DeGeneres;Publicos/ellen_degeneres.jpg;wikipedia_es;22667
+Simone de Beauvoir;Publicos/simone_de_beauvoir.jpg;wikipedia_es;22498
+Benito Juarez;Publicos/benito_juarez.jpg;wikipedia_es;11260
+Matthew McConaughey;Publicos/matthew_mcconaughey.jpg;wikipedia_es;24738
+Mel Gibson;Publicos/mel_gibson.jpg;wikipedia_es;19468
+Charlize Theron;Publicos/charlize_theron.jpg;wikipedia_es;23036
+Kylian Mbappe;Publicos/kylian_mbappe.jpg;wikipedia_es;36914
+Lewandowski;Publicos/lewandowski.jpg;wikipedia_es;26495
+Carlos Alcaraz;Publicos/carlos_alcaraz.jpg;wikipedia_es;30318
+Sinner;Publicos/sinner.jpg;wikipedia_en;29070
+Jake Gyllenhaal;Publicos/jake_gyllenhaal.jpg;wikipedia_es;25090
+Steve Martin;Publicos/steve_martin.jpg;wikipedia_es;28959
+Warren Beatty;Publicos/warren_beatty.jpg;wikipedia_es;36907
+Faye Dunaway;Publicos/faye_dunaway.jpg;wikipedia_es;37604
+Sri Aurobindo;Publicos/sri_aurobindo.jpg;wikipedia_es;22320
+Mary Baker Eddy;Publicos/mary_baker_eddy.jpg;wikipedia_es;24660
+Oscar Romero;Publicos/oscar_romero.jpg;wikipedia_es;21689
+Simone Biles;Publicos/simone_biles.jpg;wikipedia_es;16622
+Kendrick Lamar;Publicos/kendrick_lamar.jpg;wikipedia_es;32833
+Elijah Wood;Publicos/elijah_wood.jpg;wikipedia_es;21197
+Henry Cavill;Publicos/henry_cavill.jpg;wikipedia_es;17556
+James Dean;Publicos/james_dean.jpg;wikipedia_es;23568
+Gary Cooper;Publicos/gary_cooper.jpg;wikipedia_es;14417
+Vivien Leigh;Publicos/vivien_leigh.jpg;wikipedia_es;20633
+Laurence Olivier;Publicos/laurence_olivier.jpg;wikipedia_es;21712
+Orson Welles;Publicos/orson_welles.jpg;wikipedia_es;25940
+Ava Gardner;Publicos/ava_gardner.jpg;wikipedia_es;20078
+Fred Astaire;Publicos/fred_astaire.jpg;wikipedia_es;19541
+Mary Pickford;Publicos/mary_pickford.jpg;wikipedia_es;16360
+Sidney Poitier;Publicos/sidney_poitier.jpg;wikipedia_es;17728
+James Earl Jones;Publicos/james_earl_jones.jpg;wikipedia_es;19427
+Whoopi Goldberg;Publicos/whoopi_goldberg.jpg;wikipedia_es;24814
+Austin Butler;Publicos/austin_butler.jpg;wikipedia_es;23397
+James Cagney;Publicos/james_cagney.jpg;wikipedia_es;21482
+Burt Lancaster;Publicos/burt_lancaster.jpg;wikipedia_es;19625
+Kirk Douglas;Publicos/kirk_douglas.jpg;wikipedia_es;21598
+Natalie Wood;Publicos/natalie_wood.jpg;wikipedia_es;19358
+Angelina Jolie;Publicos/angelina_jolie.jpg;wikipedia_es;18624
+Brad Pitt;Publicos/brad_pitt.jpg;wikipedia_es;17516
+Tom Hanks;Publicos/tom_hanks.jpg;wikipedia_es;22512
+Denzel Washington;Publicos/denzel_washington.jpg;wikipedia_es;21678
+Robert De Niro;Publicos/robert_de_niro.jpg;wikipedia_es;17698
+Al Pacino;Publicos/al_pacino.jpg;wikipedia_es;19587
+Dustin Hoffman;Publicos/dustin_hoffman.jpg;wikipedia_es;19393
+Clint Eastwood;Publicos/clint_eastwood.jpg;wikipedia_es;18542
+Jack Nicholson;Publicos/jack_nicholson.jpg;wikipedia_es;16655
+Sean Connery;Publicos/sean_connery.jpg;wikipedia_es;25838
+Bryan Cranston;Publicos/bryan_cranston.jpg;wikipedia_es;23483
+Cameron Diaz;Publicos/cameron_diaz.jpg;wikipedia_es;21866
+Chris Evans;Publicos/chris_evans.jpg;wikipedia_es;21606
+Chris Pine;Publicos/chris_pine.jpg;wikipedia_es;20763
+Chris Pratt;Publicos/chris_pratt.jpg;wikipedia_es;20489
+Chris Rock;Publicos/chris_rock.jpg;wikipedia_es;24752
+Dave Chappelle;Publicos/dave_chappelle.jpg;wikipedia_es;24714
+Demi Moore;Publicos/demi_moore.jpg;wikipedia_es;26229
+Drew Barrymore;Publicos/drew_barrymore.jpg;wikipedia_es;24671
+Dwayne Johnson;Publicos/dwayne_johnson.jpg;wikipedia_es;18830
+Edward Norton;Publicos/edward_norton.jpg;wikipedia_es;32300
+Emma Watson;Publicos/emma_watson.jpg;wikipedia_es;18809
+Clark Gable;Publicos/clark_gable.jpg;wikipedia_es;22752
+Simon Bolivar;Publicos/simon_bolivar.jpg;wikipedia_es;20626
+Lord Byron;Publicos/lord_byron.jpg;wikipedia_es;20913
+Victor Hugo;Publicos/victor_hugo.jpg;wikipedia_es;19298
+Edgar Allan Poe;Publicos/edgar_allan_poe.jpg;wikipedia_es;16695
+Charles Darwin;Publicos/charles_darwin.jpg;wikipedia_es;26736
+Chopin;Publicos/chopin.jpg;wikipedia_es;37018
+Charles Dickens;Publicos/charles_dickens.jpg;wikipedia_es;23358
+Karl Marx;Publicos/karl_marx.jpg;wikipedia_es;15114
+Louis Pasteur;Publicos/louis_pasteur.jpg;wikipedia_es;28034
+Brahms;Publicos/brahms.jpg;wikipedia_es;20325
+Alfred Nobel;Publicos/alfred_nobel.jpg;wikipedia_es;22667
+Mendeleyev;Publicos/mendeleyev.jpg;wikipedia_es;30882
+Mark Twain;Publicos/mark_twain.jpg;wikipedia_es;17733
+Rockefeller;Publicos/rockefeller.jpg;wikipedia_en;28575
+Tagore;Publicos/tagore.jpg;wikipedia_es;28542
+Henry Ford;Publicos/henry_ford.jpg;wikipedia_es;16513
+Matisse;Publicos/matisse.jpg;wikipedia_es;40757
+Lenin;Publicos/lenin.jpg;wikipedia_es;18662
+Bertrand Russell;Publicos/bertrand_russell.jpg;wikipedia_es;19895
+Marconi;Publicos/marconi.jpg;wikipedia_es;17281
+Winston Churchill;Publicos/winston_churchill.jpg;wikipedia_es;9145
+Fleming;Publicos/fleming.jpg;wikipedia_es;22890
+Virginia Woolf;Publicos/virginia_woolf.jpg;wikipedia_es;17385
+F. D. Roosevelt;Publicos/f_d_roosevelt.jpg;wikipedia_es;17277
+James Joyce;Publicos/james_joyce.jpg;wikipedia_es;9996
+Niels Bohr;Publicos/niels_bohr.jpg;wikipedia_es;21777
+Gabriela Mistral;Publicos/gabriela_mistral.jpg;wikipedia_es;25344
+Wittgenstein;Publicos/wittgenstein.jpg;wikipedia_es;25737
+Heisenberg;Publicos/heisenberg.jpg;wikipedia_es;18124
+Lindbergh;Publicos/lindbergh.jpg;wikipedia_es;17495
+Steinbeck;Publicos/steinbeck.jpg;wikipedia_es;28854
+Neruda;Publicos/neruda.jpg;wikipedia_es;17691
+Dali;Publicos/dali.jpg;wikipedia_en;22190
+Turing;Publicos/turing.jpg;wikipedia_es;23148
+Octavio Paz;Publicos/octavio_paz.jpg;wikipedia_es;32391
+Cortazar;Publicos/cortazar.jpg;wikipedia_es;31827
+Ibsen;Publicos/ibsen.jpg;wikipedia_es;29804
+Tolstoi;Publicos/tolstoi.jpg;wikipedia_es;35104
+Degas;Publicos/degas.jpg;wikipedia_es;18490
+Puccini;Publicos/puccini.jpg;wikipedia_es;14914
+Dewey;Publicos/dewey.jpg;wikipedia_es;26517
+Strauss;Publicos/strauss.jpg;wikipedia_en;18032
+Kandinski;Publicos/kandinski.jpg;wikipedia_es;22692
+Satie;Publicos/satie.jpg;wikipedia_es;24278
+Sun Yat-sen;Publicos/sun_yat_sen.jpg;wikipedia_es;17188
+Pirandello;Publicos/pirandello.jpg;wikipedia_es;17065
+Gide;Publicos/gide.jpg;wikipedia_es;32302
+Frost;Publicos/frost.jpg;wikipedia_en;20044
+Schonberg;Publicos/schonberg.jpg;wikipedia_es;17430
+Bartok;Publicos/bartok.jpg;wikipedia_es;28148
+Martin Luther King;Publicos/martin_luther_king.jpg;wikipedia_es;19945
+Malcolm X;Publicos/malcolm_x.jpg;wikipedia_es;21386
+Maya Angelou;Publicos/maya_angelou.jpg;wikipedia_es;20866
+Toni Morrison;Publicos/toni_morrison.jpg;wikipedia_es;20826
+Toussaint Louverture;Publicos/toussaint_louverture.jpg;wikipedia_es;25671
+Emiliano Zapata;Publicos/emiliano_zapata.jpg;wikipedia_es;19271
+Pancho Villa;Publicos/pancho_villa.jpg;wikipedia_es;42406
+Sandino;Publicos/sandino.jpg;wikipedia_en;19966
+Ho Chi Minh;Publicos/ho_chi_minh.jpg;wikipedia_es;22240
+De Gaulle;Publicos/de_gaulle.jpg;wikipedia_es;22785
+J. F. Kennedy;Publicos/j_f_kennedy.jpg;wikipedia_es;16182
+Willy Brandt;Publicos/willy_brandt.jpg;wikipedia_es;18455
+Olof Palme;Publicos/olof_palme.jpg;wikipedia_es;21480
+Trotsky;Publicos/trotsky.jpg;wikipedia_es;21284
+Gorbachov;Publicos/gorbachov.jpg;wikipedia_es;16184
+Kofi Annan;Publicos/kofi_annan.jpg;wikipedia_es;22069
+Steve Jobs;Publicos/steve_jobs.jpg;wikipedia_es;15900
+Snowden;Publicos/snowden.jpg;wikipedia_en;20055
+Assange;Publicos/assange.jpg;wikipedia_es;19623
+Bob Marley;Publicos/bob_marley.jpg;wikipedia_es;27943
+Paul McCartney;Publicos/paul_mccartney.jpg;wikipedia_es;22842
+Bernard Arnault;Publicos/bernard_arnault.jpg;wikipedia_es;27024
+Elon Musk;Publicos/elon_musk.jpg;wikipedia_es;20851
+Luis Alberto Lacalle Herrera;Publicos/luis_alberto_lacalle_herrera.jpg;wikipedia_es;19577
+Wilson Ferreira Aldunate;Publicos/wilson_ferreira_aldunate.jpg;wikipedia_es;19067
+Florentino Perez;Publicos/florentino_perez.jpg;wikipedia_es;13887
+Mirtha Legrand;Publicos/mirtha_legrand.jpg;wikipedia_es;29677
+Marcelo Tinelli;Publicos/marcelo_tinelli.jpg;wikipedia_es;13246
+Zelenski;Publicos/zelenski.jpg;wikipedia_es;17499
+Jimmy Fallon;Publicos/jimmy_fallon.jpg;wikipedia_es;19846
+Hemingway;Publicos/hemingway.jpg;wikipedia_es;32485
+Borges;Publicos/borges.jpg;wikipedia_es;18908
+Iker Jimenez;Publicos/iker_jimenez.jpg;wikipedia_es;20419
+Lautaro Martinez;Publicos/lautaro_martinez.jpg;wikipedia_es;25848
+Rachel Carson;Publicos/rachel_carson.jpg;wikipedia_es;15344
+Jane Goodall;Publicos/jane_goodall.jpg;wikipedia_es;18959
+Nightingale;Publicos/nightingale.jpg;wikipedia_en;18637
+Engels;Publicos/engels.jpg;wikipedia_es;30422
+Emerson;Publicos/emerson.jpg;wikipedia_es;19007
+Arendt;Publicos/arendt.jpg;wikipedia_es;27914
+Frantz Fanon;Publicos/frantz_fanon.jpg;wikipedia_es;17739
+Pankhurst;Publicos/pankhurst.jpg;wikipedia_es;17075
+Jane Addams;Publicos/jane_addams.jpg;wikipedia_es;15973
+Wallenberg;Publicos/wallenberg.jpg;wikipedia_es;22915
+Blixen;Publicos/blixen.jpg;wikipedia_es;17640
+Cezanne;Publicos/cezanne.jpg;wikipedia_es;35339
+Gell-Mann;Publicos/gell_mann.jpg;wikipedia_es;20895
+Hilbert;Publicos/hilbert.jpg;wikipedia_es;21180
+Koch;Publicos/koch.jpg;wikipedia_es;11824
+Margaret Mead;Publicos/margaret_mead.jpg;wikipedia_es;20030
+Otto Hahn;Publicos/otto_hahn.jpg;wikipedia_es;24026
+Primo Levi;Publicos/primo_levi.jpg;wikipedia_es;24582
+Dolores Huerta;Publicos/dolores_huerta.jpg;wikipedia_es;12979
+Drake;Publicos/drake.jpg;wikidata;23500
+Edison;Publicos/edison.jpg;wikipedia_en;16807
+Edward Said;Publicos/edward_said.jpg;wikipedia_es;18209
+Gandhi;Publicos/gandhi.jpg;wikipedia_es;19484
+Gene Kelly;Publicos/gene_kelly.jpg;wikipedia_es;21866

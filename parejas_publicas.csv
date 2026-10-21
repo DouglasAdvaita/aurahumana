@@ -1,0 +1,982 @@
+﻿nombre;categoria;fecha;hora;lugar;pareja_de;dinamica;duracion;ruptura;hijos
+Anna Kashfi;actores_hollywood;30/09/1934;;Darjeeling, India;Marlon Brando;Pasión tormentosa y mediática entre rebeldía y fragilidad emocional;1957-1959 (2 años);Divorcio por conflictos y custodia;1: Christian Brando
+Lauren Bacall;actores_hollywood;16/09/1924;;Nueva York, USA;Humphrey Bogart;Leyenda del cine negro, complicidad intensa pese a 25 años de diferencia;1945-1957 (12 años);Muerte de Bogart por cáncer de esófago;2: Stephen y Leslie
+Spencer Tracy;actores_hollywood;05/04/1900;;Milwaukee, Wisconsin, USA;Katharine Hepburn;Romance discreto y leal, nunca se casaron por su matrimonio católico;1941-1967 (26 años);Muerte de Tracy por infarto;0
+Dyan Cannon;actores_hollywood;04/01/1937;;Tacoma, Washington, USA;Cary Grant;Matrimonio con gran diferencia de edad, ternura y choques de estilo de vida;1965-1968 (3 años);Divorcio conflictivo por incompatibilidad;1: Jennifer Grant
+Roberto Rossellini;actores_hollywood;08/05/1906;;Roma, Italia;Ingrid Bergman;Escándalo amoroso entre musa y maestro del neorrealismo italiano;1950-1957 (7 años);Divorcio por infidelidades de Rossellini;3: Robertino, Isabella e Ingrid
+Gloria Hatrick McLean;actores_hollywood;10/03/1918;;Larchmont, Nueva York, USA;James Stewart;Matrimonio estable y familiar lejos del brillo de Hollywood;1949-1994 (45 años);Muerte de Gloria por cáncer de pulmón;4: Ronald, Michael, Judy y Kelly
+Gary Merrill;actores_hollywood;02/08/1915;;Hartford, Connecticut, USA;Bette Davis;Pasión intensa nacida en el set, carácter fuerte y choques constantes;1950-1960 (10 años);Divorcio por alcoholismo y tensiones;2: Michael y Margot
+Veronique Passani;actores_hollywood;05/02/1932;;París, Francia;Gregory Peck;Unión elegante y duradera de actor y periodista francesa solidaria;1955-2003 (48 años);Muerte de Peck en 2003;2: Anthony y Cecilia
+Mel Ferrer;actores_hollywood;25/08/1917;;Elberon, Nueva Jersey, USA;Audrey Hepburn;Pareja artística con amor protector y control excesivo de él;1954-1968 (14 años);Divorcio por desgaste e infidelidades;1: Sean Hepburn Ferrer
+Richard Burton;actores_hollywood;10/11/1925;;Pontrhydyfen, Gales;Elizabeth Taylor;Amor volcánico y excesos, dos bodas entre rodajes y joyas legendarias;1964-1976 (12 años con pausa);Doble divorcio por alcohol y peleas;1 adoptada: Maria Burton
+Joanne Woodward;actores_hollywood;27/02/1930;;Thomasville, Georgia, EE.UU.;Paul Newman;Matrimonio estable y colaborativo de 50 años emblema de Hollywood;1958-2008 (50 años);fallecimiento de Paul Newman;3: Elinor, Melissa y Claire
+Lola Van Wagenen;actores_hollywood;19/12/1938;;Provo, Utah, EE.UU.;Robert Redford;Matrimonio juvenil que creció con la fama y el activismo;1958-1985 (27 años);divorcio por distanciamiento y fama;4: Scott, Shauna, David y Amy
+Ali MacGraw;actores_hollywood;01/04/1939;;Pound Ridge, Nueva York, EE.UU.;Steve McQueen;Pasión intensa y tormentosa nacida en el rodaje;1973-1978 (5 años);divorcio por infidelidades y carácter posesivo;0 en común
+Dina Ruiz;actores_hollywood;11/07/1965;;Castro Valley, California, EE.UU.;Clint Eastwood;Segunda esposa mediática que suavizó su imagen pública;1996-2014 (18 años);divorcio por distanciamiento e infidelidades;1: Morgan Eastwood
+Anjelica Huston;actores_hollywood;08/07/1951;;Los Ángeles, California, EE.UU.;Jack Nicholson;Relación intermitente bohemia entre dos dinastías;1973-1990 (17 años);ruptura por hijo con Rebecca Broussard;0
+Betsy Arakawa;actores_hollywood;15/12/1959;;Honolulu, Hawái, EE.UU.;Gene Hackman;Compañera discreta en retiro artístico en Santa Fe;1991-2025 (34 años);fallecimiento de ambos en 2025;0 en común
+Micheline Roquebrune;actores_hollywood;04/04/1929;;Niza, Francia;Sean Connery;Amor maduro con independencia artística y golf;1975-2020 (45 años);fallecimiento de Sean Connery;0 en común
+Shakira Caine;actores_hollywood;01/02/1947;;Georgetown, Guyana;Michael Caine;Matrimonio duradero y devoto tras flechazo televisivo;1973-actualidad (53 años);vigente;1: Natasha Caine
+Stella Arroyave;actores_hollywood;20/03/1956;;Popayán, Colombia;Anthony Hopkins;Esposa que trajo calma y creatividad en madurez;2003-actualidad (23 años);vigente;0 en común
+Luciana Pedraza;actores_hollywood;05/01/1972;;Salta, Argentina;Robert Duvall;Compañera argentina joven que comparte rancho y cine;2005-actualidad (21 años);vigente;0
+Lisa Hoffman;actores_hollywood;01/09/1954;;Los Angeles, California, USA;Dustin Hoffman;Matrimonio estable y discreto centrado en familia y apoyo mutuo;1980-presente 45 años;Sin ruptura siguen casados;4 hijos juntos Jake Max Rebecca y Alexandra
+Beverly D'Angelo;actores_hollywood;15/11/1951;;Columbus, Ohio, USA;Al Pacino;Romance intenso y mediático con convivencia familiar y conexión creativa;1997-2003 6 años;Separación en 2003 con disputa por custodia;2 hijos mellizos Anton y Olivia
+Grace Hightower;actores_hollywood;07/04/1955;;Kilmichael, Mississippi, USA;Robert De Niro;Unión glamurosa filantrópica con altibajos y vida social intensa;1997-2018 21 años;Separación en 2018 divorcio litigioso;2 hijos Elliot y Helen Grace
+Don Gummer;actores_hollywood;12/12/1946;;Louisville, Kentucky, USA;Meryl Streep;Matrimonio artístico discreto de apoyo mutuo entre escultura y cine;1978-2023 45 años;Separados desde 2017 anunciado en 2023;4 hijos Henry Mamie Grace y Louisa
+Rita Wilson;actores_hollywood;26/10/1956;;Los Angeles, California, USA;Tom Hanks;Pareja sólida creativa y musical con humor complicidad y apoyo;1988-presente 37 años;Sin ruptura siguen casados;2 hijos Chester y Truman más hijastro Colin
+Pauletta Washington;actores_hollywood;28/09/1950;;Newton, North Carolina, USA;Denzel Washington;Matrimonio fiel y religioso basado en fe familia y carrera conjunta;1983-presente 42 años;Sin ruptura siguen casados;4 hijos John David Katia Malcolm y Olivia
+Gisele Bundchen;actores_hollywood;20/07/1980;;Horizontina, Brasil;Leonardo DiCaprio;Superpareja mediática de glamour y fama con estilos incompatibles;2000-2005 5 años;Ruptura en 2005 amistosa;Sin hijos juntos
+Angelina Jolie;actores_hollywood;04/06/1975;;Los Angeles, California, USA;Brad Pitt;Pasión humanitaria y familiar Brangelina con gran exposición mediática;2005-2016 11 años;Divorcio en 2016 por diferencias irreconciliables;6 hijos Maddox Pax Zahara Shiloh Knox y Vivienne
+Nicole Kidman;actores_hollywood;20/06/1967;;Honolulu, Hawaii, USA;Tom Cruise;Matrimonio de estrellas con fama y adopción familiar privada;1990-2001 11 años;Divorcio en 2001 por diferencias irreconciliables;2 hijos adoptivos Isabella y Connor
+Vanessa Paradis;actores_hollywood;22/12/1972;;Saint-Maur-des-Fosses, Francia;Johnny Depp;Familia bohemia francoamericana discreta entre música y cine;1998-2012 14 años;Separación en 2012 de mutuo acuerdo;2 hijos Lily-Rose y Jack
+Jada Pinkett Smith;actores_hollywood;18/09/1971;;Baltimore Maryland USA;Will Smith;Matrimonio de poder creativo con altibajos públicos y terapia abierta;1997-presente;Separados desde 2016 sin divorcio formal;2 Jaden y Willow mas hijastro Trey
+Lauren Hashian;actores_hollywood;08/09/1984;;Lynnfield Massachusetts USA;Dwayne Johnson;Relacion estable y discreta con apoyo familiar y proyectos compartidos;2006-presente casados 2019;Sin ruptura;2 Jasmine y Tiana
+Alexandra Grant;actores_hollywood;04/04/1973;;Fairview Park Ohio USA;Keanu Reeves;Vinculo artistico intelectual de colaboracion creativa y perfil bajo;2011-presente pareja desde 2019;Sin ruptura;0 sin hijos
+Calista Flockhart;actores_hollywood;11/11/1964;;Freeport Illinois USA;Harrison Ford;Matrimonio estable y discreto con diferencia de edad y vida familiar;2002-presente casados 2010;Sin ruptura;1 Liam adoptado
+Maria Shriver;actores_hollywood;06/11/1955;;Chicago Illinois USA;Arnold Schwarzenegger;Union de poder politico y mediatico rota por infidelidad;1986-2021 35 años;Divorcio 2021 por hijo extramatrimonial;4 Katherine Christina Patrick Christopher
+Jennifer Flavin;actores_hollywood;14/08/1968;;Los Angeles California USA;Sylvester Stallone;Matrimonio duradero de modelo y estrella con negocios y familia;1988-presente casados 1997;Crisis 2022 reconciliados;3 Sophia Sistine Scarlet
+Demi Moore;actores_hollywood;11/11/1962;;Roswell New Mexico USA;Bruce Willis;Superpareja icono de los 90 con exito en cine y familia expuesta;1987-2000 13 años;Divorcio 2000 por desgaste;3 Rumer Scout Tallulah
+Robyn Moore Gibson;actores_hollywood;04/11/1960;;Adelaide Australia;Mel Gibson;Matrimonio largo tradicional de apoyo en su ascenso al estrellato;1980-2011 31 años;Divorcio 2011 por diferencias;7 hijos
+Christine Baumgartner;actores_hollywood;04/03/1974;;California USA;Kevin Costner;Matrimonio con modelo disenadora centrado en familia y ranchos;1998-2024 casados 2004-2024;Divorcio 2024;3 Cayden Hayes Grace
+Cindy Crawford;actores_hollywood;20/02/1966;;DeKalb Illinois USA;Richard Gere;Boda icono de supermodelo y galan con fama y brecha de edad;1991-1995 4 años;Divorcio 1995 por presion mediatica;0 juntos
+Kelly Preston;actores_hollywood;13/10/1962;;Honolulu Hawaii USA;John Travolta;Matrimonio estable y familiar con cienciologia y crianza conjunta;1991-2020 29 años;Fallecimiento ella 2020;3 Jett Ella Benjamin
+LaTanya Richardson Jackson;actores_hollywood;21/10/1949;;Atlanta Georgia USA;Samuel L. Jackson;Matrimonio duradero de apoyo teatral y activismo discreto;1980-actualidad;vigente;1 Zoe
+Myrna Colley-Lee;actores_hollywood;16/09/1941;;Hamlet North Carolina USA;Morgan Freeman;Matrimonio largo con arte y filantropia luego distancia;1984-2010 26 años;Divorcio 2010;1 adoptada EDena
+Alexandra Hedison;actores_hollywood;10/07/1969;;Los Angeles California USA;Jodie Foster;Matrimonio discreto artistico entre cine y fotografia;2014-actualidad;vigente;2 hijastros Charles y Kit
+Daniel Moder;actores_hollywood;31/01/1969;;Los Angeles California USA;Julia Roberts;Matrimonio estable con camarografo lejos del foco;2002-actualidad;vigente;3 Hazel Phinnaeus Henry
+Keith Urban;actores_hollywood;26/10/1967;;Whangarei New Zealand;Nicole Kidman;Matrimonio musical con giras y familia entre Nashville y Sydney;2006-2026 19 años;Divorcio 2026;2 Sunday y Faith
+Andrew Upton;actores_hollywood;01/02/1966;;Australia;Cate Blanchett;Matrimonio teatral de dramaturgo y actriz con Sydney Theatre;1997-actualidad;vigente;4 Dashiell Roman Ignatius Edith
+Sean Penn;actores_hollywood;17/08/1960;;Santa Monica California USA;Charlize Theron;Noviazgo intenso con activismo y caracter fuerte;2013-2015 2 años;Separacion 2015;0
+Bryan Randall;actores_hollywood;10/04/1966;;Portland Oregon USA;Sandra Bullock;Pareja estable discreta con modelo y fotografo protector;2015-2023 8 años;Fallecimiento el 2023;1 hija el Skylar mas 2 adoptados ella Louis y Laila
+Brad Pitt;actores_hollywood;18/12/1963;;Shawnee Oklahoma USA;Angelina Jolie;Matrimonio Brangelina humanitario y mediático global;2005-2019 14 años;Divorcio 2019;6 Maddox Pax Zahara Shiloh Knox Vivienne
+Colin Jost;actores_hollywood;29/06/1982;;New York City USA;Scarlett Johansson;Matrimonio comico con humor y familia ensamblada;2020-actualidad;vigente;1 Cosmo mas hijastra Rose
+Cooke Maroney;actores_hollywood;03/07/1984;;New York City USA;Jennifer Lawrence;Matrimonio con galerista discreto y vida en Nueva York;2019-actualidad;vigente;2 hijos
+Dave McCary;actores_hollywood;02/07/1985;;San Diego California USA;Emma Stone;Matrimonio con director SNL creativo y bajo perfil;2020-actualidad;vigente;1 Louise
+Benjamin Millepied;actores_hollywood;10/06/1977;;Bordeaux Francia;Natalie Portman;Matrimonio de coreografo y actriz nacido en Black Swan;2012-2024 12 años;Divorcio 2024 por infidelidad;2 Aleph y Amalia
+Adam Shulman;actores_hollywood;02/04/1981;;New York City USA;Anne Hathaway;Matrimonio estable con actor y joyero emprendedor;2012-actualidad;vigente;2 Jonathan y Jack
+Ashton Kutcher;actores_hollywood;07/02/1978;;Cedar Rapids Iowa USA;Mila Kunis;Excompaneros That 70s Show turned familia estable;2015-actualidad;vigente;2 Wyatt y Dimitri
+Tom Ackerley;actores_hollywood;13/06/1990;;Surrey Inglaterra;Margot Robbie;Socios LuckyChap y matrimonio productor discreto;2016-actualidad;vigente;1 hijo
+Yaron Versano;actores_hollywood;28/06/1975;;Amsterdam Paises Bajos;Gal Gadot;Matrimonio con empresario hotelero e Israeli estable;2008-actualidad;vigente;4 Alma Maya Dani Ori
+Elsa Pataky;actores_hollywood;18/07/1976;;Madrid España;Chris Hemsworth;Matrimonio hispano-australiano con Byron Bay y familia;2010-actualidad;vigente;3 India Tristan Sasha
+Alba Baptista;actores_hollywood;10/07/1997;;Lisboa Portugal;Chris Evans;Matrimonio joven luso-americano discreto y familiar;2023-actualidad;vigente;0
+Susan Downey;actores_hollywood;06/11/1973;;Schaumburg USA;Robert Downey Jr.;Matrimonio que lo rescató y produce en dupla estable;2005-presente;vigente;2 Exton y Avri
+Katherine Schwarzenegger;actores_hollywood;13/12/1989;;Los Angeles USA;Chris Pratt;Matrimonio familiar con fe y libros infantiles;2019-presente;vigente;3 Lyla Eloise y Ford
+Blake Lively;actores_hollywood;25/08/1987;;Los Angeles USA;Ryan Reynolds;Superpareja divertida con humor y empresas conjuntas;2012-presente;vigente;4 James Inez Betty y Olin
+Deborra-Lee Furness;actores_hollywood;08/12/1955;;Sydney Australia;Hugh Jackman;Matrimonio largo con adopcion y filantropia;1996-2023 27 años;Separacion 2023;2 Oscar y Ava
+Sibi Blazic;actores_hollywood;14/04/1970;;Chicago USA;Christian Bale;Matrimonio discreto con doble y productora;2000-presente;vigente;2 Emmeline y Joseph
+Camila Alves;actores_hollywood;28/01/1982;;Itambacuri Brasil;Matthew McConaughey;Pareja tex-mex con fundacion y tequila;2006-presente casados 2012;vigente;3 Levi Vida Livingston
+Rooney Mara;actores_hollywood;17/04/1985;;Bedford USA;Joaquin Phoenix;Dupla vegana y activista de perfil bajo;2016-presente;vigente;2 River y bebe
+Jeanne Cadieu;actores_hollywood;08/04/1996;;Paris Francia;Jake Gyllenhaal;Noviazgo franco-americano discreto y modelaje;2018-presente;vigente;0
+Eva Mendes;actores_hollywood;05/03/1974;;Miami USA;Ryan Gosling;Familia blindada sin alfombras ni redes;2011-presente;vigente;2 Esmeralda y Amada
+Irina Shayk;actores_hollywood;06/01/1986;;Yemanzhelinsk Rusia;Bradley Cooper;Romance de modelo y actor con crianza compartida;2015-2019 4 años;Ruptura 2019;1 Lea
+Amal Clooney;actores_hollywood;03/02/1978;;Beirut Libano;George Clooney;Matrimonio humanitario abogada y estrella;2014-presente;vigente;2 Ella y Alexander
+Luciana Barroso;actores_hollywood;31/03/1976;;Salta Argentina;Matt Damon;Matrimonio con argentina y familia numerosa;2005-presente;vigente;4 Isabella Gia Stella y Alexia
+Jennifer Garner;actores_hollywood;17/04/1972;;Houston USA;Ben Affleck;Matrimonio familiar con crianza y rehabilitacion;2005-2018 13 años;Divorcio 2018;3 Violet Seraphina Samuel
+Rhea Durham;actores_hollywood;01/07/1978;;Lakeland USA;Mark Wahlberg;Matrimonio catolico con modelo y 4 hijos;2009-presente;vigente;4 Ella Michael Brendan Grace
+Jackie Sandler;actores_hollywood;24/09/1974;;Coral Springs USA;Adam Sandler;Compañera comica en todos sus films;2003-presente;vigente;2 Sadie y Sunny
+Jenny McCarthy;actores_hollywood;01/11/1972;;Chicago USA;Jim Carrey;Pareja mediatica con activismo y humor;2005-2010 5 años;Ruptura 2010;0 en comun
+Nicole Mitchell Murphy;actores_hollywood;05/01/1968;;Sacramento USA;Eddie Murphy;Matrimonio modelo-comico de los 90;1993-2006 13 años;Divorcio 2006;5 Bria Myles Shayne Zola Bella
+Marsha Garces;actores_hollywood;18/06/1956;;Milwaukee USA;Robin Williams;Niñera turned esposa y productora;1989-2010 21 años;Divorcio 2010;2 Zelda y Cody
+Jennifer Butler Murray;actores_hollywood;;desconocido;;Bill Murray;Matrimonio con vaquera y pleitos largos;1997-2008 11 años;Divorcio 2008;4 Caleb Jackson Cooper Lincoln
+Anne Stringfield;actores_hollywood;08/12/1972;;Pensacola USA;Steve Martin;Matrimonio discreto con escritora New Yorker;2007-presente;vigente;1 hija
+Annette Bening;actores_hollywood;29/05/1958;;Topeka USA;Warren Beatty;Ex don juan asentado con actriz y 4 hijos;1992-presente;vigente;4 Stephen Benjamin Isabel Ella
+Marcello Mastroianni;actores_hollywood;28/09/1924;;Fontana Liri Italia;Faye Dunaway;Romance italo-hollywood breve e intenso;1968-1971 3 años;Separacion;0
+Ted Turner;actores_hollywood;19/11/1938;;Cincinnati USA;Jane Fonda;Matrimonio magnate CNN y activista;1991-2001 10 años;Divorcio 2001;0 en comun
+Woody Allen;actores_hollywood;01/12/1935;;Bronx USA;Diane Keaton;Musa y director miticos de Manhattan;1969-1974;Ruptura;0
+Tim Robbins;actores_hollywood;16/10/1958;;West Covina USA;Susan Sarandon;Convivencia progre de 23 años sin casarse;1988-2009 21 años;Separacion 2009;2 Jack y Miles
+Jim Simpson;actores_hollywood;1956;;Hawaii USA;Sigourney Weaver;Matrimonio teatral estable y duradero;1984-presente;vigente;1 Charlotte
+David Shaw;actores_hollywood;22/04/1951;;Nashua USA;Glenn Close;Matrimonio con empresario y filantropia;2006-2015 9 años;Divorcio 2015;0
+Sam Shepard;actores_hollywood;05/11/1943;;Fort Sheridan USA;Jessica Lange;Dupla artistica teatro-cine bohemia;1982-2009 27 años;Separacion 2009;2 Hannah y Samuel
+David E. Kelley;actores_hollywood;04/04/1956;;Waterville USA;Michelle Pfeiffer;Matrimonio productor-estrella discreto;1993-presente;vigente;2 Claudia y John
+Phil Bronstein;actores_hollywood;04/10/1950;;Atlanta USA;Sharon Stone;Matrimonio periodista-estrella con adopcion;1998-2004 6 años;Divorcio 2004;1 Roan
+Ashton Kutcher;actores_hollywood;07/02/1978;;Cedar Rapids USA;Demi Moore;Boda cougar-icono con diferencia 15 años;2005-2013 8 años;Divorcio 2013;0 en comun
+Dennis Quaid;actores_hollywood;09/04/1954;;Houston USA;Meg Ryan;Pareja dorada 90s rota por fama;1991-2001 10 años;Divorcio 2001;1 Jack
+Johnny Depp;actores_hollywood;09/06/1963;;Owensboro USA;Winona Ryder;Compromiso Winona Forever tatuaje icono;1989-1993 4 años;Ruptura 1993;0
+Will Kopelman;actores_hollywood;07/07/1978;;Manhattan USA;Drew Barrymore;Matrimonio consultor-actriz con familia;2012-2016 4 años;Divorcio 2016;2 Olive y Frankie
+Chris Martin;actores_hollywood;02/03/1977;;Exeter UK;Gwyneth Paltrow;Matrimonio concious uncoupling Coldplay-Goop;2003-2016 13 años;Divorcio 2016;2 Apple y Moses
+Ryan Phillippe;actores_hollywood;10/09/1974;;New Castle USA;Reese Witherspoon;Novios teen turned padres jovenes;1999-2007 8 años;Divorcio 2007;2 Ava y Deacon
+Benji Madden;actores_hollywood;11/03/1979;;Waldorf USA;Cameron Diaz;Matrimonio rockera tardio y maternidad;2015-presente;vigente;2 Raddix y Cardinal
+Olivier Martinez;actores_hollywood;12/01/1966;;Paris Francia;Halle Berry;Romance franco explosivo y custodia;2013-2016 3 años;Divorcio 2016;1 Maceo
+Julius Tennon;actores_hollywood;24/12/1953;;Austin USA;Viola Davis;Matrimonio productor con adopcion tardia;2003-presente;vigente;1 Genesis
+Soltera;actores_hollywood;;;;Octavia Spencer;Sin pareja publica conocida enfocada en carrera;-;-;0
+Gian Luca Passi de Preposulo;actores_hollywood;10/11/1982;;Montebelluna Italia;Jessica Chastain;Matrimonio noble discreto con conde italiano;2012-presente;vigente;2
+Alex Greenwald;actores_hollywood;09/10/1979;;Los Angeles USA;Brie Larson;Ex prometido musico indie de 6 años;2013-2019 6 años;Ruptura 2019;0
+Darren Le Gallo;actores_hollywood;21/07/1974;;Landstuhl Alemania;Amy Adams;Matrimonio artista de 20 años y una hija;2001-presente;vigente;1 Aviana
+John Krasinski;actores_hollywood;20/10/1979;;Newton USA;Emily Blunt;Superpareja comica A Quiet Place;2008-presente;vigente;2 Hazel y Violet
+James Righton;actores_hollywood;25/08/1983;;Stratford UK;Keira Knightley;Matrimonio musico Klaxons y familia;2011-presente;vigente;2 Delilah y Edie
+Leo Robinton;actores_hollywood;23/10/1989;;USA;Emma Watson;Ex novio empresario discreto pandemia;2019-2021 2 años;Ruptura 2021;0
+Erin Darke;actores_hollywood;10/09/1984;;Flint USA;Daniel Radcliffe;Pareja actriz desde Kill Your Darlings;2012-presente;vigente;1 hijo
+Georgia Groome;actores_hollywood;11/02/1992;;Nottingham UK;Rupert Grint;Pareja Angus Thongs y bebe;2011-presente;vigente;2 Wednesday y Goldie
+Suki Waterhouse;actores_hollywood;05/01/1992;;Londres UK;Robert Pattinson;Pareja modelo-musica y bebe 2024;2018-presente;vigente;1 hijo
+Dylan Meyer;actores_hollywood;04/12/1987;;Los Angeles USA;Kristen Stewart;Esposa guionista compromiso queer;2019-presente casados 2025;vigente;0
+Brad Pitt;actores_hollywood;18/12/1963;;Shawnee USA;Jennifer Aniston;Matrimonio icono 2000s Friends vs mundo;2000-2005 5 años;Divorcio 2005;0
+David Arquette;actores_hollywood;08/09/1971;;Virginia USA;Courteney Cox;Matrimonio Scream con reality y hija;1999-2013 14 años;Divorcio 2013;1 Coco
+Michel Stern;actores_hollywood;;desconocido;;Los Angeles USA;Lisa Kudrow;Matrimonio publicista frances ultra discreto;1995-presente;vigente;1 Julian
+Matthew Broderick;actores_hollywood;21/03/1962;;Manhattan USA;Sarah Jessica Parker;Matrimonio teatral neoyorquino 27 años;1997-presente;vigente;3 James y gemelas
+Karl Cook;actores_hollywood;25/12/1990;;USA;Kaley Cuoco;Matrimonio ecuestre breve pandemia;2018-2022 3 años;Divorcio 2022;0
+Tom Holland;actores_hollywood;01/06/1996;;Londres UK;Zendaya;Novios Spider-Man confirmados y discretos;2021-presente;vigente;0
+Kylie Jenner;publicos_hoy;10/08/1997;;Los Angeles USA;Timothee Chalamet;Romance Kardashian-cine sorpresa 2023;2023-presente;vigente;0
+Zendaya;actores_hollywood;01/09/1996;;Oakland USA;Tom Holland;Pareja Spider-Man favorita Gen Z;2021-presente;vigente;0
+Emma Stone;actores_hollywood;06/11/1988;;Scottsdale USA;Andrew Garfield;Ex Amazing Spider-Man queridos;2011-2015 4 años;Ruptura 2015;0
+Jennifer Meyer;actores_hollywood;;1977;;USA;Tobey Maguire;Matrimonio joyera y 2 hijos;2007-2020 13 años;Divorcio 2020;2 Ruby y Otis
+Jesse Plemons;actores_hollywood;02/04/1988;;Dallas USA;Kirsten Dunst;Matrimonio Fargo y 2 hijos;2016-presente casados 2022;vigente;2 Ennis y James
+Mette-Marie Kongsved;actores_hollywood;10/05/1991;;Copenhague Dinamarca;Elijah Wood;Pareja productora danesa y 2 hijos;2018-presente;vigente;2 Evan y filha
+Katy Perry;publicos_hoy;25/10/1984;;Santa Barbara USA;Orlando Bloom;Compromiso pop con hija Daisy;2016-2025 9 años;Ruptura 2025;1 Daisy
+Ariadna Gil;actores_hollywood;23/01/1969;;Barcelona España;Viggo Mortensen;Pareja catalana cineasta discreta;2009-presente;vigente;0 en comun
+Soltero;actores_hollywood;;;;Ian McKellen;Sin pareja publica conocida activista gay;--;--;0
+Sunny Ozell;actores_hollywood;23/12/1978;;Reno USA;Patrick Stewart;Matrimonio jazz 30 años menor;2008-presente;vigente;0 en comun
+Lisa Liberati;actores_hollywood;16/03/1979;;Filadelfia USA;James McAvoy;Pareja asistenta turned esposa;2017-presente;vigente;1 Brendan
+Alicia Vikander;actores_hollywood;03/10/1988;;Gotemburgo Suecia;Michael Fassbender;Matrimonio Oscar europeo discreto;2014-presente casados 2017;vigente;2 hijos
+Izabel Pakzad;actores_hollywood;02/01/1996;;NY USA;James Franco;Novia actriz 8 años menor estable;2017-presente;vigente;0
+Lauren Miller Rogen;actores_hollywood;24/07/1982;;Florida USA;Seth Rogen;Matrimonio comico y fundacion Alzheimer;2004-presente casados 2011;vigente;0 deciden no hijos
+Sarah Brady;actores_hollywood;20/10/1996;;Encinitas USA;Jonah Hill;Romance surf breve y polemica control;2021-2022 1 año;Ruptura 2022;0
+Shauna Robertson;actores_hollywood;18/12/1974;;Markham Canada;Edward Norton;Matrimonio productora Apatow discreto;2012-presente;vigente;2 Atlas y segundo
+Sunrise Coigney;actores_hollywood;17/09/1972;;San Francisco USA;Mark Ruffalo;Matrimonio estable amor a primera vista;2000-presente;vigente;3 Keen Bella Odette
+Sonni Pacheco;actores_hollywood;21/03/1988;;Pitt Meadows Canada;Jeremy Renner;Matrimonio relampago y custodia;2014-2015 1 año;Divorcio 2015;1 Ava
+Annabelle Wallis;actores_hollywood;05/09/1984;;Oxford UK;Chris Pine;Noviazgo glamuroso 4 años;2018-2022 4 años;Ruptura 2022;0
+Marco Perego;actores_hollywood;01/03/1979;;Salo Italia;Zoe Saldana;Matrimonio artista apellido invertido;2013-presente;vigente;3 Cy Bowie Zen
+Malaak Compton;actores_hollywood;13/06/1969;;Oakland USA;Chris Rock;Matrimonio filantropico 20 años;1996-2016 20 años;Divorcio 2016;2 Lola y Zahra
+Elaine Chappelle;actores_hollywood;31/08/1974;;Brooklyn USA;Dave Chappelle;Matrimonio rancho Ohio fuera de foco;2001-presente;vigente;3 Sulayman Ibrahim Sanaa
+Eniko Parrish;actores_hollywood;18/08/1984;;Baltimore USA;Kevin Hart;Matrimonio con perdon tras infidelidad;2016-presente;vigente;2 Kenzo y Kaori
+Tanya Haden;actores_hollywood;11/10/1971;;NY USA;Jack Black;Amor secundaria reencontrado musica;2006-presente;vigente;2 Samuel y Thomas
+Viveca Paulin;actores_hollywood;24/04/1969;;Askim Suecia;Will Ferrell;Matrimonio estable y discreto actriz sueca y familia unida;2000-presente;vigente;3 Magnus Mattias Axel
+Nancy Carell;actores_hollywood;19/07/1966;;Cohasset USA;Steve Carell;Pareja de comediantes improv con humor complice;1995-presente;vigente;2 Elisabeth y John
+Robin Dearden;actores_hollywood;04/12/1953;;Los Angeles USA;Bryan Cranston;Matrimonio duradero se conocieron en rodaje;1989-presente;vigente;1 Taylor
+Lauren Parsekian;actores_hollywood;08/12/1986;;Orange County USA;Aaron Paul;Romance juvenil y fundacion Kind Campaign;2013-presente;vigente;2 Story y Ryden
+Natalie Viscuso;actores_hollywood;11/12/1988;;Roswell USA;Henry Cavill;Relacion privada estable ejecutiva Hollywood;2021-presente;vigente;1 hijo
+Joe DiMaggio;actores_hollywood;25/11/1914;;Martinez USA;Marilyn Monroe;Leyenda beisbol y sex symbol amor celoso mediatico;1954 9 meses;Divorcio 1954;0
+Pier Angeli;actores_hollywood;19/06/1932;;Cagliari Italia;James Dean;Romance tragico 50s frenado por estudio;1953-1955 2 años;Separacion 1955;0
+Veronica Balfe;actores_hollywood;27/05/1913;;Brooklyn USA;Gary Cooper;Matrimonio catolico largo con crisis y reconciliacion;1933-1961 28 años;Fallecimiento el 1961;1 Maria
+Carole Lombard;actores_hollywood;06/10/1908;;Fort Wayne USA;Clark Gable;Reina comedia y rey Hollywood pasion alegre;1939-1942 3 años;Fallecimiento ella 1942;0
+Vivien Leigh;actores_hollywood;05/11/1913;;Darjeeling India;Laurence Olivier;Mito teatral talento genial y tormento;1940-1960 20 años;Divorcio 1960;0 en comun
+Vivien Leigh;actores_hollywood;05/11/1913;;Darjeeling India;Laurence Olivier;Pasional creativa y tormentosa teatro y cine;1940-1960 20 años;Divorcio 1960;0
+Rita Hayworth;actores_hollywood;17/10/1918;;Brooklyn USA;Orson Welles;Apasionada breve incompatible con libertad;1943-1947 4 años;Divorcio 1947;1 Rebecca
+Frank Sinatra;actores_hollywood;12/12/1915;;Hoboken USA;Ava Gardner;Pasional celosa tormentosa alcohol y prensa;1951-1957 6 años;Divorcio 1957;0
+Aly Khan;actores_hollywood;13/06/1911;;Turin Italia;Rita Hayworth;Cuento hadas jet-set ella princesa celos;1949-1953 4 años;Divorcio 1953;1 Yasmin
+Rainiero III;actores_hollywood;31/05/1923;;Monaco;Grace Kelly;Protocolaria retiro cine y deber real;1956-1982 26 años;Fallecimiento ella 1982;3 Caroline Albert Stephanie
+Vincente Minnelli;actores_hollywood;28/02/1903;;Chicago USA;Judy Garland;Director-musa protectora y dependiente;1945-1951 6 años;Divorcio 1951;1 Liza Minnelli
+Ginger Rogers;actores_hollywood;16/07/1911;;Independence USA;Fred Astaire;Pareja baile 10 filmes perfeccionista;1933-1949 16 años;Separacion amistosa 1949;0
+Betsy Blair;actores_hollywood;11/12/1923;;Cliffside Park USA;Gene Kelly;Companera inicios marxismo y MGM;1941-1957 16 años;Divorcio 1957;1 Kerry
+Rudolf Sieber;actores_hollywood;20/02/1897;;Aussig Austria;Marlene Dietrich;Matrimonio abierto de por vida separados 1929;1923-1976 53 años;Fallecimiento el 1976;1 Maria Riva
+Oona ONeill;actores_hollywood;14/05/1925;;Warwick Bermuda;Charlie Chaplin;36 años diferencia estable exilio Suiza;1943-1977 34 años;Fallecimiento el 1977;8 hijos
+Douglas Fairbanks;actores_hollywood;23/05/1883;;Denver USA;Mary Pickford;Reyes Hollywood United Artists Pickfair;1920-1936 16 años;Divorcio 1936;0
+Douglas Fairbanks Jr;actores_hollywood;09/12/1909;;New York USA;Joan Crawford;Matrimonio joven glamour y celos;1929-1933 4 años;Divorcio 1933;0
+Joanna Shimkus;actores_hollywood;30/10/1943;;Halifax Canada;Sidney Poitier;Matrimonio interracial discreto 46 años;1976-2022 46 años;Fallecimiento el 2022;2 Anika y Pamela
+Cecilia Hart;actores_hollywood;19/02/1948;;New York USA;James Earl Jones;Matrimonio teatral estable;1982-2016 34 años;Fallecimiento ella 2016;1 Flynn
+Soltera;actores_hollywood;;;;Whoopi Goldberg;Sin pareja estable tres matrimonios breves;--;--;1 Alex
+Stedman Graham;actores_hollywood;06/03/1951;;Whitesboro USA;Oprah Winfrey;Pareja estable sin matrimonio 38 años;1986-presente;vigente;0
+Soltera;actores_hollywood;;;;Florence Pugh;Sin pareja publica actual ex Zach Braff;--;--;0
+Malcolm McRae;actores_hollywood;16/04/1994;;Alabama USA;Anya Taylor-Joy;Matrimonio musico discreto New Orleans;2022-presente;vigente;0
+Jack Lowden;actores_hollywood;02/06/1990;;Chelmsford UK;Saoirse Ronan;Matrimonio escoces Slow Horses;2024-presente;vigente;1 hijo
+Josh Allen;actores_hollywood;21/05/1996;;Firebaugh USA;Hailee Steinfeld;Matrimonio NFL-actriz Montecito;2025-presente;vigente;0
+Max Minghella;actores_hollywood;16/09/1985;;Hampstead UK;Elle Fanning;Noviazgo director-actriz 5 años;2018-2023 5 años;Ruptura 2023;0
+Henry Frye;actores_hollywood;;;;Dakota Fanning;Pareja empresario Carolina discreta;2017-presente;vigente;0
+Jake Bongiovi;actores_hollywood;07/05/2002;;New Jersey USA;Millie Bobby Brown;Matrimonio joven hijo Bon Jovi;2021-presente casados 2024;vigente;1 hija
+Soltero;actores_hollywood;;;;Finn Wolfhard;Sin pareja publica conocida;--;--;0
+Soltero;actores_hollywood;;;;Pedro Pascal;Sin pareja publica conocida;--;--;0
+Elvira Lind;actores_hollywood;28/10/1981;;Copenhague Dinamarca;Oscar Isaac;Matrimonio directora danesa 2 hijos;2017-presente;vigente;2 Eugene y Mads
+Joanne Tucker;actores_hollywood;26/06/1982;;Bermudas;Adam Driver;Matrimonio Juilliard discreto NYC;2013-presente;vigente;2 hijos
+Soltero;actores_hollywood;;;;John Boyega;Sin pareja publica conocida;--;--;0
+Tom Bateman;actores_hollywood;15/03/1989;;Oxford UK;Daisy Ridley;Matrimonio actor britanico discreto;2017-presente;vigente;0
+Joshua Jackson;actores_hollywood;11/06/1978;;Vancouver Canada;Lupita Nyongo;Noviazgo breve 2023-2024;2023-2024 1 año;Ruptura 2024;0
+Amandla Crichlow;actores_hollywood;30/11/1991;;Londres UK;Daniel Kaluuya;Pareja estable productora discreta;2017-presente;vigente;0
+Lori Harvey;actores_hollywood;13/01/1997;;Memphis USA;Michael B. Jordan;Noviazgo modelo icono 2 años;2020-2022 2 años;Ruptura 2022;0
+Taylor Simone Ledward;actores_hollywood;31/08/1990;;Los Angeles USA;Chadwick Boseman;Matrimonio cantante secreto hasta muerte;2015-2020 5 años;Fallecimiento el 2020;0
+Allison Hsu;actores_hollywood;;;;Simu Liu;Prometida marketing digital;2022-presente;vigente;0
+Soltera;actores_hollywood;;;;Awkwafina;Sin pareja publica conocida;--;--;0
+Lisa Bonet;actores_hollywood;16/11/1967;;San Francisco USA;Jason Momoa;Matrimonio bohemio 15 años;2005-2020 15 años;Divorcio 2024;2 Lola y Nakoa-Wolf
+Seth MacFarlane;actores_hollywood;26/10/1973;;Kent USA;Emilia Clarke;Noviazgo Family Guy-GoT breve;2012-2013 1 año;Ruptura 2013;0
+Rose Leslie;actores_hollywood;09/02/1987;;Aberdeen UK;Kit Harington;Jon-Ygritte turned matrimonio;2011-presente casados 2018;vigente;2 hijos
+Erica Schmidt;actores_hollywood;08/06/1975;;Los Angeles USA;Peter Dinklage;Matrimonio directora teatral discreta;2005-presente;vigente;2 hijos
+Reuben Selby;actores_hollywood;;;;Maisie Williams;Novio disenador 4 años;2019-2023 4 años;Ruptura 2023;0
+Joe Jonas;actores_hollywood;15/08/1989;;Casa Grande USA;Sophie Turner;Matrimonio Jonas-boda Vegas y divorcio;2019-2024 5 años;Divorcio 2024;2 Willa y Delphine
+Yvonne McGuinness;actores_hollywood;12/10/1972;;Kilkenny Irlanda;Cillian Murphy;Matrimonio artista visual 20 años;2004-presente;vigente;2 Malachy y Aran
+Charlotte Riley;actores_hollywood;29/12/1981;;Grindon UK;Tom Hardy;Matrimonio actriz Peaky discreto;2014-presente;vigente;2 hijos mas hijo Louis
+Vanessa Hudgens;actores_hollywood;14/12/1988;;Salinas USA;Austin Butler;Noviazgo HSM-Elvis 9 años;2011-2020 9 años;Ruptura 2020;0
+Jim Simpson;actores_hollywood;21/02/1956;;Hawaii USA;Sigourney Weaver;Matrimonio director teatral 40 años;1984-presente;vigente;1 Charlotte
+Michel Stern;actores_hollywood;27/07/1958;;Paris Francia;Lisa Kudrow;Matrimonio publicista frances discreto;1995-presente;vigente;1 Julian
+Jennifer Meyer;actores_hollywood;23/04/1977;;Los Angeles USA;Tobey Maguire;Matrimonio joyera 13 años;2007-2020 13 años;Divorcio 2020;2 Ruby y Otis
+Zach Braff;actores_hollywood;06/04/1975;;South Orange USA;Florence Pugh;Noviazgo 21 años diferencia pandemia;2019-2022 3 años;Ruptura 2022;0
+Lena Headey;actores_hollywood;03/10/1973;;Hamilton Bermuda;Pedro Pascal;Rumor amistad GoT nunca confirmado;2014-rumor;no confirmado;0
+Elsie Richter;actores_hollywood;12/05/2002;;Inglaterra UK;Finn Wolfhard;Novia actriz Dolls discreta;2021-presente;vigente;0
+Laurence Olivier;historia_destacados;22/05/1907;;Dorking UK;Vivien Leigh;Mito teatral tormentoso y genial;1940-1960 20 años;Divorcio 1960;0
+Soltero;historia_destacados;;;;Leonardo da Vinci;Sin pareja conocida genio solitario;--;--;0
+Soltero;historia_destacados;;;;Miguel Angel Buonarroti;Sin pareja conocida vida ascetica;--;--;0
+Maria Bibbiena;historia_destacados;;;;Rafael Sanzio;Prometida sobrina cardenal boda frustrada;1514-1520;Fallecimiento ella 1520;0
+Katharina von Bora;historia_destacados;29/01/1499;;Lippendorf;Martin Lutero;Ex monja turned reformadora y madre;1525-1546 21 años;Fallecimiento el 1546;6 hijos
+Ana Bolena;historia_destacados;01/01/1501;;Norfolk;Enrique VIII;Reina reformista decapitada Torre;1533-1536 3 años;Ejecucion 1536;1 Isabel I
+Soltera;historia_destacados;;;;Isabel I;Reina virgen sin matrimonio;--;--;0
+Catalina de Salazar;historia_destacados;01/01/1565;;Esquivias;Miguel de Cervantes;Matrimonio desigual 18 años menor;1584-1616 32 años;Fallecimiento el 1616;0
+Marina Gamba;historia_destacados;01/01/1570;;Venecia;Galileo Galilei;Pareja veneciana 3 hijos sin casarse;1599-1610 11 años;Separacion 1610;3 Virginia Livia Vincenzio
+Anne Hathaway;historia_destacados;01/01/1556;;Stratford;William Shakespeare;Esposa 8 años mayor 3 hijos;1582-1616 34 años;Fallecimiento el 1616;3 Susanna y gemelos
+Helena Jans;historia_destacados;;;;Rene Descartes;Pareja criada hija Francine;1634-1640;Separacion;1 Francine
+Saskia van Uylenburgh;historia_destacados;02/08/1612;;Leeuwarden;Rembrandt;Musa burguesa 4 hijos 1 vivo;1634-1642 8 años;Fallecimiento ella 1642;1 Titus
+Soltero;historia_destacados;;;;John Locke;Filosofo soltero empirista;--;--;0
+Soltero;historia_destacados;;;;Isaac Newton;Genio celibe alquimia;--;--;0
+Maria Barbara Bach;historia_destacados;20/10/1684;;Gehren;Johann Sebastian Bach;Prima y madre 7 hijos;1707-1720 13 años;Fallecimiento ella 1720;7 hijos
+Deborah Read;historia_destacados;14/02/1708;;Birmingham UK;Benjamin Franklin;Esposa sentido comun 44 años;1730-1774 44 años;Fallecimiento ella 1774;2 Francis y Sarah
+Therese Levasseur;historia_destacados;21/09/1721;;Orleans;Jean-Jacques Rousseau;Costurera 5 hijos hospicio;1745-1778 33 años;Fallecimiento el 1778;5 hijos
+Soltero;historia_destacados;;;;Adam Smith;Economista soltero con madre;--;--;0
+Soltero;historia_destacados;;;;Immanuel Kant;Filosfofo celibe rutina;--;--;0
+Martha Washington;historia_destacados;02/06/1731;;Virginia;George Washington;Viuda rica turned primera dama;1759-1799 40 años;Fallecimiento el 1799;0 en comun 4 de ella
+Martha Wayles;historia_destacados;19/10/1748;;Virginia;Thomas Jefferson;Esposa heredera 10 años;1772-1782 10 años;Fallecimiento ella 1782;6 hijos
+Christiane Vulpius;historia_destacados;01/06/1765;;Weimar;Goethe;Amante 18 años luego esposa;1788-1816 28 años;Fallecimiento ella 1816;5 hijos
+Constanze Weber;historia_destacados;05/01/1762;;Zell;Mozart;Soprano 6 embarazos 2 vivos;1782-1791 9 años;Fallecimiento el 1791;6 hijos 2 vivos
+Josefina de Beauharnais;historia_destacados;23/06/1763;;Martinica;Napoleon Bonaparte;Viuda criolla coronada y repudiada;1796-1810 14 años;Divorcio 1810;0 en comun
+Marie von Tucher;historia_destacados;01/01/1791;;Nuremberg;Hegel;Esposa burguesa 20 años menor;1811-1831 20 años;Fallecimiento el 1831;3 hijos
+Soltero;historia_destacados;;;;Beethoven;Amada inmortal nunca casado;--;--;0
+Johanna Osthoff;historia_destacados;01/01/1780;;Brunswick;Gauss;Primera esposa 3 hijos;1805-1809 4 años;Fallecimiento ella 1809;3 hijos
+Remedios de Escalada;historia_destacados;20/11/1797;;Buenos Aires;Jose de San Martin;Nina 14 años madre Merceditas;1812-1823 11 años;Fallecimiento ella 1823;1 Mercedes
+Soltera;historia_destacados;;;;Jane Austen;Soltera ironia y familia;--;--;0
+Maria Teresa del Toro;historia_destacados;15/10/1781;;Madrid;Simon Bolivar;Esposa 8 meses fiebre amarilla;1802-1803 1 año;Fallecimiento ella 1803;0
+Anne Isabella Milbanke;historia_destacados;17/05/1792;;Durham;Lord Byron;Princesa paralelogramos separada;1815-1816 1 año;Separacion 1816;1 Ada
+Adele Foucher;historia_destacados;27/09/1803;;Paris;Victor Hugo;Novia infancia 5 hijos;1822-1868 46 años;Fallecimiento ella 1868;5 hijos
+Virginia Clemm;historia_destacados;15/08/1822;;Baltimore;Edgar Allan Poe;Prima 13 años musa Annabel;1836-1847 11 años;Fallecimiento ella 1847;0
+Emma Wedgwood;historia_destacados;02/05/1808;;Staffordshire;Charles Darwin;Prima devota 10 hijos;1839-1882 43 años;Fallecimiento el 1882;10 hijos
+Mary Todd;historia_destacados;13/12/1818;;Lexington;Abraham Lincoln;Primera dama tragica 4 hijos;1842-1865 23 años;Asesinato el 1865;4 hijos
+George Sand;historia_destacados;01/07/1804;;Paris;Chopin;Baronesa 6 años mayor Nohant;1838-1847 9 años;Ruptura 1847;0 en comun
+Catherine Hogarth;historia_destacados;19/05/1815;;Edimburgo;Charles Dickens;Esposa 10 hijos repudiada;1836-1858 22 años;Separacion 1858;10 hijos
+Cosima Wagner;historia_destacados;24/12/1837;;Bellagio;Wagner;Hija Liszt Bayreuth;1870-1883 13 años;Fallecimiento el 1883;3 Isolde Eva Siegfried
+Giuseppina Strepponi;historia_destacados;08/09/1815;;Lodi;Verdi;Soprano compania 50 años;1859-1897 38 años;Fallecimiento ella 1897;0
+Jenny von Westphalen;historia_destacados;12/02/1814;;Salzwedel;Karl Marx;Baronesa exilio y miseria;1843-1881 38 años;Fallecimiento ella 1881;7 hijos
+Anna Snitkina;historia_destacados;12/09/1846;;San Petersburgo;Dostoievski;Taquigrafa 25 años menor 4 hijos;1867-1881 14 años;Fallecimiento el 1881;4 hijos 2 vivos
+Soltero;historia_destacados;;;;Gregor Mendel;Monje agustino genetica;--;--;0
+Marie Laurent;historia_destacados;15/01/1826;;Clermont;Louis Pasteur;Rectora hija 5 hijos;1849-1895 46 años;Fallecimiento el 1895;5 hijos 2 vivos
+Soltero;historia_destacados;;;;Brahms;Soltero Clara Schumann platonico;--;--;0
+Soltero;historia_destacados;;;;Alfred Nobel;Soltero premios y soledad;--;--;0
+Feozva Leshcheva;historia_destacados;01/01/1828;;Tobolsk;Mendeleyev;Primera esposa divorcio;1862-1882 20 años;Divorcio 1882;3 hijos
+Olivia Langdon;historia_destacados;27/11/1845;;Elmira USA;Mark Twain;Esposa editora 34 años;1870-1904 34 años;Fallecimiento ella 1904;4 hijos
+Laura Spelman;historia_destacados;09/09/1839;;Ohio;Rockefeller;Maestra filantropa 51 años;1864-1915 51 años;Fallecimiento ella 1915;5 hijos
+Antonina Miliukova;historia_destacados;16/08/1848;;Moscu;Chaikovski;Esposa legal 6 semanas;1877-1893;Separacion;0
+Rose Beuret;historia_destacados;09/06/1844;;Vecqueville;Rodin;Modelo 53 años boda final;1864-1917 53 años;Fallecimiento ella 1917;1 Auguste
+Camille Doncieux;historia_destacados;15/01/1847;;Lyon;Monet;Modelo 2 hijos impresionismo;1866-1879 13 años;Fallecimiento ella 1879;2 Jean y Michel
+Aline Charigot;historia_destacados;23/10/1859;;Essoyes;Renoir;Modelo 3 hijos;1880-1919 39 años;Fallecimiento ella 1919;3 Pierre Jean Claude
+Mabel Hubbard;historia_destacados;25/11/1857;;Cambridge USA;Graham Bell;Sorda maestra 4 hijos;1877-1922 45 años;Fallecimiento el 1922;4 hijos
+Sien Hoornik;historia_destacados;22/02/1850;;La Haya;Van Gogh;Prostituta modelo 1 año;1882-1883 1 año;Separacion 1883;0 en comun
+Martha Bernays;historia_destacados;26/07/1861;;Hamburgo;Freud;Esposa 53 años 6 hijos;1886-1939 53 años;Fallecimiento el 1939;6 hijos
+Soltero;historia_destacados;;;;Nikola Tesla;Celibe palomas y laboratorio;--;--;0
+Marie Merck;historia_destacados;01/01/1861;;Darmstadt;Max Planck;Primera esposa 4 hijos;1887-1909 22 años;Fallecimiento ella 1909;4 hijos
+Edith Carow;historia_destacados;06/08/1861;;Norwich USA;Theodore Roosevelt;Segunda esposa 5 hijos;1886-1919 33 años;Fallecimiento el 1919;5 hijos
+Louise Hawkins;historia_destacados;01/01/1857;;Inglaterra;Arthur Conan Doyle;Primera esposa 2 hijos;1885-1906 21 años;Fallecimiento ella 1906;2 Mary y Kingsley
+Olga Knipper;historia_destacados;21/09/1868;;Glazov;Anton Chejov;Actriz Moscu 3 años;1901-1904 3 años;Fallecimiento el 1904;0
+Alma Mahler;historia_destacados;31/08/1879;;Viena;Mahler;Musa 2 hijas tragedia;1902-1911 9 años;Fallecimiento el 1911;2 Maria y Manon
+Mrinalini Devi;historia_destacados;01/01/1874;;Jessore;Tagore;Esposa niña 5 hijos;1883-1902 19 años;Fallecimiento ella 1902;5 hijos
+Emma Bardac;historia_destacados;10/07/1862;;Burdeos;Debussy;Cantante 10 años;1908-1918 10 años;Fallecimiento el 1918;1 Dolly
+Marianne Weber;historia_destacados;02/08/1870;;Oerlinghausen;Max Weber;Feminista editora;1893-1920 27 años;Fallecimiento el 1920;0
+Kasturba Gandhi;historia_destacados;11/04/1869;;Porbandar;Gandhi;Ba 61 años lucha;1883-1944 61 años;Fallecimiento ella 1944;4 hijos
+Amelie Parayre;historia_destacados;01/01/1872;;Toulouse;Matisse;Esposa 3 hijos separacion;1898-1939 41 años;Separacion 1939;3 Jean Pierre Marguerite
+Alys Smith;historia_destacados;21/07/1867;;Filadelfia;Bertrand Russell;Cuakera 27 años;1894-1921 27 años;Divorcio 1921;0
+Clementine Hozier;historia_destacados;01/04/1885;;Londres;Winston Churchill;Esposa guerra 57 años;1908-1965 57 años;Fallecimiento el 1965;5 hijos
+Emma Jung;historia_destacados;30/03/1882;;Schaffhausen;Carl Jung;Esposa 5 hijos Toni Wolff;1903-1955 52 años;Fallecimiento ella 1955;5 hijos
+Nadezhda Alliluyeva;historia_destacados;22/09/1901;;Baku;Stalin;Segunda esposa suicidio;1919-1932 13 años;Fallecimiento ella 1932;2 Vasili y Svetlana
+Latife Ussaki;historia_destacados;17/06/1898;;Izmir;Ataturk;Esposa 2 años divorcio;1923-1925 2 años;Divorcio 1925;0
+Olga Khokhlova;historia_destacados;17/06/1891;;Ucrania;Picasso;Bailarina rusa 1 hijo;1918-1935 17 años;Separacion 1935;1 Paulo
+Jean-Paul Sartre;historia_destacados;21/06/1905;;Paris;Simone de Beauvoir;Pacto abierto 51 años;1929-1980 51 años;Fallecimiento el 1980;0
+Diego Rivera;historia_destacados;08/12/1886;;Guanajuato;Frida Kahlo;Muralista 3 veces boda;1929-1954 25 años;Fallecimiento ella 1954;0
+Juan Peron;historia_destacados;08/10/1895;;Lobos;Eva Peron;Coronel turned presidente;1945-1952 7 años;Fallecimiento ella 1952;0
+Simone de Beauvoir;historia_destacados;09/01/1908;;Paris;Sartre;Pareja filosfa feminista;1929-1980 51 años;Fallecimiento el 1980;0
+Gala Dali;historia_destacados;07/09/1894;;Kazan;Dali;Musa 48 años;1934-1982 48 años;Fallecimiento ella 1982;1 Cecile
+Emilie du Chatelet;influyentes_historia;17/12/1706;;Paris Francia;Voltaire;Amor intelectual Cirey colaboracion cientifica;1733-1749 16 años;Fallecimiento ella 1749;0 en comun
+Soltero;influyentes_historia;;;;Nietzsche;Filosofo solitario sin pareja;--;--;0
+Mina Miller;influyentes_historia;06/07/1865;;Ohio USA;Edison;Segunda esposa joven familiar;1886-1931 45 años;Fallecimiento el 1931;3 Madeleine Charles Theodore
+Clara Bryant;influyentes_historia;11/04/1866;;Michigan USA;Henry Ford;Esposa apoyo vida simple;1888-1947 59 años;Fallecimiento el 1947;1 Edsel
+Soltero;historia_destacados;;;;Munch;Soltero ansioso sin convivencia;--;--;0
+Pierre Curie;influyentes_historia;15/05/1859;;Paris Francia;Marie Curie;Matrimonio cientifico Nobel compartido;1895-1906 11 años;Fallecimiento el 1906;2 Irene y Eve
+Nadezhda Krupskaya;influyentes_historia;26/02/1869;;San Petersburgo;Lenin;Companera revolucion exilio;1898-1924 26 años;Fallecimiento el 1924;0
+Soltero;historia_destacados;;;;Mondrian;Soltero teosofico arte;--;--;0
+Beatrice OBrien;influyentes_historia;01/01/1882;;Clare Irlanda;Marconi;Matrimonio aristocratico infidelidades;1905-1924 19 años;Divorcio 1924;3 Degna Gioia Giulio
+Soltero;historia_destacados;;;;Ravel;Soltero discreto sin pareja;--;--;0
+Mileva Maric;historia_destacados;19/12/1875;;Titel Serbia;Albert Einstein;Primera esposa cientifica colaboracion;1903-1919 16 años;Divorcio 1919;3 Lieserl Hans Eduard
+Sarah McElroy;influyentes_historia;01/01/1881;;Irlanda;Fleming;Primera esposa enfermera;1915-1949 34 años;Fallecimiento ella 1949;1 Robert
+Leonard Woolf;historia_destacados;29/11/1880;;Londres UK;Virginia Woolf;Matrimonio literario Hogarth cuidado;1912-1941 29 años;Suicidio ella 1941;0
+Eleanor Roosevelt;influyentes_historia;11/10/1884;;New York USA;F. D. Roosevelt;Matrimonio politico complejo activismo;1905-1945 40 años;Fallecimiento el 1945;6 hijos
+Nora Barnacle;historia_destacados;21/03/1884;;Galway Irlanda;James Joyce;Musa fiel exilio Trieste Paris;1904-1941 37 años;Fallecimiento el 1941;2 Giorgio y Lucia
+Catherine Nossenko;historia_destacados;01/01/1881;;Rusia;Stravinski;Primera esposa rusa exilio;1906-1939 33 años;Fallecimiento ella 1939;4 hijos
+Margrethe Norlund;historia_destacados;07/03/1890;;Slagelse Dinamarca;Niels Bohr;Esposa estable instituto;1912-1962 50 años;Fallecimiento el 1962;6 hijos
+Laura Rodig;historia_destacados;07/06/1901;;Los Andes Chile;Gabriela Mistral;Companera intensa arte;1920-1925 5 años;Distanciamiento 1925;0
+Eva Braun;historia_destacados;06/02/1912;;Munich;Hitler;Relacion oculta Berghof final;1932-1945 13 años;Suicidio ambos 1945;0
+Soltero;influyentes_historia;;;;Wittgenstein;Filosofo celibe sin pareja;--;--;0
+Kamala Nehru;influyentes_historia;01/08/1899;;Delhi India;Nehru;Matrimonio independencia;1916-1936 20 años;Fallecimiento ella 1936;1 Indira
+Helene Weigel;historia_destacados;12/05/1900;;Viena Austria;Brecht;Dupla teatral Berliner;1929-1956 27 años;Fallecimiento el 1956;2 Stefan y Barbara
+Soltero;historia_destacados;;;;Garcia Lorca;Sin pareja conocida;--;--;0
+Edna Thompson;historia_destacados;01/01/1911;;USA;Duke Ellington;Primera esposa juventud;1918-1929 11 años;Separacion 1929;1 Mercer
+Hadley Richardson;historia_destacados;09/04/1891;;St Louis USA;Hemingway;Primera esposa Paris;1921-1927 6 años;Divorcio 1927;1 Jack
+Alma Reville;historia_destacados;14/08/1899;;Nottingham UK;Hitchcock;Guionista colaboradora 54 años;1926-1980 54 años;Fallecimiento el 1980;1 Patricia
+Maria Kodama;historia_destacados;10/03/1937;;Buenos Aires;Borges;Esposa albacea literaria;1986-1986 0 años;Fallecimiento el 1986;0
+Lucille Wilson;historia_destacados;01/01/1914;;USA;Louis Armstrong;Esposa estable 40 años;1942-1971 29 años;Fallecimiento el 1971;0
+Laura Capon;historia_destacados;01/01/1907;;Roma Italia;Fermi;Esposa exilio USA;1928-1954 26 años;Fallecimiento el 1954;2 Nella y Giulio
+Lillian Bounds;historia_destacados;15/02/1899;;Idaho USA;Walt Disney;Esposa 41 años estudio;1925-1966 41 años;Fallecimiento el 1966;2 Diane y Sharon
+Elisabeth Schumacher;historia_destacados;01/01/1910;;;Heisenberg;Esposa 7 hijos;1937-1976 39 años;Fallecimiento el 1976;7 hijos
+Anne Morrow;historia_destacados;22/06/1906;;New Jersey USA;Lindbergh;Pilotos escritora;1929-1974 45 años;Fallecimiento el 1974;6 hijos
+Carol Henning;historia_destacados;01/01/1906;;USA;Steinbeck;Primera esposa editora;1930-1943 13 años;Divorcio 1943;0
+Josefine Henninger;historia_destacados;01/01/1906;;Viena Austria;Karl Popper;Esposa 40 años;1930-1985 55 años;Fallecimiento ella 1985;0
+Matilde Urrutia;historia_destacados;05/05/1912;;Chile;Neruda;Musa tercera esposa;1966-1973 7 años;Fallecimiento el 1973;0
+Soltero;influyentes_historia;;;;Turing;Sin pareja conocida;--;--;0
+Raymond Parks;influyentes_historia;12/02/1903;;Alabama USA;Rosa Parks;Matrimonio activista 45 años;1932-1977 45 años;Fallecimiento el 1977;0
+Francine Faure;historia_destacados;01/01/1914;;Oran Argelia;Camus;Esposa gemelos;1940-1960 20 años;Fallecimiento el 1960;2 Catherine y Jean
+Marie-Jose Tramini;historia_destacados;;;;Octavio Paz;Segunda esposa 30 años;1964-1998 34 años;Fallecimiento el 1998;0
+Aurora Bernardez;historia_destacados;01/01/1920;;Buenos Aires;Cortazar;Primera esposa traductora;1953-1967 14 años;Divorcio 1967;0
+Donna Lindsay;historia_destacados;;;;Jonas Salk;Matrimonio vacuna polio fama;1939-1968 29 años;Divorcio 1968;3 Peter Darrell Jonathan
+Soltero;influyentes_historia;;;;Kant;Filosofo celibe deber;--;--;0
+Julie Carron;historia_destacados;01/01/1782;;Lyon Francia;Ampere;Amor juvenil truncado;1799-1803 4 años;Fallecimiento ella 1803;1 Jean-Jacques
+Felicita Mazze;historia_destacados;;;;Avogadro;Matrimonio sobrio religioso;1815-1856 41 años;Fallecimiento el 1856;6 hijos
+Inger Ballum;historia_destacados;01/01/1788;;Dinamarca;Oersted;Esposa fiel numerosa;1814-1851 37 años;Fallecimiento el 1851;7 hijos
+Mary Mottley;historia_destacados;01/01/1797;;Inglaterra;Tocqueville;Esposa inglesa apoyo;1835-1859 24 años;Fallecimiento el 1859;0
+Margarita Maza;historia_destacados;29/03/1826;;Oaxaca Mexico;Juarez;Matrimonio liberal exilio;1843-1871 28 años;Fallecimiento ella 1871;12 hijos
+Marie dAgoult;historia_destacados;31/12/1805;;Frankfurt;Liszt;Amante condesa escritora;1835-1839 4 años;Ruptura 1839;3 Blandine Cosima Daniel
+Regine Olsen;historia_destacados;23/01/1822;;Copenhague;Kierkegaard;Prometida musa ruptura;1840-1841 1 año;Ruptura 1841;0
+Soltero;influyentes_historia;;;;Thoreau;Soltero Walden;--;--;0
+Ida Ferrier;historia_destacados;01/01/1812;;Paris Francia;Dumas;Actriz esposa formal;1840-1864 24 años;Separacion;0
+Harriet Smithson;historia_destacados;18/03/1800;;Irlanda;Berlioz;Musa Sinfonia fantastica;1833-1854 21 años;Fallecimiento ella 1854;1 Louis
+Soltero;historia_destacados;;;;Andersen;Soltero cuentos soledad;--;--;0
+Mary Horsley;historia_destacados;01/01/1799;;Londres UK;Brunel;Esposa ingenieria victoriana;1830-1859 29 años;Fallecimiento el 1859;3 hijos
+Clara Schumann;historia_destacados;13/09/1819;;Leipzig;Schumann;Pianista 8 hijos;1840-1856 16 años;Fallecimiento el 1856;8 hijos
+Suzannah Thoresen;historia_destacados;26/06/1836;;Noruega;Ibsen;Esposa sosten dramaturgo;1858-1906 48 años;Fallecimiento el 1906;1 Sigurd
+Honorine Morel;historia_destacados;01/01/1830;;Francia;Verne;Viuda estabilidad burguesa;1857-1905 48 años;Fallecimiento el 1905;1 Michel
+Sofia Behrs;historia_destacados;22/08/1844;;Moscu;Tolstoi;Esposa copista crisis;1862-1910 48 años;Fallecimiento el 1910;13 hijos
+Soltero;influyentes_historia;;;;Dunant;Soltero Cruz Roja;--;--;0
+Soltero;historia_destacados;;;;Degas;Soltero ballet;--;--;0
+Marie Truffot;historia_destacados;01/01/1855;;Paris Francia;Saint-Saens;Matrimonio duelo infantil;1875-1881 6 años;Separacion;2 hijos
+Hortense Fiquet;historia_destacados;22/04/1850;;Francia;Cezanne;Modelo oculta años;1886-1906 20 años;Fallecimiento el 1906;1 Paul
+Anna Cermakova;historia_destacados;07/10/1854;;Praga;Dvorak;Madre prolifica estable;1873-1904 31 años;Fallecimiento el 1904;9 hijos
+Nina Hagerup;historia_destacados;24/11/1845;;Bergen;Grieg;Prima soprano musa;1867-1907 40 años;Fallecimiento el 1907;1 Alexandra
+Emmy Fraatz;historia_destacados;01/01/1848;;Alemania;Koch;Primera esposa apoyo;1867-1893 26 años;Divorcio 1893;1 Gertrud
+Mette Gad;historia_destacados;01/01/1850;;Dinamarca;Gauguin;Esposa abandono exotico;1873-1887 14 años;Separacion 1887;5 hijos
+Fanny Osbourne;historia_destacados;10/03/1840;;Indiana USA;Stevenson;Aventurera mayor cuidada;1880-1894 14 años;Fallecimiento el 1894;1 Lloyd
+Silveria Fananas;historia_destacados;01/01/1854;;Huesca España;Ramon y Cajal;Esposa discreta numerosa;1879-1934 55 años;Fallecimiento el 1934;7 hijos
+Carmen Zayas;historia_destacados;19/05/1856;;Cuba;Jose Marti;Matrimonio exilio ruptura;1877-1891 14 años;Separacion 1891;1 Jose Francisco
+Louise Dreyfus;historia_destacados;;;;Durkheim;Esposa apoyo academico;1887-1917 30 años;Fallecimiento el 1917;2 hijos
+Elvira Bonturi;historia_destacados;01/01/1860;;Lucca Italia;Puccini;Amor escandaloso duradero;1884-1924 40 años;Fallecimiento el 1924;1 Antonio
+Louise Neuburger;historia_destacados;;;;Bergson;Esposa burguesa estable;1892-1941 49 años;Fallecimiento el 1941;1 Jeanne
+Alice Chipman;historia_destacados;01/01/1858;;Michigan USA;Dewey;Maestra feminista;1886-1927 41 años;Fallecimiento ella 1927;7 hijos
+Klara Silbernik;historia_destacados;06/10/1863;;Kaunas;Zamenhof;Companera esperanto;1887-1917 30 años;Fallecimiento el 1917;3 hijos
+Eva Sars;historia_destacados;17/12/1858;;Oslo;Nansen;Mezzo exploradora;1889-1907 18 años;Fallecimiento ella 1907;5 hijos
+Kathe Jerosch;historia_destacados;01/01/1864;;Konigsberg;Hilbert;Esposa Gotinga;1887-1943 56 años;Fallecimiento el 1943;1 Franz
+Pauline de Ahna;historia_destacados;04/02/1863;;Ingolstadt;Strauss;Soprano temperamental musa;1894-1949 55 años;Fallecimiento el 1949;1 Franz
+Concha Lizarraga;historia_destacados;01/01/1864;;Bilbao;Unamuno;Novia infancia numerosa;1891-1936 45 años;Fallecimiento el 1936;9 hijos
+Nina Andreevskaya;historia_destacados;01/01/1899;;Moscu;Kandinski;Segunda esposa devota;1917-1944 27 años;Fallecimiento el 1944;1 Vsevolod
+Soltero;historia_destacados;;;;Satie;Bohemia sin pareja;--;--;0
+Marta Canessa;politicos_uy;16/12/1936;;Montevideo;Julio Maria Sanguinetti;Matrimonio historiadora y presidente dos veces;1960-presente;vigente;2 Julio y Emilia
+Julia Pou;politicos_uy;10/06/1947;;Montevideo;Luis Alberto Lacalle Herrera;Matrimonio 3 hijos abuelos;1970-presente;vigente;3 Pilar Luis Magdalena
+Mercedes Menafra;politicos_uy;20/06/1943;;Montevideo;Jorge Batlle;Empresaria primera dama 2000-2005;1989-2016 27 años;Fallecimiento el 2016;0
+Maria Auxiliadora Delgado;politicos_uy;;;;Tabare Vazquez;Esposa 55 años 4 hijos;1964-2019 55 años;Fallecimiento ella 2019;4 Alvaro Javier Ignacio Gabriela
+Lorena Ponce de Leon;politicos_uy;06/10/1976;;Montevideo;Luis Lacalle Pou;Paisajista 3 hijos divorcio;2000-2024 24 años;Divorcio 2024;3 Luis Violeta Manuel
+Laura Alonso;politicos_uy;;;;Yamandu Orsi;Esposa tambo Canelones perfil bajo;2000-presente;vigente;2 Lucía y Victor
+Margarita Gari;politicos_uy;;;;Gonzalo Aguirre;Matrimonio tradicional;1970-presente;vigente;3 hijos
+Hilda Flores;politicos_uy;;;;Hugo Batalla;Matrimonio frenteamplista;1960-presente;vigente;2 hijos
+Desconocida;politicos_uy;;;;Hugo Fernandez Faingold;Sin dato publico;--;--;0
+Liliam Volpi;politicos_uy;;;;Luis Hierro Lopez;Matrimonio colorado;1970-presente;vigente;2 hijos
+Patricia Mezzeta;politicos_uy;;;;Rodolfo Nin Novoa;Matrimonio 4 hijos;1975-presente;vigente;4 hijos
+Claudia Hugo;politicos_uy;;;;Danilo Astori;Companera economia;1980-presente;vigente;2 Florencia y Francisco
+Daniela Rossello;politicos_uy;;;;Raul Sendic;Esposa 2 hijos;2000-presente;vigente;2 hijos
+Jose Mujica;politicos_uy;20/05/1935;;Montevideo;Lucia Topolansky;Matrimonio guerrilla chacra sin hijos;2005-2025 20 años;Fallecimiento el 2025;0
+Jorge Fernandez Reyes;politicos_uy;;;;Beatriz Argimon;Matrimonio divorcio;1990-2010;Divorcio;2 Guillermo y Camila
+Soltera;politicos_uy;;;;Carolina Cosse;Soltera 1 hijo ingeniera;--;--;1 Juan Pablo
+Susana Sienra;politicos_uy;;;;Wilson Ferreira Aldunate;Esposa exilio 4 hijos;1940-presente;vigente;4 Juan Raul Gonzalo Susana
+Ana Maria Vidal;politicos_uy;;;;Jorge Larrañaga;Esposa 3 hijos;1980-2021 41 años;Fallecimiento el 2021;3 Jorge Ana Faustina
+Marianne Birkmyre;politicos_uy;;;;Luis Almagro;Esposa 7 hijos cancilleria;2000-presente;vigente;7 hijos
+Soledad Rivas;politicos_uy;;;;Ernesto Talvi;Esposa economista;2000-presente;vigente;3 hijos
+Antonela Roccuzzo;publicos_hoy;26/02/1988;;Rosario Argentina;Lionel Messi;Amor infancia 3 hijos;2008-presente casados 2017;vigente;3 Thiago Mateo Ciro
+Georgina Rodriguez;publicos_hoy;27/01/1994;;Buenos Aires Argentina;Cristiano Ronaldo;Pareja 2016 5 hijos;2016-presente;vigente;5 Alana Bella Esmeralda y gemelos
+Soltero;publicos_hoy;;;;Kylian Mbappe;Soltero ex Rose Bertram;--;--;0
+Isabel Johansen;publicos_hoy;;;;Erling Haaland;Novia noruega 1 hijo;2020-presente;vigente;1 hijo
+Ashlyn Castro;publicos_hoy;;;;Jude Bellingham;Novia modelo 2024;2024-presente;vigente;0
+Soltero;publicos_hoy;;;;Vinicius Junior;Soltero ex Maria Mazalli;--;--;0
+Nicki Nicole;publicos_hoy;25/08/2000;;Rosario Argentina;Lamine Yamal;Novia cantante 2025 ex Alex Padilla;2025-presente;vigente;0
+Anna Lewandowska;publicos_hoy;07/09/1988;;Lodz Polonia;Lewandowski;Matrimonio karate 2 hijas;2013-presente;vigente;2 Klara y Laura
+Michele Lacroix;publicos_hoy;08/12/1993;;Genk Belgica;De Bruyne;Matrimonio 3 hijos;2017-presente;vigente;3 Mason Rome Suri
+Jelena Djokovic;publicos_hoy;17/06/1986;;Belgrado Serbia;Djokovic;Novios colegio 2 hijos;2005-presente casados 2014;vigente;2 Stefan y Tara
+Soltero;publicos_hoy;;;;Carlos Alcaraz;Soltero joven;--;--;0
+Laila Hasanovic;publicos_hoy;;;;Sinner;Novia modelo 2025 ex Kalinskaya;2025-presente;vigente;0
+Soltera;publicos_hoy;;;;Swiatek;Soltera tenis foco;--;--;0
+Georgios Frangulis;publicos_hoy;;;;Sabalenka;Novio empresario 2024;2024-presente;vigente;0
+Mery Perello;publicos_hoy;07/07/1988;;Mallorca España;Nadal;Novios 14 años 1 hijo;2005-presente casados 2019;vigente;1 Rafael
+Mirka Federer;publicos_hoy;01/04/1978;;Bojnice Eslovaquia;Federer;Ex tenista gemelos;2000-presente casados 2009;vigente;4 Myla Charlene Lenny Leo
+Jonathan Owens;publicos_hoy;22/07/1995;;St Louis USA;Simone Biles;Matrimonio NFL 2023;2023-presente;vigente;0
+Savannah James;publicos_hoy;27/08/1986;;Akron USA;LeBron James;Novios high school 3 hijos;2002-presente casados 2013;vigente;3 Bronny Bryce Zhuri
+Ayesha Curry;publicos_hoy;23/03/1989;;Toronto Canada;Stephen Curry;Matrimonio cocina 4 hijos;2011-presente;vigente;4 Riley Ryan Canon Caius
+Natalija Jokic;publicos_hoy;;;;Jokic;Esposa 2 hijas;2020-presente;vigente;2 Ognjena y hija
+Kelly Piquet;publicos_hoy;07/12/1988;;Homburg Alemania;Verstappen;Pareja estable F1 familia discreta;2021-presente;vigente;1 Lily mas hijastra Penelope
+Soltero;publicos_hoy;;;;Hamilton;Sin pareja publica actual;--;--;0
+Melissa Jimenez;publicos_hoy;;;;Alonso;Relacion periodista deportiva;2023-presente;vigente;0
+Carola Martinez;publicos_hoy;;;;Checo Perez;Matrimonio estable 4 hijos;2011-presente casados 2018;vigente;4 hijos
+Soltero;publicos_hoy;;;;Colapinto;Sin pareja publica;--;--;0
+Mamiko Tanaka;publicos_hoy;11/12/1996;;Tokio Japon;Ohtani;Matrimonio deportistas sorpresa;2024-presente;vigente;1 hija
+Lakiha Spicer;publicos_hoy;11/06/1977;;Filadelfia USA;Mike Tyson;Matrimonio estabilizador;2009-presente;vigente;2 Milan y Morocco
+Fernanda Gomez;publicos_hoy;;;;Canelo Alvarez;Matrimonio empresaria Guadalajara;2017-presente casados 2021;vigente;1 Maria Fernanda
+Giorgina Uzcategui;publicos_hoy;;;;Topuria;Pareja bajo perfil 2 hijos;2019-presente;vigente;2 hijos
+Dee Devlin;publicos_hoy;14/08/1987;;Dublin Irlanda;McGregor;Pareja pre-fama 4 hijos;2008-presente;vigente;4 hijos
+Kasi Bennett;publicos_hoy;;;;Usain Bolt;Pareja años Jamaica 3 hijos;2014-presente;vigente;3 hijos
+Nicole Johnson;publicos_hoy;12/07/1985;;Colorado USA;Phelps;Matrimonio Miss California 4 hijos;2010-presente casados 2016;vigente;4 hijos
+Soltero;publicos_hoy;;;;Tom Brady;Soltero tras Gisele 2022;--;--;3 previos
+Brittany Mahomes;publicos_hoy;31/08/1995;;Texas USA;Mahomes;Novios instituto NFL;2011-presente casados 2022;vigente;3 hijos
+Anamaria Goltes;publicos_hoy;30/04/1998;;Eslovenia;Doncic;Pareja juventud discreta;2016-presente;vigente;1 Gabriela
+Mariah Riddlesprigger;publicos_hoy;17/09/1992;;Fresno USA;Giannis;Familia fundacion bajo perfil;2014-presente;vigente;3 hijos
+Erica Stoll;publicos_hoy;;;;McIlroy;Matrimonio PGA crisis 2024 reconciliados;2014-presente casados 2017;vigente;1 Poppy
+Urska Zigart;publicos_hoy;04/12/1996;;Eslovenia;Pogacar;Pareja ciclista compromiso;2019-presente;vigente;0
+Gemma Pinto;publicos_hoy;;;;Marquez;Noviazgo MotoGP;2023-presente;vigente;0
+Olga Rios;publicos_hoy;;;;Putellas;Pareja discreta Barcelona;2022-presente;vigente;0
+Travis Kelce;publicos_hoy;05/10/1989;;Ohio USA;Taylor Swift;Pareja NFL-pop casados 2026;2023-presente;vigente;0
+Jay-Z;publicos_hoy;04/12/1969;;Brooklyn USA;Beyonce;Matrimonio poder 3 hijos;2008-presente;vigente;3 Blue Ivy Rumi Sir
+Soltera;publicos_hoy;;;;Billie Eilish;Soltera;--;--;0
+Soltero;publicos_hoy;;;;Bad Bunny;Soltero ex Gabriela;--;--;0
+Soltera;publicos_hoy;;;;Rosalia;Soltera ex Jeremy Allen;--;--;0
+Soltera;publicos_hoy;;;;Shakira;Soltera ex Pique;--;--;2 Milan y Sasha
+Feid;publicos_hoy;19/08/1992;;Medellin Colombia;Karol G;Pareja musical vigente;2023-presente;vigente;0
+A$AP Rocky;publicos_hoy;03/10/1988;;Harlem USA;Rihanna;Pareja 2 hijos;2020-presente;vigente;2 RZA y Riot
+Soltero;publicos_hoy;;;;Drake;Soltero;--;--;1 Adonis
+Whitney Alford;publicos_hoy;12/05/1986;;Compton USA;Kendrick Lamar;Pareja escuela 2 hijos;2015-presente;vigente;2 hijos
+Cherry Seaborn;publicos_hoy;06/05/1992;;Suffolk UK;Ed Sheeran;Matrimonio infancia 2 hijas;2019-presente;vigente;2 Lyra y Jupiter
+Rich Paul;publicos_hoy;16/12/1981;;Cleveland USA;Adele;Matrimonio agente 2024;2021-presente;vigente;1 Angelo previo
+Callum Turner;publicos_hoy;15/02/1990;;Londres UK;Dua Lipa;Pareja actor 2024;2024-presente;vigente;0
+Soltera;publicos_hoy;;;;Olivia Rodrigo;Soltera;--;--;0
+Soltero;publicos_hoy;;;;Harry Styles;Soltero;--;--;0
+Hailey Bieber;publicos_hoy;22/11/1996;;Tucson USA;Justin Bieber;Matrimonio 2018 1 hijo;2018-presente;vigente;1 Jack Blues
+Ethan Slater;publicos_hoy;02/06/1992;;Washington USA;Ariana Grande;Pareja Wicked tras divorcio;2023-presente;vigente;0
+Benny Blanco;publicos_hoy;08/03/1988;;Virginia USA;Selena Gomez;Matrimonio productor 2025;2023-presente;vigente;0
+Maxx Morando;publicos_hoy;16/11/1998;;Los Angeles USA;Miley Cyrus;Pareja baterista 2021;2021-presente;vigente;0
+Michael Polansky;publicos_hoy;01/01/1978;;San Francisco USA;Lady Gaga;Pareja empresario compromiso;2020-presente;vigente;0
+Soltero;publicos_hoy;;;;Bruno Mars;Ex Jessica Caban ruptura 2024;2011-2024;Ruptura 2024;0
+Soltero;publicos_hoy;;;;The Weeknd;Sin pareja publica;--;--;0
+Jamie;publicos_hoy;;;;Post Malone;Prometida privada 1 hija;2021-presente;vigente;1 hija
+Soltero;publicos_hoy;;;;Travis Scott;Ex Kylie 2 hijos;2017-2023;Ruptura 2023;2 Stormi y Aire
+Karol G;publicos_hoy;14/02/1991;;Medellin Colombia;Feid;Pareja musical vigente;2023-presente;vigente;0
+Soltero;publicos_hoy;;;;Rauw Alejandro;Ex Rosalia 2023;2019-2023;Ruptura 2023;0
+Valentina Ferrer;publicos_hoy;19/09/1993;;Cordoba Argentina;J Balvin;Pareja madre Rio;2018-presente;vigente;1 Rio
+Susana Gomez;publicos_hoy;;;;Maluma;Pareja arquitecta 2 hijas;2020-presente;vigente;2 Paris y hija
+Soltera;publicos_hoy;;;;Anitta;Sin pareja publica;--;--;0
+Soltero;publicos_hoy;;;;Peso Pluma;Ex Nicki Nicole 2024;2023-2024;Ruptura 2024;0
+Angela Aguilar;publicos_hoy;08/10/2003;;Los Angeles USA;Nodal;Esposa 2024;2024-presente;vigente;0
+Soltero;publicos_hoy;;;;Bizarrap;Sin pareja publica;--;--;0
+Emilia Mernes;publicos_hoy;29/10/1996;;Nogoya Argentina;Duki;Pareja comprometidos;2021-presente;vigente;0
+Duki;publicos_hoy;24/06/1996;;Buenos Aires Argentina;Emilia Mernes;Pareja comprometidos;2021-presente;vigente;0
+Soltera;publicos_hoy;;;;Tini Stoessel;Ex De Paul 2023;2022-2023;Ruptura 2023;0
+Pedro Rosemblat;publicos_hoy;01/01/1990;;Buenos Aires Argentina;Lali Esposito;Pareja periodista 2023;2023-presente;vigente;0
+Eugenia Kolodziej;publicos_hoy;01/01/1989;;Rosario Argentina;Fito Paez;Pareja 2014;2014-presente;vigente;0
+Soltero;publicos_hoy;;;;Chris Martin;Ex Dakota Johnson 2025;2017-2025;Ruptura 2025;2 previos
+Nancy Shevell;publicos_hoy;20/11/1959;;New York USA;Paul McCartney;Esposa 2011;2011-presente;vigente;0 en comun
+Melanie Hamrick;publicos_hoy;17/07/1987;;Williamsburg USA;Mick Jagger;Pareja bailarina 1 hijo;2014-presente;vigente;1 Deveraux
+Akeem Morris;publicos_hoy;29/08/1996;;Kingston Jamaica;Madonna;Noviazgo 38 años diferencia;2024-presente;vigente;0
+Ali Hewson;publicos_hoy;23/03/1961;;Dublin Irlanda;Bono;Matrimonio 40 años 4 hijos;1982-presente;vigente;4 hijos
+Jessica Ledon;publicos_hoy;22/01/1990;;La Habana Cuba;Guetta;Matrimonio modelo 1 hijo;2023-presente;vigente;1 Cyan
+Soltero;publicos_hoy;;;;Daddy Yankee;Soltero tras divorcio 2024;2024-presente;--;3 previos
+Swizz Beatz;publicos_hoy;13/09/1978;;Bronx USA;Alicia Keys;Matrimonio musical 2 hijos;2010-presente;vigente;2 Egypt y Genesis
+Soltera;publicos_hoy;;;;Jennifer Lopez;Soltera tras Affleck 2024;2024-presente;--;2 previos
+Nadia Ferreira;publicos_hoy;10/05/1999;;Villarrica Paraguay;Marc Anthony;Matrimonio Miss 1 hijo;2023-presente;vigente;1 Marco
+Anna Kournikova;publicos_hoy;07/06/1981;;Moscu Rusia;Enrique Iglesias;Pareja 20 años 3 hijos;2001-presente;vigente;3 Lucy Nicholas Mary
+Soltera;publicos_hoy;;;;Aitana;Soltera tras Yatra;2024-presente;--;0
+Thea Booysen;publicos_hoy;05/12/1997;;Sudafrica;MrBeast;Noviazgo compromiso;2022-presente;vigente;0
+Nina Agdal;publicos_hoy;26/03/1992;;Dinamarca;Logan Paul;Matrimonio 2025 1 hija;2023-presente;vigente;1 Esme
+Jutta Leerdam;publicos_hoy;30/12/1998;;Holanda;Jake Paul;Compromiso patinadora;2023-presente;vigente;0
+Soltero;publicos_hoy;;;;KSI;Sin pareja publica;--;--;0
+Marzia Kjellberg;publicos_hoy;21/10/1992;;Italia;PewDiePie;Matrimonio Japon 1 hijo;2019-presente;vigente;1 Bjorn
+Soltero;publicos_hoy;;;;Khaby Lame;Soltero tras Zaira;2024-presente;--;0
+Soltera;publicos_hoy;;;;Charli DAmelio;Sin pareja actual;--;--;0
+Soltera;publicos_hoy;;;;Addison Rae;Soltera tras Omer;--;--;0
+Soltera;publicos_hoy;;;;Kim Kardashian;Soltera tras Kanye;--;--;4 previos
+Timothee Chalamet;publicos_hoy;27/12/1995;;New York USA;Kylie Jenner;Romance 2023;2023-presente;vigente;0
+Soltera;publicos_hoy;;;;Kendall Jenner;Sin pareja actual;--;--;0
+Laura Llopis;publicos_hoy;;;;Pablo Motos;Matrimonio discreto 3 hijos;2000-presente;vigente;3 hijos
+Dabiz Muñoz;publicos_hoy;15/01/1980;;Madrid España;Cristina Pedroche;Matrimonio chef 2 hijos;2015-presente;vigente;2 hijos
+Soltera;publicos_hoy;;;;Susanna Griso;Soltera tras Pedro Jimenez;--;--;2 previos
+Soltero;publicos_hoy;;;;Jorge Javier Vazquez;Soltero sin pareja publica;--;--;0
+Silvia Alonso;publicos_hoy;28/12/1989;;Salamanca España;David Broncano;Pareja actriz 2021;2021-presente;vigente;0
+Martin Pepa;publicos_hoy;;;;Pampita;Noviazgo tras Moritan 2024;2024-presente;vigente;0
+Daniel Tinayre;publicos_hoy;14/09/1910;;Argentina;Mirtha Legrand;Matrimonio 1946-1994;1946-1994 48 años;Fallecimiento el 1994;2 hijos
+Soltera;publicos_hoy;;;;Susana Gimenez;Soltera sin pareja actual;--;--;0
+Soltero;publicos_hoy;;;;Marcelo Tinelli;Soltero ex Milett 2024;--;Ruptura 2024;0
+Portia de Rossi;publicos_hoy;31/01/1973;;Australia;Ellen DeGeneres;Matrimonio 2008;2008-presente;vigente;0
+Nancy Juvonen;publicos_hoy;18/05/1967;;USA;Jimmy Fallon;Matrimonio productora 2007;2007-presente;vigente;2 hijos
+Melania Trump;publicos_hoy;26/04/1970;;Eslovenia;Donald Trump;Matrimonio 2005 1 hijo;2005-presente;vigente;1 Barron
+Jill Biden;publicos_hoy;03/06/1951;;USA;Joe Biden;Matrimonio 1977;1977-presente;vigente;1 Ashley
+Michelle Obama;publicos_hoy;17/01/1964;;Chicago USA;Barack Obama;Matrimonio 1992 2 hijas;1992-presente;vigente;2 Malia y Sasha
+Soltero;publicos_hoy;;;;Vladimir Putin;Divorciado 2013 sin oficial;--;Divorcio 2013;2 previos
+Olena Zelenska;publicos_hoy;06/02/1978;;Ucrania;Zelenski;Matrimonio 2003 2 hijos;2003-presente;vigente;2 hijos
+Brigitte Macron;publicos_hoy;13/04/1953;;Amiens Francia;Macron;Matrimonio 2007;2007-presente;vigente;0 en comun
+Soltera;publicos_hoy;;;;Meloni;Soltera ex Giambruno 2023;--;Ruptura 2023;1 Ginevra
+Begona Gomez;publicos_hoy;;;;Pedro Sanchez;Matrimonio 2006 2 hijas;2006-presente;vigente;2 hijas
+Yuyito Gonzalez;publicos_hoy;08/03/1960;;Buenos Aires Argentina;Javier Milei;Pareja 2024;2024-presente;vigente;0
+Paula Carrasco;publicos_hoy;;;;Boric;Pareja 2024 1 hija;2024-presente;vigente;1 hija
+Jesus Tarriba;publicos_hoy;;;;Sheinbaum;Matrimonio cientificos 2023;2023-presente;vigente;0
+Gabriela Rodriguez;publicos_hoy;11/03/1985;;El Salvador;Bukele;Matrimonio 2014 2 hijas;2014-presente;vigente;2 hijas
+Cilia Flores;publicos_hoy;15/10/1956;;Venezuela;Maduro;Matrimonio 2013;2013-presente;vigente;1 hijo previo
+Peng Liyuan;publicos_hoy;20/11/1962;;China;Xi Jinping;Matrimonio 1987 1 hija;1987-presente;vigente;1 Xi Mingze
+Jashodaben Modi;publicos_hoy;01/01/1952;;India;Modi;Matrimonio separado 1968;1968-presente;Separados;0
+Ri Sol-ju;publicos_hoy;;;;Kim Jong-un;Matrimonio 2009 3 hijos;2009-presente;vigente;3 hijos
+Sara Netanyahu;publicos_hoy;01/01/1958;;Israel;Netanyahu;Matrimonio 1991 2 hijos;1991-presente;vigente;2 Yair y Avner
+Celibe;publicos_hoy;;;;Papa Leon XIV;Celibe sacerdotal;--;--;0
+Vick Hope;publicos_hoy;;;;Calvin Harris;Matrimonio 2023;2023-presente;vigente;0
+Anjali Pichai;publicos_hoy;;;;Sundar Pichai;Matrimonio 1990s 2 hijos;1990-presente;vigente;2 hijos
+Anupama Nadella;publicos_hoy;;;;Satya Nadella;Matrimonio 1992 3 hijos;1992-presente;vigente;3 hijos
+Lori Huang;publicos_hoy;;;;Jensen Huang;Matrimonio 1980s 2 hijos;1980-presente;vigente;2 hijos
+Zhang Ying;publicos_hoy;;;;Jack Ma;Matrimonio 1988 3 hijos;1988-presente;vigente;3 hijos
+Soltero;publicos_hoy;;;;Larry Ellison;Soltero 4 divorcios 2 hijos;--;Divorciado;2 hijos
+Beto Pasillas;publicos_hoy;;;;Yuya;Pareja 2024 1 hijo;2024-presente;vigente;1 Mar
+Juan de Dios Pantoja;publicos_hoy;;;;Kimberly Loaiza;Matrimonio 2019 3 hijos;2019-presente;vigente;3 Kima Juan y hija
+Soltero;publicos_hoy;;;;Andrew Tate;Soltero;--;--;0
+Georgina Rodriguez;publicos_hoy;27/01/1994;;Buenos Aires Argentina;Cristiano Ronaldo;Ya listada como pareja_de Ronaldo inversa;2016-presente;vigente;5 familia
+Antonela Roccuzzo;publicos_hoy;26/02/1988;;Rosario Argentina;Lionel Messi;Ya listada inversa;2008-presente;vigente;3 hijos
+Soltero;publicos_hoy;;;;Santiago Maratea;Soltero;--;--;0
+Juan Munoz;publicos_hoy;;;;Ana Rosa Quintana;Matrimonio 2004 gemelos;2004-presente;vigente;2 gemelos
+Soltero;publicos_hoy;;;;Angel de Brito;Soltero;--;--;0
+Soledad Rodriguez;publicos_hoy;;;;Guido Kaczka;Matrimonio 2018 3 hijos;2018-presente;vigente;3 hijos
+Evelyn McGee;publicos_hoy;;;;Stephen Colbert;Matrimonio 1993 3 hijos;1993-presente;vigente;3 hijos
+Julia Carey;publicos_hoy;;;;James Corden;Matrimonio 2012 3 hijos;2012-presente;vigente;3 hijos
+Jonathan McLeod;publicos_hoy;;;;Graham Norton;Matrimonio 2022 rumor separacion;2022-presente;--;0
+Carmen Porter;publicos_hoy;;;;Iker Jimenez;Matrimonio Cuarto Milenio 1 hijo;2000-presente;vigente;1 hijo
+Victoria Starmer;publicos_hoy;;;;Keir Starmer;Matrimonio 2007 2 hijos;2007-presente;vigente;2 hijos
+Soltero;publicos_hoy;;;;Giorgio Armani;Soltero viudo Galeotti fallecido 2025;1970-1985;Fallecimiento pareja 1985;0
+Soong Ching-ling;historia_destacados;27/01/1893;;Shanghai China;Sun Yat-sen;Esposa revolucionaria;1915-1925 10 años;Fallecimiento el 1925;0
+Antonietta Portulano;historia_destacados;01/01/1870;;Italia;Pirandello;Esposa celos enfermedad;1894-1936 42 años;Separacion;3 hijos
+Madeleine Rondeaux;historia_destacados;01/01/1865;;Paris Francia;Gide;Prima esposa austera;1895-1938 43 años;Fallecimiento ella 1938;0
+Soltero;historia_destacados;;;;Baroja;Solitario vasco;--;--;0
+Elinor White;historia_destacados;25/10/1873;;USA;Frost;Musa editora 6 hijos;1895-1938 43 años;Fallecimiento ella 1938;6 hijos
+Mathilde Zemlinsky;historia_destacados;07/10/1877;;Viena Austria;Schonberg;Tragedia 22 años;1901-1923 22 años;Fallecimiento ella 1923;2 hijos
+Clara Westhoff;historia_destacados;21/11/1878;;Bremen;Rilke;Escultora hija Ruth;1901-1926 25 años;Separacion 1902;1 Ruth
+Helene Bresslau;historia_destacados;25/01/1879;;Berlin;Schweitzer;Enfermera Lambarene;1912-1957 45 años;Fallecimiento ella 1957;1 Rhena
+Katia Pringsheim;historia_destacados;24/07/1883;;Alemania;Thomas Mann;Heredera 6 hijos exilio;1905-1955 50 años;Fallecimiento el 1955;6 hijos
+Edith Junghans;historia_destacados;07/09/1887;;Berlin;Otto Hahn;Esposa apoyo fission;1913-1968 55 años;Fallecimiento el 1968;1 Hanno
+Ditta Pasztory;historia_destacados;31/10/1903;;Hungria;Bartok;Alumna duo exilio;1923-1945 22 años;Fallecimiento el 1945;2 hijos
+Bror Blixen;historia_destacados;25/07/1886;;Suecia;Blixen;Baron Kenya infiel;1914-1925 11 años;Divorcio 1925;0
+Dorothy Shakespear;historia_destacados;14/09/1886;;Londres UK;Pound;Vorticista Cantos;1914-1972 58 años;Fallecimiento el 1972;1 Mary
+Jean Marais;historia_destacados;11/12/1913;;Francia;Cocteau;Musa 26 años;1937-1963 26 años;Fallecimiento 1963;0
+Frank OConnor;historia_destacados;22/09/1897;;USA;Ayn Rand;Actor objetivismo 50 años;1929-1979 50 años;Fallecimiento el 1979;0
+Ann Rothermere;historia_destacados;19/06/1913;;Londres UK;Ian Fleming;Goldeneye 12 años;1952-1964 12 años;Fallecimiento el 1964;2 hijos
+Zelia Gattai;historia_destacados;02/07/1916;;Brasil;Jorge Amado;Exilio 56 años;1945-2001 56 años;Fallecimiento el 2001;2 hijos
+Gregory Bateson;historia_destacados;09/05/1904;;UK;Margaret Mead;Naven 14 años;1936-1950 14 años;Divorcio 1950;1 Mary Catherine
+Lucia Morpurgo;historia_destacados;01/01/1920;;Turin Italia;Primo Levi;Retorno Auschwitz 40 años;1947-1987 40 años;Fallecimiento el 1987;2 hijos
+Tyler Poarch;publicos_hoy;;;;Bella Poarch;Ex esposo militar 4 años;2019-2023 4 años;Divorcio 2023;0
+Rachel Holm;publicos_hoy;;;;Zach King;Esposa ex concursante 2 hijos;2014-presente;vigente;2 Liam y Mason
+Soltero;publicos_hoy;;;;Ibai Llanos;Soltero streamer;--;--;0
+Biyin;publicos_hoy;;;;Auronplay;Ex pareja streamer 10 años;2013-2023 10 años;Ruptura 2023;0
+Irina Isasia;publicos_hoy;;;;El Rubius;Pareja gamer discreta;2016-presente;vigente;0
+Gemma Gallardo;publicos_hoy;;;;TheGrefg;Pareja 2023;2023-presente;vigente;0
+Soltera;publicos_hoy;;;;Rivers GG;Soltera streamer;--;--;0
+Lenay Chantelle;publicos_hoy;;;;German Garmendia;Esposa cantante 2022;2022-presente;vigente;0
+Arianny Tenorio;publicos_hoy;;;;Luisito Comunica;Pareja modelo 2019;2019-presente;vigente;0
+Guaynaa;publicos_hoy;16/09/1992;;Caguas Puerto Rico;Lele Pons;Matrimonio cantante 2023;2023-presente;vigente;0
+Soltero;publicos_hoy;;;;IShowSpeed;Soltero streamer;--;--;0
+Soltero;publicos_hoy;;;;Kai Cenat;Soltero streamer;--;--;0
+Lauren Sanchez;publicos_hoy;19/12/1969;;Albuquerque USA;Jeff Bezos;Pareja periodista boda 2025;2019-presente;vigente;0 en comun
+Priscilla Chan;publicos_hoy;24/02/1985;;Braintree USA;Mark Zuckerberg;Pediatra Harvard 3 hijas;2003-presente casados 2012;vigente;3 Max August Aurelia
+Desconocido;publicos_hoy;;;;Sam Altman;Pareja Oliver Mulherin privado;2023-presente;vigente;0
+Astrid Menks;publicos_hoy;;;;Warren Buffett;Segunda esposa 2006;2006-presente;vigente;0
+Helene Mercier;publicos_hoy;01/01/1960;;Francia;Bernard Arnault;Pianista 2 hijos;1991-presente;vigente;2 Alexandre y Frederic
+Flora Perez;publicos_hoy;;;;Amancio Ortega;Esposa 2 hijos;2001-presente;vigente;2 Sandra y Marcos
+Desconocido;publicos_hoy;;;;Marcos Galperin;Perfil bajo;--;--;3 hijos
+Joan Templeman;publicos_hoy;;;;Richard Branson;Esposa 1976 2 hijos;1976-presente;vigente;2 Holly y Sam
+Desconocido;publicos_hoy;;;;Sergey Brin;Ex Nicole Shanahan 2023;2018-2023;Divorcio 2023;1 hija
+Soltero;publicos_hoy;;;;Vitalik Buterin;Soltero crypto;--;--;0
+Nita Ambani;publicos_hoy;01/11/1963;;Mumbai India;Mukesh Ambani;Matrimonio 1985 3 hijos;1985-presente;vigente;3 Akash Isha Anant
+Soumaya Domit;publicos_hoy;01/01/1948;;Mexico;Carlos Slim;Esposa 1966-1999 6 hijos;1966-1999 33 años;Fallecimiento ella 1999;6 hijos
+Pitina Vega;publicos_hoy;;;;Florentino Perez;Esposa 1970-2012 3 hijos;1970-2012 42 años;Fallecimiento ella 2012;3 hijos
+Cristiano Ronaldo;publicos_hoy;05/02/1985;;Funchal Portugal;Georgina Rodriguez;Pareja 2016 5 familia;2016-presente;vigente;5 familia
+Lionel Messi;publicos_hoy;24/06/1987;;Rosario Argentina;Antonela Roccuzzo;Matrimonio infancia 3 hijos;2008-presente;vigente;3 Thiago Mateo Ciro
+Priti Adani;publicos_hoy;;;;Gautam Adani;Esposa dentista 2 hijos;1986-presente;vigente;2 Karan y Jeet
+Ninfa Salinas;publicos_hoy;;;;Ricardo Salinas;Esposa 6 hijos;--;--;6 hijos
+Desconocida;publicos_hoy;;;;Joan Laporta;Ex Constanza Eick 3 hijos;--;Divorcio;3 hijos
+Desconocido;publicos_hoy;;;;Jordi Evole;Perfil bajo;--;--;0
+Silvia Abril;publicos_hoy;20/04/1971;;Mataro España;Andreu Buenafuente;Matrimonio comics 1 hija;2005-presente;vigente;1 Joana
+Alice Campello;publicos_hoy;05/03/1995;;Italia;Alvaro Morata;Matrimonio modelo 4 hijos;2017-presente;vigente;4 hijos
+Agustina Gandolfo;publicos_hoy;;;;Lautaro Martinez;Esposa modelo 1 hija;2018-presente;vigente;2 Nina y Theo
+Emilia Ferrero;publicos_hoy;;;;Julian Alvarez;Pareja profe 2022;2017-presente;vigente;1 hija
+Mandinha Martinez;publicos_hoy;;;;Emiliano Martinez;Esposa 2 hijos;2017-presente;vigente;2 Santi y Ava
+Mina Bonino;publicos_hoy;;;;Federico Valverde;Pareja periodista 2 hijos;2019-presente;vigente;2 Benicio y Bautista
+Lorena Manas;publicos_hoy;;;;Darwin Nuñez;Esposa 2 hijos;2018-presente;vigente;3 Darwin Thiago y hija
+Desconocida;publicos_hoy;;;;Ronald Araujo;Pareja privada;--;--;1 hija
+Desconocida;publicos_hoy;;;;Facundo Pellistri;Perfil bajo;--;--;0
+Camila Lima;publicos_hoy;;;;Giorgian De Arrascaeta;Esposa 2023;2023-presente;vigente;0
+Sofia Balbi;publicos_hoy;11/11/1989;;Montevideo;Luis Suarez;Novios 2002 3 hijos;2002-presente casados 2009;vigente;3 Delfina Benjamin Lautaro
+Jocelyn Burgardt;publicos_hoy;;;;Edinson Cavani;Pareja bailarina 2 hijos;2021-presente;vigente;2 Silvestre y hija
+Sofia Herrera;publicos_hoy;;;;Diego Godin;Esposa 2013 1 hija;2013-presente;vigente;1 Luna
+Patricia Callero;publicos_hoy;;;;Fernando Muslera;Esposa 2011 3 hijos;2011-presente;vigente;3 Kailo Tiziano Lola
+Desconocida;publicos_hoy;;;;Martin Caceres;Perfil bajo;--;--;2 hijos
+Adele Foucher;historia_destacados;27/09/1803;;Paris;Hugo alternativo;Duplicado Victor Hugo;1822-1868;--;5 hijos
+Qiguan;historia_destacados;;;;Confucio;Esposa 1 hijo;532-479;--;1 Kong Li
+Pitias;historia_destacados;;;;Aristoteles;Sobrina Hermias;347-340;Fallecimiento ella;1 hija
+Soltero;historia_destacados;;;;Platon;Academia sin pareja;--;--;0
+Xantipa;historia_destacados;;;;Socrates;Esposa fuerte 3 hijos;421-399;Ejecucion el 399;3 hijos
+Soltero;historia_destacados;;;;Arquimedes;Matematica sin pareja;--;--;0
+Desconocida;historia_destacados;;;;Euclides;Sin dato Alejandria;--;--;0
+Desconocida;historia_destacados;;;;Hipocrates;Esposa 2 hijos medicos;Siglo V;--;2 hijos
+Desconocida;historia_destacados;;;;Ptolomeo;Sin dato Alejandria;--;--;0
+Soltero;historia_destacados;;;;Avicena;Medico errante;--;--;0
+Desconocida;historia_destacados;;;;Averroes;Esposa cordobesa;Siglo XII;--;1 hijo
+Celibe;historia_destacados;;;;Tomas de Aquino;Celibe dominico;--;--;0
+Celibe;historia_destacados;;;;Copernico;Celibe canonigo;--;--;0
+Barbara Muller;historia_destacados;01/01/1573;;Alemania;Kepler;Primera esposa 8 hijos;1597-1611;Fallecimiento ella;8 hijos
+Anne van Hamme;historia_destacados;;;;Vesalio;Boda Bruselas 20 años;1544-1564;Fallecimiento el;1 Marie
+Elizabeth Browne;historia_destacados;;;;Harvey;Sin hijos 53 años;1604-1657;Fallecimiento ella;0
+Marie-Anne Paulze;historia_destacados;20/01/1758;;Francia;Lavoisier;Colaboradora laboratorio;1771-1794;Ejecucion el;0
+Teresa Peregrini;historia_destacados;01/01/1764;;Italia;Volta;Esposa 3 hijos;1794-1827;Fallecimiento el;3 hijos
+Soltero;historia_destacados;;;;Ohm;Profesor errante;--;--;0
+Katherine Dewar;historia_destacados;01/01/1824;;Escocia;Maxwell;Ayuda experimentos 21 años;1858-1879;Fallecimiento el;0
+Mary Newton;historia_destacados;01/01/1876;;NZ;Rutherford;Novia 1 hija 37 años;1900-1937;Fallecimiento el;1 Eileen
+Annemarie Bertel;historia_destacados;03/12/1896;;Austria;Schrodinger;Matrimonios abiertos 41 años;1920-1961;Fallecimiento el;0
+Margit Wigner;historia_destacados;01/01/1902;;Hungria;Dirac;Viuda 2 hijos 47 años;1937-1984;Fallecimiento el;2 hijos
+Gweneth Howarth;historia_destacados;01/01/1934;;UK;Feynman;Tercera esposa 28 años;1960-1988;Fallecimiento el;2 hijos
+Margaret Dow;historia_destacados;;;;Gell-Mann;Primera esposa 25 años;1955-1980;Divorcio;2 hijos
+Frances Vernon;actores_hollywood;21/09/1899;;USA;James Cagney;Matrimonio 64 años 2 adoptados;1922-1986;Fallecimiento el;2 adoptados
+Norma Anderson;actores_hollywood;01/01/1917;;USA;Burt Lancaster;5 hijos 23 años;1946-1969;Divorcio 1969;5 hijos
+Anne Buydens;actores_hollywood;23/04/1919;;Alemania;Kirk Douglas;Productora 66 años;1954-2020;Fallecimiento el;2 Peter y Eric
+Humphrey Bogart;actores_hollywood;25/12/1899;;New York USA;Lauren Bacall;Leyenda 12 años;1945-1957;Fallecimiento el;2 hijos
+Robert Wagner;actores_hollywood;10/02/1930;;Detroit USA;Natalie Wood;Dos bodas tragedia;1957-1981;Fallecimiento ella;1 Courtney
+Sian Phillips;actores_hollywood;14/05/1933;;Gales UK;Peter O'Toole;3 hijos 20 años;1959-1979;Divorcio 1979;3 hijos
+Lucia Topolansky;politicos_uy;;;;Jose Mujica;Matrimonio verificar fechas;ND;ND;ND
+Beatriz Burgos;politicos_uy;;;;Guido Manini Rios;Matrimonio verificar fechas;ND;ND;ND
+Marta Lecumberry;politicos_uy;;;;Pedro Bordaberry;Matrimonio verificar fechas;ND;ND;ND
+Marta Garcia;politicos_uy;;;;Jorge Gandini;Matrimonio verificar fechas;ND;ND;ND
+Leticia Lateulade;politicos_uy;;;;Alvaro Delgado;Matrimonio verificar fechas;ND;ND;ND
+Rosana Supparo;politicos_uy;;;;Javier Garcia;Matrimonio verificar fechas;ND;ND;ND
+Juan Alzugaray;politicos_uy;;;;Azucena Arbeleche;Matrimonio verificar fechas;ND;ND;ND
+Ana Maria Braggio;politicos_uy;;;;Pablo Mieres;Matrimonio verificar fechas;ND;ND;ND
+Beatriz Amaro;politicos_uy;;;;Eduardo Bonomi;Matrimonio verificar fechas;ND;ND;ND
+Marcela Lopez;politicos_uy;;;;Eleuterio Fernandez Huidobro;Matrimonio verificar fechas;ND;ND;ND
+Sara Sarli;politicos_uy;;;;Ricardo Ehrlich;Matrimonio verificar fechas;ND;ND;ND
+Guillermo Font;politicos_uy;;;;Constanza Moreira;Matrimonio verificar fechas;ND;ND;ND
+Nelson Guerra;politicos_uy;;;;Monica Xavier;Matrimonio verificar fechas;ND;ND;ND
+Jorge Fernandez;politicos_uy;;;;Liliam Kechichian;Matrimonio verificar fechas;ND;ND;ND
+Desconocida;politicos_uy;;;;Cristina Lustemberg;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Marina Arismendi;Verificar dato no publico;ND;ND;ND
+Florencia Gomez;politicos_uy;;;;Fernando Amado;Matrimonio verificar fechas;ND;ND;ND
+Elena Boggiano;politicos_uy;;;;Ope Pasquet;Matrimonio verificar fechas;ND;ND;ND
+Camila Rodriguez;politicos_uy;;;;Rafael Michelini;Matrimonio verificar fechas;ND;ND;ND
+Laura Motta;politicos_uy;;;;Daniel Martinez;Matrimonio verificar fechas;ND;ND;ND
+Blanca Denis;politicos_uy;;;;Mario Bergara;Matrimonio verificar fechas;ND;ND;ND
+Desconocida;politicos_uy;;;;Gabriel Oddone;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Blanca Rodriguez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alejandro Sanchez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Martin Lema;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Laura Raffo;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Marcos Carambula;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Jose Luis Falero;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Carmelo Vidalin;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Sergio Botana;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Andres Ojeda;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Robert Silva;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Gustavo Zubia;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Tabare Viera;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Nicolas Olivera;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Ivan Posada;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Daniel Radio;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Cesar Vega;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Ignacio de Posadas;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alejandro Atchugarry;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Sergio Abreu;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Daniel Olesker;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Maria Julia Muñoz;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Daisy Tourne;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Andres Lima;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;German Coutinho;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Veronica Alonso;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Daniel Caggiani;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Gustavo Penades;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Oscar Andrade;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Gonzalo Civila;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Gustavo Leal;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alfredo Fratti;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Edgardo Ortuño;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Felipe Carballo;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Bettiana Diaz;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Graciela Bianchi;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Eduardo Rubio;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Sebastian Sabini;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Enrique Tarigo;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Adela Reta;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alvaro Ramos;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Francisco Gallinal;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Gabriel Gurendez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Felipe Michelini;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Pablo Iturralde;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Javier de Haedo;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alfredo Solari;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Martha Montaner;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Daniela Paisse;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Ivonne Passada;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Pablo Ferreri;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Walter Zimmer;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Christian Morel;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Carlos Albisu;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alvaro Perrone;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Silvana Perez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Jose Bayardi;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Margarita Percovich;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Ana Olivera;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alvaro Garcia;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Fernando Lorenzo;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Pablo Bartol;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Victor Rossi;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Reinaldo Gargano;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Mariano Arana;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Diego Canepa;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alvaro Villar;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Carlos Enciso;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Adriana Peña;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Marne Osorio;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Armando Castaingdebat;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Carlos Moreira;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Adrian Peña;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Patricia Ayala;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Omar Lafluf;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Isaac Alfie;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Guillermo Stirling;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Didier Opertti;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Enrique Rubio;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Hector Lescano;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Enrique Pintado;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Roberto Kreimerman;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Gloria Rodriguez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Carlos Camy;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Luis Gallo;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Dario Perez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Oscar de los Santos;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Enrique Antia;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Rodrigo Blas;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;German Cardoso;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alejo Umpierrez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Wilson Ezquerra;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Eber da Rosa;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Jose Diaz;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Jose Korzeniak;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Juan Andres Ramirez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Luis Mosca;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Raul Iturria;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Juan Chiruchi;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Lucio Caceres;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alvaro Alonso;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Dardo Sanchez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Richard Sander;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Amin Niffouri;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Gerardo Nuñez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Jorge Sanguinetti;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Santiago Perez del Castillo;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Gonzalo Fernandez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Carlos Baraibar;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Carlos Gamou;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Benjamin Irazabal;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Jose Yurramendi;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Mario Silvera;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Ramon Fonticiella;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Daniel Garcia Pintos;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Martin Laventure;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Miguel Abella;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Javier Miranda;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Anibal Pereyra;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Artigas Barrios;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Jose Carlos Cardoso;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Mario Garcia;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Eduardo Brenta;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Guillermo Besozzi;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Cecilia Bottino;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Guillermo Caraballo;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Gonzalo Mujica;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Oscar Magurno;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Ana Lia Piñeyrua;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Carlos Mahia;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Daniel Peña;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Rodrigo Goñi;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Sebastian Andujar;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alfonso Lerete;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Daniel Gerhard;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alem Garcia;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alberto Bension;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alberto Cid;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Juan Dominguez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Doreen Ibarra;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Martin Vallarino;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Fernando Echeverria;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Jesus Bentancur;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Pablo Constenla;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Eduardo Elinger;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Nilo Perez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Graciela Matiaude;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Leonardo de Leon;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Antonio Marchesano;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Mariano Brito;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Angel Maria Gianola;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Carlos Cat;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Tabare Hackenbruch;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Alberto Scavarelli;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Aparicio Mendez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Gregorio Alvarez;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Rafael Addiego;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Carlos Julio Pereyra;Verificar dato no publico;ND;ND;ND
+Desconocida;politicos_uy;;;;Jorge Pacheco Areco;Verificar dato no publico;ND;ND;ND
+Soltera;influyentes_historia;;;;Greta Thunberg;Sin pareja publica joven;--;--;0
+Aser Malik;influyentes_historia;;;;Malala;Matrimonio 2021;2021-presente;vigente;0
+Shivon Zilis;influyentes_historia;08/02/1986;;Canada;Elon Musk;Pareja tecnologica 4 hijos;2021-presente;vigente;4 hijos
+Melinda French;influyentes_historia;15/08/1964;;USA;Bill Gates;Matrimonio fundacion 27 años;1994-2021;Divorcio 2021;3 hijos
+Lucinda Southworth;influyentes_historia;24/05/1979;;USA;Larry Page;Matrimonio 2007 2 hijos;2007-presente;vigente;2 hijos
+Janja Silva;influyentes_historia;27/08/1966;;Brasil;Lula da Silva;Matrimonio 2022;2022-presente;vigente;0
+Kasturba Gandhi;influyentes_historia;11/04/1869;;India;Mohandas Gandhi;Matrimonio 1882-1944;1882-1944;Fallecimiento ella;4 hijos
+Celibe;influyentes_historia;;;;Dalai Lama;Celibe monastico;--;--;0
+Celibe;influyentes_historia;;;;Teresa de Calcuta;Celibe religiosa;--;--;0
+Celibe;influyentes_historia;;;;Thich Nhat Hanh;Celibe monastico;--;--;0
+Celibe;influyentes_historia;;;;Juan Pablo II;Celibe papal;--;--;0
+Leah Tutu;influyentes_historia;;;;Desmond Tutu;Matrimonio 1955-2021 4 hijos;1955-2021;Fallecimiento el;4 hijos
+Celibe;influyentes_historia;;;;Yogananda;Celibe swami;--;--;0
+Celibe;influyentes_historia;;;;Vivekananda;Celibe sannyasi;--;--;0
+Mrinalini Devi;influyentes_historia;;;;Sri Aurobindo;Matrimonio 1906-1918;1906-1918;Fallecimiento ella;0
+Soltero;influyentes_historia;;;;Krishnamurti;Sin matrimonio;--;--;0
+Asiyih Khanum;influyentes_historia;01/01/1820;;Persia;Bahá'u'lláh;Matrimonio 1835-1886 7 hijos;1835-1886;Fallecimiento ella;7 hijos
+Khadijeh Saqafi;influyentes_historia;01/01/1913;;Iran;Jomeini;Matrimonio 1929-1989 7 hijos;1929-1989;Fallecimiento el;7 hijos
+Celibe;influyentes_historia;;;;Papa Francisco;Celibe papal;--;--;0
+Mary Vazeille;influyentes_historia;;;;John Wesley;Matrimonio 1751-1781 separado;1751-1781;Separacion;0
+Asa Eddy;influyentes_historia;;;;Mary Baker Eddy;Matrimonio 1877-1882;1877-1882;Fallecimiento el;0
+Celibe;influyentes_historia;;;;Oscar Romero;Celibe sacerdotal;--;--;0
+Celibe;influyentes_historia;;;;Bartolome de las Casas;Celibe dominico;--;--;0
+Coretta Scott;influyentes_historia;27/04/1927;;USA;Martin Luther King;Matrimonio 1953-1968 4 hijos;1953-1968;Asesinato el;4 hijos
+Betty Shabazz;influyentes_historia;28/05/1934;;USA;Malcolm X;Matrimonio 1958-1965 6 hijos;1958-1965;Asesinato el;6 hijos
+John Tubman;influyentes_historia;;;;Harriet Tubman;Matrimonio esclavo abandono;1844-1851;Abandono;0
+Thomas;influyentes_historia;;;;Sojourner Truth;Matrimonio esclavo 5 hijos;--;--;5 hijos
+Anna Murray;influyentes_historia;01/01/1813;;USA;Frederick Douglass;Matrimonio 1838-1882 5 hijos;1838-1882;Fallecimiento ella;5 hijos
+Nina Gomer;influyentes_historia;21/07/1870;;USA;W.E.B. Du Bois;Matrimonio 1896-1950 2 hijos;1896-1950;Fallecimiento ella;2 hijos
+Myrlie Evers;influyentes_historia;17/03/1933;;USA;Medgar Evers;Matrimonio 1951-1963 3 hijos;1951-1963;Asesinato el;3 hijos
+Lillian Miles;influyentes_historia;;;;John Lewis;Matrimonio 1968-2012 1 hijo;1968-2012;Fallecimiento ella;1 hijo
+Soltero;influyentes_historia;;;;James Baldwin;Sin matrimonio;--;--;0
+Tosh Angelos;influyentes_historia;;;;Maya Angelou;Matrimonio 1951-1954 1 hijo;1951-1954;Divorcio;1 hijo
+Harold Morrison;influyentes_historia;;;;Toni Morrison;Matrimonio 1958-1964 2 hijos;1958-1964;Divorcio;2 hijos
+Soltera;influyentes_historia;;;;Angela Davis;Sin matrimonio;--;--;0
+Suzanne Baptiste;influyentes_historia;;;;Toussaint Louverture;Matrimonio 2 hijos;--;--;2 hijos
+Josefa Espejo;influyentes_historia;;;;Emiliano Zapata;Matrimonio 1909-1919 1 hijo;1909-1919;Asesinato el;1 hijo
+Luz Corral;influyentes_historia;28/05/1892;;Mexico;Pancho Villa;Matrimonio 1911-1923 1 hijo;1911-1923;Asesinato el;1 hijo
+Blanca Arauz;influyentes_historia;25/05/1909;;Nicaragua;Sandino;Matrimonio 1927-1930;1927-1930;Fallecimiento ella;1 hija
+Dalia Soto;influyentes_historia;18/07/1946;;Cuba;Fidel Castro;Pareja 1961-2016 5 hijos;1961-2016;Fallecimiento el;5 hijos
+Aleida March;influyentes_historia;19/10/1936;;Cuba;Che Guevara;Matrimonio 1959-1967 4 hijos;1959-1967;Fallecimiento el;4 hijos
+Hortensia Bussi;influyentes_historia;22/07/1914;;Chile;Salvador Allende;Matrimonio 1940-1973 3 hijas;1940-1973;Fallecimiento el;3 hijas
+Amalia Solorzano;influyentes_historia;10/07/1911;;Mexico;Lazaro Cardenas;Matrimonio 1932-1970 1 hijo;1932-1970;Fallecimiento el;1 hijo
+Marisabel Rodriguez;influyentes_historia;23/11/1964;;Venezuela;Hugo Chavez;Matrimonio 1997-2004 2 hijos;1997-2004;Divorcio;2 hijos
+Soltero;influyentes_historia;;;;Evo Morales;Sin matrimonio;--;--;0
+Angel Canil;influyentes_historia;;;;Rigoberta Menchu;Matrimonio 1 hijo;--;--;1 hijo
+Salvador Zuniga;influyentes_historia;;;;Berta Caceres;Pareja 4 hijos;--;--;4 hijos
+Monica Benicio;influyentes_historia;;;;Marielle Franco;Pareja 1 hija;--;Asesinato ella;1 hija
+Winnie Madikizela;influyentes_historia;26/09/1936;;Sudafrica;Mandela;Matrimonio 1958-1996 2 hijas;1958-1996;Divorcio;2 hijas
+Fathia Rizk;influyentes_historia;;;;Nkrumah;Matrimonio 1957-1972 3 hijos;1957-1972;Fallecimiento el;3 hijos
+Ngina Muhoho;influyentes_historia;;;;Kenyatta;Matrimonio 1951-1978 4 hijos;1951-1978;Fallecimiento el;4 hijos
+Maria Gabriel;influyentes_historia;;;;Nyerere;Matrimonio 1953-1999 8 hijos;1953-1999;Fallecimiento el;8 hijos
+Pauline Opangu;influyentes_historia;;;;Lumumba;Matrimonio 1951-1961 4 hijos;1951-1961;Asesinato el;4 hijos
+Mariam Sankara;influyentes_historia;;;;Sankara;Matrimonio 2 hijos;--;Asesinato el;2 hijos
+Tahia Kazem;influyentes_historia;;;;Nasser;Matrimonio 1944-1970 5 hijos;1944-1970;Fallecimiento el;5 hijos
+Rattanbai Petit;influyentes_historia;;;;Jinnah;Matrimonio 1918-1929 1 hija;1918-1929;Fallecimiento ella;1 Dina
+Feroze Gandhi;influyentes_historia;12/09/1912;;India;Indira Gandhi;Matrimonio 1942-1960 2 hijos;1942-1960;Fallecimiento el;2 Rajiv y Sanjay
+Savita Ambedkar;influyentes_historia;;;;Ambedkar;Matrimonio 1948-1956;1948-1956;Fallecimiento el;0
+Khin Kyi;influyentes_historia;16/04/1912;;Birmania;Aung San;Matrimonio 1942-1947 4 hijos;1942-1947;Asesinato el;4 hijos
+Michael Aris;influyentes_historia;27/03/1946;;Cuba;Aung San Suu Kyi;Matrimonio 1972-1999 2 hijos;1972-1999;Fallecimiento el;2 Alexander y Kim
+Jiang Qing;influyentes_historia;19/03/1914;;China;Mao Zedong;Matrimonio 1938-1976;1938-1976;Fallecimiento el;1 Li Na
+Zhuo Lin;influyentes_historia;06/04/1916;;China;Deng Xiaoping;Matrimonio 1939-1997 5 hijos;1939-1997;Fallecimiento el;5 hijos
+Deng Yingchao;influyentes_historia;04/02/1904;;China;Zhou Enlai;Matrimonio 1925-1976 sin hijos;1925-1976;Fallecimiento el;0
+Soltero;influyentes_historia;;;;Ho Chi Minh;Sin matrimonio;--;--;0
+Suha Tawil;influyentes_historia;17/07/1963;;Palestina;Arafat;Matrimonio 1990-2004 1 hija;1990-2004;Fallecimiento el;1 Zahwa
+Yvonne Vendroux;influyentes_historia;22/05/1900;;Francia;De Gaulle;Matrimonio 1921-1970 3 hijos;1921-1970;Fallecimiento el;3 hijos
+Jacqueline Kennedy;influyentes_historia;28/07/1929;;USA;J. F. Kennedy;Matrimonio 1953-1963 4 hijos;1953-1963;Asesinato el;4 hijos
+Rut Brandt;influyentes_historia;10/01/1920;;Noruega;Willy Brandt;Matrimonio 1948-1992 3 hijos;1948-1992;Divorcio;3 hijos
+Lisbet Palme;influyentes_historia;14/03/1931;;Estocolmo;Olof Palme;Matrimonio 1956-1986 3 hijos;1956-1986;Asesinato el;3 hijos
+Natalia Sedova;influyentes_historia;05/04/1882;;Ucrania;Trotsky;Matrimonio 1903-1940 2 hijos;1903-1940;Asesinato el;2 hijos
+Raisa Gorbachova;influyentes_historia;05/01/1932;;Rusia;Gorbachov;Matrimonio 1953-1999 1 hija;1953-1999;Fallecimiento ella;1 Irina
+Danuta Golos;influyentes_historia;25/04/1949;;Polonia;Lech Walesa;Matrimonio 1969 8 hijos;1969-presente;vigente;8 hijos
+Olga Splichalova;influyentes_historia;11/07/1941;;Chequia;Vaclav Havel;Matrimonio 1964-1996;1964-1996;Fallecimiento ella;0
+Paula Munweis;influyentes_historia;;;;Ben-Gurion;Matrimonio 1917-1968 3 hijos;1917-1968;Fallecimiento ella;3 hijos
+Morris Meyerson;influyentes_historia;01/01/1893;;Ucrania;Golda Meir;Matrimonio 1917-1951 2 hijos;1917-1951;Fallecimiento el;2 Menajem y Sara
+Franklin Roosevelt;influyentes_historia;30/01/1882;;USA;Eleanor Roosevelt;Matrimonio 1905-1945 6 hijos;1905-1945;Fallecimiento el;6 hijos
+Nane Lagergren;influyentes_historia;;;;Kofi Annan;Matrimonio 1984-2018 3 hijos;1984-2018;Fallecimiento el;3 hijos
+Soltero;influyentes_historia;;;;Hammarskjold;Soltero ONU;--;--;0
+Lucretia Walker;influyentes_historia;;;;Samuel Morse;Matrimonio 1818-1825 4 hijos;1818-1825;Fallecimiento ella;4 hijos
+Soltero;influyentes_historia;;;;Wilbur Wright;Soltero aviacion;--;--;0
+Soltero;influyentes_historia;;;;Orville Wright;Soltero aviacion;--;--;0
+Ann McGrugar;influyentes_historia;;;;James Watt;Matrimonio 1764-1773 6 hijos;1764-1773;Fallecimiento ella;6 hijos
+Sarah Barnard;influyentes_historia;;;;Faraday;Matrimonio 1821-1867 sin hijos;1821-1867;Fallecimiento el;0
+Soltero;influyentes_historia;;;;Braille;Soltero invidente;--;--;0
+Soltera;influyentes_historia;;;;Gutenberg;Soltero imprenta;--;--;0
+Rosemary Leith;influyentes_historia;;;;Berners-Lee;Matrimonio 2 hijos;2014-presente;vigente;2 hijos
+Laurene Powell;influyentes_historia;06/11/1963;;USA;Steve Jobs;Matrimonio 1991-2011 4 hijos;1991-2011;Fallecimiento el;4 hijos
+William King;influyentes_historia;14/05/1805;;UK;Ada Lovelace;Matrimonio 1835-1852 3 hijos;1835-1852;Fallecimiento ella;3 hijos
+Soltera;influyentes_historia;;;;Grace Hopper;Soltera marina;--;--;0
+James Goble;influyentes_historia;;;;Katherine Johnson;Matrimonio 1959-2019 2 hijas;1959-2019;Fallecimiento el;2 Joylette y Katherine
+Fritz Mandl;influyentes_historia;09/02/1900;;Austria;Hedy Lamarr;Matrimonio controlador 1933-1937 huida;1933-1937;Divorcio 1937;0
+Soltera;influyentes_historia;;;;Rachel Carson;Celibe sobrino;--;--;0
+Margaret Gibson;influyentes_historia;30/08/1911;;USA;Borlaug;Matrimonio 1937-2007 2 hijos;1937-2007;Fallecimiento ella;2 Norma y William
+Simone Melchior;influyentes_historia;19/01/1919;;Francia;Cousteau;Matrimonio buceo 1937-1990 2 hijos;1937-1990;Fallecimiento ella;2 Jean-Michel y Philippe
+Jane Wilde;influyentes_historia;29/03/1944;;UK;Hawking;Matrimonio cuidadora 1965-1995 3 hijos;1965-1995;Divorcio 1995;3 Robert Lucy Tim
+Annie Druyan;influyentes_historia;13/06/1949;;USA;Carl Sagan;Matrimonio Cosmos 1981-1996 2 hijos;1981-1996;Fallecimiento el;2 Alexandra y Samuel
+Hugo van Lawick;influyentes_historia;10/04/1937;;Indonesia;Jane Goodall;Matrimonio Gombe 1964-1974 1 hijo;1964-1974;Divorcio 1974;1 Hugo
+Soltera;influyentes_historia;;;;Rosalind Franklin;Celibe investigadora;--;--;0
+Thomas Hodgkin;influyentes_historia;03/04/1910;;UK;Dorothy Hodgkin;Matrimonio 1937-1982 3 hijos;1937-1982;Fallecimiento el;3 Luke Elizabeth Toby
+Li Tingzhao;influyentes_historia;;;;Tu Youyou;Matrimonio discreto 2 hijas;--;--;2 hijas
+Soltera;influyentes_historia;;;;Nightingale;Celibe enfermeria;--;--;0
+Mwangi Mathai;influyentes_historia;;;;Wangari Maathai;Matrimonio 1969-1979 3 hijos;1969-1979;Divorcio 1979;3 Waweru Wanjira Muta
+Soltera;influyentes_historia;;;;Vandana Shiva;Soltera activista;--;--;0
+Mary Burns;influyentes_historia;29/09/1821;;Irlanda;Engels;Pareja libre 1843-1863;1843-1863;Fallecimiento ella;0
+Tove Torvalds;influyentes_historia;;;;Torvalds;Esposa 1997 3 hijas;1997-presente;vigente;3 hijas
+Rita Marley;influyentes_historia;25/07/1946;;Cuba;Bob Marley;Matrimonio 1966-1981 6 hijos;1966-1981;Fallecimiento el 1981;6 hijos
+Lonnie Williams;influyentes_historia;;;;Muhammad Ali;Cuarta esposa 1986-2016;1986-2016;Fallecimiento el 2016;0 en comun
+Assiria Nascimento;influyentes_historia;;;;Pele;Tercera esposa 1994-2008 mellizos;1994-2008;Divorcio 2008;2 mellizos
+Margaret Murray;influyentes_historia;;;;Booker T. Washington;Tercera esposa 1893-1915;1893-1915;Fallecimiento el 1915;0 en comun
+Perry Hamer;influyentes_historia;;;;Fannie Lou Hamer;Esposo 1944-1977;1944-1977;Fallecimiento ella 1977;0
+Bob Roberts;influyentes_historia;;;;Ella Baker;Esposo separacion;--;Separacion;0
+Walter Naegle;influyentes_historia;;;;Bayard Rustin;Pareja 1977-1987;1977-1987;Fallecimiento el 1987;0
+Lula Peterson;influyentes_historia;;;;Farmer;Esposa 1949-1957 divorcio;1949-1957;Divorcio 1957;0
+Soltera;influyentes_historia;;;;Dorothy Height;Sin pareja publica;--;--;0
+Nerie Clark;influyentes_historia;;;;Septima Clark;Esposo 1920-1925 1 hijo;1920-1925;Fallecimiento el 1925;1 hijo
+Margarita Maza;influyentes_historia;29/03/1826;;Oaxaca Mexico;Benito Juarez;Matrimonio 1843-1871 12 hijos;1843-1871;Fallecimiento ella 1871;12 hijos
+Lady Bird Johnson;influyentes_historia;22/12/1912;;USA;Lyndon Johnson;Matrimonio 1934-1973 2 hijas;1934-1973;Fallecimiento el 1973;2 hijas
+Lady Bird Johnson;influyentes_historia;22/12/1912;;USA;L. Johnson alternativo;Duplicado Lyndon;1934-1973;Fallecimiento el;2 hijas
+Kaneko Ikeda;influyentes_historia;;;;Daisaku Ikeda;Esposa 1952 3 hijos;1952-presente;vigente;3 hijos
+Celibe;influyentes_historia;;;;Thich Quang Duc;Celibe monastico;--;--;0
+Fathia Rizk;influyentes_historia;;;;Kwame alternativo;Matrimonio 1957-1972 3 hijos;1957-1972;Fallecimiento el;3 hijos
+Ngina Muhoho;influyentes_historia;;;;Jomo alternativo;Matrimonio 1951-1978 4 hijos;1951-1978;Fallecimiento el;4 hijos
+Rattanbai Petit;influyentes_historia;;;;Jinnah alternativo;Matrimonio 1918-1929 1 hija;1918-1929;Fallecimiento ella;1 Dina
+Soltero;influyentes_historia;;;;Tesla;Celibe laboratorio;--;--;0
+Mileva Maric;influyentes_historia;19/12/1875;;Serbia;Einstein;Primera esposa 1903-1919;1903-1919;Divorcio 1919;3 hijos
+Emma Wedgwood;influyentes_historia;02/05/1808;;UK;Darwin;Prima 10 hijos 1839-1882;1839-1882;Fallecimiento el;10 hijos
+Marie Laurent;influyentes_historia;15/01/1826;;Francia;Pasteur;Esposa 5 hijos 1849-1895;1849-1895;Fallecimiento el;5 hijos
+Donna Lindsay;influyentes_historia;;;;Salk;Matrimonio vacuna 1939-1968;1939-1968;Divorcio 1968;3 hijos
+Soltero;influyentes_historia;;;;Mendel;Monje genetica;--;--;0
+Soltero;influyentes_historia;;;;Locke;Filosofo soltero;--;--;0
+Jean-Paul Sartre;influyentes_historia;21/06/1905;;Paris;Beauvoir;Pacto abierto 51 años;1929-1980;Fallecimiento el;0
+Alys Smith;influyentes_historia;21/07/1867;;USA;Russell;Primera esposa 1894-1921;1894-1921;Divorcio 1921;0
+Celibe;influyentes_historia;;;;Dorothy Stang;Celibe religiosa;--;--;0
+Jenny von Westphalen;influyentes_historia;12/02/1814;;Alemania;Marx;Baronesa exilio 1843-1881;1843-1881;Fallecimiento ella;7 hijos
+Therese Levasseur;influyentes_historia;21/09/1721;;Francia;Rousseau;Costurera 5 hijos 1745-1778;1745-1778;Fallecimiento el;5 hijos
+Mary Todd;influyentes_historia;13/12/1818;;USA;Lincoln;Primera dama 4 hijos 1842-1865;1842-1865;Asesinato el;4 hijos
+Martha Washington;influyentes_historia;02/06/1731;;USA;Washington;Primera dama 1759-1799;1759-1799;Fallecimiento el;0 en comun
+Martha Wayles;influyentes_historia;19/10/1748;;USA;Jefferson;Heredera 1772-1782 6 hijos;1772-1782;Fallecimiento ella;6 hijos
+Clementine Hozier;influyentes_historia;01/04/1885;;UK;Churchill;Esposa guerra 57 años;1908-1965;Fallecimiento el;5 hijos
+Mabel Hubbard;influyentes_historia;25/11/1857;;USA;Bell;Esposa sorda 4 hijos 1877-1922;1877-1922;Fallecimiento el;4 hijos
+Leo Jogiches;influyentes_historia;17/07/1867;;Vilna;Rosa Luxemburg;Pareja 1890-1907;1890-1907;Ruptura 1907;0
+William Godwin;influyentes_historia;03/03/1756;;UK;Mary Wollstonecraft;Matrimonio radical 1 hija Mary Shelley;1797-1797;Fallecimiento ella 1797;1 Mary Shelley
+Harriet Taylor;influyentes_historia;08/10/1807;;UK;Stuart Mill;Intelectual 20 años;1830-1858;Fallecimiento ella 1858;0 en comun
+Lidian Jackson;influyentes_historia;20/09/1802;;USA;Emerson;Segunda esposa 4 hijos;1835-1882;Fallecimiento el 1882;4 hijos
+Soltero;influyentes_historia;;;;Foucault;Sin pareja estable;--;--;0
+Heinrich Blucher;influyentes_historia;26/01/1899;;Berlin;Arendt;Matrimonio apatrida 1940-1970;1940-1970;Fallecimiento el 1970;0
+Josie Fanon;influyentes_historia;;;;Frantz Fanon;Esposa psiquiatria 2 hijos;1955-1961;Fallecimiento el 1961;2 Olivier y Mireille
+Mariam Cortas;influyentes_historia;;;;Edward Said;Matrimonio 1970 2 hijos;1970-2003;Fallecimiento el 2003;2 Wadie y Najla
+Carol Schatz;influyentes_historia;;;;Chomsky;Primera esposa 1949-2008 3 hijos;1949-2008;Fallecimiento ella 2008;3 Aviva Diane Harry
+Richard Pankhurst;influyentes_historia;01/01/1834;;UK;Pankhurst;Matrimonio sufragista 5 hijos;1878-1898;Fallecimiento el 1898;5 hijos
+Soltera;influyentes_historia;;;;Susan B. Anthony;Soltera sufragista;--;--;0
+Henry Stanton;influyentes_historia;27/06/1805;;USA;Cady Stanton;Matrimonio 1840-1887 8 hijos;1840-1887;Fallecimiento el 1887;8 hijos
+Helen Fabela;influyentes_historia;;;;Cesar Chavez;Matrimonio 1948-1993 8 hijos;1948-1993;Fallecimiento el 1993;8 hijos
+Richard Chavez;influyentes_historia;;;;Dolores Huerta;Ex pareja sindical;--;--;4 hijos
+Scott Smith;influyentes_historia;;;;Harvey Milk;Pareja 1978 9 años;1969-1978;Asesinato el 1978;0
+Soltera;influyentes_historia;;;;Jane Addams;Soltera Hull House;--;--;0
+Soltera;influyentes_historia;;;;Clara Barton;Soltera Cruz Roja;--;--;0
+Forster Batterham;influyentes_historia;;;;Dorothy Day;Pareja anarquista 1 hija;1925-1930;Separacion;1 Tamar
+Soltero;influyentes_historia;;;;Wallenberg;Soltero heroe;--;--;0
+Emilie Pelzl;influyentes_historia;22/10/1907;;Bohemia;Schindler;Matrimonio 1928-1974;1928-1974;Fallecimiento el 1974;0
+Soltera;influyentes_historia;;;;Ana Frank;Nina diario sin pareja;--;--;0
+Marion Erster;influyentes_historia;;;;Elie Wiesel;Matrimonio 1969 1 hijo;1969-2016;Fallecimiento el 2016;1 Shlomo
+Cyla Mueller;influyentes_historia;;;;Wiesenthal;Matrimonio 1936-2005 3 hijas;1936-2005;Fallecimiento el 2005;3 hijas
+Soltera;influyentes_historia;;;;Steinem;Soltera feminista ex Bale 2000-2003;2000-2003;Divorcio 2003;0
+Carl Friedan;influyentes_historia;;;;Friedan;Matrimonio 1947-1969 3 hijos;1947-1969;Divorcio 1969;3 hijos
+Antoine Veil;influyentes_historia;28/08/1926;;Francia;Simone Veil;Matrimonio 1946-2013 3 hijos;1946-2013;Fallecimiento el 2013;3 hijos
+Elza Maia;influyentes_historia;;;;Paulo Freire;Primera esposa 5 hijas;1944-1986;Fallecimiento ella 1986;5 hijas
+Ute Wesselhoeft;influyentes_historia;;;;Habermas;Matrimonio 1955 3 hijos;1955-presente;vigente;3 hijos
+Emma Rothschild;influyentes_historia;;;;Amartya Sen;Tercera esposa 1991;1991-presente;vigente;0
+Javad Tavassolian;influyentes_historia;;;;Shirin Ebadi;Matrimonio 1975 2 hijas;1975-presente;--;2 hijas
+Mohammed al-Nahmi;influyentes_historia;;;;Tawakkol Karman;Matrimonio 3 hijas;--;--;3 hijas
+Desconocido;influyentes_historia;;;;Leymah Gbowee;Pareja 6 hijos verificar;--;--;6 hijos
+Sumedha Satyarthi;influyentes_historia;;;;Satyarthi;Matrimonio 2 hijos;--;--;2 hijos
+Afrozi Yunus;influyentes_historia;;;;Yunus;Matrimonio 2 hijas;--;--;2 hijas
+Ilzamar Mendes;influyentes_historia;;;;Chico Mendes;Matrimonio 2 hijos;--;Asesinato el 1988;2 hijos
+Lindsay Mills;influyentes_historia;;;;Snowden;Pareja 2009 casados 2017;2009-presente;vigente;0
+Stella Moris;influyentes_historia;01/01/1983;;Sudafrica;Assange;Pareja abogada 2 hijos boda 2022;2015-presente;vigente;2 Gabriel y Max
+Taren Stinebrickner;influyentes_historia;;;;Swartz;Pareja 2011-2013;2011-2013;Fallecimiento el 2013;0

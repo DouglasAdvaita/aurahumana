@@ -1,0 +1,57 @@
+# ===== RAVE - lo que NO se publica =====
+
+# Secretos
+.env
+
+# Python / temporales
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.vscode/
+
+# Respaldos, copias y archivos viejos
+*.bak
+*.bak*
+*.apk
+*.aab
+/.idea/
+/app - copia.py
+/* - copia.*
+/templates/* - copia.*
+/_viejos/
+/movil-jorge.html
+
+# Windows
+*.lnk
+~$*
+Thumbs.db
+desktop.ini
+
+# Pagina de laboratorio con nombres de prueba: queda local
+/templates/lab.html
+
+# Datos personales LLENOS: solo se publican las plantillas vacias de plantillas/
+/datos.csv
+/datos_sin_analia.csv
+/vinculos.csv
+/clan.csv
+/conocidos.csv
+/test.csv
+/ia.csv
+/informe.csv
+/dinamica_compuesta.csv
+/cambios_aplicados_horas.csv
+/comparacion_datos_horas.csv
+/memoriaOC.md
+
+# Excel de trabajo (la app usa los CSV; estos se regeneran)
+*.xlsx
+!centros_detallado Matriz 9 Centros.xlsx
+!razgos.xlsx
+
+# Medios pesados (se regeneran / no van al repo)
+/static/canales_audio/
+/videos_canales/
+/Publicos/
+/avatares_arquetipos/

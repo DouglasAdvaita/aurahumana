@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "references": [
+    {
+      "path": "C:/Mis Documentos/_superacion/Libros PDF/PERSONALIDAD/diseño humano/_LIBROS",
+      "description": "BIBLIOGRAFIA Diseño Humano - consultar BAJO DEMANDA cuando necesites fundamentar puertas/canales/centros/tipos/perfiles/circuitos. 11 PDFs base + subcarpeta Pack.Human.Design.Hispania (19 libros). Usar @bibliografia-dh/ para citar fuente exacta."
+    },
+    {
+      "path": "C:/Mis Documentos/_superacion/Libros PDF/PERSONALIDAD/diseño humano/_LIBROS/Pack.Human.Design.Hispania",
+      "description": "Pack Hispania 19 libros DH (Vivir tu Diseño, ABC del Rave, Puertas del Amor, I'Ching del Rave, Color, Centros, Cruces, Tipos, etc.) en pdf/docx/txt + 35 audios. Consultar cuando la bibliografia base no alcanza. Formatos: 33 pdf, 20 docx, 13 txt."
+    }
+  ]
+}

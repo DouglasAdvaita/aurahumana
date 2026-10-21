@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="215.9mm" height="279.4mm" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 215.9 279.4">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:#1F1A17;stroke-width:0.0762}
+    .fil3 {fill:#00A641}
+    .fil2 {fill:#131516}
+    .fil1 {fill:#E7E8EA}
+    .fil0 {fill:white}
+    .fil4 {fill:#1F1A17;fill-rule:nonzero}
+   ]]>
+  </style>
+ </defs>
+ <g id="Capa_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <rect id="botones_fondo" class="fil0 str0" x="9.0334" y="41.1855" width="8.4441" height="3.6189"/>
+  <rect id="botones_base" class="fil1 str0" x="9.2882" y="41.4047" width="7.7698" height="3.0053"/>
+  <rect id="boton_lineas_de_puertas" class="fil2 str0" x="9.5814" y="41.6246" width="2.4189" height="2.5655"/>
+  <rect id="boton_emojis" class="fil3 str0" x="14.1993" y="41.6246" width="2.4189" height="2.5655"/>
+  <polygon id="etiqueta_de_lineas" class="fil4" points="9.7843,40.3894 9.7843,38.3403 10.0558,38.3403 10.0558,40.1475 11.0648,40.1475 11.0648,40.3894 "/>
+  <polygon id="etiqueta_de_emojis" class="fil4" points="15.0605,40.3894 15.0605,38.3403 16.5419,38.3403 16.5419,38.5822 15.3315,38.5822 15.3315,39.2096 16.465,39.2096 16.465,39.45 15.3315,39.45 15.3315,40.1475 16.5896,40.1475 16.5896,40.3894 "/>
+  <rect id="boton_nada" class="fil1 str0" x="11.9394" y="41.6246" width="2.4189" height="2.5655"/>
+  <polygon id="etiqueta_de_nada" class="fil4" points="12.8071,39.4294 12.8071,39.1766 13.5805,39.1766 13.5805,39.4294 "/>
+ </g>
+</svg>

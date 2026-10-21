@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Filtro personas</title>
+<style>
+  body{font-family:system-ui,Arial,sans-serif;margin:0;background:#eef1f5;color:#222;font-size:12px}
+  #barra{position:sticky;top:0;background:#fff;border-bottom:1px solid #ddd;padding:8px 10px;z-index:10}
+  #barra b{font-size:14px}
+  #conteo{color:#555;margin-left:8px}
+  #limpiar{margin-left:12px;font-size:12px}
+  #err{color:#b71c1c;font-size:11px;margin-top:4px}
+  #wrap{padding:8px;overflow-x:auto}
+  table{border-collapse:collapse;background:#fff;min-width:1100px;width:100%}
+  th,td{border:1px solid #ddd;padding:4px 6px;text-align:left;vertical-align:top}
+  thead th{background:#f5f7fa;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+  tr.filtros th{background:#eef3f9;vertical-align:middle}
+  .fcell{display:flex;gap:4px;align-items:center}
+  .fcell input{font-size:12px;padding:2px 4px;width:130px}
+  .fbtn{font-size:12px;padding:2px 4px;border:1px solid #ccd;background:#fff;border-radius:4px;cursor:pointer;display:flex;gap:4px;align-items:center;max-width:180px}
+  .fbtn .fbtxt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
+  .fbtn .car{color:#888;font-size:9px}
+  .fbtn.on{background:#e8f0fb;border-color:#8fb0d9;color:#1a3d6d;font-weight:600}
+  .fbtn:hover{background:#f2f6fc}
+  .fx{display:none;border:1px solid #ccc;background:#fff;border-radius:50%;width:20px;height:20px;line-height:1;cursor:pointer;color:#b71c1c;font-weight:700;flex:0 0 auto}
+  .fx.on{display:inline-block}
+  .fx:hover{background:#fdecea}
+  #pop{position:fixed;z-index:50;display:none;background:#fff;border:1px solid #b0b8c4;border-radius:6px;box-shadow:0 8px 22px rgba(0,0,0,.2);padding:6px;font-size:12px;min-width:190px;max-width:270px}
+  #pop .pop-search{width:100%;box-sizing:border-box;margin-bottom:4px;padding:3px 5px}
+  #pop .pop-todos{border-bottom:1px solid #eee;margin-bottom:3px;padding:2px 3px 4px;font-weight:600}
+  #pop .pop-list{max-height:240px;overflow:auto;border:1px solid #eef0f3;border-radius:4px;padding:2px}
+  #pop label{display:flex;align-items:center;gap:5px;padding:2px 3px;cursor:pointer;white-space:nowrap}
+  #pop .pop-list label:hover{background:#f0f4fa}
+  #pop .pop-foot{display:flex;justify-content:space-between;margin-top:5px}
+  #pop .pop-foot button{font-size:12px;padding:2px 8px;cursor:pointer}
+  tbody td{font-size:12px}
+  tbody tr:nth-child(even){background:#fafbfc}
+  .pill{display:inline-block;background:#eef;border:1px solid #ccd;border-radius:8px;padding:0 6px;margin:1px 2px 1px 0;font-size:11px;white-space:nowrap}
+  .pill.c{background:#e8f5e9;border-color:#a5d6a7}
+  .pill.p{background:#fff3e0;border-color:#ffcc80}
+  .mini{color:#777;font-size:11px}
+  #gestionar{margin-left:6px;font-size:12px}
+  #panel-ocultos{margin-left:8px}
+</style>
+</head>
+<body>
+<div id="barra">
+  <b>Filtro personas</b>
+  <span id="conteo">cargando…</span>
+  <button id="limpiar">Limpiar filtros</button>
+  <button id="gestionar">ocultos (0)</button>
+  <span id="panel-ocultos" style="display:none"></span>
+  <div id="err"></div>
+</div>
+<div id="wrap">
+<table id="tabla">
+  <thead>
+    <tr>
+      <th>Persona</th><th>Tipo</th><th>Perfil</th><th>Definición</th>
+      <th>Centros definidos</th><th>Canales</th><th>Puertas</th>
+    </tr>
+    <tr class="filtros">
+      <th><div class="fcell"><input id="f-nombre" placeholder="buscar…" title="texto en nombre"><button class="fx" id="x-nombre" title="quitar filtro">×</button></div></th>
+      <th><div class="fcell"><button class="fbtn" data-key="tipo" title="filtrar Tipo"><span class="fbtxt">— todos —</span><span class="car">▾</span></button><button class="fx" id="x-tipo" title="quitar filtro">×</button></div></th>
+      <th><div class="fcell"><button class="fbtn" data-key="perfil" title="filtrar Perfil"><span class="fbtxt">— todos —</span><span class="car">▾</span></button><button class="fx" id="x-perfil" title="quitar filtro">×</button></div></th>
+      <th><div class="fcell"><button class="fbtn" data-key="def" title="filtrar Definición"><span class="fbtxt">— todas —</span><span class="car">▾</span></button><button class="fx" id="x-def" title="quitar filtro">×</button></div></th>
+      <th><div class="fcell"><button class="fbtn" data-key="centro" title="filtrar Centros"><span class="fbtxt">— todas —</span><span class="car">▾</span></button><button class="fx" id="x-centro" title="quitar filtro">×</button></div></th>
+      <th><div class="fcell"><button class="fbtn" data-key="canal" title="filtrar Canales"><span class="fbtxt">— todos —</span><span class="car">▾</span></button><button class="fx" id="x-canal" title="quitar filtro">×</button></div></th>
+      <th><div class="fcell"><button class="fbtn" data-key="puerta" title="filtrar Puertas"><span class="fbtxt">— todas —</span><span class="car">▾</span></button><button class="fx" id="x-puerta" title="quitar filtro">×</button></div></th>
+    </tr>
+  </thead>
+  <tbody id="cuerpo"></tbody>
+</table>
+</div>
+<div id="pop"></div>
+
+<script>
+// Lógica HD portada de app.py (solo lectura, sin backend nuevo).
+// Usa /api/puertas_personas que ya existe (como lab.html).
+const CENTRO_CANALES = {
+  'Raiz':['58-38','38-28','54-32','53-42','60-3','52-9','19-49','39-55','41-30'],
+  'Sacro':['5-15','14-2','29-46','59-6','9-52','3-60','42-53','27-50','34-57','34-10','34-20'],
+  'Bazo':['48-16','57-34','57-20','57-10','44-26','50-27','32-54','28-38','18-58'],
+  'Plexo':['6-59','37-40','49-19','55-39','30-41','36-35','22-12'],
+  'Ego':['21-45','40-37','26-44','51-25'],
+  'G':['1-8','2-14','7-31','13-33','10-20','10-34','10-57','25-51','15-5','46-29'],
+  'Garganta':['16-48','20-57','20-34','20-10','31-7','8-1','33-13','35-36','12-22','45-21','62-17','23-43','56-11'],
+  'Ajna':['11-56','24-61','43-23','47-64','4-63','17-62'],
+  'Corona':['61-24','63-4','64-47']
+};
+const CENTROS_ORDEN = ['Corona','Ajna','Garganta','G','Ego','Bazo','Plexo','Sacro','Raiz'];
+function normCanal(s){
+  const p = String(s).split('-').map(Number);
+  if(p.length !== 2 || p.some(isNaN)) return String(s).trim();
+  return Math.min(p[0],p[1]) + '-' + Math.max(p[0],p[1]);
+}
+const CANAL_CENTROS = {};
+for(const [cc, lista] of Object.entries(CENTRO_CANALES)){
+  for(const c of lista){
+    const k = normCanal(c);
+    (CANAL_CENTROS[k] = CANAL_CENTROS[k] || []).push(cc);
+  }
+}
+const CANALES36 = Object.keys(CANAL_CENTROS).sort((a,b)=>{
+  const pa = a.split('-').map(Number), pb = b.split('-').map(Number);
+  return pa[0]-pb[0] || pa[1]-pb[1];
+});
+function canalesDe(puertas){
+  const s = new Set(puertas);
+  return CANALES36.filter(k=>{
+    const [a,b] = k.split('-').map(Number);
+    return s.has(a) && s.has(b);
+  });
+}
+function centrosDe(canales){
+  const sc = new Set(canales.map(normCanal));
+  const defs = new Set();
+  for(const [centro, lista] of Object.entries(CENTRO_CANALES)){
+    if(lista.map(normCanal).some(c=>sc.has(c))) defs.add(centro);
+  }
+  return defs;
+}
+function tipoAutoridad(centros, canales){
+  const sc = new Set(canales.map(normCanal));
+  const adj = {};
+  for(const k of sc){
+    const par = CANAL_CENTROS[k] || [];
+    if(par.length !== 2) continue;
+    const [x,y] = par;
+    if(!centros.has(x) || !centros.has(y)) continue;
+    (adj[x] = adj[x] || []).push(y);
+    (adj[y] = adj[y] || []).push(x);
+  }
+  const motores = new Set(['Sacro','Ego','Plexo','Raiz']);
+  const vis = new Set(['Garganta']), cola = ['Garganta'];
+  let motorThroat = false;
+  while(cola.length){
+    const n = cola.pop();
+    if(motores.has(n)){ motorThroat = true; break; }
+    for(const v of (adj[n] || [])) if(!vis.has(v)){ vis.add(v); cola.push(v); }
+  }
+  let tipo;
+  if(centros.has('Sacro') && motorThroat) tipo = 'Generador Manifestante';
+  else if(centros.has('Sacro')) tipo = 'Generador';
+  else if(motorThroat) tipo = 'Manifestador';
+  else if(centros.size === 0) tipo = 'Reflector';
+  else tipo = 'Proyector';
+  return tipo;
+}
+function definicionDe(centros, canales){
+  if(!centros.size) return 'ninguna';
+  const sc = new Set(canales.map(normCanal));
+  const adj = {};
+  centros.forEach(c=>adj[c] = new Set());
+  for(const k of sc){
+    const par = CANAL_CENTROS[k] || [];
+    if(par.length !== 2) continue;
+    const [x,y] = par;
+    if(adj[x] && adj[y]){ adj[x].add(y); adj[y].add(x); }
+  }
+  const visit = new Set(); let comps = 0;
+  for(const c of centros){
+    if(visit.has(c)) continue;
+    comps++; const cola = [c]; visit.add(c);
+    while(cola.length){
+      const n = cola.pop();
+      for(const v of adj[n]) if(!visit.has(v)){ visit.add(v); cola.push(v); }
+    }
+  }
+  return comps === 1 ? 'única' : comps === 2 ? 'dividida' : comps === 3 ? 'triple' : 'cuádruple';
+}
+
+let FILAS = [];
+const $ = id => document.getElementById(id);
+const OCULTOS_KEY = 'dhOcultosV1';
+let OCULTOS = new Set();
+try{ OCULTOS = new Set(JSON.parse(localStorage.getItem(OCULTOS_KEY) || '[]')); }catch(e){ OCULTOS = new Set(); }
+function guardaOcultos(){ try{ localStorage.setItem(OCULTOS_KEY, JSON.stringify([...OCULTOS])); }catch(e){} }
+function visibles(){ return FILAS.filter(f=>!OCULTOS.has(f.nombre)); }
+
+// --- Filtros multiples: cada columna guarda un array (vacio = todos) ---
+const KEYS = ['tipo','perfil','def','centro','canal','puerta'];
+const FTS = {nombre:'', tipo:[], perfil:[], def:[], centro:[], canal:[], puerta:[]};
+
+function pasa(f){
+  if(FTS.nombre && !f.nombre.toLowerCase().includes(FTS.nombre)) return false;
+  if(FTS.tipo.length && !FTS.tipo.includes(f.tipo)) return false;
+  if(FTS.perfil.length && !FTS.perfil.includes(f.perfil || '')) return false;
+  if(FTS.def.length && !FTS.def.includes(f.definicion)) return false;
+  if(FTS.centro.length && !FTS.centro.some(c=>f.centros.includes(c))) return false;
+  if(FTS.canal.length && !FTS.canal.some(c=>f.canales.includes(c))) return false;
+  if(FTS.puerta.length && !FTS.puerta.some(g=>f.puertas.includes(Number(g)))) return false;
+  return true;
+}
+
+function dominioDe(key){
+  const v = visibles();
+  if(key === 'tipo') return [...new Set(v.map(f=>f.tipo))].sort((a,b)=>a.localeCompare(b,'es'));
+  if(key === 'perfil') return [...new Set(v.map(f=>f.perfil).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true}));
+  if(key === 'def'){
+    const ord = ['única','dividida','triple','cuádruple','ninguna'];
+    return [...new Set(v.map(f=>f.definicion))].sort((a,b)=>ord.indexOf(a)-ord.indexOf(b));
+  }
+  if(key === 'centro') return CENTROS_ORDEN.slice();
+  if(key === 'canal') return CANALES36.slice();
+  if(key === 'puerta') return Array.from({length:64},(_,i)=>String(i+1));
+  return [];
+}
+
+function actualizaBotones(){
+  for(const key of KEYS){
+    const btn = document.querySelector('.fbtn[data-key="'+key+'"]');
+    const sel = FTS[key];
+    let txt;
+    if(!sel.length) txt = (key === 'tipo' || key === 'perfil' || key === 'canal') ? '— todos —' : '— todas —';
+    else if(sel.length === 1) txt = sel[0];
+    else txt = sel.length + ' sel.';
+    btn.querySelector('.fbtxt').textContent = txt;
+    btn.classList.toggle('on', sel.length > 0);
+    $('x-' + key).classList.toggle('on', sel.length > 0);
+  }
+  $('x-nombre').classList.toggle('on', !!FTS.nombre);
+}
+
+function dibujar(){
+  actualizaBotones();
+  const todos = visibles();
+  const vis = todos.filter(pasa);
+  $('conteo').textContent = vis.length + ' de ' + todos.length + ' personas';
+  const tb = $('cuerpo');
+  tb.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  for(const f of vis){
+    const tr = document.createElement('tr');
+    const tdN = document.createElement('td');
+    tdN.innerHTML = '<b></b> <span class="mini"></span>';
+    tdN.querySelector('b').textContent = f.nombre;
+    tdN.querySelector('.mini').textContent = f.puertas.length + ' puertas';
+    const tdT = document.createElement('td'); tdT.textContent = f.tipo;
+    const tdP = document.createElement('td'); tdP.textContent = f.perfil || '—';
+    const tdD = document.createElement('td'); tdD.textContent = f.definicion;
+    const tdC = document.createElement('td');
+    tdC.innerHTML = f.centros.length
+      ? f.centros.map(c=>'<span class="pill c"></span>').join('')
+      : '<span class="mini">ninguno</span>';
+    [...tdC.querySelectorAll('.pill')].forEach((el,i)=>el.textContent = f.centros[i]);
+    const tdK = document.createElement('td');
+    tdK.innerHTML = f.canales.length
+      ? f.canales.map(c=>'<span class="pill"></span>').join('')
+      : '<span class="mini">—</span>';
+    [...tdK.querySelectorAll('.pill')].forEach((el,i)=>el.textContent = f.canales[i]);
+    const tdPu = document.createElement('td');
+    tdPu.innerHTML = f.puertas.map(g=>'<span class="pill p"></span>').join('');
+    [...tdPu.querySelectorAll('.pill')].forEach((el,i)=>el.textContent = f.puertas[i]);
+    const lab = document.createElement('label'); lab.className = 'mini'; lab.title = 'No mostrar más a esta persona';
+    const chk = document.createElement('input'); chk.type = 'checkbox';
+    chk.onchange = ()=>{ OCULTOS.add(f.nombre); guardaOcultos(); refrescaTodo(); };
+    lab.append(chk, document.createTextNode(' ocultar'));
+    tdN.appendChild(document.createElement('br')); tdN.appendChild(lab);
+    tr.append(tdN, tdT, tdP, tdD, tdC, tdK, tdPu);
+    tr.title = f.nombre + ' · ' + f.tipo + ' · ' + (f.perfil || '?') + ' · ' + f.definicion;
+    frag.appendChild(tr);
+  }
+  tb.appendChild(frag);
+}
+
+// --- Popup estilo autofiltro de Excel (checkboxes multiples) ---
+let POP_KEY = null, POP_BTN = null;
+function posicionaPop(btn){
+  const pop = $('pop');
+  const r = btn.getBoundingClientRect();
+  pop.style.visibility = 'hidden';
+  pop.style.display = 'block';
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let left = r.left;
+  if(left + pw > window.innerWidth - 6) left = window.innerWidth - pw - 6;
+  if(left < 6) left = 6;
+  let top = r.bottom + 2;
+  if(top + ph > window.innerHeight - 6) top = Math.max(6, r.top - ph - 2);
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+  pop.style.visibility = 'visible';
+}
+function cerrarPop(){ $('pop').style.display = 'none'; POP_KEY = null; POP_BTN = null; }
+function abrirPop(key, btn){
+  if(POP_KEY === key){ cerrarPop(); return; }
+  POP_KEY = key;
+  POP_BTN = btn;
+  const pop = $('pop');
+  pop.innerHTML = '';
+  const dom = dominioDe(key);
+  const selActual = FTS[key].length ? new Set(FTS[key]) : new Set(dom);
+
+  const search = document.createElement('input');
+  search.type = 'text'; search.className = 'pop-search'; search.placeholder = 'buscar…';
+
+  const labTodo = document.createElement('label'); labTodo.className = 'pop-todos';
+  const chkTodo = document.createElement('input'); chkTodo.type = 'checkbox';
+  chkTodo.checked = dom.length > 0 && selActual.size === dom.length;
+  chkTodo.indeterminate = selActual.size > 0 && selActual.size < dom.length;
+  labTodo.append(chkTodo, document.createTextNode('(Seleccionar todo)'));
+
+  const list = document.createElement('div'); list.className = 'pop-list';
+  const items = dom.map(v=>{
+    const lab = document.createElement('label');
+    const chk = document.createElement('input'); chk.type = 'checkbox'; chk.value = v;
+    chk.checked = selActual.has(v);
+    lab.append(chk, document.createTextNode(v));
+    lab.dataset.buscar = String(v).toLowerCase();
+    list.appendChild(lab);
+    return {lab, chk, v};
+  });
+
+  function commit(){
+    const marcados = items.filter(x=>x.chk.checked).map(x=>x.v);
+    FTS[key] = (marcados.length === dom.length) ? [] : marcados;
+    chkTodo.checked = dom.length > 0 && marcados.length === dom.length;
+    chkTodo.indeterminate = marcados.length > 0 && marcados.length < dom.length;
+    dibujar();
+  }
+  items.forEach(x=>{ x.chk.onchange = commit; });
+  chkTodo.onchange = ()=>{ items.forEach(x=>x.chk.checked = chkTodo.checked); commit(); };
+  search.oninput = ()=>{
+    const q = search.value.trim().toLowerCase();
+    items.forEach(x=>{ x.lab.style.display = (!q || x.lab.dataset.buscar.includes(q)) ? '' : 'none'; });
+  };
+
+  const foot = document.createElement('div'); foot.className = 'pop-foot';
+  const bLimpiar = document.createElement('button'); bLimpiar.textContent = 'Limpiar';
+  bLimpiar.onclick = ()=>{ FTS[key] = []; items.forEach(x=>x.chk.checked = true); chkTodo.checked = dom.length > 0; chkTodo.indeterminate = false; dibujar(); };
+  const bCerrar = document.createElement('button'); bCerrar.textContent = 'Cerrar'; bCerrar.onclick = cerrarPop;
+  foot.append(bLimpiar, bCerrar);
+
+  pop.append(search, labTodo, list, foot);
+  posicionaPop(btn);
+}
+
+function renderOcultos(){
+  $('gestionar').textContent = 'ocultos (' + OCULTOS.size + ')';
+  const p = $('panel-ocultos');
+  if(p.style.display === 'none') return;
+  p.innerHTML = '';
+  if(!OCULTOS.size){ p.textContent = 'nadie oculto'; return; }
+  const frag = document.createDocumentFragment();
+  [...OCULTOS].sort((a,b)=>a.localeCompare(b,'es')).forEach(n=>{
+    const s = document.createElement('span'); s.className = 'pill';
+    s.textContent = n + ' ';
+    const b = document.createElement('button'); b.textContent = 'mostrar'; b.className = 'fx on'; b.style.width = 'auto'; b.style.borderRadius = '4px';
+    b.onclick = ()=>{ OCULTOS.delete(n); guardaOcultos(); refrescaTodo(); };
+    s.appendChild(b); frag.appendChild(s);
+  });
+  const todo = document.createElement('button'); todo.textContent = 'mostrar todos';
+  todo.onclick = ()=>{ OCULTOS.clear(); guardaOcultos(); refrescaTodo(); };
+  frag.appendChild(todo);
+  p.appendChild(frag);
+}
+function refrescaTodo(){ cerrarPop(); dibujar(); renderOcultos(); }
+function limpiaTodo(){
+  FTS.nombre = ''; $('f-nombre').value = '';
+  for(const key of KEYS) FTS[key] = [];
+  cerrarPop(); dibujar();
+}
+
+async function init(){
+  const r = await fetch('/api/puertas_personas');
+  if(!r.ok) throw new Error('HTTP ' + r.status);
+  const j = await r.json();
+  FILAS = Object.entries(j).map(([nombre, d])=>{
+    const todas = [...new Set(d.todas || [])].map(Number).sort((a,b)=>a-b);
+    const canales = canalesDe(todas);
+    const centros = centrosDe(canales);
+    return {
+      nombre,
+      puertas: todas,
+      canales,
+      centros: CENTROS_ORDEN.filter(c=>centros.has(c)),
+      tipo: tipoAutoridad(centros, canales),
+      definicion: definicionDe(centros, canales),
+      perfil: d.perfil || null
+    };
+  }).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+
+  document.querySelectorAll('.fbtn').forEach(btn=>{
+    btn.onclick = (e)=>{ e.stopPropagation(); abrirPop(btn.dataset.key, btn); };
+  });
+  document.addEventListener('click', (e)=>{ if(POP_KEY && !$('pop').contains(e.target)) cerrarPop(); });
+  window.addEventListener('resize', cerrarPop);
+  window.addEventListener('scroll', (e)=>{
+    if(!POP_KEY) return;
+    if($('pop').contains(e.target)) return;
+    posicionaPop(POP_BTN);
+  }, true);
+
+  $('f-nombre').addEventListener('input', ()=>{ FTS.nombre = $('f-nombre').value.trim().toLowerCase(); dibujar(); });
+  $('x-nombre').onclick = ()=>{ $('f-nombre').value = ''; FTS.nombre = ''; dibujar(); };
+  for(const key of KEYS) $('x-' + key).onclick = ()=>{ FTS[key] = []; if(POP_KEY === key) cerrarPop(); dibujar(); };
+  $('limpiar').onclick = limpiaTodo;
+  $('gestionar').onclick = ()=>{
+    const p = $('panel-ocultos');
+    p.style.display = (p.style.display === 'none') ? 'inline' : 'none';
+    renderOcultos();
+  };
+  renderOcultos();
+  dibujar();
+}
+init().catch(e=>{ $('err').textContent = 'No se pudo leer personas (¿app.py corriendo?): ' + e; });
+</script>
+</body>
+</html>
