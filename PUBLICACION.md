@@ -25,6 +25,12 @@
 3. `INICIAR.cmd` ya llama a `preparar_datos.py` antes de arrancar.
 4. Las fotos de `Publicos/` se regeneran con `python bajar_fotos_publicas.py` si hacen falta.
 
+## Primera vez (crear el remoto)
+1. En GitHub: New repository -> nombre `aura-humana` -> Private -> NO marcar README, .gitignore ni licencia.
+2. Copiar la URL del repo.
+3. En esta carpeta: `git remote add origin <URL>`.
+4. `PUBLICAR.cmd` (o `git push -u origin main`).
+
 ## Como publicar
 - Doble clic en `PUBLICAR.cmd`.
 - Escribe una descripcion (o Enter para usar la fecha).
