@@ -149,7 +149,7 @@ Es la energía de decir «yo soy yo, aquí y ahora», con una voz propia que nec
 
 Este es uno de los canales más antiguos del mapa. Forma parte de los canales de Integración, que son como la columna vertebral de nuestra supervivencia como especie. No pertenece a ningún circuito social: no está hecho para potenciar, compartir ni sostener a otros. Está ocupado en algo más básico: que cada uno pueda ser sí mismo y sobrevivir siendo sí mismo.
 
-La puerta 20 es la voz que habla en el ahora; la puerta 10 es la identidad, el «yo soy». Cuando se juntan, aparece una persona que puede expresar su verdad sin rodeos: «esto soy, esto pienso, esto vivo». No es el canal de estar iluminado, aunque a veces se lo confunda con eso. Es el canal de estar despierto, en el sentido simple de estar presente y hablar desde uno mismo.
+La puerta 20 es la voz que habla en el ahora; la puerta 10 es la identidad, el «yo soy». Cuando se juntan, aparece una persona que puede expresar su claridad para decidir sin rodeos: «esto soy, esto pienso, esto vivo». No es el canal de estar iluminado, aunque a veces se lo confunda con eso. Es el canal de estar despierto, en el sentido simple de estar presente y hablar desde uno mismo.
 
 Como es un canal proyectado, su claridad no depende de hacer más cosas ni de convencer a nadie. Depende de ser reconocido. La persona con este canal no necesita demostrar que está despierta; necesita que alguien note su presencia, escuche su voz y la invite a decir lo que tiene para decir.
 
@@ -447,11 +447,11 @@ Esta inteligencia no es moral: no le importa lo bueno o lo malo, le importa lo a
 
 El regalo es la conciencia del ahora. Esta persona puede ver lo que otros no ven y decirlo con una claridad que despierta. Cuando está bien ubicada, su palabra tiene un impacto profundo: no enseña desde la teoría, sino desde la evidencia del instante.
 
-La sombra es la intuición que se vuelve locura propia. Puede encerrarse en su manera de ver las cosas, desconfiar de todos o imponer su verdad sin contexto. También puede usar su lucidez para herir, porque ve el punto exacto donde duele.
+La sombra es la intuición que se vuelve locura propia. Puede encerrarse en su manera de ver las cosas, desconfiar de todos o imponer su claridad para decidir sin contexto. También puede usar su lucidez para herir, porque ve el punto exacto donde duele.
 
 ## Cómo aprovecharlo
 
-Esperar la invitación. Responder con precisión cuando alguien pregunta. No explicar la intuición de más: decir lo esencial y dejar que el otro lo reciba. Confiar en lo que ve en el instante, pero aceptar que su verdad es suya y no tiene por qué ser la de todos. Su don es la chispa, no el sermón.
+Esperar la invitación. Responder con precisión cuando alguien pregunta. No explicar la intuición de más: decir lo esencial y dejar que el otro lo reciba. Confiar en lo que ve en el instante, pero aceptar que su claridad para decidir es suya y no tiene por qué ser la de todos. Su don es la chispa, no el sermón.
 
 
 # Canal 43-23 · Estructurar
@@ -571,7 +571,7 @@ Es la energía de los estados de ánimo que suben y bajan, con una creatividad p
 
 Este canal une la raíz, la presión de vivir, con el plexo solar, el centro emocional. La puerta 39 es la provocación, las ganas de despertar el espíritu del otro; la puerta 55 es el espíritu, el estado de ánimo, la melancolía y la euforia. Juntas forman un canal de ánimos fluctuantes, de tristeza y alegría que van y vienen como una ola.
 
-Es un canal proyectado, emocional y creativo. La persona no puede tener claridad en el aquí y ahora: su verdad aparece a lo largo del tiempo, cuando la ola se aquieta. Por eso necesita aprender a esperar el momento. No es lo mismo hablar, amar o crear desde la tristeza que desde la alegría.
+Es un canal proyectado, emocional y creativo. La persona no puede tener claridad en el aquí y ahora: su claridad para decidir aparece a lo largo del tiempo, cuando la ola se aquieta. Por eso necesita aprender a esperar el momento. No es lo mismo hablar, amar o crear desde la tristeza que desde la alegría.
 
 Su gran tema es la melancolía. No como enfermedad, sino como un espacio interior fértil, lleno de música y poesía. La tristeza no hay que arreglarla ni explicarla: hay que darle lugar. Cuando la persona la evita o la racionaliza, la melancolía se vuelve depresión.
 
