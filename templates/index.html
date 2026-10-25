@@ -59,7 +59,9 @@
             border: 2px solid var(--borde3); border-radius: 8px;
             padding: 4px 8px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.15);
         }
-        #fuente-nombre { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #fuente-bar select {
+            width: auto;
+        }
         #fuente-bar button {
             font: inherit; cursor: pointer; background: transparent; color: var(--titulo);
             border: 1px solid var(--borde3); border-radius: 6px; padding: 3px 8px;
@@ -1417,33 +1419,86 @@
     <button id="btn-tema" type="button" title="Tema: crema (clic para cambiar)">◐</button>
     <div id="fuente-bar">
         <span id="fuente-nombre" title="Fuente de datos activa">datos.csv</span>
-        <button type="button" id="btn-fuente-xlsx" title="Elegir un .xlsx para leer">Cargar xlsx…</button>
+        <select id="fuente-xlsx-combo" title="Elegir un .xlsx para leer"></select>
         <button type="button" id="btn-fuente-csv" title="Volver a leer los CSV">Usar CSV</button>
     </div>
     <script>
     (function(){
         var nomEl = document.getElementById('fuente-nombre');
+        var fx = document.getElementById('fuente-xlsx-combo');
+        var jActivo = null;
+
+        function poblarCombo(lista) {
+            if (!fx) return;
+            fx.innerHTML = '';
+            var optInicial = null;
+            for (var i = 0; i < lista.length; i++) {
+                var o = document.createElement('option');
+                o.value = lista[i];
+                o.textContent = lista[i];
+                fx.appendChild(o);
+                if (lista[i] === (jActivo || '')) optInicial = o;
+            }
+            if (optInicial) fx.value = optInicial.value;
+        }
+
+        function poblarComboDesdeXlsx() {
+            fetch('/api/fuente', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+                if (j && j.xlsx && j.xlsx.length) poblarCombo(j.xlsx);
+            }).catch(function(){});
+        }
+
         function pintar(nombre, tipo){
             if(!nomEl) return;
             nomEl.textContent = tipo === 'xlsx' ? ('xlsx: ' + (nombre||'')) : 'datos.csv';
             nomEl.style.color = tipo === 'xlsx' ? '#b26500' : '';
         }
+
         function refrescar(){
             fetch('/api/fuente', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-                if(j) pintar(j.activo, j.tipo);
+                jActivo = j && j.activo;
+                if (j) pintar(j.activo, j.tipo);
+                poblarComboDesdeXlsx();
             }).catch(function(){});
         }
-        var bx = document.getElementById('btn-fuente-xlsx');
-        if(bx) bx.addEventListener('click', function(){
-            var txt = bx.textContent; bx.disabled = true; bx.textContent = 'Eligiendo…';
-            fetch('/api/fuente/elegir', {method:'POST'}).then(function(r){return r.json();}).then(function(j){
-                bx.disabled = false; bx.textContent = txt;
-                if(j && j.error){ alert('No se pudo cargar: ' + j.error); return; }
-                if(j && !j.cancelado){ location.reload(); }
-            }).catch(function(){ bx.disabled = false; bx.textContent = txt; alert('Error al elegir el archivo'); });
-        });
+
+        function actualizarP1() {
+            fetch('/api/personas', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+                if (!j || !j.personas) return;
+                var selA = document.getElementById('selector-persona-a');
+                if (!selA) return;
+                selA.innerHTML = '<option value="">-- Elegir Persona 1 --</option>';
+                for (var i = 0; i < j.personas.length; i++) {
+                    var o = document.createElement('option');
+                    o.value = j.personas[i];
+                    o.textContent = j.personas[i];
+                    selA.appendChild(o);
+                }
+                var valA = document.getElementById('selector-persona-a').value;
+                if (valA && ![...selA.options].some(function(o){ return o.value === valA; })) {
+                    selA.value = '';
+                }
+            }).catch(function(){});
+        }
+
+        if (fx) {
+            fx.addEventListener('change', function() {
+                var sel = fx.value || null;
+                if (!sel) { alert('Elegí un .xlsx del listado'); return; }
+                var txt = fx.textContent; fx.disabled = true; fx.textContent = 'Cargando…';
+                fetch('/api/fuente', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:sel})})
+                  .then(function(r){return r.json();}).then(function(j){
+                    fx.disabled = false; fx.textContent = txt;
+                    if (j && j.error) { alert('No se pudo cargar: ' + j.error); return; }
+                    jActivo = j.activo;
+                    pintar(j.activo, j.tipo);
+                    poblarComboDesdeXlsx();
+                    actualizarP1();
+                }).catch(function(){ fx.disabled = false; fx.textContent = txt; alert('Error al cargar la fuente'); });
+            });
+        }
         var bc = document.getElementById('btn-fuente-csv');
-        if(bc) bc.addEventListener('click', function(){
+        if (bc) bc.addEventListener('click', function() {
             fetch('/api/fuente', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:null})})
               .then(function(r){return r.json();}).then(function(){ location.reload(); }).catch(function(){});
         });
