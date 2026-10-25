@@ -54,5 +54,5 @@ desktop.ini
 # Medios pesados (se regeneran / no van al repo)
 /static/canales_audio/
 /videos_canales/
-/Publicos/
+# /Publicos/
 /avatares_arquetipos/

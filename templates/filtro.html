@@ -40,6 +40,12 @@
   .pill.c{background:#e8f5e9;border-color:#a5d6a7}
   .pill.p{background:#fff3e0;border-color:#ffcc80}
   .mini{color:#777;font-size:11px}
+  .persona-th{position:relative}
+  .persona-th img.persona-thumb,.td-persona img.persona-thumb{
+    position:absolute;top:4px;left:6px;width:24px;height:24px;object-fit:cover;border-radius:50%
+  }
+  .td-persona{position:relative}
+  tbody tr td:first-child,thead th:first-child{position:relative}
   #gestionar{margin-left:6px;font-size:12px}
   #panel-ocultos{margin-left:8px}
 </style>
@@ -57,7 +63,7 @@
 <table id="tabla">
   <thead>
     <tr>
-      <th>Persona</th><th>Tipo</th><th>Perfil</th><th>Definición</th>
+      <th class="persona-th">Persona</th><th>Tipo</th><th>Perfil</th><th>Definición</th>
       <th>Centros definidos</th><th>Canales</th><th>Puertas</th>
     </tr>
     <tr class="filtros">
@@ -234,9 +240,18 @@ function dibujar(){
   for(const f of vis){
     const tr = document.createElement('tr');
     const tdN = document.createElement('td');
-    tdN.innerHTML = '<b></b> <span class="mini"></span>';
-    tdN.querySelector('b').textContent = f.nombre;
-    tdN.querySelector('.mini').textContent = f.puertas.length + ' puertas';
+    tdN.className = 'td-persona';
+    const thumb = document.createElement('img');
+    thumb.className = 'persona-thumb';
+    thumb.alt = f.nombre;
+    thumb.src = "{{ persona_thumb_url(f.nombre) }}";
+    thumb.loading = 'lazy';
+    tdN.appendChild(thumb);
+    tdN.appendChild(document.createTextNode(f.nombre));
+    const mini = document.createElement('span');
+    mini.className = 'mini';
+    mini.textContent = f.puertas.length + ' puertas';
+    tdN.appendChild(mini);
     const tdT = document.createElement('td'); tdT.textContent = f.tipo;
     const tdP = document.createElement('td'); tdP.textContent = f.perfil || '—';
     const tdD = document.createElement('td'); tdD.textContent = f.definicion;
