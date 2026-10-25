@@ -1322,7 +1322,8 @@ def _leer_csv_robusto(path, **kwargs):
 
 # ---------- Fuente de datos (modo A): leer las tablas mutables desde un xlsx ----------
 # Fuente activa: None = CSV de siempre. Path = xlsx elegido (hojas datos/vinculos/test/clan).
-_FUENTE = {'path': None}
+_DEFAULT_XLSX = Path(__file__).with_name('datos_publicos.xlsx')
+_FUENTE = {'path': _DEFAULT_XLSX if _DEFAULT_XLSX.exists() else None}
 _TABLAS_MUTABLES = ('datos', 'vinculos', 'test', 'clan')
 
 

@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizador RAVE - Diseño Humano (Compuesto & Sinastría)</title>
     <style>
         :root, [data-tema="claro"] {
@@ -1208,6 +1209,107 @@
             }
             .contactos-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 8px 6px;
+            }
+            #btn-tema {
+                top: 8px;
+                right: 8px;
+                width: 36px;
+                height: 36px;
+                font-size: 17px;
+            }
+            #fuente-bar {
+                top: 8px;
+                right: 48px;
+                padding: 3px 6px;
+                font-size: 11px;
+                max-width: calc(100vw - 60px);
+            }
+            #fuente-nombre {
+                max-width: 100px;
+            }
+            .layout-main {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+            .panel-lateral {
+                width: 100% !important;
+            }
+            .graficos-fila {
+                grid-template-columns: 1fr;
+            }
+            .grafico-card {
+                width: 100%;
+            }
+            .contactos-grid {
+                grid-template-columns: 1fr;
+            }
+            .paletas-wrap {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .add-persona {
+                padding: 8px 10px;
+            }
+            .add-persona-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .add-persona-form label,
+            .add-persona-form input[type="text"],
+            .add-persona-form select {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box;
+            }
+            #nuevo-nombre, #nuevo-incon, #nuevo-consc, #nuevo-vinculo-tipo,
+            #nuevo-vinculo-ref, #nuevo-fecha, #nuevo-hora, #nuevo-lugar,
+            #nuevo-coords, #ac-nombre-num {
+                width: 100% !important;
+            }
+            #geo-sug {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .svg-box svg {
+                max-height: 480px;
+            }
+            .filtros-a-wrap {
+                gap: 6px;
+                padding: 6px 0;
+            }
+            #filtros-lista-wrap.abierta .fl-cuerpo.dos-col {
+                grid-template-columns: 1fr;
+            }
+            #btn-ia-chat {
+                bottom: 12px;
+                right: 12px;
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+            #ia-chat-panel {
+                bottom: 68px;
+                right: 8px;
+                left: 8px;
+                width: auto !important;
+                max-width: calc(100vw - 16px) !important;
+            }
+            #popup-hd {
+                max-width: calc(100vw - 24px) !important;
+                left: 12px !important;
+            }
+            .confirm-table {
+                display: block;
+                overflow-x: auto;
+            }
+            .tl-svg-scroll {
+                padding-bottom: 6px;
             }
         }
         @media (max-width: 600px) {

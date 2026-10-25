@@ -47,6 +47,7 @@ desktop.ini
 
 # Excel de trabajo (la app usa los CSV; estos se regeneran)
 *.xlsx
+!datos_publicos.xlsx
 !centros_detallado Matriz 9 Centros.xlsx
 !razgos.xlsx
 
