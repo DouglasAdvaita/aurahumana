@@ -8,6 +8,7 @@ import io as _io
 import json as _json
 import os
 import re as _re
+from html import escape as html_escape
 import time as _time
 import threading as _threading
 import unicodedata
@@ -46,6 +47,7 @@ except Exception:
     pass
 
 app = Flask(__name__)
+app.jinja_env.globals['persona_thumb_url'] = _foto_publica_para
 
 @app.after_request
 def _gzip_response(resp):
@@ -2214,7 +2216,10 @@ def api_ficha_basica():
 
 @app.route('/publicos/<path:fn>')
 def servir_foto_publica(fn):
-    return send_from_directory(str(Path(__file__).resolve().parent / 'Publicos'), fn)
+    r = send_from_directory(str(Path(__file__).resolve().parent / 'Publicos'), fn,
+                            direct_passthrough=False)
+    r.headers['Content-Type'] = 'image/jpeg'
+    return r
 
 # Emojis en PDF: Helvetica no tiene dibujo y salían cuadraditos.
 # Se lee Segoe UI Symbol (Windows) una vez para dibujarlos en el PDF.
