@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prueba Nube Fase 1</title>
+<style>body{font-family:system-ui;margin:12px}input,select,button{margin:4px;padding:6px}pre{background:#f4f4f4;padding:8px;white-space:pre-wrap}</style>
+</head><body>
+<h3>Prueba Fase 1: navegador + Neon</h3>
+<p id="dev"></p>
+<label>Nombre <input id="nombre"></label><br>
+<label>Fecha <input id="fecha" placeholder="25/12/1980"></label>
+<label>Hora <input id="hora" placeholder="14:30"></label><br>
+<label>Lugar <input id="lugar" placeholder="Melo"></label>
+<label>Email opcional <input id="email"></label><br>
+<label>Visibilidad <select id="vis"><option value="privado">privado</option><option value="publico">publico (latente)</option></select></label><br>
+<button onclick="guardarNav()">1 Guardar en navegador</button>
+<button onclick="guardarNeon()">2 Guardar en Neon</button>
+<button onclick="verMis()">3 Ver mis guardados</button>
+<button onclick="health()">Health</button>
+<pre id="out">...</pre>
+<script>
+function dev(){let d='';try{d=localStorage.getItem('dh_device_id')||''}catch(e){}if(!d){d='d_'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('dh_device_id',d)}catch(e){}}document.getElementById('dev').textContent='device_id: '+d;return d}
+function vals(){return{device_id:dev(),nombre:document.getElementById('nombre').value,fecha:document.getElementById('fecha').value,hora:document.getElementById('hora').value,lugar:document.getElementById('lugar').value,email:document.getElementById('email').value,visibilidad:document.getElementById('vis').value,datos_json:{nota:'borrador fase1',puertas:[1,2],lineas:[1,2]}}}
+function guardarNav(){const v=vals();try{localStorage.setItem('dh_nube_borrador',JSON.stringify(v));out('Guardado en navegador: '+JSON.stringify(v).slice(0,300))}catch(e){out('Error navegador: '+e)}}
+async function guardarNeon(){const v=vals();const r=await fetch('/api/nube/guardar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)});out('Neon guardar '+r.status+': '+await r.text())}
+async function verMis(){const r=await fetch('/api/nube/mis?device_id='+encodeURIComponent(dev()));out('Mis '+r.status+': '+(await r.text()).slice(0,2000))}
+async function health(){const r=await fetch('/api/nube/health');out('Health '+r.status+': '+await r.text())}
+function out(t){document.getElementById('out').textContent=t}
+dev();
+</script>
+</body></html>

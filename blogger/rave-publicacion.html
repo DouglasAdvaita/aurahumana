@@ -1,0 +1,208 @@
+<!--
+  PUBLICACIÓN PARA BLOGGER — Alma Humana / Universaldata
+  Pegar TODO este contenido en el editor de Blogger, en vista HTML.
+
+  IMÁGENES:
+  Las rutas P1.png y Controles.png funcionan al abrir este archivo en el navegador.
+  Para Blogger hay que subir cada imagen con el botón de insertar imagen y
+  reemplazar el src por la URL que devuelve Blogger.
+  Los marcos punteados son capturas que todavía faltan.
+-->
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Lora:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;600;700&display=swap');
+
+  .alma-post { font-family: 'Lora', Georgia, serif; color: #3b2f4a; line-height: 1.75; font-size: 1.05rem; max-width: 760px; margin: 0 auto; }
+  .alma-post h1 { font-family: 'Pacifico', cursive; color: #7b3fa0; font-size: 2.6rem; text-align: center; margin: 0.2em 0 0.1em; line-height: 1.2; }
+  .alma-post .subtitulo { text-align: center; font-family: 'Nunito', sans-serif; color: #9c7bb5; font-size: 1.05rem; margin-bottom: 1.2em; }
+  .alma-post h2 { font-family: 'Pacifico', cursive; color: #c2417a; font-size: 1.6rem; margin: 1.8em 0 0.5em; line-height: 1.3; }
+  .alma-post h3 { font-family: 'Nunito', sans-serif; color: #7b3fa0; font-size: 1.1rem; margin: 1.2em 0 0.35em; }
+  .alma-post p { margin: 0.6em 0; }
+  .alma-post ul, .alma-post ol { margin: 0.6em 0 0.9em 1.2em; padding: 0; }
+  .alma-post li { margin: 0.35em 0; }
+  .alma-post .destacado { background: linear-gradient(135deg, #f6eefb, #fdf1f6); border-left: 5px solid #c2417a; border-radius: 12px; padding: 14px 18px; margin: 1.2em 0; font-family: 'Nunito', sans-serif; font-size: 0.98rem; }
+  .alma-post .boton { display: inline-block; background: linear-gradient(90deg, #7b3fa0, #c2417a); color: #fff !important; font-family: 'Nunito', sans-serif; font-weight: 700; padding: 12px 26px; border-radius: 50px; text-decoration: none; box-shadow: 0 4px 12px rgba(123,63,160,.3); margin: 4px 6px; }
+  .alma-post .boton:hover { text-decoration: none; opacity: 0.92; }
+  .alma-post .boton-sec { background: #fff; color: #7b3fa0 !important; border: 2px solid #c9a7e0; box-shadow: none; }
+  .alma-post .centro { text-align: center; margin: 1.2em 0; }
+  .alma-post .tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 1.1em 0; font-family: 'Nunito', sans-serif; }
+  .alma-post .tarjeta { background: #fff; border-radius: 14px; padding: 13px 15px; box-shadow: 0 3px 10px rgba(59,47,74,.12); font-size: 0.92rem; line-height: 1.5; }
+  .alma-post .tarjeta strong { display: block; font-size: 1rem; margin-bottom: 3px; color: #7b3fa0; }
+  .alma-post .captura { display: block; margin: 1.1em auto; width: 100%; max-width: 740px; height: auto; padding: 0 !important; border: 1px solid #e6d9f0 !important; border-radius: 14px !important; box-shadow: 0 6px 18px rgba(59,47,74,.16) !important; background: #fff !important; }
+  .alma-post .captura-marco { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; max-width: 740px; aspect-ratio: 16 / 9; margin: 1.1em auto; border: 2px dashed #c9a7e0; border-radius: 16px; background: linear-gradient(135deg, #faf5ff, #fff5fa); color: #8a6aa8; font-family: 'Nunito', sans-serif; text-align: center; padding: 18px; box-sizing: border-box; }
+  .alma-post .captura-marco strong { font-size: 0.98rem; color: #7b3fa0; }
+  .alma-post .captura-marco small { font-size: 0.8rem; color: #a58bbd; max-width: 520px; }
+  .alma-post .pie { text-align: center; font-family: 'Nunito', sans-serif; font-size: 0.84rem; color: #9c7bb5; margin-top: -0.5em; margin-bottom: 1.3em; }
+  .alma-post .nota { font-family: 'Nunito', sans-serif; font-size: 0.9rem; color: #6b5a7e; font-style: italic; }
+  .alma-post .lista-check { list-style: none; padding-left: 0; margin-left: 0; }
+  .alma-post .lista-check li { padding-left: 1.5em; position: relative; }
+  .alma-post .lista-check li::before { content: '\2713'; position: absolute; left: 0; color: #7b3fa0; font-weight: 700; }
+  .alma-post .pasos { counter-reset: paso; list-style: none; padding-left: 0; margin-left: 0; }
+  .alma-post .pasos li { counter-increment: paso; position: relative; padding-left: 2.2em; margin: 0.5em 0; }
+  .alma-post .pasos li::before { content: counter(paso); position: absolute; left: 0; top: 0.15em; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 50%; background: #7b3fa0; color: #fff; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.85rem; }
+  .alma-post .firma { text-align: center; font-family: 'Nunito', sans-serif; font-size: 0.88rem; color: #9c7bb5; margin-top: 2em; border-top: 1px solid #e6d9f0; padding-top: 1em; }
+  .alma-post .firma p { margin: 0.25em 0; }
+  @media (max-width: 600px) {
+    .alma-post h1 { font-size: 2.1rem; }
+    .alma-post h2 { font-size: 1.4rem; }
+    .alma-post { font-size: 1rem; }
+  }
+</style>
+
+<div class="alma-post">
+
+  <h1>Alma Humana</h1>
+  <p class="subtitulo">Tu Gráfico de Diseño Humano en el navegador.<br>Probalo acá y, si te sirve, bajá el programa.</p>
+
+  <div class="centro">
+    <a class="boton" href="https://aurahumana.onrender.com" target="_blank" rel="noopener">▶ Abrir la demo</a>
+    <a class="boton boton-sec" href="https://github.com/DouglasAdvaita/AuraHumana_apk/releases/download/1.0.0/AuraHumana.apk">⬇ Bajar el programa</a>
+  </div>
+
+  <div class="destacado">
+    <b>Esto es una demo.</b> Todo lo que ves acá lo podés hacer con el programa instalado, pero con tus datos guardados en tu teléfono. La demo no guarda nada: si el servidor se reinicia, lo que cargaste se pierde.
+  </div>
+
+  <h2>🚪 Dos formas de empezar</h2>
+
+  <div class="tarjetas">
+    <div class="tarjeta"><strong>👀 Ver una gráfica pública</strong>Elegís un nombre del listado y el gráfico aparece al instante. Es la forma más rápida de conocer la herramienta.</div>
+    <div class="tarjeta"><strong>✍️ Cargar tus datos</strong>Ingresás nombre, fecha, hora y lugar de nacimiento. Se explica más abajo, en <a href="#cargar-datos">Cómo cargar tus datos</a>.</div>
+  </div>
+
+  <h2>👀 Ver una gráfica pública</h2>
+
+  <ol class="pasos">
+    <li>Abrí la demo.</li>
+    <li>En <b>Persona 1</b> (columna izquierda) elegí un nombre del listado.</li>
+    <li>Listo: el gráfico se dibuja al instante y la ficha se arma sola.</li>
+  </ol>
+
+  <img class="captura" src="P1.png" alt="Gráfico de Persona 1 con foto, centros, canales y puertas, y descripciones activadas" />
+  <p class="pie">Persona 1 con las descripciones activadas: cada puerta y cada canal con su explicación.</p>
+
+  <h3>🧬 Qué te muestra</h3>
+
+  <ul class="lista-check">
+    <li><b>Datos básicos:</b> tipo, estrategia, autoridad, perfil, definición, cruz y Sol / Luna / Ascendente.</li>
+    <li><b>Centros:</b> los definidos en color y los indefinidos en blanco.</li>
+    <li><b>Canales:</b> los que tenés armados, con su descripción.</li>
+    <li><b>Puertas:</b> en rojo las inconscientes y en negro las conscientes.</li>
+  </ul>
+
+  <h2>🎛️ Controles: cómo mirar el gráfico</h2>
+
+  <p>Abajo de todo está el panel <b>Controles</b>. Cada casilla cambia lo que ves.</p>
+
+  <img class="captura" src="Controles.png" alt="Panel de Controles con líneas, emojis, canales, simpl, descripciones, filtros por color, circuito y línea" />
+  <p class="pie">El panel de Controles: visualización arriba, filtros de estudio abajo.</p>
+
+  <div class="tarjetas">
+    <div class="tarjeta"><strong>Líneas</strong>El número de línea de cada puerta (1 a 6).</div>
+    <div class="tarjeta"><strong>Emojis</strong>Un emoji con la función de cada puerta.</div>
+    <div class="tarjeta"><strong>Canales</strong>El nombre del canal dibujado.</div>
+    <div class="tarjeta"><strong>Simpl</strong>Acorta los tramos largos: el dibujo queda parejo y limpio.</div>
+    <div class="tarjeta"><strong>Descr</strong>Muestra descripciones de cada puerta y línea en el mismo gráfico.</div>
+    <div class="tarjeta"><strong>Influ</strong>Atenúa los tramos según el planeta que los activa.</div>
+  </div>
+
+  <p><b>🕐 Superponer tránsito:</b> agrega en gris las puertas del cielo de la fecha que elijas. Sirve para ver qué se activa hoy.</p>
+
+  <p><b>🎨 Filtros gráficos:</b> mostrá solo puertas rojas o negras, solo un circuito (Individual, Tribal, Colectivo) o solo las puertas con la línea indicada (1 a 6). Es la forma de estudiar de a un tema por vez.</p>
+
+  <p><b>📋 Copiar datos:</b> arma un texto con lo que estás viendo para pegarlo en una IA y pedirle un informe.</p>
+
+  <h2>👥 Agregar Persona 2 y ver el compuesto</h2>
+
+  <ol class="pasos">
+    <li>En la columna derecha elegí una <b>Persona 2</b>.</li>
+    <li>Al centro aparece el <b>gráfico compuesto</b>: la suma de las dos cartas.</li>
+    <li>Debajo se abre la <b>Dinámica Compuesta de Contacto</b>, con los canales que se forman entre ustedes.</li>
+  </ol>
+
+  <img class="captura" src="Compuesto.png" alt="Persona 1, gráfico compuesto al centro y Persona 2, con los centros en común y las puertas que se encienden en pareja" />
+  <p class="pie">Persona 1, compuesto y Persona 2. El compuesto marca los centros que coinciden y las puertas que solo se activan en pareja.</p>
+
+  <div class="tarjetas">
+    <div class="tarjeta"><strong>⚡ Electromagnético</strong>Cada uno aporta una puerta distinta del mismo canal. Atracción y fricción intermitente.</div>
+    <div class="tarjeta"><strong>🤝 Compañía</strong>Los dos tienen el canal completo. Tema compartido y cómodo.</div>
+    <div class="tarjeta"><strong>🎯 Dominio</strong>El otro tiene el canal completo y vos ninguna puerta.</div>
+    <div class="tarjeta"><strong>🔗 Compromiso</strong>El otro tiene el canal completo y vos una sola puerta.</div>
+  </div>
+
+  <img class="captura" src="Contactos.png" alt="Canales que se forman por contacto entre Persona 1 y Persona 2: electromagnético, compañía, dominio y compromiso" />
+  <p class="pie">Los cuatro tipos de contacto con un caso real: Brad Pitt y Angelina Jolie.</p>
+
+  <p><b>➕ Persona adicional:</b> sumá P3, P4… al 50% para comparar sin cambiar la pareja. Un clic la pasa a Persona 2; también se puede arrastrar a Persona 1 o 2.</p>
+
+  <h2>🔭 Opciones para estudiar</h2>
+
+  <ul class="lista-check">
+    <li><b>Tránsitos:</b> puertas del cielo de hoy o de otra fecha, superpuestas en gris.</li>
+    <li><b>Evolución:</b> cinco curvas día por día con los contactos y los centros en común. Necesita Persona 1 y 2.</li>
+    <li><b>Informe PDF:</b> el gráfico de Persona 1 más la ficha básica, listo para guardar o imprimir.</li>
+    <li><b>Autotest Ser / No-Ser:</b> preguntas armadas según tu tipo y tus centros abiertos.</li>
+  </ul>
+
+  <h2>🌳 Clan: tres generaciones</h2>
+
+  <p>El <b>árbol del clan</b> suma a tu carta la de padres, abuelos, pareja y hermanos. Elegís cada integrante con su combo y la app cruza las tres generaciones.</p>
+
+  <ul class="lista-check">
+    <li><b>Puertas que se repiten</b> en la familia.</li>
+    <li><b>Condicionamientos:</b> lo que no traés definido y tomás del tronco.</li>
+    <li><b>Canales que se completan</b> en pareja.</li>
+    <li><b>Experiencias del alma</b> en tres generaciones.</li>
+  </ul>
+
+  <img class="captura" src="Clan.png" alt="Árbol del clan con abuelos, padres, Persona 1, pareja y hermanos, y la lectura de repeticiones y compensaciones" />
+  <p class="pie">El árbol completo: abuelos, padres, Persona 1 con pareja y hermanos, y la lectura del clan al pie.</p>
+
+  <p class="nota">El clan se guarda en tu navegador, así no lo cargás cada vez que entrás.</p>
+
+  <h2 id="cargar-datos">✍️ Cómo cargar tus datos</h2>
+
+  <ol class="pasos">
+    <li>En <b>Persona 1</b> tocá <b>Editor: ON</b>. Se abre el formulario.</li>
+    <li>Completá <b>nombre, fecha (DD/MM/AAAA), hora (HH:MM) y lugar</b>. El lugar se busca escribiendo la ciudad; si no aparece, podés cargar latitud y longitud a mano.</li>
+    <li>Tocá <b>Calcular</b> y después <b>Agregar</b>.</li>
+    <li>La persona queda en el listado y la podés elegir cuando quieras.</li>
+  </ol>
+
+  <p class="nota">Cuanto más exacta la hora, más fiable el gráfico. Si no la sabés, la app igual calcula, pero algunas puertas pueden cambiar.</p>
+
+  <h2>💾 Dónde se guardan los datos</h2>
+
+  <div class="destacado">
+    <b>La demo no es un almacén.</b> El servidor es gratuito y se reinicia: lo que cargues ahí puede desaparecer. Usala para probar, no para guardar tu trabajo.
+  </div>
+
+  <p>Para trabajar en serio tenés dos caminos:</p>
+
+  <ul class="lista-check">
+    <li><b>Bajar el programa:</b> los datos quedan en tu teléfono.</li>
+    <li><b>Guardar en el navegador:</b> la demo puede guardar una copia en tu propio navegador y recargarla al entrar. Está previsto, todavía no está activo.</li>
+  </ul>
+
+  <h2>⬇ Bajar el programa</h2>
+
+  <p>La versión instalable hace lo mismo que la demo, pero guarda tus datos en el teléfono y funciona sin conexión.</p>
+
+  <div class="centro">
+    <a class="boton" href="https://github.com/DouglasAdvaita/AuraHumana_apk/releases/download/1.0.0/AuraHumana.apk">⬇ Descargar el programa (APK)</a>
+  </div>
+
+  <ol class="pasos">
+    <li>Descargá el archivo.</li>
+    <li>En Ajustes &gt; Seguridad activá <b>Orígenes desconocidos</b>.</li>
+    <li>Abrí el APK desde Descargas y tocá <b>Instalar</b>.</li>
+  </ol>
+
+  <p class="nota">No cargues datos de otras personas sin su permiso.</p>
+
+  <div class="firma">
+    <p>Universaldata · Alma Humana · Diseño Humano</p>
+    <p class="nota">Entrada anterior: <a href="https://universaldata.blogspot.com/2026/10/import-urlhttpsfonts.html">Aplicación para móvil Aura Humana</a></p>
+  </div>
+
+</div>

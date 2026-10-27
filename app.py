@@ -1093,6 +1093,37 @@ def _leer_test(nombre):
     except Exception:
         return None
 
+_SNS_CACHE = {'key': None, 'nombres': set()}
+
+
+def _nombres_con_sns():
+    """Nombres con el cuestionario Ser/No-Ser respondido (cache por mtime de la fuente)."""
+    p = _FUENTE['path']
+    ruta = p if p is not None else TEST_CSV_PATH
+    try:
+        clave = (str(ruta), ruta.stat().st_mtime_ns)
+    except Exception:
+        return set()
+    if _SNS_CACHE['key'] == clave:
+        return _SNS_CACHE['nombres']
+    nombres = set()
+    try:
+        filas = _leer_test_rows()
+        if filas:
+            head = [str(c or '').strip().lower() for c in filas[0]]
+            if 'nombre' in head and 'sernoser_resp' in head:
+                i_n = head.index('nombre')
+                i_r = head.index('sernoser_resp')
+                for r in filas[1:]:
+                    if i_n < len(r) and i_r < len(r) and str(r[i_r] or '').strip().strip('|'):
+                        nombres.add(str(r[i_n] or '').strip().lower())
+    except Exception:
+        pass
+    _SNS_CACHE['key'] = clave
+    _SNS_CACHE['nombres'] = nombres
+    return nombres
+
+
 def _borrar_test(nombre):
     """Elimina la fila del test.csv para el nombre. Devuelve cuántas filas borró."""
     try:
@@ -3984,6 +4015,11 @@ def get_persona_data(nombre):
     d = _datos_persona_dict(nombre)
     if not d:
         return jsonify({'error': 'Persona no encontrada'}), 404
+    # S/NS: solo hay emojis Ser/No-Ser si el cuestionario está respondido.
+    try:
+        d['tiene_sns'] = str(nombre or '').strip().lower() in _nombres_con_sns()
+    except Exception:
+        d['tiene_sns'] = False
     return jsonify(d)
 
 @app.route('/api/persona_completa/<path:nombre>')
@@ -5110,9 +5146,9 @@ def _borrar_clan(p1):
 def api_clan_get():
     p1 = (request.args.get('p1') or '').strip()
     if not p1:
-        return jsonify({'m': {}, 'mayores': [], 'menores': [], 'parejas': []})
+        return jsonify({'m': {}, 'mayores': [], 'menores': [], 'parejas': [], 'hijos': []})
     filas = _leer_clan_df()
-    m, mayores, menores, parejas = {}, [], [], []
+    m, mayores, menores, parejas, hijos = {}, [], [], [], []
     plow = p1.lower()
     for r in filas:
         try:
@@ -5131,9 +5167,11 @@ def api_clan_get():
             menores.append(fam)
         elif rol.startswith('pareja_'):
             parejas.append(fam)
+        elif rol.startswith('hijo_'):
+            hijos.append(fam)
         else:
             m[rol] = fam
-    return jsonify({'m': m, 'mayores': mayores, 'menores': menores, 'parejas': parejas})
+    return jsonify({'m': m, 'mayores': mayores, 'menores': menores, 'parejas': parejas, 'hijos': hijos})
 
 
 @app.route('/api/clan', methods=['POST'])
@@ -5150,6 +5188,7 @@ def api_clan_post():
     mayores = data.get('mayores') or []
     menores = data.get('menores') or []
     parejas = data.get('parejas') or []
+    hijos = data.get('hijos') or []
     plow = p1.lower()
     filas = _leer_clan_df()
     nuevas = []
@@ -5177,6 +5216,10 @@ def api_clan_post():
         n = str(n or '').strip()
         if n:
             nuevas.append({'P1': p1, 'rol': f'pareja_{i+1}', 'familiar': n})
+    for i, n in enumerate(hijos or []):
+        n = str(n or '').strip()
+        if n:
+            nuevas.append({'P1': p1, 'rol': f'hijo_{i+1}', 'familiar': n})
     # Auto-guardar demás personas con sus respectivos padres (solo crea el
     # bloque P1=familiar si aún no existe, para no pisar datos manuales):
     # - cada hermano (mayor/menor): mismos padre/madre/abuelos que P1
@@ -5354,6 +5397,68 @@ def api_conocidos_post():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     return jsonify({'ok': True})
+
+
+# ---------- Fase 1 Nube Neon (aditivo, no rompe CSV local) ----------
+@app.route('/nube_test')
+def pagina_nube_test():
+    return render_template('nube_test.html')
+
+
+@app.route('/api/nube/health')
+def api_nube_health():
+    try:
+        import nube_db as _nube
+        ok = _nube.disponible()
+        if ok:
+            try:
+                _nube.init_db()
+                return jsonify({'ok': True, 'db': True})
+            except Exception as e:
+                return jsonify({'ok': False, 'db': False, 'error': str(e)[:300]}), 500
+        return jsonify({'ok': True, 'db': False, 'msg': 'Sin DATABASE_URL: solo navegador'})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)[:300]}), 500
+
+
+@app.route('/api/nube/guardar', methods=['POST'])
+def api_nube_guardar():
+    data = request.get_json(force=True, silent=True) or {}
+    device_id = str(data.get('device_id') or '').strip()[:64]
+    if not device_id:
+        return jsonify({'error': 'Falta device_id (se genera en navegador)'}), 400
+    try:
+        import nube_db as _nube
+        if not _nube.disponible():
+            return jsonify({'error': 'Neon no configurado (falta DATABASE_URL en Render)'}), 503
+        _nube.init_db()
+        _nube.guardar_perfil(device_id, str(data.get('email') or '').strip()[:120], {
+            'nombre': str(data.get('nombre') or '').strip(),
+            'fecha': str(data.get('fecha') or ''), 'hora': str(data.get('hora') or ''),
+            'lugar': str(data.get('lugar') or ''), 'lat': data.get('lat'),
+            'lon': data.get('lon'), 'tz': data.get('tz'),
+            'tz_name': str(data.get('tz_name') or ''),
+            'datos_json': data.get('datos_json') or {},
+            'visibilidad': str(data.get('visibilidad') or 'privado'),
+        })
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/nube/mis')
+def api_nube_mis():
+    device_id = (request.args.get('device_id') or '').strip()
+    if not device_id:
+        return jsonify({'error': 'Falta device_id'}), 400
+    try:
+        import nube_db as _nube
+        if not _nube.disponible():
+            return jsonify({'perfiles': [], 'solo_navegador': True})
+        _nube.init_db()
+        return jsonify({'perfiles': _nube.mis_perfiles(device_id)})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
 
 
 if __name__ == '__main__':

@@ -1085,6 +1085,10 @@
         .clan-card { flex: 0 0 185px; position: relative; background: var(--card); border: 2px solid var(--borde); border-radius: 8px; padding: 4px 4px 6px 4px; display: flex; flex-direction: column; align-items: center; }
         .clan-card .svg-box { width: 100%; }
         .clan-card .svg-box svg { max-height: 360px; width: 100%; height: auto; display: block; }
+        #clan-fila-bisabuelos { gap: 6px; }
+        .clan-card.mini { flex: 1 1 0; max-width: 150px; min-width: 92px; }
+        .clan-card.mini .svg-box svg { max-height: 220px; }
+        .clan-card.mini .clan-titulo { font-size: 9px; }
         .clan-card.dragging { opacity: .45; }
         .clan-card.drop-hover { outline: 2px dashed var(--indigo); outline-offset: -2px; }
         .clan-svgwrap { position: relative; width: 100%; }
@@ -1838,7 +1842,7 @@
                     </span>
                     <br>
                     <span class="filtros-a-sep">|</span>
-                    <label class="filtro-a-btn" id="lbl-emoji-sns" title="Emojis Ser/No-Ser en P1: cambia el emoji de cada puerta consciente respondida en el test (Sombra / Normal / Maestría). Apagado = emojis normales de estudio."><input type="checkbox" id="chk-emoji-sns"> ✨ S/NS</label>
+                    <label class="filtro-a-btn" id="lbl-emoji-sns" style="display:none" title="Emojis Ser/No-Ser en P1: cambia el emoji de cada puerta consciente respondida en el test (Sombra / Normal / Maestría). Apagado = emojis normales de estudio."><input type="checkbox" id="chk-emoji-sns"> ✨ S/NS</label>
                     <br>
                     <span class="filtros-a-sep">|</span>
                     <label class="filtro-a-btn" id="lbl-flt-lin-1" title="Solo puertas con línea 1 · Investigador"><input type="checkbox" id="flt-lin-1"> 1</label>
@@ -2009,11 +2013,13 @@
 
     <div class="confirm-section" data-caja="Clan" id="panel-clan">
         <details open>
-        <summary class="confirm-summary">Árbol del clan — 3 generaciones, fotos y experiencias del alma (P1 + padres + abuelos + pareja + hermanos)</summary>
-        <div style="font-size:11.5px;color:#616161;margin:6px 0;line-height:1.4">Elegí cada integrante con su combo (P1 también se elige, ya no se autocarga). Lo elegido se guarda en este navegador y se recarga solo. Hermanos en orden de aparición: mayores a la izquierda de P1, menores a la derecha (con su pareja en medio). Cada uno un solo color: tronco y hojas en ancestros, flores pastel en hermanos. Abajo: puertas que se repiten en el clan, compensaciones y canales que se completan en pareja.</div>
+        <summary class="confirm-summary">Árbol del clan — 3 generaciones, fotos y experiencias del alma (P1 + padres + abuelos + pareja + hermanos; opcional: bisabuelos e hijos)</summary>
+        <div style="font-size:11.5px;color:#616161;margin:6px 0;line-height:1.4">Elegí cada integrante con su combo (P1 también se elige, ya no se autocarga). Lo elegido se guarda en este navegador al tocar "Guardar / Calcular" y se recarga solo. Hermanos en orden de aparición: mayores a la izquierda de P1, menores a la derecha (con su pareja en medio). Cada uno un solo color: tronco y hojas en ancestros, flores pastel en hermanos. Los botones de P1 suman hijos (fila de abajo, tonos verdes) y bisabuelos (fila de arriba de los abuelos, hasta 8, gris con el color de su rama). Abajo: puertas que se repiten en el clan, compensaciones y canales que se completan en pareja.</div>
+        <div class="clan-fila" id="clan-fila-bisabuelos"><div class="clan-fila-label">Bisabuelos</div></div>
         <div class="clan-fila" id="clan-fila-abuelos"><div class="clan-fila-label">Abuelos</div></div>
         <div class="clan-fila" id="clan-fila-padres"><div class="clan-fila-label">Padres</div></div>
         <div class="clan-fila" id="clan-fila-p1"><div class="clan-fila-label">P1 · pareja · hermanos</div></div>
+        <div class="clan-fila" id="clan-fila-hijos"><div class="clan-fila-label">Hijos</div></div>
         <h3 style="font-size:13px;color:#1a237e;margin:10px 0 6px 0;">Lectura del clan: repeticiones, compensaciones y parejas que completan</h3>
         <div id="clan-lectura" class="info-list" style="display:block;">Elegí Persona 1 para empezar. Después sumá padres, abuelos, pareja y hermanos.</div>
         <h3 style="font-size:13px;color:#1a237e;margin:10px 0 6px 0;">Experiencias del alma en 3 generaciones</h3>
@@ -2402,11 +2408,15 @@
             if (svgContainerB && !svgContainerB.querySelector('svg')) {
                 const clonB = src.cloneNode(true);
                 try { quitarDescripcionesP1(clonB); } catch (e) {}
+                try { quitarFotoPublica(clonB); } catch (e) {}
                 svgContainerB.appendChild(clonB);
             }
             if (svgContainerComp && !svgContainerComp.querySelector('svg')) {
                 const clonC = src.cloneNode(true);
                 try { quitarDescripcionesP1(clonC); } catch (e) {}
+                try { quitarFotoPublica(clonC); } catch (e) {}
+                // La tabla de planetas (diseño | planeta | personalidad | tránsito) ya está en P1: no se repite en el compuesto.
+                try { clonC.querySelectorAll('#Capa_panel_planetas').forEach(el => el.remove()); } catch (e) {}
                 svgContainerComp.appendChild(clonC);
             }
         })();
@@ -3843,6 +3853,26 @@
         }
         pintarBotonesFiltrosA();
 
+        // S/NS (Ser / No-Ser) solo tiene sentido si P1 respondió el cuestionario.
+        // El dato viene en /api/persona (tiene_sns): sin datos, el botón no se muestra
+        // y el modo queda apagado.
+        function actualizarBotonSNS(persona, tieneSns) {
+            const lbl = document.getElementById('lbl-emoji-sns');
+            if (!lbl) return;
+            const mostrar = !!persona && !!tieneSns;
+            lbl.style.display = mostrar ? '' : 'none';
+            if (mostrar) return;
+            const chk = document.getElementById('chk-emoji-sns');
+            if (chk && chk.checked) {
+                chk.checked = false;
+                try { localStorage.setItem('dhEmojiSNS', '0'); } catch (e) {}
+                try { window._snOn = false; } catch (e) {}
+                pintarBotonFiltro('chk-emoji-sns', 'lbl-emoji-sns');
+                try { repintarGraficoAConFiltros(); } catch (e) {}
+                try { if (window.aplicarEmojisSN) window.aplicarEmojisSN(); } catch (e) {}
+            }
+        }
+
         function parsePuertasTexto(s) {
             // Conserva decimales "41.1" (puerta.línea); el backend los separa.
             return String(s || '').split(/[,;\s]+/).filter(x => x.length);
@@ -4070,19 +4100,32 @@
         function ocultarFilaPuertas() {
             // La fila de botones queda siempre visible.
         }
-        function pintarFotoPublicaA(url){
+        // La foto pública se pinta en los gráficos de Persona 1 y Persona 2.
+        // Se marca con data-foto-publica para poder quitarla de cualquier clon
+        // (compuesto, personas adicionales, clan, crisol).
+        function quitarFotoPublica(svg){
             try{
-                const svg=document.querySelector('#svg-persona-a svg');
+                if(!svg || !svg.querySelectorAll) return;
+                svg.querySelectorAll('[data-foto-publica]').forEach(el => el.remove());
+                // compatibilidad con versiones anteriores
+                const viejo=svg.querySelector('#foto-publica-a'); if(viejo) viejo.remove();
+                const clipViejo=svg.querySelector('#clip-foto-a'); if(clipViejo) clipViejo.remove();
+            }catch(e){}
+        }
+        function pintarFotoPublicaEn(contenedor, url, sufijo){
+            try{
+                const svg=(contenedor && contenedor.querySelector) ? contenedor.querySelector('svg') : null;
                 if(!svg) return;
-                const ID='foto-publica-a', CID='clip-foto-a';
+                const ID='rave-foto-publica-'+sufijo, CID='rave-foto-clip-'+sufijo;
                 let img=svg.querySelector('#'+ID);
-                if(!url){ if(img) img.remove(); return; }
+                if(!url){ quitarFotoPublica(svg); return; }
                 let defs=svg.querySelector('defs');
                 if(!defs){ defs=document.createElementNS('http://www.w3.org/2000/svg','defs'); svg.insertBefore(defs, svg.firstChild); }
                 let clip=svg.querySelector('#'+CID);
                 if(!clip){
                     clip=document.createElementNS('http://www.w3.org/2000/svg','clipPath');
                     clip.setAttribute('id',CID);
+                    clip.setAttribute('data-foto-publica','clip');
                     const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
                     rect.setAttribute('x','95'); rect.setAttribute('y','-81');
                     rect.setAttribute('width','125'); rect.setAttribute('height','207');
@@ -4092,6 +4135,7 @@
                 if(!img){
                     img=document.createElementNS('http://www.w3.org/2000/svg','image');
                     img.setAttribute('id',ID);
+                    img.setAttribute('data-foto-publica','img');
                     img.setAttribute('preserveAspectRatio','xMidYMid slice');
                     img.setAttribute('pointer-events','none');
                     img.setAttribute('clip-path',`url(#${CID})`);
@@ -4099,9 +4143,31 @@
                 }
                 img.setAttribute('x','95'); img.setAttribute('y','-81');
                 img.setAttribute('width','125'); img.setAttribute('height','207');
-                img.setAttribute('href',url);
-                img.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',url);
+                // URL absoluta: así la foto también sale en el PNG/PDF del informe.
+                let abs=url;
+                try{ abs=new URL(url, location.href).href; }catch(e){}
+                img.setAttribute('href',abs);
+                img.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',abs);
             }catch(e){ console.error('foto publica:',e); }
+        }
+        function pintarFotoPublicaA(url){
+            pintarFotoPublicaEn(document.getElementById('svg-persona-a'), url, 'a');
+        }
+        function pintarFotoPublicaB(url){
+            pintarFotoPublicaEn(document.getElementById('svg-persona-b'), url, 'b');
+        }
+        // Foto pública de Persona 2 (misma ficha_basica que P1). Si cambia rápido
+        // de persona, la generación descarta respuestas viejas.
+        async function actualizarFotoPublicaB(persona, gen){
+            try{
+                if(!persona){ pintarFotoPublicaB(''); return; }
+                const r=await fetch(`/api/ficha_basica?persona=${encodeURIComponent(persona)}`);
+                if(typeof gen==='number' && gen!==genPersonaB) return;
+                if(!r.ok){ pintarFotoPublicaB(''); return; }
+                const f=await r.json();
+                if(!f || f.error){ pintarFotoPublicaB(''); return; }
+                pintarFotoPublicaB(f.foto||'');
+            }catch(e){ try{ pintarFotoPublicaB(''); }catch(e2){} }
         }
 
         async function actualizarDatosBasicosA(persona){
@@ -4256,6 +4322,7 @@
                 try{ actualizarDatosBasicosA(''); }catch(e){}
                 actualizarCompuesto();
                 document.getElementById('transitos-tabla').innerHTML = '-';
+                try { actualizarBotonSNS('', false); } catch (e) {}
                 return;
             }
             let resp;
@@ -4271,6 +4338,7 @@
                 try { olvidarNotaFiltros('a'); } catch (e) {}
                 try{ actualizarDatosBasicosA(''); }catch(e){}
                 actualizarCompuesto();
+                try { actualizarBotonSNS('', false); } catch (e) {}
                 return;
             }
             // Cada paso protegido: el gráfico siempre se pinta aunque falle un detalle.
@@ -4283,6 +4351,7 @@
             try { actualizarVisibilidad(); } catch (err) {}
             try { actualizarDatosBasicosA(persona); } catch (err) { console.error('actualizarDatosBasicosA:', err); }
             try { if (window._clanSetP1) window._clanSetP1(persona); } catch (err) {}
+            try { actualizarBotonSNS(persona, dataPersonaA && dataPersonaA.tiene_sns); } catch (err) {}
         });
 
         selectorB.addEventListener('change', async (e) => {
@@ -4293,6 +4362,7 @@
                 dataPersonaB = null;
                 limpiarPanel('b');
                 limpiarSVG(svgContainerB);
+                try { pintarFotoPublicaB(''); } catch (e) {}
                 try { olvidarNotaFiltros('b'); } catch (e) {}
                 actualizarCompuesto();
                 try { if (dataPersonaA) mostrarCompatibilidades(dataPersonaA); } catch (e) {}
@@ -4308,12 +4378,14 @@
                 dataPersonaB = null;
                 limpiarPanel('b');
                 limpiarSVG(svgContainerB);
+                try { pintarFotoPublicaB(''); } catch (e) {}
                 try { olvidarNotaFiltros('b'); } catch (e) {}
                 actualizarCompuesto();
                 return;
             }
             try { mostrarPuertas(dataPersonaB, 'b'); } catch (err) { console.error('mostrarPuertas B:', err); }
             try { actualizarSVGIndividual(svgContainerB, dataPersonaB, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto); } catch (err) { console.error('actualizarSVGIndividual B:', err); }
+            try { actualizarFotoPublicaB(persona, gen); } catch (err) { console.error('foto publica B:', err); }
             try { actualizarCompuesto(); } catch (err) { console.error('actualizarCompuesto B:', err); }
             try { if (typeof aplicarSimpl === 'function') aplicarSimpl(); } catch (err) {}
             try { renderListaFiltrada(); } catch (err) { console.error('renderListaFiltrada B:', err); }
@@ -4908,6 +4980,7 @@
                         clone.querySelectorAll('linearGradient[id^="grad-comp-simpl-"]').forEach(el => el.remove());
                         clone.querySelectorAll('[data-simpl-oculto]').forEach(t => { delete t.dataset.simplOculto; });
                         quitarDescripcionesP1(clone); // las Descr son de P1: los mini-gráficos salen limpios
+                        quitarFotoPublica(clone); // la foto pública es solo de P1
                     } catch (e2) {}
                     box.appendChild(clone);
                 }
@@ -9977,6 +10050,10 @@
                     .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
                     .then(function(x){
                         if (est) { est.textContent = x.ok ? 'Guardado en test.csv + xlsx (' + alin + '%)' : ('No se guardó: ' + ((x.j && x.j.error) || '?')); est.style.color = x.ok ? '#2e7d32' : '#c62828'; }
+                        if (x.ok) {
+                            try { if (dataPersonaA) dataPersonaA.tiene_sns = true; } catch (e2) {}
+                            try { actualizarBotonSNS(nom, true); } catch (e2) {}
+                        }
                     })
                     .catch(function(){ if (est) { est.textContent = 'Error de red'; est.style.color = '#c62828'; } });
             }
@@ -10765,6 +10842,28 @@
         document.getElementById('clan-fila-abuelos').dataset.clanInit = '1';
         var COLORES = { p1:'#2E7D32', padre:'#29B6F6', madre:'#F06292', ap_abuelo:'#1565C0', ap_abuela:'#7B1FA2', am_abuela:'#E53935', am_abuelo:'#FB8C00', pareja:'#795548' };
         var HERMANO_COLORES = ['#FDD835','#FFE0B2','#DCE775','#CE93D8','#F8BBD0','#B3E5FC'];
+        var HIJO_COLORES = ['#66BB6A','#43A047','#81C784','#388E3C','#A5D6A7','#1B5E20'];
+        // Gris mezclado con el color del abuelo (bisabuelos = tonos de gris con color de su rama).
+        function grisCon(hex, t){
+            var g = [158,158,158];
+            var m = String(hex||'#9E9E9E').replace('#','');
+            var rr = parseInt(m.substr(0,2),16), vv = parseInt(m.substr(2,2),16), aa = parseInt(m.substr(4,2),16);
+            if (isNaN(rr)||isNaN(vv)||isNaN(aa)) return '#9E9E9E';
+            function mix(i, c){ return Math.round(g[i]*(1-t) + c*t); }
+            function h2(n){ n = Math.max(0, Math.min(255, n)).toString(16); return n.length<2 ? '0'+n : n; }
+            return '#'+h2(mix(0,rr))+h2(mix(1,vv))+h2(mix(2,aa));
+        }
+        // 8 bisabuelos, en el mismo orden que los abuelos de la fila de abajo.
+        var FIJOS_BISABUELOS = [
+            {etiqueta:'Bisabuelo pat. A', base:'#1565C0', t:0.28, titulo:'Padre del abuelo paterno'},
+            {etiqueta:'Bisabuela pat. A', base:'#1565C0', t:0.52, titulo:'Madre del abuelo paterno'},
+            {etiqueta:'Bisabuelo pat. B', base:'#7B1FA2', t:0.28, titulo:'Padre de la abuela paterna'},
+            {etiqueta:'Bisabuela pat. B', base:'#7B1FA2', t:0.52, titulo:'Madre de la abuela paterna'},
+            {etiqueta:'Bisabuelo mat. A', base:'#E53935', t:0.28, titulo:'Padre de la abuela materna'},
+            {etiqueta:'Bisabuela mat. A', base:'#E53935', t:0.52, titulo:'Madre de la abuela materna'},
+            {etiqueta:'Bisabuelo mat. B', base:'#FB8C00', t:0.28, titulo:'Padre del abuelo materno'},
+            {etiqueta:'Bisabuela mat. B', base:'#FB8C00', t:0.52, titulo:'Madre del abuelo materno'}
+        ];
         var FIJOS_ABUELOS = [
             {id:'ap_abuelo', etiqueta:'Abuelo paterno'},
             {id:'ap_abuela', etiqueta:'Abuela paterna'},
@@ -10775,7 +10874,7 @@
             {id:'padre', etiqueta:'Padre'},
             {id:'madre', etiqueta:'Madre'}
         ];
-        var S = { miembros:{}, mayores:[], menores:[], parejas:[] };
+        var S = { miembros:{}, mayores:[], menores:[], parejas:[], bisabuelos:[], hijos:[] };
         ['ap_abuelo','ap_abuela','am_abuela','am_abuelo','padre','madre','p1','pareja'].forEach(function(k){ S.miembros[k]={nombre:'',data:null,foto:'',overlays:[]}; });
         var uidN = 0;
         var CLAN_MEM_KEY = 'rave_clan_v1';
@@ -10783,10 +10882,23 @@
         function memoriaDeS(){
             var m = {};
             Object.keys(S.miembros).forEach(function(k){ m[k] = S.miembros[k].nombre || ''; });
-            return { v:2, m:m,
+            (S.bisabuelos||[]).forEach(function(h){ if (h && h.nombre) m['bis_'+(h.slot+1)] = h.nombre; });
+            return { v:3, m:m,
                 mayores:(S.mayores||[]).map(function(h){ return h.nombre||''; }),
                 menores:(S.menores||[]).map(function(h){ return h.nombre||''; }),
-                parejas:(S.parejas||[]).map(function(h){ return h.nombre||''; }) };
+                parejas:(S.parejas||[]).map(function(h){ return h.nombre||''; }),
+                hijos:(S.hijos||[]).map(function(h){ return h.nombre||''; }) };
+        }
+        function cargarBisabuelosDeM(m){
+            S.bisabuelos.length = 0;
+            for (var i=0;i<8;i++){
+                var n = (m && m['bis_'+(i+1)]) ? String(m['bis_'+(i+1)]).trim() : '';
+                if (n) S.bisabuelos.push({uid:++uidN, slot:i, nombre:n, data:null, foto:'', overlays:[]});
+            }
+        }
+        function cargarHijosDeLista(lista){
+            S.hijos.length = 0;
+            (lista||[]).forEach(function(n){ if(String(n||'').trim()) S.hijos.push({uid:++uidN, nombre:n||'', data:null, foto:'', overlays:[]}); });
         }
         function aplicarMemoriaClan(mem, conservarP1){
             var p1keep = S.miembros.p1.nombre || '';
@@ -10803,6 +10915,8 @@
                 (mem.mayores||[]).forEach(function(n){ if(String(n||'').trim()) S.mayores.push({uid:++uidN, nombre:n||'', data:null, foto:'', overlays:[]}); });
                 (mem.menores||[]).forEach(function(n){ if(String(n||'').trim()) S.menores.push({uid:++uidN, nombre:n||'', data:null, foto:'', overlays:[]}); });
                 (mem.parejas||[]).forEach(function(n){ if(String(n||'').trim()) S.parejas.push({uid:++uidN, nombre:n||'', data:null, foto:'', overlays:[]}); });
+                cargarBisabuelosDeM(mem.m);
+                cargarHijosDeLista(mem.hijos);
                 Object.keys(S.miembros).forEach(function(k){ S.miembros[k].data = null; S.miembros[k].overlays = []; });
                 if (conservarP1) S.miembros.p1.nombre = p1keep;
             }catch(e){}
@@ -10819,7 +10933,7 @@
                 if (!p1n) return;
                 var mem2 = memoriaDeS();
                 fetch('/api/clan', {method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({p1:p1n, m:mem2.m, mayores:mem2.mayores, menores:mem2.menores, parejas:mem2.parejas})}).catch(function(){});
+                    body: JSON.stringify({p1:p1n, m:mem2.m, mayores:mem2.mayores, menores:mem2.menores, parejas:mem2.parejas, hijos:mem2.hijos})}).catch(function(){});
             }catch(e){}
         }
         function cargarMemoriaClan(){
@@ -10831,28 +10945,41 @@
                 (mem.mayores||[]).forEach(function(n){ S.mayores.push({uid:++uidN, nombre:n||'', data:null, foto:'', overlays:[]}); });
                 (mem.menores||[]).forEach(function(n){ S.menores.push({uid:++uidN, nombre:n||'', data:null, foto:'', overlays:[]}); });
                 (mem.parejas||[]).forEach(function(n){ S.parejas.push({uid:++uidN, nombre:n||'', data:null, foto:'', overlays:[]}); });
+                cargarBisabuelosDeM(mem.m);
+                cargarHijosDeLista(mem.hijos);
             }catch(e){}
         }
         function nombresDelClan(){
             var ns = [];
             try{
                 Object.keys(S.miembros).forEach(function(k){ if (S.miembros[k] && S.miembros[k].nombre) ns.push(S.miembros[k].nombre); });
-                S.mayores.concat(S.menores).concat(S.parejas||[]).forEach(function(h){ if (h && h.nombre) ns.push(h.nombre); });
+                S.mayores.concat(S.menores).concat(S.parejas||[]).concat(S.bisabuelos||[]).concat(S.hijos||[]).forEach(function(h){ if (h && h.nombre) ns.push(h.nombre); });
             }catch(e){}
             return Array.from(new Set(ns.filter(function(n){ return String(n||'').trim(); })));
         }
         function aplicarDatosCacheados(){
             try{
                 Object.keys(S.miembros).forEach(function(k){ var e=S.miembros[k]; if (e && e.nombre && _clanCache[e.nombre]) e.data = _clanCache[e.nombre]; });
-                S.mayores.concat(S.menores).concat(S.parejas||[]).forEach(function(h){ if (h && h.nombre && _clanCache[h.nombre]) h.data = _clanCache[h.nombre]; });
+                S.mayores.concat(S.menores).concat(S.parejas||[]).concat(S.bisabuelos||[]).concat(S.hijos||[]).forEach(function(h){ if (h && h.nombre && _clanCache[h.nombre]) h.data = _clanCache[h.nombre]; });
             }catch(e){}
         }
         function renderClanPorPartes(done){
             // Pinta por filas en cuadros separados: evita un congelamiento largo con clan completo.
-            try{ renderAbuelos(); }catch(e){}
-            function p2(){ try{ renderPadres(); }catch(e){} function p3(){ try{ renderP1(); }catch(e2){} if (done) done(); }
-                if (window.requestAnimationFrame) requestAnimationFrame(p3); else setTimeout(p3, 0); }
-            if (window.requestAnimationFrame) requestAnimationFrame(p2); else setTimeout(p2, 0);
+            var raf = window.requestAnimationFrame
+                ? function(f){ requestAnimationFrame(f); }
+                : function(f){ setTimeout(f, 0); };
+            try{ renderBisabuelos(); }catch(e){}
+            raf(function(){
+                try{ renderAbuelos(); }catch(e0){}
+                raf(function(){
+                    try{ renderPadres(); }catch(e1){}
+                    raf(function(){
+                        try{ renderP1(); }catch(e2){}
+                        try{ renderHijos(); }catch(e3){}
+                        if (done) done();
+                    });
+                });
+            });
         }
         function refrescarConBatch(done){
             var ns = nombresDelClan();
@@ -10876,7 +11003,7 @@
                 if (!j) return;
                 var tiene = (j.m && Object.keys(j.m).length) || (j.mayores&&j.mayores.length) || (j.menores&&j.menores.length) || (j.parejas&&j.parejas.length);
                 if (!tiene && aplocado) return;
-                aplicarMemoriaClan({m:j.m||{}, mayores:j.mayores||[], menores:j.menores||[], parejas:j.parejas||[]}, true);
+                aplicarMemoriaClan({m:j.m||{}, mayores:j.mayores||[], menores:j.menores||[], parejas:j.parejas||[], hijos:j.hijos||[]}, true);
                 try{ localStorage.setItem(claveLocalP1(p1), JSON.stringify(memoriaDeS())); }catch(e){}
                 refrescar();
             }).catch(function(){ if (!aplocado) refrescar(); });
@@ -10927,8 +11054,8 @@
         }
         function clanEntryByKey(key){
             if (S.miembros[key]) return S.miembros[key];
-            var hs = S.mayores.concat(S.menores).concat(S.parejas||[]);
-            for (var i=0;i<hs.length;i++){ if (('hM'+hs[i].uid)===key || ('hm'+hs[i].uid)===key || ('px'+hs[i].uid)===key) return hs[i]; }
+            var hs = S.mayores.concat(S.menores).concat(S.parejas||[]).concat(S.bisabuelos||[]).concat(S.hijos||[]);
+            for (var i=0;i<hs.length;i++){ if (('hM'+hs[i].uid)===key || ('hm'+hs[i].uid)===key || ('px'+hs[i].uid)===key || ('bs'+hs[i].uid)===key || ('hj'+hs[i].uid)===key) return hs[i]; }
             return null;
         }
         // Al elegir padre/madre/hermano, buscar su ficha en clan y autollenar
@@ -11030,6 +11157,7 @@
             clon.removeAttribute('id');
             try {
                 quitarDescripcionesP1(clon);
+                quitarFotoPublica(clon); // la foto pública es solo de P1
             } catch(e){
                 clon.querySelectorAll('[data-capa-descripciones]').forEach(function(el){ el.remove(); });
                 var vb = clon.getAttribute('data-desc-viewbox');
@@ -11095,6 +11223,7 @@
             clon.removeAttribute('id');
             try{
                 quitarDescripcionesP1(clon);
+                quitarFotoPublica(clon); // la foto pública es solo de P1
             }catch(e){
                 clon.querySelectorAll('[data-capa-descripciones]').forEach(function(el){ el.remove(); });
                 var vb = clon.getAttribute('data-desc-viewbox');
@@ -11283,10 +11412,10 @@
             entry._color = color;
             if (!entry.overlays) entry.overlays = [];
             var card = document.createElement('div');
-            card.className = 'clan-card';
+            card.className = 'clan-card' + (opts.clase ? ' ' + opts.clase : '');
             card.style.borderColor = color;
             card.draggable = true;
-            card.title = 'Arrastrá hacia otra gráfica del clan para mezclar puertas';
+            card.title = opts.titulo || 'Arrastrá hacia otra gráfica del clan para mezclar puertas';
             if (opts.removable){
                 var x = document.createElement('button');
                 x.className = 'clan-x'; x.type = 'button'; x.textContent = '×'; x.title = 'Quitar';
@@ -11393,7 +11522,14 @@
                 var bP = document.createElement('button');
                 bP.className = 'clan-mas'; bP.type='button'; bP.title='Agregar pareja (derecha de la primera pareja)'; bP.textContent='+ pareja';
                 bP.addEventListener('click', function(){ agregarPareja(); });
-                fila.appendChild(bM); fila.appendChild(bm); fila.appendChild(bP);
+                var bH = document.createElement('button');
+                bH.className = 'clan-mas'; bH.type='button'; bH.title='Agregar hijo/a (fila de abajo, tonos verdes)'; bH.textContent='+ hijo';
+                bH.addEventListener('click', function(){ agregarHijo(); });
+                var bB = document.createElement('button');
+                bB.className = 'clan-mas'; bB.type='button'; bB.title='Agregar bisabuelo/a (fila de arriba, hasta 8, gris con el color de su rama)'; bB.textContent='+ bisabuelo';
+                if ((S.bisabuelos||[]).length >= 8){ bB.disabled = true; bB.style.opacity = '.5'; bB.title = 'Ya están los 8 bisabuelos'; }
+                bB.addEventListener('click', function(){ if ((S.bisabuelos||[]).length >= 8) return; agregarBisabuelo(); });
+                fila.appendChild(bM); fila.appendChild(bm); fila.appendChild(bP); fila.appendChild(bH); fila.appendChild(bB);
                 card.appendChild(fila);
             }
             return card;
@@ -11417,6 +11553,58 @@
             var i = S.parejas.findIndex(function(h){ return h.uid===uid; });
             if (i>=0) S.parejas.splice(i,1);
             renderP1();
+        }
+        function agregarHijo(){
+            S.hijos.push({uid:++uidN, nombre:'', data:null, foto:'', overlays:[]});
+            renderHijos();
+        }
+        function quitarHijo(uid){
+            var i = S.hijos.findIndex(function(h){ return h.uid===uid; });
+            if (i>=0) S.hijos.splice(i,1);
+            renderHijos();
+        }
+        function siguienteSlotBisabuelo(){
+            var usados = {};
+            (S.bisabuelos||[]).forEach(function(h){ usados[h.slot] = 1; });
+            for (var i=0;i<8;i++){ if (!usados[i]) return i; }
+            return -1;
+        }
+        function agregarBisabuelo(){
+            var slot = siguienteSlotBisabuelo();
+            if (slot < 0) return;
+            S.bisabuelos.push({uid:++uidN, slot:slot, nombre:'', data:null, foto:'', overlays:[]});
+            renderBisabuelos();
+            renderP1();
+        }
+        function quitarBisabuelo(uid){
+            var i = (S.bisabuelos||[]).findIndex(function(h){ return h.uid===uid; });
+            if (i>=0) S.bisabuelos.splice(i,1);
+            renderBisabuelos();
+            renderP1();
+        }
+        function renderBisabuelos(){
+            var fila = document.getElementById('clan-fila-bisabuelos');
+            if (!fila) return;
+            fila.querySelectorAll('.clan-card').forEach(function(n){ n.remove(); });
+            var label = fila.querySelector('.clan-fila-label');
+            if (label) label.textContent = 'Bisabuelos (' + (S.bisabuelos||[]).length + '/8)';
+            (S.bisabuelos||[]).slice().sort(function(a,b){ return a.slot-b.slot; }).forEach(function(h){
+                var def = FIJOS_BISABUELOS[h.slot] || {etiqueta:'Bisabuelo', base:'#9E9E9E', t:0.4, titulo:'Bisabuelo'};
+                var col = grisCon(def.base, def.t);
+                fila.appendChild(buildCard({key:'bs'+h.uid, entry:h, etiqueta:def.etiqueta, color:col,
+                    titulo:def.titulo + ' — arrastrá hacia otra gráfica del clan para mezclar puertas',
+                    clase:'mini', removable:true, onRemove:function(){ quitarBisabuelo(h.uid); }}));
+            });
+        }
+        function renderHijos(){
+            var fila = document.getElementById('clan-fila-hijos');
+            if (!fila) return;
+            fila.querySelectorAll('.clan-card').forEach(function(n){ n.remove(); });
+            (S.hijos||[]).forEach(function(h, idx){
+                var col = HIJO_COLORES[idx % HIJO_COLORES.length];
+                fila.appendChild(buildCard({key:'hj'+h.uid, entry:h, etiqueta:'Hijo/a '+(idx+1), color:col,
+                    removable:true, onRemove:function(){ quitarHijo(h.uid); }}));
+            });
         }
         function renderAbuelos(){
             var fila = document.getElementById('clan-fila-abuelos');
@@ -11655,6 +11843,17 @@
                 var arr2 = Array.from(setPuertas(h.data)).sort(function(a,b){return a-b;});
                 puertas.push((h.nombre || 'familiar') + ': ' + arr2.map(function(p){return 'P'+p;}).join(' '));
             });
+            (S.bisabuelos||[]).forEach(function(h){
+                if (!h.data) return;
+                var def = FIJOS_BISABUELOS[h.slot] || {};
+                var arr3 = Array.from(setPuertas(h.data)).sort(function(a,b){return a-b;});
+                puertas.push((h.nombre || 'bisabuelo') + ' (' + (def.titulo || 'bisabuelo') + '): ' + arr3.map(function(p){return 'P'+p;}).join(' '));
+            });
+            (S.hijos||[]).forEach(function(h, idx){
+                if (!h.data) return;
+                var arr4 = Array.from(setPuertas(h.data)).sort(function(a,b){return a-b;});
+                puertas.push((h.nombre || ('hijo '+(idx+1))) + ' (hijo/a): ' + arr4.map(function(p){return 'P'+p;}).join(' '));
+            });
             return encabezado + '\n' + guiaTrans + '\nLectura del clan: repeticiones, compensaciones y parejas que completan\n' + lec + '\nExperiencias del alma en 3 generaciones\n' + alm + (puertas.length ? '\nPuertas de cada miembro (datos adicionales):\n' + puertas.join('\n') : '');
         }
         var btnClan = document.getElementById('btn-clan-copiar-ia');
@@ -11686,7 +11885,7 @@
             if (msg) msg.textContent = 'Clan guardado ✓';
         });
         cargarMemoriaClan();
-        renderAbuelos(); renderPadres(); renderP1();
+        renderBisabuelos(); renderAbuelos(); renderPadres(); renderP1(); renderHijos();
         try{
             var p10 = (S.miembros.p1 && S.miembros.p1.nombre) || '';
             if (p10) cargarClanDeP1(p10);
