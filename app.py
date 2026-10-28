@@ -4128,7 +4128,7 @@ _CACHE_SERNOSER = {'mtime': None, 'val': None}
 
 @app.route('/api/sernoser_puertas')
 def api_sernoser_puertas():
-    """Preguntas NoSer por puerta desde sernoser_puertas.csv (TAB: puerta<TAB>pregunta_noser)."""
+    """Preguntas NoSer por puerta desde sernoser_puertas.csv (';' como resto de CSV RAVE: puerta;pregunta_noser)."""
     import csv as _csv
     from pathlib import Path as _Path
     p = _Path('sernoser_puertas.csv')
@@ -4140,7 +4140,7 @@ def api_sernoser_puertas():
         return jsonify(_CACHE_SERNOSER['val'])
     out = {}
     with open(p, encoding='utf-8-sig') as f:
-        for row in _csv.DictReader(f, delimiter='\t'):
+        for row in _csv.DictReader(f, delimiter=';'):
             try:
                 g = int(str(row.get('puerta') or '').strip())
             except (ValueError, TypeError):

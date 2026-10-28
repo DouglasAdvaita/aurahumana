@@ -31,6 +31,9 @@ desktop.ini
 # Pagina de laboratorio con nombres de prueba: queda local
 /templates/lab.html
 
+# Blogger: borradores e imagenes de publicacion, queda local
+/blogger/
+
 # Datos personales LLENOS: solo se publican las plantillas vacias de plantillas/
 /datos.csv
 /datos_sin_analia.csv

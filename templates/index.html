@@ -1608,6 +1608,9 @@
             <button id="btn-modificar" type="button" disabled title="Guarda los cambios de la Persona 1 cargada">Modificar</button>
             <button id="btn-eliminar" type="button" style="display:none;background:#c62828;color:#fff" title="Elimina a la persona en edición de datos y vínculos (pide confirmación)">Eliminar</button>
             <button id="btn-limpiar" type="button" title="Vacía el panel para cargar una persona nueva">Limpiar</button>
+            <label style="font-size:12px">Email opcional<input type="text" id="nube-email" placeholder="tu@mail.com" style="width:130px"></label>
+            <label style="font-size:12px">Nube<select id="nube-vis"><option value="privado">privado</option><option value="publico">público (latente)</option></select></label>
+            <button id="btn-nube" type="button" title="Guarda esta persona en tu navegador y en Neon (privado por defecto)">Guardar en nube</button>
             <span id="add-persona-msg"></span>
         </div>
     </details>
@@ -2374,7 +2377,7 @@
                         let mapUnion = mergeMaps(map, mapT);
                         renderLineasEnSvg(box, mapUnion, activeUnion, !!showLineas);
                         setEmojisVisibility(box, activeUnion, !!showEmojis);
-                        try{ updatePanelPlanetas(box, dataX); }catch(e){}
+                        try{ if(box.querySelector('#Capa_panel_planetas')) updatePanelPlanetas(box, dataX); }catch(e){}
                     });
                 }
                 document.querySelectorAll('.clan-card .svg-box').forEach((box)=>{
@@ -2387,7 +2390,7 @@
                     let mapUnion = mergeMaps(map, mapT);
                     renderLineasEnSvg(box, mapUnion, activeUnion, !!showLineas);
                     setEmojisVisibility(box, activeUnion, !!showEmojis);
-                    try{ updatePanelPlanetas(box, dataX); }catch(e){}
+                    try{ if(box.querySelector('#Capa_panel_planetas')) updatePanelPlanetas(box, dataX); }catch(e){}
                 });
             }catch(e){}
             try { pintarCirculosPlaneta(); }catch(e) {}
@@ -4310,6 +4313,35 @@
         document.getElementById('btn-agregar').addEventListener('click', () => guardarPersona(false));
         document.getElementById('btn-modificar').addEventListener('click', () => guardarPersona(true));
 
+        // Fase 1 nube: device_id por navegador + borrador local + POST a Neon (privado por defecto).
+        function nubeDeviceId(){ let d=''; try{ d=localStorage.getItem('dh_device_id')||''; }catch(e){} if(!d){ d='d_'+Math.random().toString(36).slice(2,10); try{ localStorage.setItem('dh_device_id',d); }catch(e){} } return d; }
+        document.getElementById('btn-nube').addEventListener('click', async () => {
+            const msg = document.getElementById('add-persona-msg');
+            const inpL = document.getElementById('nuevo-lugar');
+            const coordsEl = document.getElementById('nuevo-coords');
+            const wrap = document.getElementById('wrap-coords');
+            const body = { device_id: nubeDeviceId(),
+                nombre: document.getElementById('nuevo-nombre').value.trim(),
+                fecha: document.getElementById('nuevo-fecha').value.trim(),
+                hora: document.getElementById('nuevo-hora').value.trim(),
+                lugar: inpL ? inpL.value.trim() : '',
+                email: (document.getElementById('nube-email')||{}).value || '',
+                visibilidad: (document.getElementById('nube-vis')||{}).value || 'privado',
+                datos_json: { inconscientes: document.getElementById('nuevo-incon').value,
+                    conscientes: document.getElementById('nuevo-consc').value } };
+            if(inpL && inpL.dataset.lat && inpL.dataset.lon){ body.lat=inpL.dataset.lat; body.lon=inpL.dataset.lon; if(inpL.dataset.tzname) body.tz_name=inpL.dataset.tzname; }
+            else if(wrap && wrap.style.display!=='none' && coordsEl && coordsEl.value.trim()){ const q=coordsEl.value.split(','); body.lat=(q[0]||'').trim(); body.lon=(q[1]||'').trim(); body.tz=(q[2]||'').trim(); }
+            if(!body.nombre){ msg.className='err'; msg.textContent='Poné un nombre antes de guardar en nube.'; return; }
+            try{ localStorage.setItem('dh_nube_borrador', JSON.stringify(body)); }catch(e){}
+            msg.className=''; msg.textContent='Guardando en nube…';
+            try{
+                const r = await fetch('/api/nube/guardar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+                const j = await r.json();
+                if(r.ok && j && j.ok){ msg.className='ok'; msg.textContent='Guardado en nube ('+body.visibilidad+').'; }
+                else { msg.className='err'; msg.textContent=(j&&j.error)||'Neon no configurado (falta DATABASE_URL en Render). Borrador en navegador OK.'; }
+            }catch(e){ msg.className='err'; msg.textContent='Sin red: borrador en navegador OK.'; }
+        });
+
         selectorA.addEventListener('change', async (e) => {
             const persona = e.target.value;
             const gen = ++genPersonaA; // ignora respuestas viejas si se cambia rápido de persona
@@ -4981,6 +5013,7 @@
                         clone.querySelectorAll('[data-simpl-oculto]').forEach(t => { delete t.dataset.simplOculto; });
                         quitarDescripcionesP1(clone); // las Descr son de P1: los mini-gráficos salen limpios
                         quitarFotoPublica(clone); // la foto pública es solo de P1
+                        clone.querySelectorAll('#Capa_panel_planetas').forEach(el => el.remove()); // tabla planetas solo en P1/P2
                     } catch (e2) {}
                     box.appendChild(clone);
                 }
@@ -11158,6 +11191,7 @@
             try {
                 quitarDescripcionesP1(clon);
                 quitarFotoPublica(clon); // la foto pública es solo de P1
+                clon.querySelectorAll('#Capa_panel_planetas').forEach(function(el){ el.remove(); }); // tabla planetas solo en P1/P2
             } catch(e){
                 clon.querySelectorAll('[data-capa-descripciones]').forEach(function(el){ el.remove(); });
                 var vb = clon.getAttribute('data-desc-viewbox');
@@ -11224,6 +11258,7 @@
             try{
                 quitarDescripcionesP1(clon);
                 quitarFotoPublica(clon); // la foto pública es solo de P1
+                clon.querySelectorAll('#Capa_panel_planetas').forEach(function(el){ el.remove(); }); // tabla planetas solo en P1/P2
             }catch(e){
                 clon.querySelectorAll('[data-capa-descripciones]').forEach(function(el){ el.remove(); });
                 var vb = clon.getAttribute('data-desc-viewbox');
