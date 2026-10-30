@@ -1,0 +1,106 @@
+<!-- ENTRADA PARA BLOGGER — pegar en "Vista HTML" -->
+<!-- Título sugerido: Cómo publicar RAVE (Diseño Humano) en Render: manual paso a paso -->
+<!-- Etiquetas: Render, Flask, Diseño Humano, Python -->
+
+<p><em>Manual de despliegue del proyecto RAVE / Aura Humana en Render.com: qué archivos viajan al servidor, cuáles quedan en la máquina local y qué límites tiene el plan gratuito.</em></p>
+
+<p>RAVE es una aplicación Flask de Diseño Humano que hoy corre en local con <code>INICIAR.cmd</code>. Este manual explica cómo llevarla a la nube usando Render como hosting y, opcionalmente, Neon como base de datos.</p>
+
+<h2>1. Qué es cada pieza</h2>
+<ul>
+  <li><strong>Render</strong>: ejecuta el proceso Python y sirve la web.</li>
+  <li><strong>Gunicorn</strong>: servidor de producción. En local se usa Waitress.</li>
+  <li><strong>Neon</strong> (PostgreSQL): guarda cuentas y perfiles en la nube. Es opcional.</li>
+  <li><strong>CSV del proyecto</strong>: puertas, canales, centros, cruces, perfiles. Son la base de cálculo.</li>
+</ul>
+
+<h2>2. Archivos que ya están preparados en el repo</h2>
+<p>Tres archivos hacen casi todo el trabajo:</p>
+
+<p><strong>render.yaml</strong></p>
+<pre><code>services:
+  - type: web
+    name: diseno-humano
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app</code></pre>
+
+<p><strong>Procfile</strong></p>
+<pre><code>web: gunicorn app:app</code></pre>
+
+<p><strong>requirements.txt</strong></p>
+<pre><code>Flask&gt;=3.0
+pandas&gt;=2.0
+openpyxl&gt;=3.1
+gunicorn&gt;=21.0
+waitress&gt;=2.1
+pyswisseph&gt;=2.10
+reportlab&gt;=4.0
+Pillow&gt;=10.0
+psycopg2-binary&gt;=2.9</code></pre>
+
+<p>La aplicación lee el puerto de la variable de entorno <code>PORT</code> (por defecto 5000), así que funciona igual en local y en la nube sin tocar código.</p>
+
+<h2>3. Qué sube al servidor y qué no</h2>
+<p>Regla simple: viaja el <em>código</em> y los <em>datos públicos</em>. Queda local todo lo personal y lo pesado.</p>
+
+<p><strong>Viaja:</strong></p>
+<ul>
+  <li>Código: <code>app.py</code>, <code>preparar_datos.py</code>, <code>bajar_fotos_publicas.py</code>, <code>nube_db.py</code>, <code>auth_db.py</code>.</li>
+  <li>Plantillas: <code>templates/*.html</code>.</li>
+  <li>Datos públicos: <code>puertas.csv</code>, <code>canales.csv</code>, <code>centros.csv</code>, <code>cruces.csv</code>, <code>lineas_popup.csv</code>, <code>perfiles.csv</code>, <code>definiciones.csv</code>, <code>tipos.csv</code>, <code>eneatipos.csv</code>, <code>doshas.csv</code>, <code>numerologia.csv</code>, <code>natal.csv</code>, <code>natal_planetas.csv</code>, <code>personas_publicas.csv</code>, <code>parejas_publicas.csv</code>, <code>fotos_publicas.csv</code>.</li>
+  <li>Textos: <code>canales_accesibles/</code>, <code>base_informe_ia.txt</code>, <code>canales simplificados.txt</code>.</li>
+  <li>Esquemas SQL: <code>schema_fase1.sql</code>, <code>schema_fase2.sql</code>.</li>
+  <li>Config: <code>render.yaml</code>, <code>Procfile</code>, <code>requirements.txt</code>, <code>.gitignore</code>.</li>
+</ul>
+
+<p><strong>No viaja (queda local):</strong></p>
+<ul>
+  <li>Datos personales: <code>datos.csv</code>, <code>vinculos.csv</code>, <code>clan.csv</code>, <code>conocidos.csv</code>, <code>ia.csv</code>, <code>informe.csv</code>.</li>
+  <li>Memorias personales: <code>memoriaOC.md</code>.</li>
+  <li>Página de laboratorio: <code>templates/lab.html</code> (por eso <code>/lab</code> da 404 en la nube).</li>
+  <li>Excel de trabajo: <code>*.xlsx</code>, con dos excepciones que la app usa en ejecución.</li>
+  <li>Medios pesados: <code>static/canales_audio/</code> (91 MB), <code>videos_canales/</code> (48 MB), <code>Publicos/</code> (18 MB).</li>
+  <li>Secretos: <code>.env</code>.</li>
+</ul>
+
+<h2>4. Primer despliegue, paso a paso</h2>
+<ol>
+  <li><strong>Repo privado en GitHub.</strong> Crear <code>aura-humana</code> como <em>Private</em>, sin README ni licencia, y agregarlo como remoto: <code>git remote add origin &lt;URL&gt;</code>.</li>
+  <li><strong>Subir el código.</strong> Doble clic en <code>PUBLICAR.cmd</code> (o <code>git push -u origin main</code>).</li>
+  <li><strong>Crear el servicio en Render.</strong> New → Web Service → conectar el repo. Render detecta <code>render.yaml</code> y completa solo el build y el start.</li>
+  <li><strong>Si no lo detecta a mano:</strong> build <code>pip install -r requirements.txt</code>, start <code>gunicorn app:app</code>.</li>
+  <li><strong>Variable de entorno.</strong> Solo si vas a usar cuentas: <code>DATABASE_URL</code> con la cadena de Neon.</li>
+  <li><strong>Deploy.</strong> Al terminar, revisar los logs y abrir la URL del servicio.</li>
+</ol>
+
+<h2>5. Neon: base de datos opcional</h2>
+<p>Sin <code>DATABASE_URL</code> la app funciona igual, todo en CSV, y las rutas de cuenta responden "Neon no configurado". Con la variable puesta:</p>
+<ul>
+  <li>Las tablas se crean solas al primer uso, desde <code>schema_fase1.sql</code> y <code>schema_fase2.sql</code>.</li>
+  <li>Fase 1: <code>dispositivos</code> y <code>perfiles_nube</code> (por navegador).</li>
+  <li>Fase 2: <code>cuentas</code>, <code>sesiones</code> y <code>perfiles_cuenta</code> (por correo).</li>
+  <li>En <code>/cuenta</code> se crea la cuenta, se suben personas y se bajan al navegador.</li>
+</ul>
+
+<h2>6. Límites reales del plan gratuito</h2>
+<ul>
+  <li>El servicio <strong>se suspende por inactividad</strong>: el primer acceso después de un rato tarda en despertar.</li>
+  <li><strong>El disco no es persistente.</strong> Todo lo que se escriba en CSV dentro del servidor se pierde en el siguiente deploy o reinicio. Lo que deba sobrevivir tiene que ir a Neon.</li>
+  <li>Los datos personales cargados en el servidor quedan en un <code>datos.csv</code> compartido entre visitantes: <strong>el aislamiento por cuenta está pendiente</strong>. Por eso el repo es privado y los CSV personales no viajan.</li>
+  <li>Los medios pesados no están en el repo: las fotos se regeneran con <code>bajar_fotos_publicas.py</code> y el audio de canales queda solo en local.</li>
+</ul>
+
+<h2>7. Si algo falla</h2>
+<ul>
+  <li><strong>Error al importar <code>psycopg2</code></strong>: revisar que <code>psycopg2-binary</code> esté en <code>requirements.txt</code> (ya está).</li>
+  <li><strong>La app arranca pero no calcula</strong>: falta algún CSV. En un clon nuevo se crean vacíos con <code>python preparar_datos.py</code>, que <code>INICIAR.cmd</code> ya llama antes de arrancar.</li>
+  <li><strong>404 en <code>/lab</code></strong>: es intencional, esa plantilla no se publica.</li>
+  <li><strong>Falla la función de circuitos excluyentes</strong>: falta <code>razgos.xlsx</code>, que no está en el proyecto. No se reemplazó por una aproximación.</li>
+</ul>
+
+<h2>8. La diferencia con correr en local</h2>
+<p>En local, <code>INICIAR.cmd</code> levanta Waitress con 8 hilos y puerto 5000, sin depender de internet. En Render manda Gunicorn y el puerto lo decide la plataforma. El código es el mismo: solo cambia quién lo sirve y dónde viven los datos.</p>
+
+<p><em>Nota: el repositorio es privado, así que este manual describe el procedimiento, no ofrece un enlace público al código.</em></p>

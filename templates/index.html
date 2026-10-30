@@ -1565,7 +1565,16 @@
         <span id="fuente-nombre" title="Fuente de datos activa">datos.csv</span>
         <select id="fuente-xlsx-combo" title="Elegir un .xlsx para leer"></select>
         <button type="button" id="btn-fuente-csv" title="Volver a leer los CSV">Usar CSV</button>
+        <a href="/cuenta" id="link-cuenta" title="Entrar o crear cuenta" style="margin-left:auto;font-size:12px;padding:2px 8px;border:1px solid var(--borde3);border-radius:4px;text-decoration:none;color:var(--texto)">Mi cuenta</a>
     </div>
+    <script>
+    (function(){fetch('/api/cuenta/estado',{cache:'no-store'}).then(r=>r.json()).then(j=>{
+      const a=document.getElementById('link-cuenta');
+      if(!a) return;
+      if(j && j.logueado){ a.textContent = j.email || 'Mi cuenta'; a.style.background='#e8f0fb'; }
+      else if(j && j.configurado===false){ a.textContent='Mi cuenta (sin Neon)'; }
+    }).catch(()=>{});})();
+    </script>
     <script>
     (function(){
         var nomEl = document.getElementById('fuente-nombre');
@@ -1748,10 +1757,6 @@
             <button id="btn-modificar" type="button" disabled title="Guarda los cambios de la Persona 1 cargada">Modificar</button>
             <button id="btn-eliminar" type="button" style="display:none;background:#c62828;color:#fff" title="Elimina a la persona en edición de datos y vínculos (pide confirmación)">Eliminar</button>
             <button id="btn-limpiar" type="button" title="Vacía el panel para cargar una persona nueva">Limpiar</button>
-            <label style="font-size:12px">Email opcional<input type="text" id="nube-email" placeholder="tu@mail.com" style="width:130px"></label>
-            <label style="font-size:12px">Nube<select id="nube-vis"><option value="privado">privado</option><option value="publico">público (latente)</option></select></label>
-            <button id="btn-nube" type="button" title="Guarda esta persona en tu cuenta (Neon), privada por defecto">Guardar en nube</button>
-            <a id="link-cuenta" href="/cuenta" style="font-size:12px;margin-left:6px">Mi cuenta</a>
             <span id="add-persona-msg"></span>
         </div>
     </details>
@@ -4422,6 +4427,17 @@
         })();
 
         async function guardarPersona(editar) {
+            // En Render (o sin datos propios) guardar requiere cuenta.
+            try {
+                const fu = await (await fetch('/api/fuente', {cache:'no-store'})).json();
+                const est = await (await fetch('/api/cuenta/estado', {cache:'no-store'})).json();
+                const enRender = !!(fu && fu.entorno === 'render');
+                const sinPropio = !(fu && fu.datos_csv_propio);
+                if ((enRender || sinPropio) && (!est || !est.logueado)) {
+                    window.location = '/cuenta';
+                    return;
+                }
+            } catch (e) {}
             const msg = document.getElementById('add-persona-msg');
             msg.className = '';
             msg.textContent = 'Enviando...';
@@ -4490,35 +4506,6 @@
         }
         document.getElementById('btn-agregar').addEventListener('click', () => guardarPersona(false));
         document.getElementById('btn-modificar').addEventListener('click', () => guardarPersona(true));
-
-        // Fase 2 nube: con cuenta (email+contraseña) guarda la persona completa en Neon.
-        // Sin sesión: guarda borrador en el navegador y avisa.
-        document.getElementById('btn-nube').addEventListener('click', async () => {
-            const msg = document.getElementById('add-persona-msg');
-            const nombreEl = document.getElementById('nuevo-nombre');
-            const nombre = (nombreEl ? nombreEl.value : '').trim();
-            const vis = (document.getElementById('nube-vis') || {}).value || 'privado';
-            if (!nombre) { msg.className = 'err'; msg.textContent = 'Poné un nombre antes de guardar en nube.'; return; }
-            const borrador = { nombre: nombre, visibilidad: vis,
-                fecha: (document.getElementById('nuevo-fecha')||{}).value || '',
-                hora: (document.getElementById('nuevo-hora')||{}).value || '',
-                lugar: (document.getElementById('nuevo-lugar')||{}).value || '' };
-            try { localStorage.setItem('dh_nube_borrador', JSON.stringify(borrador)); } catch (e) {}
-            msg.className = ''; msg.textContent = 'Guardando en nube…';
-            try {
-                const est = await (await fetch('/api/cuenta/estado', {cache:'no-store'})).json();
-                if (!est || !est.logueado) {
-                    msg.className = 'err';
-                    msg.textContent = 'Necesitás entrar con tu correo para guardar en la nube. Borrador guardado en este navegador.';
-                    return;
-                }
-                const r = await fetch('/api/cuenta/subir', { method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ nombre: nombre, visibilidad: vis }) });
-                const j = await r.json();
-                if (r.ok && j && j.ok) { msg.className = 'ok'; msg.textContent = `"${nombre}" guardada en tu cuenta (${vis}).`; }
-                else { msg.className = 'err'; msg.textContent = (j && j.error) || 'No se pudo guardar en la nube.'; }
-            } catch (e) { msg.className = 'err'; msg.textContent = 'Sin red: borrador guardado en este navegador.'; }
-        });
 
         selectorA.addEventListener('change', async (e) => {
             const persona = e.target.value;
