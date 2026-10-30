@@ -5,3 +5,8 @@ services:
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
+    envVars:
+      # sync: false = la clave se carga a mano en el panel de Render y NO se
+      # borra al sincronizar el Blueprint (no queda escrita en el repo).
+      - key: DATABASE_URL
+        sync: false

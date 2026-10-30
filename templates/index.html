@@ -281,6 +281,7 @@
             grid-template-columns: 1fr 1.15fr 1fr;
             gap: 8px;
             align-items: stretch;
+            position: relative;
         }
         .graficos-fila.solo-a {
             grid-template-columns: minmax(0, 660px);
@@ -798,6 +799,145 @@
             border-radius: 6px;
             color: var(--suave);
         }
+
+        /* Rail vertical de tránsito: misma hora canónica que el deslizador de
+           Controles. Aparece solo con «Superponer tránsito» en ON. */
+        .transito-rail {
+            position: absolute;
+            right: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            width: 54px;
+            padding: 8px 5px 7px;
+            border-radius: 24px;
+            border: 1px solid var(--borde2);
+            background: var(--card);
+            background: color-mix(in srgb, var(--card) 88%, transparent);
+            box-shadow: 0 4px 18px rgba(0,0,0,.18);
+            backdrop-filter: blur(4px);
+        }
+        .transito-rail.visible { display: flex; }
+        .transito-rail .rail-ext {
+            font-size: 9.5px;
+            font-weight: 800;
+            color: var(--muted);
+            letter-spacing: .2px;
+            white-space: nowrap;
+        }
+        .transito-rail .rail-slider-wrap {
+            position: relative;
+            width: 32px;
+            height: 330px;
+            flex: 0 0 auto;
+        }
+        .transito-rail input[type="range"] {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 330px;
+            height: 26px;
+            margin: 0;
+            transform: translate(-50%, -50%) rotate(-90deg);
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: ns-resize;
+        }
+        .transito-rail input[type="range"]::-webkit-slider-runnable-track {
+            height: 6px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--borde3), var(--indigo));
+        }
+        .transito-rail input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            margin-top: -6px;
+            border-radius: 50%;
+            background: var(--acento);
+            border: 2px solid #fff;
+            box-shadow: 0 1px 5px rgba(0,0,0,.35);
+        }
+        .transito-rail input[type="range"]::-moz-range-track {
+            height: 6px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--borde3), var(--indigo));
+        }
+        .transito-rail input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--acento);
+            border: 2px solid #fff;
+            box-shadow: 0 1px 5px rgba(0,0,0,.35);
+        }
+        .transito-rail .rail-time {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--suave);
+            line-height: 1.12;
+            text-align: center;
+            cursor: pointer;
+            max-width: 48px;
+        }
+        .transito-rail .rail-time b { display: block; font-size: 10px; color: var(--titulo); }
+        /* En pantallas angostas (celular) el rail taps el gráfico: se oculta. */
+        @media (max-width: 768px) {
+            .transito-rail { display: none !important; }
+        }
+
+        /* Mapa de tránsitos (centros, canales y planetas) */
+        .tm-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .tm-head #tm-hora {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--titulo);
+        }
+        .tm-viewport {            overflow-x: auto;
+            overflow-y: hidden;
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            background: var(--card);
+            cursor: grab;
+            user-select: none;
+            touch-action: pan-x;
+            position: relative;
+            /* Sin esto el ancho del SVG estira todo el panel: acá manda el
+               ancho disponible y la línea de tiempo se recorre con la barra. */
+            contain: inline-size;
+            width: 100%;
+        }
+        .tm-viewport.arrastrando { cursor: grabbing; }
+        .tm-viewport::-webkit-scrollbar { height: 8px; }
+        .tm-viewport::-webkit-scrollbar-track { background: var(--panel2); border-radius: 4px; }
+        .tm-viewport::-webkit-scrollbar-thumb { background: var(--borde3); border-radius: 4px; }
+        .tm-viewport svg { display: block; max-width: none; }
+        .tm-viewport .tm-text { fill: var(--texto); }
+        .tm-viewport .tm-titulo { fill: var(--titulo); }
+        .tm-viewport .tm-muted { fill: var(--muted); }
+        .tm-viewport .tm-fondo { fill: var(--panel); }
+        .tm-viewport .tm-emoji { font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; }
+        .tm-vacio {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 92px;
+            padding: 16px;
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+        }
         .tl-scroll { overflow-x: auto; }
         .filtros-a-wrap {
             display: flex;
@@ -886,9 +1026,9 @@
             padding: 0 2px;
             border-bottom: 1px dotted var(--borde);
         }
-        .fl-fila .fl-num { flex-shrink: 0; min-width: 30px; font-size: 9px; }
+        .fl-fila .fl-num { flex-shrink: 0; min-width: 30px; font-size: 9px; white-space: nowrap; }
         .fl-fila .fl-emo { flex-shrink: 0; font-size: 11px; }
-        .fl-fila .fl-num { flex-shrink: 0; min-width: 30px; font-size: 9px; }
+        .fl-fila .fl-num { flex-shrink: 0; min-width: 30px; font-size: 9px; white-space: nowrap; }
         .fl-fila .fl-emo { flex-shrink: 0; font-size: 11px; }
         .fl-num { font-size: 12px; }
         .fl-incon { color: #D32F2F; }
@@ -1610,7 +1750,8 @@
             <button id="btn-limpiar" type="button" title="Vacía el panel para cargar una persona nueva">Limpiar</button>
             <label style="font-size:12px">Email opcional<input type="text" id="nube-email" placeholder="tu@mail.com" style="width:130px"></label>
             <label style="font-size:12px">Nube<select id="nube-vis"><option value="privado">privado</option><option value="publico">público (latente)</option></select></label>
-            <button id="btn-nube" type="button" title="Guarda esta persona en tu navegador y en Neon (privado por defecto)">Guardar en nube</button>
+            <button id="btn-nube" type="button" title="Guarda esta persona en tu cuenta (Neon), privada por defecto">Guardar en nube</button>
+            <a id="link-cuenta" href="/cuenta" style="font-size:12px;margin-left:6px">Mi cuenta</a>
             <span id="add-persona-msg"></span>
         </div>
     </details>
@@ -1696,6 +1837,17 @@
                         <!-- clonado por JS -->
                     </div>
                 </div>
+                <!-- Rail vertical de tiempo: una sola hora para todo el tránsito.
+                     Se muestra solo con «Superponer tránsito» en ON. -->
+                <div class="transito-rail" id="transito-rail" aria-hidden="true">
+                    <span class="rail-ext" id="transito-rail-max">+7d</span>
+                    <div class="rail-slider-wrap">
+                        <input type="range" id="transito-slider-v" min="0" max="20160" step="10" value="10080"
+                               title="Deslizá para recorrer el rango Atrás/Adelante. Mueve la misma hora que el deslizador de Controles.">
+                    </div>
+                    <span class="rail-ext" id="transito-rail-min">−7d</span>
+                    <span class="rail-time" id="transito-rail-time" title="Clic para volver a la hora base">—</span>
+                </div>
             </div>
 
             <div class="panel-compuesto-controles" id="card-dinamica-p1-p2" data-caja="Dinamica-Compuesta">
@@ -1713,23 +1865,16 @@
             </div>
 
             <div class="panel-compuesto-controles" id="card-briefing" data-caja="Briefing">
-                <h4 class="desplegable">Briefing del día — informe preliminar (sin IA) + prompt para IA</h4>
+                <h4 class="desplegable">Briefing del día — qué cambia y qué implica</h4>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
                     <button id="btn-briefing" type="button" style="padding:6px 14px;background:var(--acento);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;">Actualizar</button>
-                    <button id="btn-interpretar" type="button" title="Informe diario por declaración (clima de neutrinos): 1) qué se enciende y habilita, 2) qué energía se retira y qué ritmo pide, 3) guía de 2 oraciones con Estrategia y Autoridad sin caer en el No-Ser" style="padding:6px 14px;background:var(--indigo);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;">Interpretar con IA</button>
-                    <button id="btn-copiar-prompt" type="button" title="Copia el prompt generado para pegarlo en cualquier chat de IA" style="padding:6px 10px;background:transparent;color:var(--indigo);border:1px solid var(--indigo);border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;">Copiar prompt</button>
-                    <span id="briefing-estado" style="font-size:11px;color:var(--muted)">Elegí Persona 1 para generar el informe preliminar.</span>
+                    <span id="briefing-estado" style="font-size:11px;color:var(--muted)">Elegí Persona 1.</span>
                 </div>
                 <div id="briefing-txt" class="info-list">-</div>
-                <div id="briefing-ia" class="info-list" style="margin-top:8px;"></div>
-                <details id="briefing-prompt-wrap" style="margin-top:8px;">
-                    <summary style="font-size:11px;color:var(--indigo);cursor:pointer;">Prompt enviado a la IA (declaración con los datos)</summary>
-                    <pre id="briefing-prompt" style="white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.45;background:var(--panel2);padding:8px;border-radius:6px;margin:6px 0 0;">-</pre>
-                </details>
             </div>
 
             <div class="panel-compuesto-controles" id="card-sernoser" data-caja="SerNoSer">
-                <h4 class="desplegable" title="Clic para plegar/desplegar">Autotest Ser / No-Ser — P1</h4>
+                <h4 class="desplegable" title="Clic para plegar/desplegar">Autotest Ser / No-Ser</h4>
                 <div style="font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.4" id="sernoser-sub">Se arma solo con lo que te corresponde: tu Tipo, tus centros abiertos y tus líneas de perfil. Escala: 3 casi siempre · 2 a veces · 1 rara vez · 0 nunca.</div>
                 <div id="sernoser-box" class="info-list">Elegí Persona 1 para armar el test.</div>
                 <div id="sernoser-mas" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:12px;font-weight:700;color:var(--suave)">
@@ -1738,10 +1883,9 @@
                     <button type="button" data-snmas="2" title="Puertas inactivas de centros definidos">2</button>
                     <button type="button" data-snmas="3" title="Puertas activas de centros definidos">3</button>
                 </div>
-                <style>#sernoser-mas button{min-width:28px;padding:2px 9px;border-radius:10px;border:1px solid var(--borde3);background:var(--panel2);color:var(--muted);cursor:pointer;font-weight:800;font-size:12px}#sernoser-mas button.on{background:var(--indigo);border-color:var(--indigo);color:#fff}</style>
+                <style>#sernoser-mas button{min-width:28px;padding:2px 9px;border-radius:10px;border:1px solid var(--borde3);background:var(--panel2);color:var(--muted);cursor:pointer;font-weight:800;font-size:12px}#sernoser-mas button.on{background:var(--indigo);border-color:var(--indigo);color:#fff}/* Plegada: el bloque "Mas preg" y los botones tambien se ocultan (los display:flex en linea ganaban al CSS de colapsada). */#card-sernoser.colapsada > :not(h4){display:none !important}</style>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;">
                     <button id="btn-sernoser" type="button" style="padding:6px 14px;background:var(--indigo);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;">Calcular alineación</button>
-                    <button id="btn-sernoser-guardar" type="button" title="Guarda el resultado en test.csv (misma fila del otro test) y en datos_privados.xlsx" style="padding:6px 14px;background:transparent;color:var(--indigo);border:1px solid var(--indigo);border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;">Guardar en bases</button>
                     <span id="sernoser-estado" style="font-size:11px;color:var(--muted)"></span>
                 </div>
                 <div id="sernoser-informe" class="info-list" style="margin-top:8px;"></div>
@@ -1764,6 +1908,16 @@
                         <button id="btn-grafica-trans" type="button">Calcular</button>
                     </div>
                     <div id="grafica-trans-tabla" class="info-list">Pulsá Calcular.</div>
+                </div>
+            </div>
+
+            <div class="panel-compuesto-controles" id="card-transitos-mapa" data-caja="Transitos-Mapa" title="Línea de tiempo del cielo: cada fila es un centro, un canal o un planeta y cada barra marca desde/hasta cuándo está activo. Arrastrá para recorrer los días.">
+                <h4 class="desplegable" title="Clic para plegar/desplegar">Tránsitos en el tiempo</h4>
+                <div class="tm-head">
+                    <span id="tm-hora">—</span>
+                </div>
+                <div id="transitos-mapa-viewport" class="tm-viewport" title="Arrastrá para recorrer los días · doble clic para centrar la hora elegida">
+                    <div class="tm-vacio">Activá «Superponer tránsito».</div>
                 </div>
             </div>
 
@@ -2099,9 +2253,20 @@
         const PLANETAS_ORDEN = ['Sol','Tierra','Luna','NodoN','NodoS','Mercurio','Venus','Marte','Jupiter','Saturno','Urano','Neptuno','Pluton'];
         const PLANETA_COLOR = {Sol:'#FF7F00',Tierra:'#006400',Luna:'#87CEEB',NodoN:'#CC7722',NodoS:'#795548',Mercurio:'#FFEB00',Venus:'#F8BBD0',Marte:'#FF0000',Jupiter:'#0033FF',Saturno:'#808080',Urano:'#BFFF00',Neptuno:'#CE93D8',Pluton:'#000000'};
         const PLANETA_SIMBOLO = {Sol:'☉',Tierra:'⊕',Luna:'☽',NodoN:'☊',NodoS:'☋',Mercurio:'☿',Venus:'♀',Marte:'♂',Jupiter:'♃',Saturno:'♄',Urano:'♅',Neptuno:'♆',Pluton:'♇'};
+        // Emojis para el mapa de tránsitos (al lado del número de puerta).
+        const PLANETA_EMOJI = {Sol:'☀️',Tierra:'🌍',Luna:'🌙',NodoN:'☊',NodoS:'☋',Mercurio:'☿',Venus:'♀️',Marte:'♂️',Jupiter:'♃',Saturno:'♄',Urano:'♅',Neptuno:'♆',Pluton:'♇'};
+        // Colores de centro tomados del mapa.svg (misma paleta que los gráficos).
+        const CENTRO_COLOR = {Corona:'#DED676',Ajna:'#7BC03A',Garganta:'#C0A062',G:'#DED676',Ego:'#D93946',Bazo:'#C0A062',Plexo:'#C0A062',Sacro:'#B7673C',Raiz:'#C0A062'};
+        const CENTRO_EMOJI = {Corona:'👑',Ajna:'👁️',Garganta:'🗣️',G:'🧭',Ego:'💪',Bazo:'🛡️',Plexo:'🌊',Sacro:'🔥',Raiz:'🌱'};
         const STROKE_INCON = '#D32F2F';
         const STROKE_CONSC = '#000000';
         const STROKE_TRANSITO = '#607D8B';
+        // Codificación visual de líneas (reemplaza al número): forma + relleno + borde.
+        // Relleno: color de la línea · Borde: gris oscuro=yin(impares), gris claro=yang(pares).
+        // Trazo: continuo=trigrama inferior (1-3), punteado=trigrama superior (4-6).
+        const LINEA_COLOR = {1:'#00C853', 2:'#FFEB3B', 3:'#FF1744', 4:'#4FC3F7', 5:'#000000', 6:'#BA68C8'};
+        const BORDE_YIN = '#424242';
+        const BORDE_YANG = '#BDBDBD';
         function ensureCapaLineas(svg){
             let g = svg.querySelector('[id="capa_lineas_puertas"]');
             if(!g){
@@ -2211,41 +2376,57 @@
             }catch(e){}
             return {map:{}, set:new Set()};
         }
+        function etiquetaLinea(linea, x, y){
+            // Número de línea con relleno = color de línea y borde = yin/yang + trigrama.
+            const n = parseInt(linea,10);
+            const fill = LINEA_COLOR[n] || '#000000';
+            const impar = (n % 2 === 1);
+            const borde = impar ? BORDE_YIN : BORDE_YANG;
+            const superior = n >= 4;
+            const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+            t.setAttribute('x', x);
+            t.setAttribute('y', y);
+            t.setAttribute('text-anchor', 'middle');
+            t.setAttribute('dominant-baseline', 'central');
+            t.setAttribute('font-size', '13');
+            t.setAttribute('font-weight', '800');
+            t.setAttribute('font-family', 'Arial, sans-serif');
+            t.setAttribute('paint-order', 'stroke');
+            t.setAttribute('stroke-linejoin', 'round');
+            t.setAttribute('fill', fill);
+            t.setAttribute('stroke', borde);
+            t.setAttribute('stroke-width', '1.2');
+            if(superior) t.setAttribute('stroke-dasharray', '3 2');
+            t.textContent = String(n);
+            return t;
+        }
         function renderLineasEnSvg(svgScope, gateMap, activeSet, show){
             let svg = svgScope.querySelector('svg') || svgScope;
             if(!svg) return;
             let capa=ensureCapaLineas(svg);
             capa.innerHTML='';
             if(!show || !activeSet || activeSet.size===0) return;
+            const step = 12;
             for(let gate of activeSet){
                 let entries=gateMap[gate];
                 if(!entries || entries.length===0) continue;
                 let coords=emojiCoordsForGate(svg, gate);
                 if(!coords || coords.x==null) continue;
-                let textEl=document.createElementNS('http://www.w3.org/2000/svg','text');
-                textEl.setAttribute('id','linea-'+gate);
-                textEl.setAttribute('x',coords.x);
-                textEl.setAttribute('y',coords.y);
-                textEl.setAttribute('text-anchor','middle');
-                textEl.setAttribute('dominant-baseline','central');
-                textEl.setAttribute('font-size','11');
-                textEl.setAttribute('font-weight','800');
-                textEl.setAttribute('font-family','Arial, sans-serif');
-                textEl.setAttribute('paint-order','stroke');
-                textEl.setAttribute('stroke-linejoin','round');
-                for(let e of entries){
-                    let tspan=document.createElementNS('http://www.w3.org/2000/svg','tspan');
-                    tspan.textContent=e.linea;
-                    tspan.setAttribute('fill',e.fill);
-                    tspan.setAttribute('stroke',e.stroke);
-                    tspan.setAttribute('stroke-width','0.6');
-                    tspan.setAttribute('paint-order','stroke');
-                    let titleEl=document.createElementNS('http://www.w3.org/2000/svg','title');
-                    titleEl.textContent=e.titulo || e.planeta;
-                    tspan.appendChild(titleEl);
-                    textEl.appendChild(tspan);
-                }
-                capa.appendChild(textEl);
+                let x = parseFloat(coords.x), y = parseFloat(coords.y);
+                if(isNaN(x)||isNaN(y)) continue;
+                const n = entries.length;
+                entries.forEach((e, i) => {
+                    const offX = (i - (n-1)/2) * step;
+                    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+                    g.setAttribute('data-linea-gate', gate);
+                    g.setAttribute('data-linea', e.linea);
+                    const etiqueta = etiquetaLinea(e.linea, x + offX, y);
+                    const titleEl = document.createElementNS('http://www.w3.org/2000/svg','title');
+                    titleEl.textContent = `${e.titulo || e.planeta} · línea ${e.linea}`;
+                    g.appendChild(titleEl);
+                    g.appendChild(etiqueta);
+                    capa.appendChild(g);
+                });
             }
         }
         function setPanelText(el, txt, title){
@@ -3071,15 +3252,9 @@
             if (element.dataset && element.dataset.gate) {
                 return gatePopupContent(element.dataset.gate);
             }
-            // Números de línea de la capa Líneas (tspan dentro de text#linea-{puerta}).
-            if (element.tagName && element.tagName.toLowerCase() === 'tspan') {
-                const padre = element.parentNode;
-                const mPadre = padre && padre.id ? padre.id.match(/^linea-(\d+)$/) : null;
-                const lin = element.firstChild && element.firstChild.nodeValue != null
-                    ? element.firstChild.nodeValue.trim() : '';
-                if (mPadre && /^[1-6]$/.test(lin)) {
-                    return lineaPopupContent(mPadre[1], lin);
-                }
+            // Figuras de línea de la capa Líneas (g[data-linea-gate][data-linea]).
+            if (element.dataset && element.dataset.linea && element.dataset.lineaGate) {
+                return lineaPopupContent(element.dataset.lineaGate, element.dataset.linea);
             }
             // Números de puerta del gráfico (incluye indefinidas en gris).
             if (element.id && /(?:puerta|pueta)_(\d+)_texto$/.test(element.id)) {
@@ -3116,7 +3291,7 @@
         }
 
         const POPUP_SELECTOR = '[data-gate], [data-canal], [id^="tramo"], circle[id*="puerta"], [id^="c"], [id$="_texto"], ' +
-            '#capa_lineas_puertas tspan, ' +
+            '[data-linea], ' +
             ORDEN_CENTROS.map(c => `[id="${c}"]`).join(', ');
 
         let popupTargetActual = null;
@@ -3434,7 +3609,9 @@
                         } catch (err2) {}
                         if (!se.textContent) se.textContent = emo;
                         if (tit) se.title = tit;
-                        item.appendChild(se);
+                        // Pegado al número (no en una columna aparte).
+                        se.style.marginLeft = '2px';
+                        sp.appendChild(se);
                     }
                 } catch (err) {}
                 const dd = document.createElement('span');
@@ -3738,7 +3915,8 @@
                         const se = document.createElement('span');
                         se.className = 'fl-emo';
                         se.textContent = emo;
-                        item.appendChild(se);
+                        se.style.marginLeft = '2px';
+                        sp.appendChild(se);
                     }
                 } catch (err) {}
                 const pl = document.createElement('span');
@@ -4313,33 +4491,33 @@
         document.getElementById('btn-agregar').addEventListener('click', () => guardarPersona(false));
         document.getElementById('btn-modificar').addEventListener('click', () => guardarPersona(true));
 
-        // Fase 1 nube: device_id por navegador + borrador local + POST a Neon (privado por defecto).
-        function nubeDeviceId(){ let d=''; try{ d=localStorage.getItem('dh_device_id')||''; }catch(e){} if(!d){ d='d_'+Math.random().toString(36).slice(2,10); try{ localStorage.setItem('dh_device_id',d); }catch(e){} } return d; }
+        // Fase 2 nube: con cuenta (email+contraseña) guarda la persona completa en Neon.
+        // Sin sesión: guarda borrador en el navegador y avisa.
         document.getElementById('btn-nube').addEventListener('click', async () => {
             const msg = document.getElementById('add-persona-msg');
-            const inpL = document.getElementById('nuevo-lugar');
-            const coordsEl = document.getElementById('nuevo-coords');
-            const wrap = document.getElementById('wrap-coords');
-            const body = { device_id: nubeDeviceId(),
-                nombre: document.getElementById('nuevo-nombre').value.trim(),
-                fecha: document.getElementById('nuevo-fecha').value.trim(),
-                hora: document.getElementById('nuevo-hora').value.trim(),
-                lugar: inpL ? inpL.value.trim() : '',
-                email: (document.getElementById('nube-email')||{}).value || '',
-                visibilidad: (document.getElementById('nube-vis')||{}).value || 'privado',
-                datos_json: { inconscientes: document.getElementById('nuevo-incon').value,
-                    conscientes: document.getElementById('nuevo-consc').value } };
-            if(inpL && inpL.dataset.lat && inpL.dataset.lon){ body.lat=inpL.dataset.lat; body.lon=inpL.dataset.lon; if(inpL.dataset.tzname) body.tz_name=inpL.dataset.tzname; }
-            else if(wrap && wrap.style.display!=='none' && coordsEl && coordsEl.value.trim()){ const q=coordsEl.value.split(','); body.lat=(q[0]||'').trim(); body.lon=(q[1]||'').trim(); body.tz=(q[2]||'').trim(); }
-            if(!body.nombre){ msg.className='err'; msg.textContent='Poné un nombre antes de guardar en nube.'; return; }
-            try{ localStorage.setItem('dh_nube_borrador', JSON.stringify(body)); }catch(e){}
-            msg.className=''; msg.textContent='Guardando en nube…';
-            try{
-                const r = await fetch('/api/nube/guardar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+            const nombreEl = document.getElementById('nuevo-nombre');
+            const nombre = (nombreEl ? nombreEl.value : '').trim();
+            const vis = (document.getElementById('nube-vis') || {}).value || 'privado';
+            if (!nombre) { msg.className = 'err'; msg.textContent = 'Poné un nombre antes de guardar en nube.'; return; }
+            const borrador = { nombre: nombre, visibilidad: vis,
+                fecha: (document.getElementById('nuevo-fecha')||{}).value || '',
+                hora: (document.getElementById('nuevo-hora')||{}).value || '',
+                lugar: (document.getElementById('nuevo-lugar')||{}).value || '' };
+            try { localStorage.setItem('dh_nube_borrador', JSON.stringify(borrador)); } catch (e) {}
+            msg.className = ''; msg.textContent = 'Guardando en nube…';
+            try {
+                const est = await (await fetch('/api/cuenta/estado', {cache:'no-store'})).json();
+                if (!est || !est.logueado) {
+                    msg.className = 'err';
+                    msg.textContent = 'Necesitás entrar con tu correo para guardar en la nube. Borrador guardado en este navegador.';
+                    return;
+                }
+                const r = await fetch('/api/cuenta/subir', { method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ nombre: nombre, visibilidad: vis }) });
                 const j = await r.json();
-                if(r.ok && j && j.ok){ msg.className='ok'; msg.textContent='Guardado en nube ('+body.visibilidad+').'; }
-                else { msg.className='err'; msg.textContent=(j&&j.error)||'Neon no configurado (falta DATABASE_URL en Render). Borrador en navegador OK.'; }
-            }catch(e){ msg.className='err'; msg.textContent='Sin red: borrador en navegador OK.'; }
+                if (r.ok && j && j.ok) { msg.className = 'ok'; msg.textContent = `"${nombre}" guardada en tu cuenta (${vis}).`; }
+                else { msg.className = 'err'; msg.textContent = (j && j.error) || 'No se pudo guardar en la nube.'; }
+            } catch (e) { msg.className = 'err'; msg.textContent = 'Sin red: borrador guardado en este navegador.'; }
         });
 
         selectorA.addEventListener('change', async (e) => {
@@ -4941,6 +5119,336 @@
                 }
             }
         }
+
+        // ---------- Mapa de tránsitos (centros / canales / planetas) ----------
+        // Comparte la única hora de tránsito (TRANSITO_ACTUAL.t_ms). El SVG se
+        // arma entero y el alto del panel se ajusta al contenido (sin scroll
+        // vertical interno); el zoom y el arrastre son horizontales/verticales.
+        function transitoEstadoActual() {
+            if (!overlayTransitoOn || !TRANSITO_ACTUAL || !Array.isArray(TRANSITO_ACTUAL.detalle)) return null;
+            const detalle = TRANSITO_ACTUAL.detalle.slice().sort((a, b) => {
+                const ia = PLANETAS_ORDEN.indexOf(a.planeta), ib = PLANETAS_ORDEN.indexOf(b.planeta);
+                return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+            });
+            const gates = [...new Set(detalle.map(d => parseInt(d.puerta, 10)).filter(n => n >= 1 && n <= 64))]
+                .sort((a, b) => a - b);
+            const setG = new Set(gates);
+            let canales = [];
+            try {
+                canales = Object.keys(CANAL_CENTROS).filter(k => {
+                    const p = String(k).split('-').map(Number);
+                    return p.length === 2 && setG.has(p[0]) && setG.has(p[1]);
+                }).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+            } catch (e) {}
+            const setCan = new Set(canales.map(normCanalKey));
+            const centros = ORDEN_CENTROS.filter(id => {
+                const lista = (typeof CENTRO_CANALES !== 'undefined' && CENTRO_CANALES[id]) || [];
+                return lista.some(c => setCan.has(normCanalKey(c)));
+            });
+            return { detalle, gates, canales, centros };
+        }
+
+        // Repintado liviano: solo los 3 SVG (sin rehacer listas laterales ni
+        // filtros) + el mapa. Se usa al mover el slider, no al cambiar personas.
+        function transitoRepintarGraficos() {
+            try {
+                if (dataPersonaA) {
+                    actualizarSVGIndividual(svgContainerA, dataPersonaA, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto);
+                }
+                if (dataPersonaB) {
+                    actualizarSVGIndividual(svgContainerB, dataPersonaB, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto);
+                }
+                if (dataPersonaA || dataPersonaB) actualizarCompuesto();
+            } catch (e) { console.error('transitoRepintarGraficos:', e); }
+            try { renderMapaTransitos(); } catch (e) { console.error('renderMapaTransitos:', e); }
+        }
+
+        // ---------- Línea de tiempo del tránsito ----------
+        // Eje X = tiempo real del rango Atrás/Adelante. Una fila por centro y
+        // una por planeta; cada barra dice desde/hasta cuándo está encendido o
+        // en qué puerta está (sin subdivisiones por línea). Se recorre
+        // arrastrando o con la barra horizontal.
+        const TM_VIEW = { init: false, pxDia: 165, serie: null, geo: null };
+        let TRANSITO_SERIE = null;   // lo arma el controlador al cargar el rango
+
+        // Convierte las muestras (1 por hora) en tramos con inicio y fin: un
+        // cambio de puerta/estado se ubica en la mitad entre las dos muestras.
+        function tmSerieDesdeFilas(filas) {
+            if (!Array.isArray(filas) || filas.length < 2) return null;
+            const t0 = filas[0].t, t1 = filas[filas.length - 1].t;
+            const abierto = new Map(), tramos = new Map();
+            const paso = (clave, valor, corte) => {
+                const ab = abierto.get(clave);
+                if (!ab) { abierto.set(clave, { valor, ini: t0 }); tramos.set(clave, []); return; }
+                if (ab.valor !== valor) {
+                    tramos.get(clave).push({ valor: ab.valor, ini: ab.ini, fin: corte });
+                    ab.valor = valor;
+                    ab.ini = corte;
+                }
+            };
+            const canales = [];
+            try {
+                Object.values(CENTRO_CANALES).forEach(lista => (lista || []).forEach(c => {
+                    const k = normCanalKey(c);
+                    if (canales.indexOf(k) < 0) canales.push(k);
+                }));
+            } catch (e) {}
+            filas.forEach((f, i) => {
+                const corte = i === 0 ? t0 : Math.round((filas[i - 1].t + f.t) / 2);
+                (f.planetas || []).forEach(pl => paso('P:' + pl.planeta, pl.puerta, corte));
+                const setG = new Set(f.puertas || []);
+                const setCan = new Set();
+                canales.forEach(k => {
+                    const p = k.split('-').map(Number);
+                    if (setG.has(p[0]) && setG.has(p[1])) setCan.add(k);
+                });
+                canales.forEach(k => {
+                    const p = k.split('-').map(Number);
+                    paso('K:' + k, setCan.has(k) ? 1 : 0, corte);
+                });
+                ORDEN_CENTROS.forEach(id => {
+                    const def = ((CENTRO_CANALES && CENTRO_CANALES[id]) || []).some(c => setCan.has(normCanalKey(c)));
+                    paso('C:' + id, def ? 1 : 0, corte);
+                });
+            });
+            abierto.forEach((ab, clave) => {
+                const lista = tramos.get(clave);
+                if (lista) lista.push({ valor: ab.valor, ini: ab.ini, fin: t1 });
+            });
+            return {
+                t0, t1,
+                planetas: PLANETAS_ORDEN.filter(p => tramos.has('P:' + p))
+                    .map(p => ({ planeta: p, tramos: tramos.get('P:' + p) })),
+                // Solo los canales que se forman (ambas puertas presentes) en
+                // algún momento del rango.
+                canales: canales.map(k => ({
+                    k,
+                    centro: ((typeof CANAL_CENTROS !== 'undefined' && CANAL_CENTROS[k]) || [])[0] || '',
+                    tramos: tramos.get('K:' + k) || []
+                })).filter(c => c.tramos.some(t => t.valor))
+                  .sort((a, b) => a.k.localeCompare(b.k, undefined, { numeric: true })),
+                centros: ORDEN_CENTROS.map(id => ({ id, tramos: tramos.get('C:' + id) || [] }))
+            };
+        }
+
+        function tmAplicarVista() {
+            const vp = document.getElementById('transitos-mapa-viewport');
+            if (!vp) return;
+            const svg = vp.querySelector('svg');
+            if (!svg) return;
+            const W = parseFloat(svg.dataset.vbw) || 1000;
+            const H = parseFloat(svg.dataset.vbh) || 400;
+            svg.style.width = W + 'px';
+            svg.style.height = H + 'px';
+            // Alto justo al contenido (sin scroll vertical). El alto final suma
+            // bordes + barra horizontal, que se descuentan del área visible.
+            vp.style.height = (H + 2) + 'px';
+            const extra = vp.offsetHeight - vp.clientHeight;
+            vp.style.height = (H + Math.max(2, extra)) + 'px';
+        }
+
+        function tmMarcarAhora(ms) {
+            const vp = document.getElementById('transitos-mapa-viewport');
+            const svg = vp && vp.querySelector('svg');
+            const g = TM_VIEW.geo;
+            if (!svg || !g) return;
+            const linea = svg.querySelector('#tm-linea-ahora');
+            if (!linea) return;
+            const x = g.gutter + ((ms - g.t0) / (g.t1 - g.t0)) * g.plotW;
+            linea.setAttribute('x1', x.toFixed(1));
+            linea.setAttribute('x2', x.toFixed(1));
+            // Si la hora elegida se va de la vista, se acompaña con el scroll.
+            const vis = vp.scrollLeft, ancho = vp.clientWidth;
+            if (ancho > 0 && (x < vis + 24 || x > vis + ancho - 24)) {
+                vp.scrollLeft = Math.max(0, x - ancho / 2);
+            }
+        }
+
+        function tmInitPan() {
+            if (TM_VIEW.init) return;
+            const vp = document.getElementById('transitos-mapa-viewport');
+            if (!vp) return;
+            TM_VIEW.init = true;
+            let drag = null;
+            vp.addEventListener('pointerdown', (e) => {
+                if (e.button !== 0) return;
+                drag = { x: e.clientX, sl: vp.scrollLeft };
+                vp.classList.add('arrastrando');
+                try { vp.setPointerCapture(e.pointerId); } catch (err) {}
+            });
+            vp.addEventListener('pointermove', (e) => {
+                if (!drag) return;
+                vp.scrollLeft = drag.sl - (e.clientX - drag.x);
+            });
+            const fin = () => { drag = null; vp.classList.remove('arrastrando'); };
+            vp.addEventListener('pointerup', fin);
+            vp.addEventListener('pointercancel', fin);
+            // Doble clic: volver a centrar la hora elegida.
+            vp.addEventListener('dblclick', () => {
+                const g = TM_VIEW.geo;
+                if (!g || !TRANSITO_ACTUAL) return;
+                const x = g.gutter + ((TRANSITO_ACTUAL.t_ms - g.t0) / (g.t1 - g.t0)) * g.plotW;
+                vp.scrollLeft = Math.max(0, x - vp.clientWidth / 2);
+            });
+        }
+
+        function renderMapaTransitos() {
+            const vp = document.getElementById('transitos-mapa-viewport');
+            const hora = document.getElementById('tm-hora');
+            if (!vp) return;
+            const S = TRANSITO_SERIE;
+            const st = transitoEstadoActual();
+            if (!S || !st) {
+                vp.innerHTML = '<div class="tm-vacio">Activá «Superponer tránsito».</div>';
+                vp.style.height = '';
+                if (hora) hora.textContent = '—';
+                TM_VIEW.geo = null;
+                return;
+            }
+            const p2 = (n) => String(n).padStart(2, '0');
+
+            if (hora) hora.textContent = '🕒 ' + _fmtFechaMVD(TRANSITO_ACTUAL.t_ms);
+
+            const gutter = 112, axisH = 30, rowH = 20, grupoH = 16;
+            const dias = Math.max(0.5, (S.t1 - S.t0) / 86400000);
+            const plotW = Math.round(dias * TM_VIEW.pxDia);
+            const W = gutter + plotW + 8;
+            const yC = axisH + grupoH;
+            const yK = yC + S.centros.length * rowH + grupoH;
+            const yP = yK + S.canales.length * rowH + grupoH;
+            const H = yP + S.planetas.length * rowH + 8;
+            const EMP = (typeof emojisPuerta === 'function' ? (emojisPuerta() || {}) : {});
+            if (!Object.keys(EMP).length && (TM_VIEW.reintentosEmoji || 0) < 3) {
+                // El SVG de Persona A puede no estar listo en el primer pase.
+                TM_VIEW.reintentosEmoji = (TM_VIEW.reintentosEmoji || 0) + 1;
+                setTimeout(() => { try { renderMapaTransitos(); } catch (e) {} }, 400);
+            }
+            const X = (t) => gutter + ((t - S.t0) / (S.t1 - S.t0)) * plotW;
+            const txt = (x, y, t, cls, size, weight, anchor, extra) =>
+                `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="${cls || 'tm-text'}" font-size="${size || 10}"` +
+                `${weight ? ` font-weight="${weight}"` : ''}${anchor ? ` text-anchor="${anchor}"` : ''}${extra ? ' ' + extra : ''}>${escHtml(t)}</text>`;
+            const fmt = (ms) => {
+                const d = new Date(ms);
+                return `${p2(d.getDate())}/${p2(d.getMonth() + 1)} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+            };
+            let s = '';
+
+            // Eje X graduado: marcas cada 6 h y una línea por día (medianoche
+            // local) con su fecha.
+            const MS6 = 6 * 3600000;
+            for (let t = Math.ceil(S.t0 / MS6) * MS6; t <= S.t1; t += MS6) {
+                const x = X(t);
+                s += `<line x1="${x.toFixed(1)}" y1="${axisH}" x2="${x.toFixed(1)}" y2="${H}" stroke="var(--borde)" stroke-width="1" opacity="0.28"/>`;
+                s += `<line x1="${x.toFixed(1)}" y1="${axisH - 4}" x2="${x.toFixed(1)}" y2="${axisH}" stroke="var(--muted)" stroke-width="1" opacity="0.45"/>`;
+            }
+            const dIni = new Date(S.t0);
+            const dDia = new Date(dIni.getFullYear(), dIni.getMonth(), dIni.getDate());
+            while (dDia.getTime() <= S.t1) {
+                if (dDia.getTime() >= S.t0) {
+                    const x = X(dDia.getTime());
+                    s += `<line x1="${x.toFixed(1)}" y1="${axisH}" x2="${x.toFixed(1)}" y2="${H}" stroke="var(--borde)" stroke-width="1"/>`;
+                    s += `<line x1="${x.toFixed(1)}" y1="${axisH - 8}" x2="${x.toFixed(1)}" y2="${axisH}" stroke="var(--muted)" stroke-width="1"/>`;
+                    const etq = `${p2(dDia.getDate())}/${p2(dDia.getMonth() + 1)}`;
+                    // La última fecha no se sale del recuadro: se alinea a la izquierda del trazo.
+                    if (x + 34 > W) s += txt(x - 3, 15, etq, 'tm-muted', 9.5, 700, 'end');
+                    else s += txt(x + 3, 15, etq, 'tm-muted', 9.5, 700);
+                }
+                dDia.setDate(dDia.getDate() + 1);
+            }
+            s += `<line x1="${gutter}" y1="${axisH}" x2="${W}" y2="${axisH}" stroke="var(--borde)" stroke-width="1"/>`;
+
+            // Rótulos de grupo.
+            s += txt(8, yC - 4, 'CENTROS', 'tm-muted', 8.5, 800, null, 'letter-spacing=".6"');
+            s += txt(8, yK - 4, 'CANALES', 'tm-muted', 8.5, 800, null, 'letter-spacing=".6"');
+            s += txt(8, yP - 4, 'PLANETAS', 'tm-muted', 8.5, 800, null, 'letter-spacing=".6"');
+
+            // Filas: centros (encendido = barra llena).
+            S.centros.forEach((c, i) => {
+                const y = yC + i * rowH;
+                const col = CENTRO_COLOR[c.id] || '#9e9e9e';
+                s += txt(8, y + 14, CENTRO_EMOJI[c.id] || '●', 'tm-emoji', 11);
+                s += txt(24, y + 14, c.id, 'tm-text', 10, 600);
+                c.tramos.forEach(tr => {
+                    if (!tr.valor) return;
+                    const x1 = X(tr.ini), x2 = X(tr.fin);
+                    s += `<rect x="${x1.toFixed(1)}" y="${(y + 4).toFixed(1)}" width="${Math.max(2, x2 - x1 - 1).toFixed(1)}" ` +
+                        `height="${rowH - 9}" rx="3" fill="${col}" fill-opacity="0.85">` +
+                        `<title>${escHtml(`${c.id} definido · ${fmt(tr.ini)} → ${fmt(tr.fin)}`)}</title></rect>`;
+                });
+            });
+
+            // Filas: canales que se forman por tránsito (barra = canal activo).
+            S.canales.forEach((c, i) => {
+                const y = yK + i * rowH;
+                const col = CENTRO_COLOR[c.centro] || '#9e9e9e';
+                const gg = c.k.split('-').map(Number);
+                const emK = [EMP[gg[0]] || '', EMP[gg[1]] || ''].filter(Boolean).join(' ');
+                s += txt(8, y + 14, c.k, 'tm-text', 10, 700);
+                c.tramos.forEach(tr => {
+                    if (!tr.valor) return;
+                    const x1 = X(tr.ini), x2 = X(tr.fin);
+                    const w = Math.max(2, x2 - x1 - 1);
+                    s += `<rect x="${x1.toFixed(1)}" y="${(y + 4).toFixed(1)}" width="${w.toFixed(1)}" height="${rowH - 9}" rx="3" ` +
+                        `fill="${col}" fill-opacity="0.18" stroke="${col}" stroke-width="1">` +
+                        `<title>${escHtml(`Canal ${c.k}${c.centro ? ' · ' + c.centro : ''} · ${fmt(tr.ini)} → ${fmt(tr.fin)}`)}</title></rect>`;
+                    if (emK && w >= 34) s += txt(x1 + w / 2, y + 14, emK, 'tm-emoji', 10, 400, 'middle');
+                });
+            });
+
+            // Filas: planetas (barra = puerta ocupada, con número + emoji adentro).
+            S.planetas.forEach((p, i) => {
+                const y = yP + i * rowH;
+                const col = PLANETA_COLOR[p.planeta] || '#616161';
+                s += txt(8, y + 14, PLANETA_EMOJI[p.planeta] || '●', 'tm-emoji', 11);
+                s += txt(24, y + 14, p.planeta, 'tm-text', 10, 600);
+                p.tramos.forEach(tr => {
+                    const x1 = X(tr.ini), x2 = X(tr.fin);
+                    const w = Math.max(2, x2 - x1 - 1);
+                    s += `<rect x="${x1.toFixed(1)}" y="${(y + 4).toFixed(1)}" width="${w.toFixed(1)}" height="${rowH - 9}" rx="3" ` +
+                        `fill="${col}" fill-opacity="0.22" stroke="${col}" stroke-width="1">` +
+                        `<title>${escHtml(`${p.planeta} · puerta ${tr.valor} · ${fmt(tr.ini)} → ${fmt(tr.fin)}`)}</title></rect>`;
+                    if (w >= 34) {
+                        const emP = EMP[tr.valor] || '';
+                        s += `<text x="${(x1 + w / 2).toFixed(1)}" y="${(y + 14).toFixed(1)}" text-anchor="middle" ` +
+                            `font-size="10" font-weight="800" fill="${col}">${tr.valor}` +
+                            (emP ? `<tspan class="tm-emoji" dx="3">${escHtml(emP)}</tspan>` : '') + `</text>`;
+                    }
+                });
+            });
+
+            // Marca de la hora elegida.
+            const mx = X(TRANSITO_ACTUAL.t_ms);
+            s += `<line id="tm-linea-ahora" x1="${mx.toFixed(1)}" y1="${axisH - 8}" x2="${mx.toFixed(1)}" y2="${H}" ` +
+                `stroke="var(--indigo)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" ` +
+                `data-vbw="${W}" data-vbh="${H}" width="${W}" height="${H}" role="img" ` +
+                `aria-label="Línea de tiempo de tránsitos: centros, canales y planetas">` +
+                `<rect x="0" y="0" width="${W}" height="${H}" class="tm-fondo"/>` + s + `</svg>`;
+            const mismaSerie = TM_VIEW.serie === S;
+            const previo = vp.scrollLeft;
+            vp.innerHTML = svg;
+            tmAplicarVista();
+            const destino = mismaSerie ? previo : Math.max(0, mx - vp.clientWidth / 2);
+            vp.scrollLeft = destino;
+            TM_VIEW.serie = S;
+            TM_VIEW.geo = { t0: S.t0, t1: S.t1, gutter, plotW };
+            tmInitPan();
+            if (!mismaSerie) {
+                // El panel puede estar plegado o sin ancho en este pase: se
+                // reintenta centrar la hora elegida cuando ya hay ancho.
+                let intentos = 0;
+                const centrar = () => {
+                    if (vp.clientWidth > 0) {
+                        // Solo si nadie movió la línea de tiempo mientras tanto.
+                        if (vp.scrollLeft === 0) vp.scrollLeft = Math.max(0, mx - vp.clientWidth / 2);
+                        return;
+                    }
+                    if (intentos++ < 30) setTimeout(centrar, 100);
+                };
+                setTimeout(centrar, 90);
+            }
+        }
         function repintarTodo() {
             if (dataPersonaA) {
                 mostrarPuertas(dataPersonaA, 'a');
@@ -5209,16 +5717,21 @@
             const btn = e.currentTarget;
             if (!overlayTransitoOn) {
                 btn.textContent = 'Cargando...';
-                const d = await obtenerTransito(document.getElementById('fecha-transito').value);
-                if (!d) { btn.textContent = 'Superponer tránsito: OFF'; return; }
-                TRANSITO_ACTUAL = d;
+                const ok = (typeof window._transitoActivar === 'function')
+                    ? await window._transitoActivar()
+                    : await obtenerTransito(document.getElementById('fecha-transito').value);
+                const dato = (ok && typeof ok === 'object') ? ok : null;
+                if (!ok) { btn.textContent = 'Superponer tránsito: OFF'; return; }
+                if (dato) TRANSITO_ACTUAL = dato;
                 overlayTransitoOn = true;
             } else {
                 overlayTransitoOn = false;
+                if (typeof window._transitoDesactivar === 'function') window._transitoDesactivar();
             }
             btn.textContent = overlayTransitoOn ? 'Superponer tránsito: ON' : 'Superponer tránsito: OFF';
             btn.classList.toggle('on', overlayTransitoOn);
             repintarTodo();
+            try { renderMapaTransitos(); } catch (err) {}
         });
         async function obtenerTransito(fechaStr) {
             try {
@@ -5229,6 +5742,19 @@
             } catch (err) { return null; }
         }
         document.getElementById('fecha-transito').addEventListener('change', async () => {
+            if (typeof window._transitoFechaManual === 'function') {
+                const ok = await window._transitoFechaManual();
+                if (ok) {
+                    if (!overlayTransitoOn) {
+                        overlayTransitoOn = true;
+                        const btn = document.getElementById('btn-overlay-transito');
+                        if (btn) { btn.textContent = 'Superponer tránsito: ON'; btn.classList.add('on'); }
+                    }
+                    repintarTodo();
+                    try { renderMapaTransitos(); } catch (err) {}
+                }
+                return;
+            }
             const d = await obtenerTransito(document.getElementById('fecha-transito').value);
             if (d) {
                 TRANSITO_ACTUAL = d;
@@ -5238,6 +5764,7 @@
                     if (btn) { btn.textContent = 'Superponer tránsito: ON'; btn.classList.add('on'); }
                 }
                 repintarTodo();
+                try { renderMapaTransitos(); } catch (err) {}
             }
         });
 
@@ -5432,6 +5959,9 @@
                     if (em) EMOJI_PUERTA[gate] = em;
                 });
             } catch (e) {}
+            // Si la capa todavía no está dibujada no se cachea el vacío: la
+            // próxima consulta vuelve a leer el SVG.
+            if (!Object.keys(EMOJI_PUERTA).length) { EMOJI_PUERTA = null; return {}; }
             return EMOJI_PUERTA;
         }
         function _diaCortoMVD(ms) {
@@ -7996,8 +8526,20 @@
                     if (gtWrap.classList.contains('abierta')) { try { actualizarGraficaTransitos(); } catch (e) {} }
                 });
             }
-            // Grupos laterales (P1 y P2) plegables, con memoria abierto/cerrado
-            // (localStorage dhLat_<caja>); si no hay nada guardado inician cerrados.
+            // Mapa de tránsitos: plegable, abierto por defecto.
+            const tmWrap = document.getElementById('card-transitos-mapa');
+            if (tmWrap) {
+                let tmAbierto = null;
+                try { tmAbierto = localStorage.getItem('dhMapaTransitosAbierto'); } catch (e) {}
+                if (tmAbierto === '0') tmWrap.classList.add('colapsada');
+                else tmWrap.classList.remove('colapsada');
+                const tmTog = tmWrap.querySelector('h4.desplegable');
+                if (tmTog) tmTog.addEventListener('click', () => {
+                    tmWrap.classList.toggle('colapsada');
+                    try { localStorage.setItem('dhMapaTransitosAbierto', tmWrap.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                    if (!tmWrap.classList.contains('colapsada')) { try { tmAplicarVista(); } catch (e) {} }
+                });
+            }
             document.querySelectorAll('.panel-lateral .card > h4').forEach(h => {
                 h.classList.add('desplegable');
                 if (!h.title) h.title = 'Clic para plegar/desplegar';
@@ -8030,7 +8572,7 @@
                 if (!cont) return;
                 const KEY = 'dhOrdenCentralV2';
                 const DEFECTO = ['panel-controles', 'card-contactos', 'card-briefing', 'card-sernoser', 'filtros-lista-wrap',
-                    'card-grafica-transitos-3-7', 'card-transitos-contacto', 'card-timeline-svg', 'card-autoconocimiento'];
+                    'card-grafica-transitos-3-7', 'card-transitos-mapa', 'card-transitos-contacto', 'card-timeline-svg', 'card-autoconocimiento'];
                 const esMovible = (el) => el && el.tagName === 'DIV' && !el.classList.contains('graficos-fila');
                 const lista = () => [...cont.children].filter(esMovible);
                 const porId = () => { const m = {}; lista().forEach(p => { if (p.id) m[p.id] = p; }); return m; };
@@ -8041,8 +8583,12 @@
                     if (Array.isArray(orden) && orden.length) {
                         const m = porId();
                         let ok = false;
-                        orden.forEach(id => { if (m[id]) { cont.appendChild(m[id]); ok = true; } });
+                        const vistos = new Set();
+                        orden.forEach(id => { if (m[id]) { cont.appendChild(m[id]); vistos.add(id); ok = true; } });
                         if (!ok) { const m2 = porId(); DEFECTO.forEach(id => { if (m2[id]) cont.appendChild(m2[id]); }); }
+                        // Paneles nuevos que no estaban en el orden guardado: al final,
+                        // sin perder su lugar respecto del resto.
+                        lista().forEach(p => { if (p.id && !vistos.has(p.id) && !orden.includes(p.id)) cont.appendChild(p); });
                         if (!orden.includes('card-autoconocimiento')) { const m3 = porId(); if (m3['card-autoconocimiento']) cont.appendChild(m3['card-autoconocimiento']); }
                     }
                 } catch (e) {
@@ -9039,29 +9585,235 @@
                 return Math.max(0, Math.min(365, n));
             };
             let baseMs = null;
-            let cambioDesdeSlider = false;
+            let msActual = null;
+            let cache = null;          // {key, filas, paso}
+            let cacheProm = null;      // {key, p}
+            let cacheSeq = 0;
+            let ultimaClave = '';
+            let rafPend = null;
+            let activando = null;
+            // Repintado agrupado: rAF para suavidad y, si el navegador no entrega
+            // frames (pestaña oculta o minimizada), un respaldo por tiempo.
+            const programarRepintado = () => {
+                if (rafPend) return; // ya hay uno encolado: coalesce
+                let hecho = false;
+                const pintar = () => {
+                    if (hecho) return;
+                    hecho = true;
+                    rafPend = null;
+                    try { transitoRepintarGraficos(); } catch (e) { console.error(e); }
+                };
+                rafPend = requestAnimationFrame(pintar);
+                setTimeout(pintar, 120);
+            };
+            const DAY = 86400000;
+            const vSlider = document.getElementById('transito-slider-v');
+            const rail = document.getElementById('transito-rail');
+            const railMin = document.getElementById('transito-rail-min');
+            const railMax = document.getElementById('transito-rail-max');
+            const railTime = document.getElementById('transito-rail-time');
+            const ahoraMVDms = () => {
+                const d = new Date(Date.now() - 3 * 3600000);
+                return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes()).getTime();
+            };
             const leerBase = () => {
                 const v = elFecha.value;
                 const d = v ? new Date(v) : new Date();
-                if (isNaN(d)) return Date.now();
+                if (isNaN(d)) return ahoraMVDms();
                 return d.getTime();
             };
+            const rango = () => ({ a: parseNum(elAtras.value, 7), d: parseNum(elAdel.value, 7) });
+            const claveDetalle = (det) => (det || []).map(d => `${d.planeta}:${d.puerta}:${d.linea}`).sort().join('|');
+            const nombreTransito = (ms) => {
+                const d = new Date(ms);
+                return `Transito ${p2(d.getDate())}-${p2(d.getMonth() + 1)}-${String(d.getFullYear()).slice(2)} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+            };
             const etiqueta = () => {
-                const off = parseInt(slider.value || '0', 10) || 0;
-                const ms = (baseMs == null ? leerBase() : baseMs) + off * 86400000;
-                const s = off === 0 ? 'hoy' : ((off > 0 ? '+' : '') + off + 'd');
+                const ms = msActual == null ? baseMs : msActual;
+                const dif = (ms - baseMs) / DAY;
+                const s = Math.abs(dif) < 0.01 ? 'hoy' : ((dif > 0 ? '+' : '') + (Math.round(dif * 10) / 10) + 'd');
                 if (lblFecha) lblFecha.textContent = `${s} — ${fmtCorto(ms)}`;
+                if (railMin || railMax) {
+                    const r = rango();
+                    if (railMin) railMin.textContent = `−${r.a}d`;
+                    if (railMax) railMax.textContent = `+${r.d}d`;
+                }
+                if (railTime) {
+                    const d = new Date(ms);
+                    railTime.innerHTML = `<b>${p2(d.getDate())}/${p2(d.getMonth() + 1)}</b>${p2(d.getHours())}:${p2(d.getMinutes())}`;
+                    railTime.title = `Hora única del tránsito: ${fmtCorto(ms)} — clic para volver a la base`;
+                }
+            };
+            const actualizarHoraMapa = (ms) => {
+                const txt = _fmtFechaMVD(ms);
+                const h = document.getElementById('tm-hora');
+                if (h) h.textContent = '🕒 ' + txt;
+                tmMarcarAhora(ms);
             };
             const aplicarRango = (guardar) => {
-                const a = parseNum(elAtras.value, 7), d = parseNum(elAdel.value, 7);
-                elAtras.value = String(a); elAdel.value = String(d);
-                slider.min = String(-a); slider.max = String(d);
+                const r = rango();
+                elAtras.value = String(r.a); elAdel.value = String(r.d);
+                slider.min = String(-r.a); slider.max = String(r.d);
                 let v = parseInt(slider.value || '0', 10) || 0;
-                v = Math.max(-a, Math.min(d, v));
+                v = Math.max(-r.a, Math.min(r.d, v));
                 slider.value = String(v);
-                if (guardar !== false) { try { localStorage.setItem(KEY_RANGO, JSON.stringify({ a, d })); } catch (e) {} }
+                if (vSlider) {
+                    vSlider.min = '0';
+                    vSlider.max = String((r.a + r.d) * 1440);
+                    vSlider.step = '10';
+                }
+                if (guardar !== false) { try { localStorage.setItem(KEY_RANGO, JSON.stringify(r)); } catch (e) {} }
                 etiqueta();
             };
+            const snapshotDeCache = (ms) => {
+                if (!cache || !Array.isArray(cache.filas) || !cache.filas.length) return null;
+                const filas = cache.filas;
+                let lo = 0, hi = filas.length - 1;
+                while (lo < hi) {
+                    const mid = (lo + hi) >> 1;
+                    if (filas[mid].t < ms) lo = mid + 1; else hi = mid;
+                }
+                let idx = lo;
+                if (idx > 0 && Math.abs(filas[idx - 1].t - ms) < Math.abs(filas[idx].t - ms)) idx--;
+                const f = filas[idx];
+                const detalle = (f.planetas || []).map(p => ({ planeta: p.planeta, puerta: p.puerta, linea: p.linea }));
+                return {
+                    nombre: nombreTransito(ms),
+                    t_ms: ms,
+                    inconscientes: [],
+                    conscientes: (f.puertas || []).slice().sort((a, b) => a - b),
+                    detalle
+                };
+            };
+            const aplicarSnapshot = (ms, pintar) => {
+                const snap = snapshotDeCache(ms);
+                if (!snap) return false;
+                const clave = claveDetalle(snap.detalle) + '#' + snap.conscientes.join(',');
+                TRANSITO_ACTUAL = snap;
+                msActual = ms;
+                actualizarHoraMapa(ms);
+                if (clave !== ultimaClave) {
+                    ultimaClave = clave;
+                    if (pintar !== false) programarRepintado();
+                }
+                return true;
+            };
+            async function cacheCargar(force) {
+                if (!baseMs) baseMs = leerBase();
+                const r = rango();
+                const desde = new Date(baseMs - r.a * DAY);
+                const hasta = new Date(baseMs + r.d * DAY);
+                const horas = Math.max(1, (hasta - desde) / 3600000);
+                // 1h para ventanas cortas (precisión del overlay), más grueso solo si el rango es enorme.
+                const paso = horas <= 24 * 10 ? 1 : (horas <= 24 * 30 ? 2 : 4);
+                const key = `${fmtLocal(desde)}|${fmtLocal(hasta)}|${paso}`;
+                if (!force && cache && cache.key === key) return cache;
+                if (cacheProm && cacheProm.key === key) return cacheProm.p;
+                const seq = ++cacheSeq;
+                const p = (async () => {
+                    const resp = await fetch('/api/transitos_rango', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ desde: fmtLocal(desde), hasta: fmtLocal(hasta), paso_horas: paso })
+                    });
+                    const j = await resp.json();
+                    if (!resp.ok) throw new Error(j.error || 'Error batch');
+                    const filas = (j.filas || []).slice().sort((x, y) => x.t - y.t);
+                    if (!filas.length) throw new Error('Sin datos');
+                    return { key, filas, paso };
+                })();
+                cacheProm = { key, p };
+                try {
+                    const c = await p;
+                    if (seq === cacheSeq) {
+                        cache = c;
+                        // Serie de la línea de tiempo (tramos de centros y planetas).
+                        TRANSITO_SERIE = tmSerieDesdeFilas(c.filas);
+                    }
+                    return c;
+                } catch (e) {
+                    console.error('transitos_rango:', e);
+                    return null;
+                } finally {
+                    if (cacheProm && cacheProm.p === p) cacheProm = null;
+                }
+            }
+            function fijarTiempo(ms, opts) {
+                opts = opts || {};
+                if (!baseMs) baseMs = leerBase();
+                const r = rango();
+                const ini = baseMs - r.a * DAY, fin = baseMs + r.d * DAY;
+                ms = Math.max(ini, Math.min(fin, ms));
+                ms = Math.round(ms / 60000) * 60000;
+                msActual = ms;
+                elFecha.value = fmtLocal(new Date(ms));
+                slider.value = String(Math.max(-r.a, Math.min(r.d, Math.round((ms - baseMs) / DAY))));
+                if (vSlider) vSlider.value = String(Math.max(0, Math.min((r.a + r.d) * 1440, Math.round((ms - ini) / 60000))));
+                etiqueta();
+                if (overlayTransitoOn) {
+                    if (!aplicarSnapshot(ms, opts.pintar)) {
+                        // Cache todavía no lista (p. ej. cambio manual de fecha): reintentar al llegar.
+                        cacheCargar().then(c => { if (c && msActual === ms) aplicarSnapshot(ms, opts.pintar); });
+                    }
+                }
+                return ms;
+            }
+            async function activarOverlay() {
+                if (!elFecha.value) elFecha.value = fmtLocal(new Date(ahoraMVDms()));
+                baseMs = leerBase();
+                if (msActual == null) {
+                    const off = parseInt(slider.value || '0', 10) || 0;
+                    msActual = baseMs + off * DAY;
+                }
+                const c = await cacheCargar(true);
+                if (c) {
+                    aplicarSnapshot(msActual, false);
+                } else {
+                    const d = await obtenerTransito(fmtLocal(new Date(msActual)));
+                    if (!d) return false;
+                    TRANSITO_ACTUAL = d;
+                    ultimaClave = claveDetalle(d.detalle) + '#' + (d.conscientes || []).join(',');
+                }
+                if (rail) { rail.classList.add('visible'); rail.setAttribute('aria-hidden', 'false'); }
+                fijarTiempo(msActual, { pintar: false });
+                return true;
+            }
+            function desactivarOverlay() {
+                if (rail) { rail.classList.remove('visible'); rail.setAttribute('aria-hidden', 'true'); }
+                try { renderMapaTransitos(); } catch (e) {}
+            }
+            async function fechaManual() {
+                baseMs = leerBase();
+                cache = null; cacheProm = null; cacheSeq++;
+                msActual = baseMs;
+                aplicarRango(false);
+                fijarTiempo(msActual, { pintar: false });
+                const d = await obtenerTransito(fmtLocal(new Date(msActual)));
+                if (d) {
+                    TRANSITO_ACTUAL = d;
+                    ultimaClave = claveDetalle(d.detalle) + '#' + (d.conscientes || []).join(',');
+                    actualizarHoraMapa(msActual);
+                }
+                cacheCargar(true);
+                return !!d;
+            }
+            async function asegurarOverlayDesdeSlider() {
+                if (overlayTransitoOn) return;
+                if (activando) return activando;
+                activando = (async () => {
+                    if (btnOverlay) btnOverlay.textContent = 'Cargando...';
+                    const ok = await activarOverlay();
+                    if (ok) {
+                        overlayTransitoOn = true;
+                        if (btnOverlay) { btnOverlay.textContent = 'Superponer tránsito: ON'; btnOverlay.classList.add('on'); }
+                        try { repintarTodo(); } catch (e) {}
+                        try { renderMapaTransitos(); } catch (e) {}
+                    } else if (btnOverlay) {
+                        btnOverlay.textContent = 'Superponer tránsito: OFF';
+                    }
+                })();
+                try { await activando; } finally { activando = null; }
+            }
             try {
                 const g = JSON.parse(localStorage.getItem(KEY_RANGO) || 'null');
                 if (g && typeof g === 'object') {
@@ -9069,38 +9821,50 @@
                     if (g.d != null) elAdel.value = String(parseNum(g.d, 7));
                 }
             } catch (e) {}
-            // La fecha base la fija el init principal (Montevideo ahora); leerla aquí.
+            // La fecha base la fija el init principal (Montevideo ahora); si aún
+            // no está, la fijamos acá con la misma convención UTC-3.
+            if (!elFecha.value) elFecha.value = fmtLocal(new Date(ahoraMVDms()));
             baseMs = leerBase();
+            msActual = baseMs + (parseInt(slider.value || '0', 10) || 0) * DAY;
             aplicarRango(false);
-            let tDeb = null;
-            const empujarFecha = () => {
-                clearTimeout(tDeb);
-                tDeb = setTimeout(() => {
-                    const off = parseInt(slider.value || '0', 10) || 0;
-                    const ms = baseMs + off * 86400000;
-                    cambioDesdeSlider = true;
-                    elFecha.value = fmtLocal(new Date(ms));
-                    etiqueta();
-                    try {
-                        if (typeof overlayTransitoOn !== 'undefined' && overlayTransitoOn) {
-                            elFecha.dispatchEvent(new Event('change', { bubbles: true }));
-                        } else if (btnOverlay) {
-                            btnOverlay.click(); // enciende el overlay con la nueva fecha
-                        }
-                    } finally {
-                        setTimeout(() => { cambioDesdeSlider = false; }, 50);
-                    }
-                    try { moverCursorEvol(); } catch (e) {}
-                }, 280);
-            };
-            slider.addEventListener('input', () => { etiqueta(); empujarFecha(); });
-            elAtras.addEventListener('change', () => { aplicarRango(true); try { progEvolAuto(); } catch (e) {} });
-            elAdel.addEventListener('change', () => { aplicarRango(true); try { progEvolAuto(); } catch (e) {} });
-            elFecha.addEventListener('change', () => {
-                if (cambioDesdeSlider) return; // la base no cambia: es base+offset
-                baseMs = leerBase();
-                slider.value = '0';
-                etiqueta();
+            fijarTiempo(msActual, { pintar: false });
+            window._transitoActivar = activarOverlay;
+            window._transitoDesactivar = desactivarOverlay;
+            window._transitoFechaManual = fechaManual;
+            // Deslizador vertical: recorre toda la ventana minuto a minuto.
+            if (vSlider) vSlider.addEventListener('input', () => {
+                const r = rango();
+                const ini = baseMs - r.a * DAY;
+                const ms = ini + (parseInt(vSlider.value || '0', 10) || 0) * 60000;
+                fijarTiempo(ms);
+                try { moverCursorEvol(); } catch (e) {}
+                if (!overlayTransitoOn) asegurarOverlayDesdeSlider();
+            });
+            if (railTime) railTime.addEventListener('click', () => {
+                fijarTiempo(baseMs);
+                try { moverCursorEvol(); } catch (e) {}
+            });
+            slider.addEventListener('input', () => {
+                const off = parseInt(slider.value || '0', 10) || 0;
+                fijarTiempo(baseMs + off * DAY);
+                try { moverCursorEvol(); } catch (e) {}
+                if (!overlayTransitoOn) asegurarOverlayDesdeSlider();
+            });
+            elAtras.addEventListener('change', () => {
+                aplicarRango(true);
+                cache = null; cacheProm = null; cacheSeq++;
+                if (overlayTransitoOn) {
+                    cacheCargar(true).then(c => { if (c) fijarTiempo(msActual); });
+                }
+                try { progEvolAuto(); } catch (e) {}
+            });
+            elAdel.addEventListener('change', () => {
+                aplicarRango(true);
+                cache = null; cacheProm = null; cacheSeq++;
+                if (overlayTransitoOn) {
+                    cacheCargar(true).then(c => { if (c) fijarTiempo(msActual); });
+                }
+                try { progEvolAuto(); } catch (e) {}
             });
 
             // --- Gráfica 5 curvas bajo Contactos ---
@@ -10039,11 +10803,16 @@
                     h += '<div style="margin-top:8px;text-align:center;font-size:13px">🌟 Alineación total, sin puntos de fuga.</div>';
                 }
                 if (inf) inf.innerHTML = h;
-                if (est) est.textContent = 'Calculado.';
+                // Autoguardado: calcular la alineación ya deja el resultado en bases (test.csv).
+                if (nResp > 0) {
+                    if (est) est.textContent = 'Calculado.';
+                    try { guardarSerNoSer(true); } catch (e3) {}
+                } else if (est) {
+                    est.textContent = 'Respondé al menos una pregunta para guardar.';
+                }
             }
             document.addEventListener('click', function(e){
                 if (e.target && e.target.id === 'btn-sernoser') calcular();
-                if (e.target && e.target.id === 'btn-sernoser-guardar') guardarSerNoSer();
                 var mb = e.target && e.target.closest ? e.target.closest('#sernoser-mas button[data-snmas]') : null;
                 if (mb) {
                     var k = mb.getAttribute('data-snmas');
@@ -10064,13 +10833,16 @@
                     b.classList.toggle('on', !!(window._snMas && window._snMas[b.getAttribute('data-snmas')]));
                 });
             } catch (e) {}
-            function guardarSerNoSer(){
+            function guardarSerNoSer(desdeCalcular){
                 var est = document.getElementById('sernoser-estado');
                 var ps = window._sernoserPreguntas || [];
                 var vals = window._sernoserVals;
                 if (!ps.length) { if (est) est.textContent = 'Primero elegí Persona 1.'; return; }
-                if (!vals) calcular();
-                vals = window._sernoserVals || [];
+                if (!vals) {
+                    if (desdeCalcular) return;
+                    calcular();
+                    return;
+                }
                 var alin = window._sernoserAlin || 0;
                 var nom = '';
                 try { nom = (window._bioP1 || (document.getElementById('selector-persona-a') || {}).value || '').trim(); } catch (e) {}
@@ -10115,694 +10887,52 @@
             render();
         })();
 
-        // ---------- Briefing del día: qué enfrenta P1 con los tránsitos (+P2 si está) ----------
-        // Se dispara solo al elegir P1/P2 y con el botón Actualizar. Usa el sistema de
-        // jobs IA (modo briefing = respuesta brevísima) y el batch de tránsitos.
+        // ---------- Briefing diario: AYER / HOY / MAÑANA (sin IA) ----------
         (function initBriefing(){
             const btn = document.getElementById('btn-briefing');
             const est = document.getElementById('briefing-estado');
             const txt = document.getElementById('briefing-txt');
             if (!btn || !est || !txt) return;
+            let corriendo = false, tProg = null;
             function escB(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-            // Markdown-lite para respuestas IA: **negrita**, viñetas "- "/"* ", saltos.
             function mdLite(s){
                 let e = escB(s);
                 e = e.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-                e = e.split('\n').map(l => {
-                    const m = l.match(/^\s*[-*]\s+(.*)$/);
-                    return m ? '• ' + m[1] : l;
-                }).join('<br>');
-                return e;
+                return e.replace(/\n/g, '<br>');
             }
-            function canalesBase(){
-                const set = new Set();
-                try {
-                    document.querySelectorAll('#svg-persona-a svg [id^="c"], #svg-compuesto svg [id^="c"]').forEach(el => {
-                        const m = el.id.match(/^c(\d+)-(\d+)$/);
-                        if (m) set.add(normCanalKey(m[1] + '-' + m[2]));
-                    });
-                } catch (e) {}
-                try { (window._canalesA || []).forEach(k => set.add(normCanalKey(k))); } catch (e) {}
-                try { (window._canalesB || []).forEach(k => set.add(normCanalKey(k))); } catch (e) {}
-                return [...set].sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
-            }
-            function esElectro(setX, setT, k){
-                const p = String(k).split('-').map(Number);
-                if (p.length !== 2 || p.some(isNaN)) return false;
-                const x1 = setX.has(p[0]), x2 = setX.has(p[1]), t1 = setT.has(p[0]), t2 = setT.has(p[1]);
-                return (x1 && !x2 && !t1 && t2) || (x2 && !x1 && !t2 && t1);
-            }
-            function esCompleto(set, k){
-                const p = String(k).split('-').map(Number);
-                return p.length === 2 && !p.some(isNaN) && set.has(p[0]) && set.has(p[1]);
-            }
-            function descCentroCorta(nombre){
-                try {
-                    const d = (typeof centroDescMap !== 'undefined') ? (centroDescMap[String(nombre).toLowerCase() + '|definido'] || '') : '';
-                    let s = _unaLineaInforme(String(d).split('\n')[0]);
-                    return s.length > 220 ? s.slice(0, 220) + '…' : s;
-                } catch (e) { return ''; }
-            }
-            function descCanalCorto(k){
-                try {
-                    let d = (typeof canalDescMap !== 'undefined') ? (canalDescMap[normCanalKey(k)] || '') : '';
-                    if (d && typeof primeraLineaCanal === 'function') d = primeraLineaCanal(d);
-                    let s = _unaLineaInforme(d);
-                    return s.length > 160 ? s.slice(0, 160) + '…' : s;
-                } catch (e) { return ''; }
-            }
-            function fmtL(d){
-                const p = n => String(n).padStart(2, '0');
-                return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-            }
-            function fmtC(ms){
-                const d = new Date(ms);
-                const p = n => String(n).padStart(2, '0');
-                return `${p(d.getDate())}/${p(d.getMonth()+1)} ${p(d.getHours())}:${p(d.getMinutes())}`;
-            }
-            function diaKey(ms){
-                const d = new Date(ms);
-                return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-            }
-            // --- Ficha básica (Tipo, Autoridad, Centros, Puertas) cacheada por nombre ---
-            const _fichaCache = {};
-            try { window._fichaCache = _fichaCache; } catch (e) {}
-            async function fichaDe(nombre){
-                const n = String(nombre || '').trim();
-                if (!n) return null;
-                if (_fichaCache[n]) return _fichaCache[n];
-                try {
-                    const r = await fetch(`/api/ficha_basica?persona=${encodeURIComponent(n)}`);
-                    const f = await r.json();
-                    if (!r.ok || f.error) return null;
-                    _fichaCache[n] = f;
-                    return f;
-                } catch (e) { return null; }
-            }
-            // Diseño Natal para el prompt: Tipo · Autoridad · Centros Def/Abiertos · Perfil.
-            function lineaDiseno(etiqueta, ficha, data){
-                if (!ficha || !ficha.tipo) return '';
-                const defs = ((ficha && ficha.centros_definidos) || []).join(', ') || '-';
-                const ab = ((ficha && ficha.centros_indefinidos) || []).join(', ') || '-';
-                return `${etiqueta}${ficha.tipo} · Autoridad ${ficha.autoridad || '-'} · Perfil ${ficha.perfil || '-'} · Centros definidos [${defs}] / abiertos [${ab}]`;
-            }
-            function listaPuertas(data, ficha){
-                const l = ((data && data.todas_puertas) || (ficha && ficha.puertas) || []).slice()
-                    .sort((a, b) => a - b);
-                return l.length ? l.join(', ') : '-';
-            }
-            function listaY(arr){
-                if (arr.length <= 1) return arr.join('');
-                return arr.slice(0, -1).join(', ') + ' y ' + arr[arr.length - 1];
-            }
-            function primeraPuertaCorta(g){
-                try {
-                    let d = (typeof puertaDescMap !== 'undefined') ? (puertaDescMap[String(g)] || '') : '';
-                    if (d && typeof primeraOracion === 'function') d = primeraOracion(d);
-                    let s = _unaLineaInforme(d);
-                    return s.length > 90 ? s.slice(0, 90) + '…' : s;
-                } catch (e) { return ''; }
-            }
-            function descLineaCorta(g, l){
-                try {
-                    if (typeof _descLineaInforme === 'function') {
-                        let s = _unaLineaInforme(_descLineaInforme(g, l));
-                        return s.length > 90 ? s.slice(0, 90) + '…' : s;
-                    }
-                    if (typeof lineaInfoMap !== 'undefined') {
-                        const info = lineaInfoMap[`${g}.${l}`] || {};
-                        let t = info.arquetipo ? String(info.arquetipo) : '';
-                        if (info.rasgo) t += (t ? ' — ' : '') + String(info.rasgo);
-                        t = _unaLineaInforme(t);
-                        return t.length > 90 ? t.slice(0, 90) + '…' : t;
-                    }
-                } catch (e) {}
-                return '';
-            }
-            function fmtPuertaLinea(g, l){
-                return (l != null && l !== '' && !isNaN(l)) ? `${g}.${l}` : `${g}`;
-            }
-            // Tránsitos Hoy/Ayer para el prompt: Puerta.línea (Planeta).
-            function listaTransito(planetas){
-                const arr = (planetas || []).slice().sort((a, b) => (a.puerta - b.puerta) || String(a.planeta).localeCompare(String(b.planeta)));
-                if (!arr.length) return '-';
-                return arr.map(d => `puerta ${fmtPuertaLinea(d.puerta, d.linea)} (${d.planeta})`).join(', ');
-            }
-            // Cambios del cielo de hoy contra ayer: qué puertas entran, cuáles salen y
-            // qué planeta cambia de puerta sin que la puerta entre o salga.
-            function cambiosTransito(hoy, ayer){
-                const puH = (hoy && hoy.puertas) || [], puA = (ayer && ayer.puertas) || [];
-                const plH = (hoy && hoy.planetas) || [], plA = (ayer && ayer.planetas) || [];
-                const setH = new Set(puH), setA = new Set(puA);
-                const detPuerta = (p, lista) => lista.filter(d => d.puerta === p).map(d => ({
-                    planeta: d.planeta, linea: d.linea, pl: fmtPuertaLinea(d.puerta, d.linea)
-                }));
-                const eDet = puH.filter(p => !setA.has(p)).sort((a, b) => a - b)
-                    .map(p => ({p, det: detPuerta(p, plH),
-                        planetas: plH.filter(d => d.puerta === p).map(d => d.planeta)}));
-                const sDet = puA.filter(p => !setH.has(p)).sort((a, b) => a - b)
-                    .map(p => ({p, det: detPuerta(p, plA),
-                        planetas: plA.filter(d => d.puerta === p).map(d => d.planeta)}));
-                const ent = eDet.map(d => `puerta ${(d.det || []).map(x => x.pl).join('/') || d.p} (${(d.planetas || []).join(', ') || '?'})`);
-                const sal = sDet.map(d => `puerta ${(d.det || []).map(x => x.pl).join('/') || d.p} (${(d.planetas || []).join(', ') || '?'})`);
-                const art = pl => (pl === 'Luna' || pl === 'Tierra' ? 'La' : 'El');
-                const mov = [];
-                plH.forEach(d => {
-                    const prev = plA.find(x => x.planeta === d.planeta);
-                    if (!prev || (prev.puerta === d.puerta && prev.linea === d.linea)) return;  // no se movió
-                    if (!setA.has(d.puerta)) return;                 // ya aparece como "Entra"
-                    mov.push(`${art(d.planeta)} ${d.planeta} pasa a la ${fmtPuertaLinea(d.puerta, d.linea)}.`);
-                });
-                // Líneas del prompt: Entran, Salen y la nota del planeta pegada a la última.
-                const lineas = [];
-                if (ent.length) lineas.push('Entran: ' + listaY(ent) + '.');
-                if (sal.length) lineas.push('Salen: ' + listaY(sal) + '.');
-                if (mov.length) {
-                    if (lineas.length) lineas[lineas.length - 1] += ' ' + mov.join(' ');
-                    else lineas.push(mov.join(' '));
-                }
-                return {entraDet: eDet, saleDet: sDet, mov: mov, lineas: lineas,
-                        texto: lineas.length ? lineas.join('\n') : 'Sin cambios de puertas del tránsito.'};
-            }
-            // Ventana real (no solo 2 fotos): recorre los slots entre i0 e i1 y junta
-            // todo lo que entró/salió en el medio. Así se ven los pasos de la Luna (~10h
-            // por puerta, ~2h por línea) aunque entre y salga dentro del día.
-            function ventanaPuertas(pts, i0, i1){
-                const entra = new Map(), sale = new Map(), luna = [];
-                for (let i = Math.max(1, i0 + 1); i <= Math.min(i1, pts.length - 1); i++) {
-                    const a = pts[i - 1], b = pts[i];
-                    const setA = new Set(a.puertas || []), setB = new Set(b.puertas || []);
-                    (b.puertas || []).filter(p => !setA.has(p)).forEach(p => {
-                        if (!entra.has(p)) {
-                            const d = (b.planetas || []).filter(x => x.puerta === p);
-                            entra.set(p, {p, t: b.t, planetas: d.map(x => x.planeta),
-                                pls: d.map(x => fmtPuertaLinea(x.puerta, x.linea))});
-                        }
-                    });
-                    (a.puertas || []).filter(p => !setB.has(p)).forEach(p => {
-                        if (!sale.has(p)) {
-                            const d = (a.planetas || []).filter(x => x.puerta === p);
-                            sale.set(p, {p, t: a.t, planetas: d.map(x => x.planeta),
-                                pls: d.map(x => fmtPuertaLinea(x.puerta, x.linea))});
-                        }
-                    });
-                    try {
-                        const l = (b.planetas || []).find(x => x.planeta === 'Luna');
-                        if (l) {
-                            const pl = fmtPuertaLinea(l.puerta, l.linea);
-                            if (!luna.length || luna[luna.length - 1].pl !== pl) luna.push({pl, t: b.t});
-                        }
-                    } catch (e) {}
-                }
-                return {entra: [...entra.values()], sale: [...sale.values()], luna};
-            }
-            function ventanaCanales(pts, i0, i1, campo){
-                const entra = new Map(), sale = new Map();
-                for (let i = Math.max(1, i0 + 1); i <= Math.min(i1, pts.length - 1); i++) {
-                    const a = new Set(pts[i - 1][campo] || []), b = new Set(pts[i][campo] || []);
-                    [...b].filter(k => !a.has(k)).forEach(k => { if (!entra.has(k)) entra.set(k, {k, t: pts[i].t}); });
-                    [...a].filter(k => !b.has(k)).forEach(k => { if (!sale.has(k)) sale.set(k, {k, t: pts[i - 1].t}); });
-                }
-                return {entra: [...entra.keys()], sale: [...sale.keys()]};
-            }
-            // Párrafo preliminar SIN IA: un solo párrafo armado con los datos calculados.
-            // Guía fija por Tipo y Autoridad (base_informe_ia.txt): la IA no decide, solo redacta.
-            const GUIA_TIPO = {
-                'Manifestador': 'informá antes de actuar',
-                'Generador': 'respondé a lo que llegue, no inicies',
-                'Generador Manifestante': 'respondé primero y recién después iniciá',
-                'Proyector': 'actuá solo si hay una invitación clara',
-                'Reflector': 'dejá pasar el ciclo antes de moverte'
-            };
-            const GUIA_AUTORIDAD = {
-                'Emocional': 'no decidas hoy: dormí la ola y fijate si sigue igual',
-                'Sacral': 'decidí sí o no en el momento desde el cuerpo',
-                'Esplénica': 'hacé caso al primer aviso del cuerpo',
-                'del Ego': 'actuá solo si te lo piden',
-                'Autoproyectada': 'hablate en voz alta y escuchate',
-                'Mental': 'no decidas solo: pedí guía',
-                'Lunar': 'esperá el ciclo de 28 días'
-            };
-            function bajaLetra(s){ s = String(s || ''); return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; }
-            function parrafoPreliminar(o){
-                // o: {te, canalesHoy, canalesAyer, centrosHoy, centrosAyer, baseSet, camb, durTxt, ficha}
-                const chH = (o.canalesHoy || []).slice(), chA = (o.canalesAyer || []) || [];
-                const nuevos = chH.filter(k => !chA.includes(k));
-                const perdidos = chA.filter(k => !chH.includes(k));
-                const siguen = chH.filter(k => chA.includes(k));
-                const descC = k => { try { return descCanalCorto(k) || ''; } catch (e) { return ''; } };
-                const s1 = nuevos.length
-                    ? `Hoy se completan ${nuevos.length === 1 ? 'el canal' : 'los canales'} ` + listaY(nuevos.map(k => {
-                        const d = descC(k);
-                        return d ? `${k} (${bajaLetra(d)})` : k;
-                    })) + ` que ayer no ${nuevos.length === 1 ? 'cerraba' : 'cerraban'}`
-                    : 'Hoy no se forma ningún canal nuevo respecto a ayer';
-                const det = (o.camb && o.camb.entraDet) || [];
-                const dst = (o.camb && o.camb.saleDet) || [];
-                const ent = det.length
-                    ? `entra${det.length === 1 ? '' : 'n'} ` + listaY(det.map(d => {
-                        const pl = ((d.det || []).map(x => x.pl).join('/') || d.p);
-                        const lin = (d.det && d.det[0]) ? d.det[0].linea : null;
-                        const dp = primeraPuertaCorta(d.p);
-                        const dl = (lin != null) ? descLineaCorta(d.p, lin) : '';
-                        let extra = dp ? ' (' + bajaLetra(dp) : '';
-                        if (dl) extra += (extra ? ' — ' : ' (') + bajaLetra(dl);
-                        if (extra) extra += ')';
-                        return `${listaY(d.planetas)} en la puerta ${pl}${extra}`;
-                    }))
-                    : 'no entra ninguna puerta nueva';
-                const sal = dst.length
-                    ? `sale${dst.length === 1 ? '' : 'n'} ` + listaY(dst.map(d => {
-                        const pl = ((d.det || []).map(x => x.pl).join('/') || d.p);
-                        const dp = primeraPuertaCorta(d.p);
-                        return `la ${pl} (${listaY(d.planetas)}${dp ? ' — ' + bajaLetra(dp) : ''})`;
-                    }))
-                    : 'no sale ninguna puerta';
-                const mov = ((o.camb && o.camb.mov) || []).map(m => {
-                    let t = bajaLetra(String(m || '').trim());
-                    if (t.endsWith('.')) t = t.slice(0, -1);
-                    return t;
-                }).filter(Boolean);
-                const s2 = `${s1}; ${ent}, mientras ${sal}${mov.length ? ' — ' + mov.join(' ') : ''}`;
-                const s3base = siguen.length
-                    ? `. Siguen activos ${siguen.length === 1 ? 'el canal' : 'los canales'} ${listaY(siguen)}`
-                    : '. Ningún canal de ayer sigue activo';
-                const s3 = perdidos.length
-                    ? s3base + `; se apagan ${listaY(perdidos.map(k => {
-                        const d = descC(k);
-                        return d ? `${k} (${bajaLetra(d)})` : k;
-                    }))}`
-                    : s3base;
-                const cenN = (o.centrosHoy || []).filter(c =>
-                    !(o.centrosAyer || []).includes(c) && !(o.baseSet || new Set()).has(c)).sort();
-                const s4 = cenN.length
-                    ? `. El tránsito ${o.te ? 'te' : 'le'} define ${listaY(cenN.map(c => {
-                          try {
-                              const e = (o.durTxt || []).find(x => x.cen === c);
-                              return e ? `${c} (${e.dur})` : c;
-                          } catch (err) { return c; }
-                      }))}`
-                    : `. El tránsito no ${o.te ? 'te' : 'le'} define centros nuevos`;
-                const gT = (o.ficha && o.ficha.tipo && GUIA_TIPO[String(o.ficha.tipo)]) || '';
-                const gA = (o.ficha && o.ficha.autoridad && GUIA_AUTORIDAD[String(o.ficha.autoridad)]) || '';
-                const s5 = (gT || gA) ? `. Guía: ${[gT, gA].filter(Boolean).join('; ')}` : '';
-                const sV = (o.camb && o.camb.ventana) ? ` ${o.camb.ventana}` : '';
-                return s2 + s3 + s4 + s5 + '.' + sV;
-            }
-            // Prompt IA = nueva declaración (2 párrafos prosa max 500 palabras) con datos insertados.
-            function construirPromptIA(d){
-                const disenoTxt = (d.diseno || []).filter(Boolean).map((x, i) => {
-                    const nom = String((d.etiquetas || [])[i] || '').trim();
-                    const pre = (d.pareja && nom) ? `P${i + 1} ${nom}: ` : '';
-                    const pu = (d.puertas || [])[i] || '-';
-                    return `${pre}${x} · Puertas activas: ${pu}`;
-                }).join(' + ');
-                const baseDiseno = d.pareja
-                    ? `nuestro Diseño Compuesto [${disenoTxt || '-'}]`
-                    : `mi Diseño Natal [${disenoTxt || '-'}]`;
-                const hoyTxt = d.transHoy || d.puertasHoy || '-';
-                const ayerTxt = d.transAyer || '-';
-                let p = `Actúa como un analista experto en Diseño Humano y genera un informe diario práctico de dos parrafos prosa max 500 palabras. `
-                    + `Basándote en ${baseDiseno} y en los Tránsitos que habrá Hoy [${hoyTxt}] en comparación con los que hubo Ayer [${ayerTxt}], `
-                    + `analiza en un tono directo y enfocado en la acción: `
-                    + `1) Qué nuevos canales o centros se encienden hoy y qué tareas u oportunidades prácticas habilitan, `
-                    + `2) Qué energía del día anterior se retira y qué cambio de ritmo o actitud requiere, y `
-                    + `3) Una guía clave de 2 oraciones sobre cómo navegar este clima usando mi Estrategia y Autoridad sin engancharme en el No-Ser.`;
-                if (d.pareja) p += ` (Nota: Si es para pareja, reemplazar 'mi Diseño Natal' por 'nuestro Diseño Compuesto').`;
-                if (d.cambios && d.cambios !== 'Sin cambios de puertas del tránsito.') p += `\nCambios detectados: ${d.cambios}`;
-                return p;
-            }
-            let corriendo = false, tProg = null;
             async function actualizar(){
                 if (corriendo) return;
-                if (typeof dataPersonaA === 'undefined' || !dataPersonaA) {
-                    est.textContent = 'Elegí Persona 1 para generar el parte.';
-                    return;
-                }
+                const selA = document.getElementById('selector-persona-a');
+                const nom = (selA && selA.value) ? selA.value : '';
+                if (!nom) { est.textContent = 'Elegí Persona 1.'; txt.textContent = '-'; return; }
                 corriendo = true; btn.disabled = true;
-                est.textContent = 'Calculando tránsitos…';
-                txt.textContent = '…';
+                est.textContent = 'Calculando…';
                 try {
-                    const ahora = new Date();
-                    const d0 = new Date(ahora); d0.setDate(d0.getDate() - 3); d0.setHours(0, 0, 0, 0);
-                    const d1 = new Date(ahora); d1.setDate(d1.getDate() + 7); d1.setHours(23, 59, 0, 0);
-                    const r = await fetch('/api/transitos_rango', {method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({desde: fmtL(d0), hasta: fmtL(d1), paso_horas: 2})});
-                    const bj = await r.json();
-                    if (!r.ok) throw new Error(bj.error || 'Error tránsitos');
-                    const filas = (bj.filas || []).slice().sort((a, b) => a.t - b.t);
-                    if (!filas.length) throw new Error('Sin datos de tránsito');
-                    const base = canalesBase();
-                    const setA = new Set(dataPersonaA.todas_puertas || []);
-                    const hayB = (typeof dataPersonaB !== 'undefined') && !!dataPersonaB;
-                    const setB = hayB ? new Set(dataPersonaB.todas_puertas || []) : null;
-                    const nomA = selectorA.value, nomB = hayB ? selectorB.value : '';
-                    const pts = filas.map(row => {
-                        const setT = new Set(row.puertas || []);
-                        const union = new Set([...setA, ...setT]);
-                        const compCh = base.filter(k => esCompleto(union, k));
-                        let compCent = [];
-                        try { compCent = [..._centrosPropiosDesdeCanales(compCh)]; } catch (e) {}
-                        let compChB = [], compCentB = [];
-                        if (setB) {
-                            try {
-                                const unionB = new Set([...setB, ...setT]);
-                                compChB = base.filter(k => esCompleto(unionB, k));
-                                compCentB = [..._centrosPropiosDesdeCanales(compChB)];
-                            } catch (e) { compChB = []; compCentB = []; }
-                        }
-                        return {t: row.t, puertas: [...setT].sort((a, b) => a - b),
-                            planetas: row.planetas || [],
-                            electroA: base.filter(k => esElectro(setA, setT, k)),
-                            propioT: base.filter(k => esCompleto(setT, k)),
-                            compCh, compCent, compChB, compCentB,
-                            electroB: setB ? base.filter(k => esElectro(setB, setT, k)) : []};
-                    });
-                    let idxAhora = 0;
-                    pts.forEach((p, i) => { if (p.t <= ahora.getTime()) idxAhora = i; });
-                    const ah = pts[idxAhora];
-                    // --- Centros: qué le define el tránsito a P1, por cuántos días ---
-                    let baseCentA = new Set();
-                    try { baseCentA = _centrosPropiosDesdeCanales(window._canalesA || []); } catch (e) {}
-                    const compAh = new Set(ah.compCent || []);
-                    const nuevosAh = [...compAh].filter(c => !baseCentA.has(c)).sort();
-                    const durTxt = nuevosAh.map(cen => {
-                        let fin = idxAhora;
-                        while (fin + 1 < pts.length && (pts[fin + 1].compCent || []).includes(cen)) fin++;
-                        const dias = Math.round((pts[fin].t - ah.t) / 86400000);
-                        const dur = (fin === pts.length - 1) ? 'más de 7 días' : (dias <= 0 ? 'solo hoy' : `~${dias} días`);
-                        let vias = [];
-                        try {
-                            vias = (ah.compCh || []).filter(k => {
-                                const par = (typeof CANAL_CENTROS !== 'undefined') ? (CANAL_CENTROS[normCanalKey(k)] || []) : [];
-                                if (!par.includes(cen)) return false;
-                                const pp = String(k).split('-').map(Number);
-                                return !(setA.has(pp[0]) && setA.has(pp[1]));
-                            }).slice(0, 2);
-                        } catch (e) {}
-                        const viasTxt = vias.map(k => `(${normCanalKey(k)}) ${descCanalCorto(k)}`).join(' + ') || 'vía tránsito';
-                        const dc = descCentroCorta(cen);
-                        return {cen, dur,
-                            ctx: `${cen} (${dur}) — ${viasTxt}${dc ? ' — Centro: ' + dc : ''}`,
-                            html: `<strong>${escB(cen)}</strong> (${dur}) — ${escB(viasTxt)}${dc ? ' — ' + escB(dc) : ''}`};
-                    });
-                    let climaT = [];
-                    try { climaT = [..._centrosPropiosDesdeCanales(ah.propioT)]; } catch (e) {}
-                    const hoy0 = new Date(ahora); hoy0.setHours(0, 0, 0, 0);
-                    const centrosDia = {};
-                    pts.forEach(p => {
-                        if (p.t < hoy0.getTime()) return;
-                        const key = diaKey(p.t);
-                        if (!centrosDia[key]) centrosDia[key] = {ms: p.t, set: new Set()};
-                        (p.compCent || []).forEach(c => centrosDia[key].set.add(c));
-                    });
-                    const diasC = Object.keys(centrosDia).sort((a, b) => centrosDia[a].ms - centrosDia[b].ms).slice(0, 7);
-                    const centrosSem = diasC.map(k => {
-                        const nuevos = [...centrosDia[k].set].filter(c => !baseCentA.has(c)).sort();
-                        return `${fmtC(centrosDia[k].ms).split(' ')[0]}: ${nuevos.length ? '+' + nuevos.join(' +') : 'sin centros extra'}`;
-                    });
-                    const dcTxt = ah.electroA.map(k => {
-                        let ini = idxAhora;
-                        while (ini > 0 && pts[ini - 1].electroA.includes(k)) ini--;
-                        return `${k} (desde ${ini === 0 ? 'hace más de 3 días' : fmtC(pts[ini].t)})`;
-                    });
-                    const porDia = {};
-                    pts.forEach(p => {
-                        const key = diaKey(p.t);
-                        if (!porDia[key]) porDia[key] = {ms: p.t, set: new Set()};
-                        p.electroA.forEach(k => porDia[key].set.add(k));
-                        if (p.t < porDia[key].ms) porDia[key].ms = p.t;
-                    });
-                    const dias = Object.keys(porDia).sort((a, b) => porDia[a].ms - porDia[b].ms);
-                    const hoyK = diaKey(ahora.getTime());
-                    const cambios = [];
-                    for (let i = 1; i < dias.length && cambios.length < 8; i++) {
-                        if (diaKey(porDia[dias[i]].ms) < hoyK && dias[i] !== hoyK) continue;
-                        const ant = porDia[dias[i - 1]].set, act = porDia[dias[i]].set;
-                        const nuevos = [...act].filter(k => !ant.has(k));
-                        const pierden = [...ant].filter(k => !act.has(k));
-                        if (nuevos.length || pierden.length) {
-                            cambios.push(`${fmtC(porDia[dias[i]].ms).split(' ')[0]}: nuevo ${nuevos.join(' ') || '-'} · sale ${pierden.join(' ') || '-'}`);
-                        }
-                    }
-                    let centrosA = '';
-                    try { centrosA = [..._centrosPropiosDesdeCanales(window._canalesA || [])].sort().join(', '); } catch (e) {}
-                    const gA = [...setA].sort((a, b) => a - b).join(' ');
-                    const cA = (window._canalesA || []).map(normCanalKey).sort().join(' ') || '-';
-                    // --- P2: mismo análisis que P1 (centros que le define el tránsito, contactos, semana) ---
-                    let baseCentB = new Set(), durTxtB = [], centrosSemB = [], dcTxtB = [], cambiosB = [], centrosB = '';
-                    if (setB) {
-                        try { baseCentB = _centrosPropiosDesdeCanales(window._canalesB || []); } catch (e) { baseCentB = new Set(); }
-                        try { centrosB = [...baseCentB].sort().join(', '); } catch (e) {}
-                        const compAhB = new Set(ah.compCentB || []);
-                        const nuevosAhB = [...compAhB].filter(c => !baseCentB.has(c)).sort();
-                        durTxtB = nuevosAhB.map(cen => {
-                            let fin = idxAhora;
-                            while (fin + 1 < pts.length && (pts[fin + 1].compCentB || []).includes(cen)) fin++;
-                            const dias = Math.round((pts[fin].t - ah.t) / 86400000);
-                            const dur = (fin === pts.length - 1) ? 'más de 7 días' : (dias <= 0 ? 'solo hoy' : `~${dias} días`);
-                            let vias = [];
-                            try {
-                                vias = (ah.compChB || []).filter(k => {
-                                    const par = (typeof CANAL_CENTROS !== 'undefined') ? (CANAL_CENTROS[normCanalKey(k)] || []) : [];
-                                    if (!par.includes(cen)) return false;
-                                    const pp = String(k).split('-').map(Number);
-                                    return !(setB.has(pp[0]) && setB.has(pp[1]));
-                                }).slice(0, 2);
-                            } catch (e) {}
-                            const viasTxt = vias.map(k => `(${normCanalKey(k)}) ${descCanalCorto(k)}`).join(' + ') || 'vía tránsito';
-                            const dc = descCentroCorta(cen);
-                            return {cen, dur,
-                                ctx: `${cen} (${dur}) — ${viasTxt}${dc ? ' — Centro: ' + dc : ''}`,
-                                html: `<strong>${escB(cen)}</strong> (${dur}) — ${escB(viasTxt)}${dc ? ' — ' + escB(dc) : ''}`};
-                        });
-                        dcTxtB = ah.electroB.map(k => {
-                            let ini = idxAhora;
-                            while (ini > 0 && pts[ini - 1].electroB.includes(k)) ini--;
-                            return `${k} (desde ${ini === 0 ? 'hace más de 3 días' : fmtC(pts[ini].t)})`;
-                        });
-                        const centrosDiaB = {};
-                        pts.forEach(p => {
-                            if (p.t < hoy0.getTime()) return;
-                            const key = diaKey(p.t);
-                            if (!centrosDiaB[key]) centrosDiaB[key] = {ms: p.t, set: new Set()};
-                            (p.compCentB || []).forEach(c => centrosDiaB[key].set.add(c));
-                        });
-                        const diasCB = Object.keys(centrosDiaB).sort((a, b) => centrosDiaB[a].ms - centrosDiaB[b].ms).slice(0, 7);
-                        centrosSemB = diasCB.map(k => {
-                            const nuevos = [...centrosDiaB[k].set].filter(c => !baseCentB.has(c)).sort();
-                            return `${fmtC(centrosDiaB[k].ms).split(' ')[0]}: ${nuevos.length ? '+' + nuevos.join(' +') : 'sin centros extra'}`;
-                        });
-                        const porDiaB = {};
-                        pts.forEach(p => {
-                            const key = diaKey(p.t);
-                            if (!porDiaB[key]) porDiaB[key] = {ms: p.t, set: new Set()};
-                            (p.electroB || []).forEach(k => porDiaB[key].set.add(k));
-                            if (p.t < porDiaB[key].ms) porDiaB[key].ms = p.t;
-                        });
-                        const diasB = Object.keys(porDiaB).sort((a, b) => porDiaB[a].ms - porDiaB[b].ms);
-                        for (let i = 1; i < diasB.length && cambiosB.length < 8; i++) {
-                            if (diaKey(porDiaB[diasB[i]].ms) < hoyK && diasB[i] !== hoyK) continue;
-                            const ant = porDiaB[diasB[i - 1]].set, act = porDiaB[diasB[i]].set;
-                            const nuevos = [...act].filter(k => !ant.has(k));
-                            const pierden = [...ant].filter(k => !act.has(k));
-                            if (nuevos.length || pierden.length) {
-                                cambiosB.push(`${fmtC(porDiaB[diasB[i]].ms).split(' ')[0]}: nuevo ${nuevos.join(' ') || '-'} · sale ${pierden.join(' ') || '-'}`);
-                            }
-                        }
-                    }
-                    // --- Ayer: la fila del tránsito de hace 24h, para el contraste ---
-                    let idxAyer = 0;
-                    try {
-                        const tAyer = ahora.getTime() - 86400000;
-                        pts.forEach((p, i) => { if (p.t <= tAyer) idxAyer = i; });
-                    } catch (e) {}
-                    const ay = pts[Math.min(idxAyer, idxAhora)] || ah;
-                    const L = [];
-                    L.push(`BRIEFING — hoy ${fmtC(ahora.getTime())} (hora local).`);
-                    L.push(`P1 ${nomA}: puertas [${gA}] · perfil ${dataPersonaA.perfil || '?'} · canales propios ${cA} · centros ${centrosA || '-'}.`);
-                    if (setB) {
-                        const gB = [...setB].sort((a, b) => a - b).join(' ');
-                        const cB = (window._canalesB || []).map(normCanalKey).sort().join(' ') || '-';
-                        L.push(`P2 ${nomB}: puertas [${gB}] · perfil ${dataPersonaB.perfil || '?'} · canales propios ${cB} · centros ${centrosB || '-'}.`);
-                    } else L.push('P2: no cargada.');
-                    L.push(`TRÁNSITO AHORA (${fmtC(ah.t)}): puertas [${ah.puertas.join(' ')}].`);
-                    L.push(`CONTACTOS HOY tránsito↔P1: ${dcTxt.join(' | ') || 'ninguno'}.`);
-                    L.push(`CENTROS BASE P1 (sin tránsito): ${[...baseCentA].sort().join(', ') || 'ninguno'}.`);
-                    L.push(`ALERTA — CENTROS QUE EL TRÁNSITO LE DEFINE A P1 (presiones no acostumbradas):\n${durTxt.map(s => '- ' + s.ctx).join('\n') || '- ninguno hoy'}.`);
-                    L.push(`Canales completos DENTRO del tránsito (clima general): ${ah.propioT.join(' ') || '-'}.`);
-                    L.push(`Clima general (centros que el tránsito define por sí solo): ${climaT.sort().join(', ') || '-'}.`);
-                    if (setB) {
-                        L.push(`CONTACTOS HOY tránsito↔P2: ${dcTxtB.join(' | ') || 'ninguno'}.`);
-                        L.push(`CENTROS BASE P2 (sin tránsito): ${[...baseCentB].sort().join(', ') || 'ninguno'}.`);
-                        L.push(`ALERTA — CENTROS QUE EL TRÁNSITO LE DEFINE A P2 (presiones no acostumbradas):\n${durTxtB.map(s => '- ' + s.ctx).join('\n') || '- ninguno hoy'}.`);
-                        L.push(`PRÓXIMOS 7 DÍAS P2 (cambios vs día anterior):\n${cambiosB.join('\n') || 'sin cambios'}.`);
-                        L.push(`CENTROS NUEVOS P2 POR DÍA (próx. 7 días, más allá de la base P2):\n${centrosSemB.join('\n') || 'sin datos'}.`);
-                    }
-                    L.push(`PRÓXIMOS 7 DÍAS P1 (cambios vs día anterior):\n${cambios.join('\n') || 'sin cambios'}.`);
-                    L.push(`CENTROS NUEVOS P1 POR DÍA (próx. 7 días, más allá de la base P1):\n${centrosSem.join('\n') || 'sin datos'}.`);
-                    // Ventana 48h hacia atrás (ayer y hoy), resumida y con cuidado:
-                    // si la puerta ya la tenés = refuerza; si completa canal = canal nuevo; resto = fondo.
-                    const cambTr = cambiosTransito(ah, ay);
-                    try {
-                        let idx48 = 0;
-                        const t48 = ahora.getTime() - 48 * 3600000;
-                        pts.forEach((p, i) => { if (p.t <= t48) idx48 = i; });
-                        const v48 = ventanaPuertas(pts, idx48, idxAhora);
-                        const vCan48 = ventanaCanales(pts, idx48, idxAhora, 'compCh');
-                        const vCan48B = setB ? ventanaCanales(pts, idx48, idxAhora, 'compChB') : {entra: [], sale: []};
-                        const refE = v48.entra.filter(e => setA.has(e.p)).map(e => e.p);
-                        const refS = v48.sale.filter(e => setA.has(e.p)).map(e => e.p);
-                        const fondoE = v48.entra.length - refE.length, fondoS = v48.sale.length - refS.length;
-                        const lunaR = v48.luna.map(x => x.pl.split('.')[0]).filter((v, i, a) => a.indexOf(v) === i).join('→') || '-';
-                        const partesV = [];
-                        const lin1 = [];
-                        if (refE.length || refS.length) lin1.push(`refuerzan ${[...refE.map(p => '+' + p), ...refS.map(p => '-' + p)].join(' ')}`);
-                        if (vCan48.entra.length) lin1.push(`canales nuevos ${vCan48.entra.join(' ')}`);
-                        if (vCan48.sale.length) lin1.push(`se apagan ${vCan48.sale.join(' ')}`);
-                        if (setB && (vCan48B.entra.length || vCan48B.sale.length)) lin1.push(`P2: +${vCan48B.entra.join(' ') || '-'} / -${vCan48B.sale.join(' ') || '-'}`);
-                        partesV.push(`Ayer y hoy (48h): ${lin1.length ? listaY(lin1) + '.' : 'sin toques directos.'}`);
-                        partesV.push(`Luna: ${lunaR}. Fondo: ${fondoE} entran / ${fondoS} salen.`);
-                        if (partesV.length) {
-                            cambTr.ventana = partesV.join(' ');
-                            cambTr.texto += '\n' + cambTr.ventana;
-                        }
-                    } catch (e) {}
-                    const fA = await fichaDe(nomA);
-                    const fB = setB ? await fichaDe(nomB) : null;
-                    const promptIA = construirPromptIA({
-                        pareja: !!setB,
-                        etiquetas: setB ? [nomA, nomB] : [],
-                        diseno: [lineaDiseno('', fA, dataPersonaA),
-                                 setB ? lineaDiseno('', fB, dataPersonaB) : ''].filter(Boolean),
-                        puertas: [listaPuertas(dataPersonaA, fA), setB ? listaPuertas(dataPersonaB, fB) : ''].filter(Boolean),
-                        puertasHoy: ah.puertas.join(', '),
-                        transHoy: listaTransito(ah.planetas),
-                        transAyer: listaTransito(ay.planetas),
-                        cambios: cambTr.texto
-                    });
-                    // Contexto: solo el cálculo del día (canales, centros y contactos de hoy).
-                    const CX = [];
-                    CX.push('Cálculo del día (ya verificado, no lo contradigas):');
-                    CX.push(`- Canales que se completan al combinar tránsito + diseño de P1: ${(ah.compCh || []).join(' ') || 'ninguno'}.`);
-                    CX.push(`- Centros que quedan definidos con el tránsito (P1): ${(ah.compCent || []).slice().sort().join(', ') || 'ninguno'}.`);
-                    if (durTxt.length) CX.push(`- Centros que el tránsito le define y no tiene de base (P1):\n${durTxt.map(s => '  · ' + s.ctx).join('\n')}`);
-                    CX.push(`- Contactos tránsito↔P1 hoy: ${dcTxt.join(' | ') || 'ninguno'}.`);
-                    CX.push(`- Centros que define el tránsito solo: ${climaT.slice().sort().join(', ') || 'ninguno'}.`);
-                    if (setB) {
-                        CX.push(`- Canales que se completan al combinar tránsito + diseño de P2 (${nomB}): ${(ah.compChB || []).join(' ') || 'ninguno'}.`);
-                        CX.push(`- Centros que quedan definidos con el tránsito (P2): ${(ah.compCentB || []).slice().sort().join(', ') || 'ninguno'}.`);
-                        if (durTxtB.length) CX.push(`- Centros que el tránsito le define y no tiene de base (P2):\n${durTxtB.map(s => '  · ' + s.ctx).join('\n')}`);
-                        CX.push(`- Contactos tránsito↔P2 hoy: ${dcTxtB.join(' | ') || 'ninguno'}.`);
-                    }
-                    const contexto = CX.join('\n');
-                    try { window._briefingDetallado = L.join('\n'); } catch (e) {}
-                    try {
-                        window._briefingPrompt = promptIA;
-                        const pre = document.getElementById('briefing-prompt');
-                        if (pre) pre.textContent = promptIA;
-                    } catch (e) {}
-                    // Informe preliminar SIN IA: un párrafo por persona con lo calculado.
-                    const prelim1 = parrafoPreliminar({
-                        te: true,
-                        canalesHoy: ah.compCh || [], canalesAyer: ay.compCh || [],
-                        centrosHoy: ah.compCent || [], centrosAyer: ay.compCent || [],
-                        baseSet: baseCentA, camb: cambTr, durTxt: durTxt, ficha: fA
-                    });
-                    let prelim2 = '';
-                    if (setB) {
-                        prelim2 = parrafoPreliminar({
-                            te: false,
-                            canalesHoy: ah.compChB || [], canalesAyer: ay.compChB || [],
-                            centrosHoy: ah.compCentB || [], centrosAyer: ay.compCentB || [],
-                            baseSet: baseCentB, camb: cambTr, durTxt: durTxtB, ficha: fB
-                        });
-                    }
-                    try { window._briefingPrelim = setB ? prelim1 + '\n\n' + prelim2 : prelim1; } catch (e) {}
-                    // Parte sin IA: solo el párrafo preliminar. Lo de antes salió de la sección.
-                    const progHtml = [
-                        `<div style="font-size:12.5px;line-height:1.55;"><strong>INFORME PRELIMINAR (sin IA)</strong> — ${escB(nomA)}${setB ? ' + ' + escB(nomB) : ''} · ${escB(fmtC(ahora.getTime()))}</div>`,
-                        `<div style="font-size:12.5px;line-height:1.55;margin-top:4px;">${escB(prelim1)}</div>`,
-                        setB ? `<div style="font-size:12.5px;line-height:1.55;margin-top:6px;"><strong>P2 ${escB(nomB)}:</strong> ${escB(prelim2)}</div>` : ''
-                    ].join('');
-                    txt.innerHTML = progHtml;
-                    try {
-                        window._briefingContexto = contexto;
-                        window._briefingNombres = {a: nomA, b: nomB};
-                    } catch (e) {}
-                    try { document.getElementById('briefing-ia').innerHTML = ''; } catch (e) {}
-                    est.textContent = 'Parte calculado ' + new Date().toLocaleTimeString('es-UY', {hour: '2-digit', minute: '2-digit'}) + ' — programático, sin IA · prompt IA listo.';
+                    const r = await fetch('/api/briefing?persona=' + encodeURIComponent(nom));
+                    const j = await r.json();
+                    if (!r.ok || !j.ok) throw new Error(j.error || 'Error del briefing');
+                    const cab = `<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">${escB(j.fecha)} · ${escB(j.hora)} · ${escB(j.persona)}</div>`;
+                    const cuerpo = (j.lineas || []).map(l =>
+                        `<div style="font-size:12.5px;line-height:1.55;margin-top:4px;"><strong>${escB(l.etiqueta)}:</strong> ${mdLite(l.texto)}</div>`
+                    ).join('');
+                    txt.innerHTML = cab + cuerpo;
+                    est.textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-UY', {hour:'2-digit', minute:'2-digit'});
                 } catch (err) {
-                    txt.textContent = 'Error: ' + err;
+                    const msg = (err && err.message) ? err.message : String(err);
+                    txt.textContent = 'Error: ' + msg;
                     est.textContent = 'Falló — probá Actualizar.';
-                } finally { corriendo = false; btn.disabled = false; }
-            }
-            function prog(){ clearTimeout(tProg); tProg = setTimeout(() => actualizar(), 800); }
-            try { if (typeof selectorA !== 'undefined' && selectorA) selectorA.addEventListener('change', prog); } catch (e) {}
-            try { if (typeof selectorB !== 'undefined' && selectorB) selectorB.addEventListener('change', prog); } catch (e) {}
-            btn.addEventListener('click', () => actualizar());
-            const btnI = document.getElementById('btn-interpretar');
-            const iaDiv = document.getElementById('briefing-ia');
-            let interpCorriendo = false;
-            async function interpretar(){
-                if (interpCorriendo) return;
-                const ctx = (typeof window._briefingContexto !== 'undefined' && window._briefingContexto) ? window._briefingContexto : null;
-                const prompt = (typeof window._briefingPrompt !== 'undefined' && window._briefingPrompt) ? window._briefingPrompt : '';
-                if (!prompt || !iaDiv) { est.textContent = 'Primero generá el parte con Actualizar.'; return; }
-                interpCorriendo = true; if (btnI) btnI.disabled = true;
-                const nom = window._briefingNombres || {a: '', b: ''};
-                iaDiv.innerHTML = '<div style="font-size:12px;color:var(--muted)">⏳ Interpretando…</div>';
-                const t0 = Date.now();
-                const tick = setInterval(() => {
-                    iaDiv.innerHTML = '<div style="font-size:12px;color:var(--muted)">⏳ Interpretando… ' + Math.floor((Date.now() - t0) / 1000) + 's</div>';
-                }, 1000);
-                try {
-                    const provSel = (document.getElementById('ia-chat-prov') || {}).value || '';
-                    const r2 = await fetch('/api/pregunta_ia', {method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({modo: 'interpretar', pregunta: prompt,
-                            contexto: ctx, persona_a: nom.a || '', persona_b: nom.b || '', proveedor: provSel})});
-                    const j0 = await r2.json();
-                    if (!r2.ok) throw new Error(j0.error || 'Error IA');
-                    for (;;) {
-                        await new Promise(res => setTimeout(res, 2000));
-                        const rp = await fetch('/api/pregunta_resultado?id=' + encodeURIComponent(j0.job_id));
-                        const d = await rp.json();
-                        if (d.estado === 'ok' || d.estado === 'error') {
-                            clearInterval(tick);
-                            if (d.estado !== 'ok') throw new Error(d.error || 'Error IA');
-                            iaDiv.innerHTML = '<div style="font-weight:800;font-size:12px;margin-bottom:4px;">Informe diario (IA)</div><div style="font-size:12.5px;line-height:1.5;">' + mdLite(d.respuesta || '(vacío)') + '</div>' +
-                                ((d.model || d.proveedor) ? `<div style="font-size:10px;color:var(--muted);margin-top:4px;">${escB(d.proveedor || '')} · ${escB(d.model || '')}${d.aviso ? ' · ' + escB(d.aviso) : ''}</div>` : '');
-                            est.textContent = 'Informe IA ' + new Date().toLocaleTimeString('es-UY', {hour: '2-digit', minute: '2-digit'});
-                            break;
-                        }
-                        if ((d.espera_s || 0) > 300) { clearInterval(tick); throw new Error('Demasiada espera (>5 min)'); }
-                    }
-                } catch (err) {
-                    clearInterval(tick);
-                    iaDiv.innerHTML = '<div style="font-size:12px;color:#c62828;">Error IA: ' + escB(err) + '</div>';
-                } finally { interpCorriendo = false; if (btnI) btnI.disabled = false; }
-            }
-            if (btnI) btnI.addEventListener('click', interpretar);
-            const btnCopiar = document.getElementById('btn-copiar-prompt');
-            if (btnCopiar) btnCopiar.addEventListener('click', async () => {
-                const p = (typeof window._briefingPrompt !== 'undefined' && window._briefingPrompt) ? window._briefingPrompt : '';
-                if (!p) { est.textContent = 'Primero generá el parte con Actualizar.'; return; }
-                try {
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        await navigator.clipboard.writeText(p);
-                    } else {
-                        const ta = document.createElement('textarea');
-                        ta.value = p; document.body.appendChild(ta); ta.select();
-                        document.execCommand('copy'); document.body.removeChild(ta);
-                    }
-                    est.textContent = 'Prompt copiado al portapapeles.';
-                } catch (err) {
-                    est.textContent = 'No se pudo copiar: ' + err;
+                } finally {
+                    corriendo = false; btn.disabled = false;
                 }
-            });
-            setTimeout(() => { try { if (selectorA && selectorA.value) actualizar(); } catch (e) {} }, 1500);
+            }
+            function prog(){ clearTimeout(tProg); tProg = setTimeout(actualizar, 500); }
+            try {
+                const selA = document.getElementById('selector-persona-a');
+                if (selA) selA.addEventListener('change', prog);
+            } catch (e) {}
+            btn.addEventListener('click', actualizar);
+            setTimeout(() => { try { const selA = document.getElementById('selector-persona-a'); if (selA && selA.value) actualizar(); } catch (e) {} }, 1200);
+            setTimeout(() => { try { const selA = document.getElementById('selector-persona-a'); if (selA && selA.value) actualizar(); } catch (e) {} }, 3000);
         })();
     </script>
     <script>

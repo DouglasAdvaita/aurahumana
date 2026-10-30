@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi cuenta — RAVE</title>
+<style>
+  :root{--azul:#1a3d6d;--ok:#2e7d32;--err:#c62828;--borde:#d7dde5}
+  body{font-family:system-ui,Arial,sans-serif;margin:0;background:#eef1f5;color:#222;font-size:14px}
+  header{background:#fff;border-bottom:1px solid var(--borde);padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  header b{color:var(--azul);font-size:16px}
+  main{padding:14px;max-width:900px;margin:0 auto}
+  .card{background:#fff;border:1px solid var(--borde);border-radius:10px;padding:14px;margin-bottom:14px}
+  h3{margin:0 0 10px;color:var(--azul);font-size:15px}
+  label{display:block;margin:8px 0;font-size:13px}
+  input{width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--borde);border-radius:6px;font-size:14px;margin-top:3px}
+  button{padding:9px 14px;border:1px solid var(--borde);background:#fff;border-radius:6px;cursor:pointer;font-size:14px}
+  button.prim{background:var(--azul);color:#fff;border-color:var(--azul);font-weight:600}
+  button:hover{filter:brightness(.96)}
+  #msg{font-size:13px;margin:8px 0;min-height:18px}
+  .ok{color:var(--ok)} .err{color:var(--err)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{border-bottom:1px solid #eee;padding:6px;text-align:left}
+  th{background:#f7f9fc;font-size:12px}
+  .mini{color:#666;font-size:12px}
+  .pill{display:inline-block;background:#eef;border:1px solid #ccd;border-radius:8px;padding:0 7px;font-size:12px}
+  .codigo{font-family:ui-monospace,Consolas,monospace;background:#fff8e1;border:1px solid #ffe082;padding:8px;border-radius:6px;word-break:break-all}
+  .oculto{display:none}
+</style></head>
+<body>
+<header>
+  <b>Mi cuenta</b>
+  <span id="quien" class="mini"></span>
+  <button id="salir" class="oculto">Cerrar sesión</button>
+  <a href="/" style="margin-left:auto;font-size:13px">Volver a RAVE</a>
+</header>
+<main>
+  <div id="msg"></div>
+
+  <div id="panel-login">
+    <div class="card">
+      <h3>Entrar</h3>
+      <label>Correo<input id="l-email" type="email" autocomplete="username" placeholder="tu@mail.com"></label>
+      <label>Contraseña<input id="l-pw" type="password" autocomplete="current-password"></label>
+      <button class="prim" id="btn-login">Entrar</button>
+    </div>
+    <div class="card">
+      <h3>Crear cuenta</h3>
+      <label>Correo<input id="r-email" type="email" autocomplete="username" placeholder="tu@mail.com"></label>
+      <label>Contraseña (mínimo 8)<input id="r-pw" type="password" autocomplete="new-password"></label>
+      <button class="prim" id="btn-registro">Crear cuenta</button>
+      <div id="caja-codigo" class="oculto" style="margin-top:12px">
+        <p class="mini">Guardá este código: es tu única forma de recuperar la cuenta si olvidás la contraseña. No se vuelve a mostrar.</p>
+        <div class="codigo" id="codigo"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Olvidé mi contraseña</h3>
+      <label>Correo<input id="f-email" type="email"></label>
+      <label>Código de recuperación<input id="f-codigo" placeholder="XXXX-XXXX-XXXX-XXXX"></label>
+      <label>Contraseña nueva<input id="f-nueva" type="password" autocomplete="new-password"></label>
+      <button id="btn-recuperar">Cambiar contraseña</button>
+    </div>
+  </div>
+
+  <div id="panel-cuenta" class="oculto">
+    <div class="card">
+      <h3>Mis personas en la nube</h3>
+      <p class="mini">Se guardan puertas, líneas, fecha/hora/lugar y el test. Privado por defecto.</p>
+      <button class="prim" id="btn-bajar">Ver mis personas</button>
+      <button id="btn-refrescar">Refrescar lista</button>
+    </div>
+    <div class="card">
+      <table>
+        <thead><tr><th>Persona</th><th>Nacimiento</th><th>Visibilidad</th><th>Actualizado</th><th></th></tr></thead>
+        <tbody id="tabla"><tr><td colspan="5" class="mini">cargando…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Importar / exportar mis datos</h3>
+      <p class="mini">CSV con el mismo formato que <b>datos.csv</b> (Nombre;Puerta;Linea;C/I). Sirve para respaldar o pasar tus personas a otra cuenta.</p>
+      <button id="btn-exportar">Descargar CSV</button>
+      <div style="margin-top:10px">
+        <input type="file" id="archivo" accept=".csv,text/csv">
+        <button class="prim" id="btn-importar">Importar CSV</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Cambiar visibilidad de una persona de mi cuenta</h3>
+      <label>Nombre exacto<input id="s-nombre" placeholder="Ej. Jorge"></label>
+      <label>Visibilidad
+        <select id="s-vis" style="width:100%;padding:8px;border:1px solid var(--borde);border-radius:6px">
+          <option value="privado">privado</option>
+          <option value="publico">público (latente, todavía nadie la ve)</option>
+        </select>
+      </label>
+      <button class="prim" id="btn-subir">Guardar visibilidad</button>
+    </div>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+function msg(t, cls){ const m=$('msg'); m.className = cls||''; m.textContent = t||''; }
+async function api(url, opts){ const r = await fetch(url, opts||{}); let j={}; try{ j=await r.json(); }catch(e){} return {ok:r.ok, status:r.status, j}; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+async function pintar(){
+  const e = await api('/api/cuenta/estado');
+  const j = e.j||{};
+  if(!j.configurado){
+    $('panel-login').classList.remove('oculto');
+    $('panel-cuenta').classList.add('oculto');
+    $('quien').textContent = 'Neon no configurado';
+    msg('Falta DATABASE_URL en el servicio de Render → Environment → Add Environment Variable → DATABASE_URL (connection string de Neon, con sslmode=require) → Save.', 'err');
+    return;
+  }
+  if(j.logueado){
+    $('panel-login').classList.add('oculto');
+    $('panel-cuenta').classList.remove('oculto');
+    $('salir').classList.remove('oculto');
+    $('quien').textContent = j.email || '';
+    await lista();
+  } else {
+    $('panel-login').classList.remove('oculto');
+    $('panel-cuenta').classList.add('oculto');
+    $('salir').classList.add('oculto');
+    $('quien').textContent = 'sin sesión';
+  }
+}
+
+async function lista(){
+  const r = await api('/api/cuenta/mis');
+  const tb = $('tabla');
+  if(!r.ok){ tb.innerHTML = '<tr><td colspan="5" class="err">'+esc((r.j||{}).error||'Error')+'</td></tr>'; return; }
+  const ps = (r.j||{}).perfiles||[];
+  if(!ps.length){ tb.innerHTML = '<tr><td colspan="5" class="mini">Todavía no subiste ninguna persona.</td></tr>'; return; }
+  tb.innerHTML = ps.map(p=>{
+    const nac = [p.fecha,p.hora,p.lugar].filter(Boolean).join(' · ') || '—';
+    const fe = p.updated_at ? String(p.updated_at).slice(0,16).replace('T',' ') : '';
+    return '<tr><td><b>'+esc(p.nombre)+'</b></td><td>'+esc(nac)+'</td>'
+      + '<td><span class="pill">'+esc(p.visibilidad)+'</span></td>'
+      + '<td class="mini">'+esc(fe)+'</td>'
+      + '<td><button data-borrar="'+esc(p.nombre)+'">quitar</button></td></tr>';
+  }).join('');
+  tb.querySelectorAll('[data-borrar]').forEach(b=>{
+    b.onclick = async ()=>{
+      if(!confirm('¿Quitar "'+b.dataset.borrar+'" de la nube? (no borra tus datos locales)')) return;
+      const r2 = await api('/api/cuenta/borrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre:b.dataset.borrar})});
+      msg(r2.ok?'Quitada de la nube.':'Error al quitar', r2.ok?'ok':'err');
+      await lista();
+    };
+  });
+}
+
+$('btn-login').onclick = async ()=>{
+  msg('Entrando…');
+  const r = await api('/api/cuenta/login',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email:$('l-email').value,pw:$('l-pw').value})});
+  if(r.ok){ msg('Bienvenido.', 'ok'); await pintar(); }
+  else msg((r.j||{}).error || 'No se pudo entrar', 'err');
+};
+
+$('btn-registro').onclick = async ()=>{
+  msg('Creando cuenta…');
+  const r = await api('/api/cuenta/registro',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email:$('r-email').value,pw:$('r-pw').value})});
+  if(r.ok){
+    $('codigo').textContent = (r.j||{}).codigo_recuperacion || '';
+    $('caja-codigo').classList.remove('oculto');
+    msg('Cuenta creada. Guardá el código de recuperación.', 'ok');
+    await pintar();
+  } else msg((r.j||{}).error || 'No se pudo crear', 'err');
+};
+
+$('btn-recuperar').onclick = async ()=>{
+  const r = await api('/api/cuenta/recuperar',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email:$('f-email').value,codigo:$('f-codigo').value,nueva:$('f-nueva').value})});
+  msg(r.ok?'Contraseña cambiada. Entrá de nuevo.':((r.j||{}).error||'No se pudo cambiar'), r.ok?'ok':'err');
+};
+
+$('salir').onclick = async ()=>{
+  await api('/api/cuenta/logout',{method:'POST'});
+  msg('Sesión cerrada.');
+  await pintar();
+};
+
+$('btn-refrescar').onclick = lista;
+
+$('btn-exportar').onclick = ()=>{ window.location = '/api/cuenta/exportar'; };
+
+$('btn-importar').onclick = async ()=>{
+  const f = $('archivo').files[0];
+  if(!f){ msg('Elegí un archivo CSV primero.', 'err'); return; }
+  msg('Importando…');
+  const fd = new FormData();
+  fd.append('archivo', f);
+  const r = await api('/api/cuenta/importar', {method:'POST', body:fd});
+  if(!r.ok){ msg((r.j||{}).error || 'No se pudo importar', 'err'); return; }
+  const j = r.j||{};
+  let t = 'Importadas: ' + (j.creadas||[]).length + ' nuevas, ' + (j.actualizadas||[]).length + ' actualizadas.';
+  if((j.errores||[]).length) t += ' Con error: ' + j.errores.map(e=>e.nombre).join(', ') + '.';
+  msg(t, (j.errores||[]).length ? 'err' : 'ok');
+  await lista();
+};
+
+$('btn-subir').onclick = async ()=>{
+  const nombre = $('s-nombre').value.trim();
+  if(!nombre){ msg('Poné el nombre exacto de la persona.', 'err'); return; }
+  msg('Subiendo…');
+  const r = await api('/api/cuenta/subir',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({nombre:nombre, visibilidad:$('s-vis').value})});
+  msg(r.ok?('"'+nombre+'" guardada en la nube.'):((r.j||{}).error||'Error al subir'), r.ok?'ok':'err');
+  if(r.ok) await lista();
+};
+
+$('btn-bajar').onclick = async ()=>{
+  msg('Consultando tus personas…');
+  const r = await api('/api/cuenta/bajar',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+  if(!r.ok){ msg((r.j||{}).error||'Error', 'err'); return; }
+  const n = (r.j||{}).ya_estaban||[];
+  msg(n.length ? ('Tenés '+n.length+' persona(s) en la nube. Abrí RAVE y recargá: ya aparecen en el selector.' ) : 'Todavía no tenés personas en la nube.', n.length?'ok':'' );
+};
+
+pintar();
+</script>
+</body></html>

@@ -1,4 +1,4 @@
-from flask import Flask, g, render_template, jsonify, request, send_from_directory
+from flask import Flask, g, has_request_context, render_template, jsonify, request, send_from_directory, Response
 import csv
 import functools as _functools
 import gzip as _gzip
@@ -1042,7 +1042,12 @@ def _leer_test_rows():
     raise ultimo
 
 def _upsert_test(fila):
-    """Guarda (o reemplaza por nombre) el resultado del test corto en test.csv."""
+    """Guarda (o reemplaza por nombre) el resultado del test corto en test.csv.
+
+    Con sesión iniciada lo guarda dentro del perfil de la cuenta (Neon)."""
+    perfiles = _perfiles_cuenta_actual()
+    if perfiles is not None:
+        return _upsert_test_cuenta(perfiles, fila)
     try:
         head = list(TEST_CSV_COLS)
         cuerpo = []
@@ -1072,6 +1077,33 @@ def _upsert_test(fila):
         return True
     except Exception:
         return False
+
+def _upsert_test_cuenta(perfiles, fila):
+    """Merges the test into the account's perfil in Neon."""
+    try:
+        ct = _cuenta_actual()
+        nombre = str(fila.get('nombre') or '').strip()
+        if not ct or not nombre:
+            return False
+        previo = next((p for p in perfiles
+                       if str(p.get('nombre') or '').strip().lower() == nombre.lower()), None)
+        base = dict(previo) if previo else {'nombre': nombre, 'fecha': '', 'hora': '',
+                                            'lugar': '', 'visibilidad': 'privado'}
+        dj = dict(_dj(base)) if previo else {}
+        test = dict(dj.get('test') or {})
+        for k, v in (fila or {}).items():
+            if str(v if v is not None else '').strip():
+                test[k] = v
+        test['nombre'] = nombre
+        dj['test'] = test
+        base['nombre'] = nombre
+        base['datos_json'] = dj
+        _auth.subir_perfil(ct['id'], base)
+        g.perfiles_cuenta = None
+        return True
+    except Exception:
+        return False
+
 
 def _leer_test(nombre):
     """Devuelve el test guardado para el nombre (dict) o None si no existe."""
@@ -1169,7 +1201,11 @@ def _leer_ia_rows():
     return []
 
 def _leer_ia(nombre):
-    """Devuelve el texto IA guardado en ia.csv para el nombre (dict) o None."""
+    """Devuelve el texto IA guardado en ia.csv para el nombre (dict) o None.
+
+    Con sesión iniciada no lee el ia.csv local (es de otra persona)."""
+    if _perfiles_cuenta_actual() is not None:
+        return None
     try:
         if not IA_CSV_PATH.exists():
             return None
@@ -1190,6 +1226,9 @@ def _leer_ia(nombre):
         return None
 
 def _guardar_ia(nombre, texto, proveedor=''):
+    """Con sesión iniciada no escribe en ia.csv (archivo compartido del dueño)."""
+    if _perfiles_cuenta_actual() is not None:
+        return False
     """Guarda (o reemplaza por nombre) la descripción IA en ia.csv."""
     try:
         from datetime import datetime as _dt
@@ -1353,8 +1392,25 @@ def _leer_csv_robusto(path, **kwargs):
 
 # ---------- Fuente de datos (modo A): leer las tablas mutables desde un xlsx ----------
 # Fuente activa: None = CSV de siempre. Path = xlsx elegido (hojas datos/vinculos/test/clan).
+# Prioridad al arrancar: 1) cuenta logueada -> Neon, 2) datos.csv propio con contenido -> CSV,
+# 3) si no (Render o clon nuevo) -> datos_publicos.xlsx.
+def _es_render():
+    """True si corre en Render (Render define RENDER=true)."""
+    return bool((os.environ.get('RENDER') or '').strip()
+                or (os.environ.get('RENDER_SERVICE_ID') or '').strip())
+
+
+def _datos_csv_utilizables():
+    """True si existe datos.csv propio con contenido real."""
+    try:
+        return CSV_PATH.exists() and CSV_PATH.stat().st_size > 200
+    except Exception:
+        return False
+
+
 _DEFAULT_XLSX = Path(__file__).with_name('datos_publicos.xlsx')
-_FUENTE = {'path': _DEFAULT_XLSX if _DEFAULT_XLSX.exists() else None}
+_FUENTE = {'path': (_DEFAULT_XLSX if (_DEFAULT_XLSX.exists()
+                                       and (not _datos_csv_utilizables() or _es_render())) else None)}
 _TABLAS_MUTABLES = ('datos', 'vinculos', 'test', 'clan')
 
 
@@ -1783,7 +1839,11 @@ def cargar_cruces():
     return _cache_get(CRUCES_PATH, _load)
 
 def cargar_informes():
-    """Lee informe.csv (sep=';', utf-8). Columnas nombre;informe. Cacheado por mtime."""
+    """Lee informe.csv (sep=';', utf-8). Columnas nombre;informe. Cacheado por mtime.
+
+    Con sesión iniciada no expone informes del archivo local (son de otra persona)."""
+    if _perfiles_cuenta_actual() is not None:
+        return {}
     def _load():
         try:
             df = _leer_csv_robusto(INFORME_CSV_PATH, sep=';')
@@ -1816,7 +1876,15 @@ def _edad(v):
         return None
 
 def cargar_vinculos():
-    """Lee vinculos.csv (sep automático ';' o tab). Cacheado por mtime."""
+    """Lee vinculos.csv (sep automático ';' o tab). Cacheado por mtime.
+
+    Con sesión iniciada devuelve solo nacimiento de las personas de esa cuenta."""
+    _perfiles = _perfiles_cuenta_actual()
+    if _perfiles is not None:
+        return [{'nombre': str(p.get('nombre') or ''), 'fecha': p.get('fecha') or '',
+                 'hora': p.get('hora') or '', 'edad': None, 'lugar': p.get('lugar') or '',
+                 'referente': '', 'vinc_ref': '', 'vinc_jorge': '', 'bio': ''}
+                for p in _perfiles if str(p.get('nombre') or '').strip()]
     def _load():
         try:
             df = _leer_vinculos_df()
@@ -2241,6 +2309,27 @@ def api_ficha_basica():
     if err:
         return jsonify({'error':err}),404
     return jsonify(ficha)
+
+
+@app.route('/api/briefing')
+def api_briefing():
+    """Briefing diario sin IA: AYER / HOY / MAÑANA (si cambia)."""
+    try:
+        from briefing import generar_briefing
+        persona = (request.args.get('persona') or '').strip() or get_persona_default()
+        fecha = (request.args.get('fecha') or '').strip() or None
+        hora = (request.args.get('hora') or '').strip() or None
+        detalle = request.args.get('detalle') in ('1', 'true', 'si', 'sí')
+        res = generar_briefing(persona, fecha, hora, incluir_detalle=detalle)
+    except ValueError as e:
+        return jsonify({'ok': False, 'error': f'Fecha/hora inválida: {e}'}), 400
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+    if not res.get('ok'):
+        return jsonify(res), 404
+    if request.args.get('formato') == 'texto':
+        return Response(res['texto'], mimetype='text/plain; charset=utf-8')
+    return jsonify(res)
 
 
 @app.route('/publicos/<path:fn>')
@@ -3147,6 +3236,11 @@ def _guardar_dinamica(p1, p2, texto):
 @app.route('/api/dinamica_compuesta', methods=['GET', 'POST'])
 def api_dinamica_compuesta():
     """Texto manual editable por pareja P1/P2, guardado en dinamica_compuesta.csv. Sin IA."""
+    if _perfiles_cuenta_actual() is not None:
+        # Cuentas: todavía no se guarda por cuenta (no mezclar con el archivo local).
+        if request.method == 'GET':
+            return jsonify({'p1': (request.args.get('p1') or ''), 'p2': (request.args.get('p2') or ''), 'texto': ''})
+        return jsonify({'ok': True, 'solo_local': True})
     if request.method == 'GET':
         p1 = str(request.args.get('p1') or '').strip()
         p2 = str(request.args.get('p2') or '').strip()
@@ -3246,8 +3340,72 @@ def _cols_datos(df):
         raise KeyError(f"datos.csv: no se encuentran las columnas {faltan}. Cabecera actual: {list(df.columns)}")
     return c_nombre, c_puerta, c_linea, c_ci
 
+def _linea_o_nan(v):
+    try:
+        if v in (None, '', 'nan', 'None'):
+            return float('nan')
+        n = int(float(str(v)))
+        return n if 1 <= n <= 6 else float('nan')
+    except (ValueError, TypeError):
+        return float('nan')
+
+
+def _perfiles_cuenta_actual():
+    """Perfiles de la cuenta logueada (Neon), memoizados por request. None si no hay cuenta."""
+    try:
+        if not has_request_context():
+            return None
+        ct = _cuenta_actual()
+        if not ct:
+            return None
+        if getattr(g, 'perfiles_cuenta', None) is None:
+            g.perfiles_cuenta = _auth.perfiles_de(ct['id'])
+        return g.perfiles_cuenta
+    except Exception:
+        return None
+
+
+def _dj(p):
+    dj = p.get('datos_json') or {}
+    if isinstance(dj, str):
+        try:
+            dj = _json.loads(dj)
+        except Exception:
+            dj = {}
+    return dj if isinstance(dj, dict) else {}
+
+
+def _df_de_cuenta(perfiles):
+    """DataFrame virtual (Nombre;Puerta;Linea;C/I) con las personas de la cuenta."""
+    filas = []
+    for p in perfiles:
+        nombre = str(p.get('nombre') or '').strip()
+        if not nombre:
+            continue
+        dj = _dj(p)
+        for campo, estado in (('inconscientes', 'Inconsciente'), ('conscientes', 'Consciente')):
+            lista = dj.get(campo) or []
+            lineas = dj.get(campo + '_lineas') or []
+            for i, g in enumerate(lista):
+                try:
+                    puerta = int(float(str(g)))
+                except (ValueError, TypeError):
+                    continue
+                if not 1 <= puerta <= 64:
+                    continue
+                filas.append({'Nombre': nombre, 'Puerta': puerta,
+                              'Linea': _linea_o_nan(lineas[i] if i < len(lineas) else None),
+                              'C/I': estado})
+    return pd.DataFrame(filas, columns=['Nombre', 'Puerta', 'Linea', 'C/I'])
+
+
 def cargar_datos():
-    """Cacheado por mtime (una sola lectura de datos.csv por versión del archivo)."""
+    """Cacheado por mtime (una sola lectura de datos.csv por versión del archivo).
+
+    Con sesión iniciada devuelve SOLO las personas de esa cuenta (Neon)."""
+    _perfiles = _perfiles_cuenta_actual()
+    if _perfiles is not None:
+        return _df_de_cuenta(_perfiles)
     def _load():
         try:
             df = _tabla_mutable('datos', CSV_PATH, sep=';')
@@ -3335,6 +3493,8 @@ def _fuente_json():
     p = _FUENTE['path']
     return {'activo': p.name if p else None,
             'tipo': 'xlsx' if p else 'csv',
+            'entorno': 'render' if _es_render() else 'local',
+            'datos_csv_propio': _datos_csv_utilizables(),
             'xlsx': sorted(x.name for x in Path('.').glob('*.xlsx')
                            if not x.name.startswith('~$'))}
 
@@ -3379,6 +3539,88 @@ def api_fuente_elegir():
         return jsonify({'error': err}), 400
     set_fuente(p)
     return jsonify(_fuente_json())
+
+def _cuenta_perfil_desde_payload(data, nombre, previo=None):
+    """Valida el payload de Agregar/Modificar y arma el perfil para Neon."""
+    es_transito = bool(data.get('transito')) and not data.get('inconscientes')
+    if es_transito:
+        incon, incon_l = [], []
+    else:
+        incon, incon_l_dec, err = _validar_puertas(data.get('inconscientes'), 'Inconscientes')
+        if err:
+            return None, err
+        incon_l, err = _validar_lineas(data.get('inconscientes_lineas'), 'Líneas inconscientes')
+        if err:
+            return None, err
+        if incon_l is None:
+            incon_l = incon_l_dec or [None] * len(incon)
+        else:
+            incon_l = [e if e is not None else (incon_l_dec[i] if incon_l_dec and i < len(incon_l_dec) else None)
+                       for i, e in enumerate(incon_l)]
+    consc, consc_l_dec, err = _validar_puertas(data.get('conscientes'), 'Conscientes')
+    if err:
+        return None, err
+    consc_l, err = _validar_lineas(data.get('conscientes_lineas'), 'Líneas conscientes')
+    if err:
+        return None, err
+    if consc_l is None:
+        consc_l = consc_l_dec or [None] * len(consc)
+    else:
+        consc_l = [e if e is not None else (consc_l_dec[i] if consc_l_dec and i < len(consc_l_dec) else None)
+                   for i, e in enumerate(consc_l)]
+    previo = previo or {}
+    test = _dj(previo).get('test') or {}
+    perfil = _perfil_de_lineas(consc_l[0] if consc_l else None, incon_l[0] if incon_l else None)
+    return {
+        'nombre': nombre,
+        'fecha': str(data.get('fecha') or '').strip() or previo.get('fecha') or '',
+        'hora': str(data.get('hora') or '').strip() or previo.get('hora') or '',
+        'lugar': str(data.get('lugar') or '').strip() or previo.get('lugar') or '',
+        'lat': previo.get('lat'), 'lon': previo.get('lon'), 'tz': previo.get('tz'),
+        'tz_name': previo.get('tz_name') or '',
+        'visibilidad': data.get('visibilidad') or previo.get('visibilidad') or 'privado',
+        'datos_json': {'inconscientes': incon, 'conscientes': consc,
+                       'inconscientes_lineas': incon_l, 'conscientes_lineas': consc_l,
+                       'perfil': perfil, 'test': test},
+    }, None
+
+
+def _cuenta_persona_post(ct, data):
+    nombre = str(data.get('nombre', '') or '').strip()
+    if not nombre:
+        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    perfiles = _perfiles_cuenta_actual() or []
+    if any(str(p.get('nombre') or '').strip().lower() == nombre.lower() for p in perfiles):
+        return jsonify({'error': f'"{nombre}" ya existe'}), 409
+    perfil, err = _cuenta_perfil_desde_payload(data, nombre)
+    if err:
+        return jsonify({'error': err}), 400
+    _auth.subir_perfil(ct['id'], perfil)
+    g.perfiles_cuenta = None
+    return jsonify({'ok': True, 'nombre': nombre, 'personas': get_personas(),
+                    'perfil': perfil['datos_json'].get('perfil')}), 201
+
+
+def _cuenta_persona_put(ct, nombre_viejo, data):
+    viejo = str(nombre_viejo or '').strip()
+    nuevo = str(data.get('nombre', '') or '').strip() or viejo
+    perfiles = _perfiles_cuenta_actual() or []
+    previo = next((p for p in perfiles
+                   if str(p.get('nombre') or '').strip().lower() == viejo.lower()), None)
+    if previo is None:
+        return jsonify({'error': f'"{viejo}" no existe'}), 404
+    if nuevo != viejo and any(str(p.get('nombre') or '').strip().lower() == nuevo.lower() for p in perfiles):
+        return jsonify({'error': f'"{nuevo}" ya existe'}), 409
+    perfil, err = _cuenta_perfil_desde_payload(data, nuevo, previo)
+    if err:
+        return jsonify({'error': err}), 400
+    if nuevo != viejo:
+        _auth.borrar_perfil(ct['id'], viejo)
+    _auth.subir_perfil(ct['id'], perfil)
+    g.perfiles_cuenta = None
+    return jsonify({'ok': True, 'nombre': nuevo, 'personas': get_personas(),
+                    'perfil': perfil['datos_json'].get('perfil')})
+
 
 @app.route('/')
 def index():
@@ -3583,6 +3825,11 @@ def _validar_lineas(valores, campo):
 @app.route('/api/persona', methods=['POST'])
 def api_agregar_persona():
     data = request.get_json(force=True, silent=True) or {}
+    _ct = _cuenta_actual()
+    if _ct:
+        return _cuenta_persona_post(_ct, data)
+    if _es_render():
+        return jsonify({'error': 'Entrá a tu cuenta para guardar: en Render los datos se guardan en Neon.'}), 401
     nombre = str(data.get('nombre', '') or '').strip()
     if not nombre:
         return jsonify({'error': 'El nombre es obligatorio'}), 400
@@ -3695,6 +3942,9 @@ def api_modificar_persona(nombre):
     if not viejo:
         return jsonify({'error': 'Falta el nombre'}), 400
     data = request.get_json(force=True, silent=True) or {}
+    _ct = _cuenta_actual()
+    if _ct:
+        return _cuenta_persona_put(_ct, nombre, data)
     nuevo = str(data.get('nombre', '') or '').strip() or viejo
     personas = get_personas()
     if viejo not in personas:
@@ -3870,6 +4120,17 @@ def api_eliminar_persona(nombre):
     viejo = str(nombre or '').strip()
     if not viejo:
         return jsonify({'error': 'Falta el nombre'}), 400
+    _ct = _cuenta_actual()
+    if _ct:
+        n = _auth.borrar_perfil(_ct['id'], viejo)
+        if not n:
+            return jsonify({'error': f'"{viejo}" no existe'}), 404
+        g.perfiles_cuenta = None
+        return jsonify({'ok': True, 'nombre': viejo, 'filas_datos': n, 'filas_vinculos': 0,
+                        'referencias_limpiadas': 0, 'filas_test': 0, 'filas_clan': 0,
+                        'filas_ia': 0, 'personas': get_personas()})
+    if _es_render():
+        return jsonify({'error': 'Entrá a tu cuenta: en Render los datos viven en Neon.'}), 401
     if viejo not in get_personas():
         return jsonify({'error': f'"{viejo}" no existe'}), 404
     eliminadas = 0
@@ -3937,6 +4198,19 @@ def api_eliminar_persona(nombre):
                     'filas_test': test_borrados, 'filas_clan': clan_borrados,
                     'filas_ia': ia_borrados,
                     'personas': get_personas()})
+
+def _test_de(nombre):
+    """Test de autoconocimiento: de Neon si hay cuenta, si no de test.csv."""
+    perfiles = _perfiles_cuenta_actual()
+    if perfiles is not None:
+        clave = str(nombre or '').strip().lower()
+        for p in perfiles:
+            if str(p.get('nombre') or '').strip().lower() == clave:
+                t = _dj(p).get('test') or {}
+                return t if isinstance(t, dict) else {}
+        return {}
+    return _leer_test(nombre) or {}
+
 
 def _datos_persona(nombre):
     df = cargar_datos()
@@ -4017,7 +4291,8 @@ def get_persona_data(nombre):
         return jsonify({'error': 'Persona no encontrada'}), 404
     # S/NS: solo hay emojis Ser/No-Ser si el cuestionario está respondido.
     try:
-        d['tiene_sns'] = str(nombre or '').strip().lower() in _nombres_con_sns()
+        _t = _test_de(nombre)
+        d['tiene_sns'] = bool(str(_t.get('sernoser_resp') or '').strip().strip('|'))
     except Exception:
         d['tiene_sns'] = False
     return jsonify(d)
@@ -4056,7 +4331,7 @@ def get_persona_completa(nombre):
         if not bio:
             bio = str(v.get('bio') or '').strip()
 
-    test = _leer_test(nombre) or {}
+    test = _test_de(nombre)
     fecha = str(vinc.get('fecha') or '').strip() or str(test.get('fecha') or '').strip()
     hora = str(vinc.get('hora') or '').strip() or str(test.get('hora') or '').strip()
     lugar = str(vinc.get('lugar') or '').strip() or str(test.get('lugar') or '').strip()
@@ -4935,7 +5210,7 @@ def api_leer_test():
     nombre = (request.args.get('persona') or '').strip()
     if not nombre:
         return jsonify({'error': 'Falta persona'}), 400
-    t = _leer_test(nombre)
+    t = _test_de(nombre)
     if not t:
         return jsonify({'error': 'Sin test guardado'}), 404
     return jsonify(t)
@@ -5144,6 +5419,9 @@ def _borrar_clan(p1):
 
 @app.route('/api/clan')
 def api_clan_get():
+    if _perfiles_cuenta_actual() is not None:
+        return jsonify({'m': {}, 'mayores': [], 'menores': [], 'parejas': [], 'hijos': [],
+                        'solo_local': True})
     p1 = (request.args.get('p1') or '').strip()
     if not p1:
         return jsonify({'m': {}, 'mayores': [], 'menores': [], 'parejas': [], 'hijos': []})
@@ -5177,6 +5455,8 @@ def api_clan_get():
 @app.route('/api/clan', methods=['POST'])
 def api_clan_post():
     import csv as _csv
+    if _perfiles_cuenta_actual() is not None:
+        return jsonify({'ok': True, 'solo_local': True})
     try:
         data = request.get_json(force=True) or {}
     except Exception:
@@ -5354,6 +5634,8 @@ def _leer_conocidos(p1=''):
 
 @app.route('/api/conocidos')
 def api_conocidos_get():
+    if _perfiles_cuenta_actual() is not None:
+        return jsonify({})
     p1 = (request.args.get('p1') or '').strip()
     return jsonify(_leer_conocidos(p1))
 
@@ -5361,6 +5643,8 @@ def api_conocidos_get():
 @app.route('/api/conocidos', methods=['POST'])
 def api_conocidos_post():
     import csv as _csv
+    if _perfiles_cuenta_actual() is not None:
+        return jsonify({'ok': True, 'solo_local': True})
     try:
         data = request.get_json(force=True) or {}
     except Exception:
@@ -5459,6 +5743,325 @@ def api_nube_mis():
         return jsonify({'perfiles': _nube.mis_perfiles(device_id)})
     except Exception as e:
         return jsonify({'error': str(e)[:300]}), 500
+
+
+# ---------- Fase 2: cuenta (email + contrasena) ----------
+import auth_db as _auth
+
+_COOKIE = 'dh_sesion'
+_COOKIE_DIAS = 30
+
+
+def _cuenta_actual():
+    try:
+        if not _auth.disponible():
+            return None
+        return _auth.cuenta_de_token(request.cookies.get(_COOKIE) or '')
+    except Exception:
+        return None
+
+
+def _poner_cookie(resp, token):
+    resp.set_cookie(_COOKIE, token, max_age=_COOKIE_DIAS * 86400, httponly=True,
+                    samesite='Lax', secure=bool(request.is_secure))
+    return resp
+
+
+@app.route('/cuenta')
+def pagina_cuenta():
+    return render_template('cuenta.html')
+
+
+@app.route('/api/cuenta/estado')
+def api_cuenta_estado():
+    try:
+        conf = _auth.disponible()
+    except Exception:
+        conf = False
+    ct = _cuenta_actual() if conf else None
+    return jsonify({'configurado': conf, 'logueado': bool(ct),
+                    'email': (ct or {}).get('email', '')})
+
+
+@app.route('/api/cuenta/registro', methods=['POST'])
+def api_cuenta_registro():
+    data = request.get_json(force=True, silent=True) or {}
+    try:
+        if not _auth.disponible():
+            return jsonify({'error': 'Neon no configurado (falta DATABASE_URL)'}), 503
+        _auth.init_db()
+        cuenta_id, codigo = _auth.crear_cuenta(data.get('email') or '', data.get('pw') or '')
+        token = _auth.crear_sesion(cuenta_id)
+        return _poner_cookie(jsonify({'ok': True, 'email': _auth._norm_email(data.get('email')),
+                                      'codigo_recuperacion': codigo}), token)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 409
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/cuenta/login', methods=['POST'])
+def api_cuenta_login():
+    data = request.get_json(force=True, silent=True) or {}
+    try:
+        if not _auth.disponible():
+            return jsonify({'error': 'Neon no configurado (falta DATABASE_URL)'}), 503
+        _auth.init_db()
+        cuenta_id = _auth.login(data.get('email') or '', data.get('pw') or '')
+        if not cuenta_id:
+            return jsonify({'error': 'Correo o contraseña incorrectos'}), 401
+        token = _auth.crear_sesion(cuenta_id)
+        return _poner_cookie(jsonify({'ok': True}), token)
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/cuenta/logout', methods=['POST'])
+def api_cuenta_logout():
+    try:
+        _auth.cerrar_sesion(request.cookies.get(_COOKIE) or '')
+    except Exception:
+        pass
+    resp = jsonify({'ok': True})
+    resp.delete_cookie(_COOKIE)
+    return resp
+
+
+@app.route('/api/cuenta/recuperar', methods=['POST'])
+def api_cuenta_recuperar():
+    data = request.get_json(force=True, silent=True) or {}
+    try:
+        if not _auth.disponible():
+            return jsonify({'error': 'Neon no configurado'}), 503
+        ok = _auth.recuperar(data.get('email') or '', data.get('codigo') or '', data.get('nueva') or '')
+        if not ok:
+            return jsonify({'error': 'Correo, código o contraseña inválidos'}), 401
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/cuenta/mis')
+def api_cuenta_mis():
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    try:
+        return jsonify({'email': ct['email'], 'perfiles': _auth.perfiles_de(ct['id'])})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/cuenta/subir', methods=['POST'])
+def api_cuenta_subir():
+    """Fija visibilidad de una persona. Con fase 3 el alta/edición ya guarda en Neon."""
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    data = request.get_json(force=True, silent=True) or {}
+    nombre = str(data.get('nombre') or data.get('persona') or '').strip()
+    if not nombre:
+        return jsonify({'error': 'Falta nombre'}), 400
+    try:
+        perfiles = _auth.perfiles_de(ct['id'])
+        previo = next((p for p in perfiles
+                       if str(p.get('nombre') or '').strip().lower() == nombre.lower()), None)
+        if not previo:
+            return jsonify({'error': f'"{nombre}" no está en tu cuenta. Usá Agregar para crearla.'}), 404
+        perfil = dict(previo)
+        perfil['visibilidad'] = str(data.get('visibilidad') or previo.get('visibilidad') or 'privado')
+        _auth.subir_perfil(ct['id'], perfil)
+        g.perfiles_cuenta = None
+        return jsonify({'ok': True, 'nombre': nombre, 'visibilidad': perfil['visibilidad']})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/cuenta/bajar', methods=['POST'])
+def api_cuenta_bajar():
+    """Con fase 3 las personas ya viven en Neon por cuenta: no hay que copiarlas al servidor."""
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    try:
+        perfiles = _auth.perfiles_de(ct['id'])
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+    nombres = [str(p.get('nombre') or '').strip() for p in perfiles if str(p.get('nombre') or '').strip()]
+    return jsonify({'ok': True, 'creadas': [], 'ya_estaban': nombres,
+                    'errores': [], 'personas': nombres, 'en_nube': True})
+
+
+@app.route('/api/cuenta/borrar', methods=['POST'])
+def api_cuenta_borrar():
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    data = request.get_json(force=True, silent=True) or {}
+    nombre = str(data.get('nombre') or '').strip()
+    if not nombre:
+        return jsonify({'error': 'Falta nombre'}), 400
+    try:
+        return jsonify({'ok': True, 'borrados': _auth.borrar_perfil(ct['id'], nombre)})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/cuenta/exportar')
+def api_cuenta_exportar():
+    """Descarga un CSV (mismo formato que datos.csv) con las personas de la cuenta."""
+    import csv as _csv
+    import io as _io2
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    try:
+        perfiles = _auth.perfiles_de(ct['id'])
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+    buf = _io2.StringIO()
+    w = _csv.writer(buf, delimiter=';')
+    w.writerow(['Nombre', 'Puerta', 'Linea', 'C/I', 'Fecha', 'Hora', 'Lugar'])
+    for p in perfiles:
+        dj = _dj(p)
+        nombre = str(p.get('nombre') or '').strip()
+        if not nombre:
+            continue
+        fecha, hora, lugar = p.get('fecha') or '', p.get('hora') or '', p.get('lugar') or ''
+        for campo, estado in (('inconscientes', 'Inconsciente'), ('conscientes', 'Consciente')):
+            lista = dj.get(campo) or []
+            lineas = dj.get(campo + '_lineas') or []
+            for i, g in enumerate(lista):
+                lin = lineas[i] if i < len(lineas) else ''
+                w.writerow([nombre, g, '' if lin in (None, '') else lin, estado, fecha, hora, lugar])
+    nombre_archivo = f"rave_{str(ct['email']).split('@')[0]}.csv"
+    resp = app.response_class('\ufeff' + buf.getvalue(), mimetype='text/csv')
+    resp.headers['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
+    return resp
+
+
+def _parse_csv_personas(texto):
+    """CSV (; o ,) con Nombre;Puerta;Linea;C/I[;Fecha;Hora;Lugar] -> {nombre: {...}}."""
+    import csv as _csv
+    import io as _io2
+    texto = (texto or '').lstrip('\ufeff')
+    lineas = [ln for ln in texto.splitlines() if ln.strip()]
+    if not lineas:
+        return {}, 'CSV vacío'
+    muestra = lineas[0]
+    sep = max((';', ',', '\t'), key=lambda c: muestra.count(c))
+    if muestra.count(sep) == 0:
+        sep = ';'
+    filas = list(_csv.reader(_io2.StringIO(texto), delimiter=sep))
+    if not filas:
+        return {}, 'CSV vacío'
+    head = [str(c or '').strip().lower().replace('í', 'i') for c in filas[0]]
+
+    def _idx(*nombres):
+        for n in nombres:
+            if n in head:
+                return head.index(n)
+        return None
+
+    i_nom = _idx('nombre', 'name')
+    i_pue = next((i for i, c in enumerate(head) if 'puerta' in c), None)
+    i_lin = next((i for i, c in enumerate(head) if 'linea' in c), None)
+    i_ci = _idx('c/i', 'ci', 'c-i')
+    i_fec, i_hor = _idx('fecha'), _idx('hora')
+    i_lug = _idx('lugar')
+    if i_nom is None or i_pue is None or i_ci is None:
+        return {}, 'Falta alguna columna: Nombre, Puerta, C/I (formato datos.csv)'
+    out = {}
+    for r in filas[1:]:
+        def _g(i):
+            return str(r[i] or '').strip() if (i is not None and i < len(r)) else ''
+        nombre = _g(i_nom)
+        if not nombre:
+            continue
+        try:
+            puerta = int(float(_g(i_pue).replace(',', '.').split('.')[0]))
+        except (ValueError, TypeError):
+            continue
+        if not 1 <= puerta <= 64:
+            continue
+        linea = None
+        s_lin = _g(i_lin)
+        if s_lin:
+            try:
+                n = int(float(s_lin))
+                linea = n if 1 <= n <= 6 else None
+            except (ValueError, TypeError):
+                linea = None
+        estado = 'inconsciente' if _g(i_ci).lower().startswith('incons') else 'consciente'
+        base = 'inconscientes' if estado == 'inconsciente' else 'conscientes'
+        d = out.setdefault(nombre, {'inconscientes': [], 'conscientes': [],
+                                    'inconscientes_lineas': [], 'conscientes_lineas': [],
+                                    'fecha': '', 'hora': '', 'lugar': ''})
+        d[base].append(puerta)
+        d[base + '_lineas'].append(linea)
+        if not d['fecha'] and _g(i_fec):
+            d['fecha'] = _g(i_fec)
+        if not d['hora'] and _g(i_hor):
+            d['hora'] = _g(i_hor)
+        if not d['lugar'] and _g(i_lug):
+            d['lugar'] = _g(i_lug)
+    return out, None
+
+
+@app.route('/api/cuenta/importar', methods=['POST'])
+def api_cuenta_importar():
+    """Importa un CSV (formato datos.csv) a la cuenta. Acepta archivo o texto JSON."""
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    texto = ''
+    try:
+        if 'archivo' in request.files:
+            texto = request.files['archivo'].read().decode('utf-8', 'replace')
+        else:
+            data = request.get_json(force=True, silent=True) or {}
+            texto = data.get('csv') or ''
+    except Exception as e:
+        return jsonify({'error': f'No se pudo leer el archivo: {e}'}), 400
+    personas, err = _parse_csv_personas(texto)
+    if err:
+        return jsonify({'error': err}), 400
+    if not personas:
+        return jsonify({'error': 'No se encontraron personas en el CSV'}), 400
+    existentes = {str(p.get('nombre') or '').strip().lower() for p in (_auth.perfiles_de(ct['id']) or [])}
+    creadas, actualizadas, errores = [], [], []
+    for nombre, d in personas.items():
+        payload = {'nombre': nombre,
+                   'inconscientes': d['inconscientes'], 'conscientes': d['conscientes'],
+                   'inconscientes_lineas': d['inconscientes_lineas'],
+                   'conscientes_lineas': d['conscientes_lineas'],
+                   'fecha': d['fecha'], 'hora': d['hora'], 'lugar': d['lugar']}
+        perfil, e = _cuenta_perfil_desde_payload(payload, nombre)
+        if e:
+            # Tolera personas con cantidad de puertas distinta de 13 (tránsitos, datos viejos).
+            if not d['inconscientes'] or not d['conscientes']:
+                errores.append({'nombre': nombre, 'error': e})
+                continue
+            perfil = {'nombre': nombre, 'fecha': d['fecha'], 'hora': d['hora'], 'lugar': d['lugar'],
+                      'lat': None, 'lon': None, 'tz': None, 'tz_name': '',
+                      'visibilidad': 'privado',
+                      'datos_json': {'inconscientes': d['inconscientes'],
+                                     'conscientes': d['conscientes'],
+                                     'inconscientes_lineas': d['inconscientes_lineas'],
+                                     'conscientes_lineas': d['conscientes_lineas'],
+                                     'perfil': _perfil_de_lineas(
+                                         (d['conscientes_lineas'] or [None])[0],
+                                         (d['inconscientes_lineas'] or [None])[0]),
+                                     'test': {}}}
+        try:
+            _auth.subir_perfil(ct['id'], perfil)
+            (actualizadas if nombre.lower() in existentes else creadas).append(nombre)
+            existentes.add(nombre.lower())
+        except Exception as e2:
+            errores.append({'nombre': nombre, 'error': str(e2)[:150]})
+    g.perfiles_cuenta = None
+    return jsonify({'ok': True, 'creadas': creadas, 'actualizadas': actualizadas,
+                    'errores': errores, 'total': len(personas)})
 
 
 if __name__ == '__main__':

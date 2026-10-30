@@ -7,6 +7,7 @@
 - Datos consolidados de públicos: `personas_publicas.csv` y `parejas_publicas.csv` (las listas fuente .xlsx quedan locales y no se publican).
 - Textos: `canales_accesibles/`, `base_informe_ia.txt`, `canales simplificados.txt`.
 - Config: `.gitignore`, `render.yaml`, `Procfile`, `requirements.txt`, `opencode`, `INICIAR.cmd`, `PUBLICAR.cmd`, `PUBLICACION.md`, imagenes SVG.
+- Nube (Neon): `nube_db.py`, `auth_db.py`, `schema_fase1.sql`, `schema_fase2.sql`, `templates/cuenta.html`, `templates/nube_test.html`.
 - Plantillas vacias: `plantillas/*.csv` (solo cabecera).
 
 ## Que NO entra (queda local)
@@ -24,6 +25,26 @@
 2. `python preparar_datos.py` crea los CSV personales vacios desde `plantillas/` (solo si no existen).
 3. `INICIAR.cmd` ya llama a `preparar_datos.py` antes de arrancar.
 4. Las fotos de `Publicos/` se regeneran con `python bajar_fotos_publicas.py` si hacen falta.
+
+## Nube (Neon) — opcional
+- Variable `DATABASE_URL` en Render (Environment). Sin ella todo sigue local en CSV.
+- `render.yaml` la declara con `sync: false`: se carga a mano en el panel y no se borra al sincronizar el Blueprint.
+- Tablas: `dispositivos` + `perfiles_nube` (fase 1, por navegador) y `cuentas` + `sesiones` + `perfiles_cuenta` (fase 2, por correo).
+- `/cuenta`: crear cuenta, entrar, importar/exportar CSV y fijar visibilidad.
+- Las tablas se crean solas al primer uso (`schema_fase1.sql`, `schema_fase2.sql`).
+
+## Fuente de datos según entorno
+1. Con sesión iniciada: solo las personas de esa cuenta (Neon). Nunca los CSV del servidor.
+2. Local con `datos.csv` propio con contenido: `datos.csv`.
+3. Sin datos propios o en Render: `datos_publicos.xlsx` (492 personas públicas).
+- En Render no se puede guardar sin cuenta: `Agregar` responde 401 y pide entrar.
+- `datos.csv` no se publica: en Render no existe, por eso nunca se exponen datos personales.
+- Importar/exportar: CSV con formato `Nombre;Puerta;Linea;C/I` (+ `Fecha;Hora;Lugar` opcional).
+
+## Aislamiento (fase 3)
+- `datos.csv`, `vinculos.csv`, `test.csv`, `ia.csv` e `informe.csv` locales NO se exponen a cuentas.
+- Por cuenta se guardan: puertas, líneas, fecha/hora/lugar, perfil y test de autoconocimiento.
+- Todavía locales (sin cuenta): clan, conocidos, dinámica compuesta, informes manuales y textos IA.
 
 ## Primera vez (crear el remoto)
 1. En GitHub: New repository -> nombre `aura-humana` -> Private -> NO marcar README, .gitignore ni licencia.
