@@ -51,9 +51,13 @@ desktop.ini
 
 # Excel de trabajo (la app usa los CSV; estos se regeneran)
 *.xlsx
+# Planillas publicas que la app lee en produccion (cargar_publicas_canales)
 !datos_publicos.xlsx
-!centros_detallado Matriz 9 Centros.xlsx
-!razgos.xlsx
+!publicos_hoy.xlsx
+!influyentes_historia.xlsx
+!historia_destacados.xlsx
+!politicos_uy.xlsx
+!actores_hollywood.xlsx
 
 # Medios pesados (se regeneran / no van al repo)
 /static/canales_audio/
