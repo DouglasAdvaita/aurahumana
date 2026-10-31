@@ -1770,6 +1770,7 @@
             <div class="foto-field full-row">Foto
                 <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
                     <input type="hidden" id="nuevo-foto">
+                    <input type="file" id="nuevo-foto-file" accept="image/*" style="display:none">
                     <button type="button" id="btn-elegir-foto">Examinar…</button>
                     <img id="nuevo-foto-preview" alt="" style="display:none;width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--borde3)">
                 </span>
@@ -4991,26 +4992,61 @@
                 const btn = $('btn-limpiar');
                 if (btn) btn.disabled = !hayDatosPanel();
             }
+            // Convierte un archivo de imagen en data: URL reducida, para que la
+            // foto viaje en el guardado y quede en la base (funciona también en
+            // Render, donde no hay explorador del servidor).
+            window.DHFotoDataUrl = function(file, cb){
+                if (!file || !String(file.type || '').startsWith('image/')) { cb(''); return; }
+                const fr = new FileReader();
+                fr.onerror = function(){ cb(''); };
+                fr.onload = function(){
+                    const img = new Image();
+                    img.onerror = function(){ cb(''); };
+                    img.onload = function(){
+                        try {
+                            const max = 480;
+                            const w = img.naturalWidth || img.width || max;
+                            const h = img.naturalHeight || img.height || max;
+                            const esc = Math.min(1, max / Math.max(w, h));
+                            const cw = Math.max(1, Math.round(w * esc));
+                            const ch = Math.max(1, Math.round(h * esc));
+                            const cv = document.createElement('canvas');
+                            cv.width = cw; cv.height = ch;
+                            const cx = cv.getContext('2d');
+                            cx.fillStyle = '#fff'; cx.fillRect(0, 0, cw, ch);
+                            cx.drawImage(img, 0, 0, cw, ch);
+                            cb(cv.toDataURL('image/jpeg', 0.82));
+                        } catch (e) { cb(String(fr.result || '')); }
+                    };
+                    img.src = String(fr.result || '');
+                };
+                fr.readAsDataURL(file);
+            };
             const inpFoto = $('nuevo-foto');
             if (inpFoto) inpFoto.addEventListener('input', actualizarPreviewFoto);
+            const fileFoto = $('nuevo-foto-file');
             const btnElegirFoto = $('btn-elegir-foto');
-            if (btnElegirFoto) btnElegirFoto.addEventListener('click', async function(){
+            if (btnElegirFoto && fileFoto) btnElegirFoto.addEventListener('click', function(){
                 const msg = $('add-persona-msg');
-                try {
-                    const r = await fetch('/api/elegir_foto', {method: 'POST'});
-                    const d = await r.json();
-                    if (!r.ok) {
-                        if (msg) { msg.className = 'err'; msg.textContent = d.error || 'No se pudo abrir el explorador'; }
+                if (msg) { msg.className = ''; msg.textContent = ''; }
+                fileFoto.value = '';
+                fileFoto.click();
+            });
+            if (fileFoto) fileFoto.addEventListener('change', function(){
+                const f = fileFoto.files && fileFoto.files[0];
+                if (!f) return;
+                const msg = $('add-persona-msg');
+                if (msg) { msg.className = ''; msg.textContent = 'Preparando la foto…'; }
+                window.DHFotoDataUrl(f, function(dataUrl){
+                    if (!dataUrl) {
+                        if (msg) { msg.className = 'err'; msg.textContent = 'No se pudo leer: elegí un archivo de imagen (JPG, PNG, WEBP).'; }
                         return;
                     }
-                    if (d.ruta) {
-                        if (inpFoto) inpFoto.value = d.ruta;
-                        actualizarPreviewFoto();
-                        actualizarBotonLimpiar();
-                    }
-                } catch (e) {
-                    if (msg) { msg.className = 'err'; msg.textContent = 'Error de red'; }
-                }
+                    if (inpFoto) inpFoto.value = dataUrl;
+                    actualizarPreviewFoto();
+                    actualizarBotonLimpiar();
+                    if (msg) { msg.className = 'ok'; msg.textContent = 'Foto lista. Se guarda al pulsar Guardar.'; }
+                });
             });
             const panelForm = document.querySelector('details.add-persona');
             if (panelForm) {
@@ -12076,6 +12112,20 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
             var inicial = entry.foto || (entry.data && entry.data.foto) || '';
             ponerFoto(inicial);
             function avisar(txt){ try{ alert(txt); }catch(e){} }
+            // Selector del navegador (funciona igual en local y en Render).
+            var inpFile = document.createElement('input');
+            inpFile.type = 'file'; inpFile.accept = 'image/*'; inpFile.style.display = 'none';
+            f.appendChild(inpFile);
+            inpFile.addEventListener('click', function(ev){ ev.stopPropagation(); });
+            inpFile.addEventListener('change', function(){
+                var file = inpFile.files && inpFile.files[0];
+                inpFile.value = '';
+                if (!file) return;
+                window.DHFotoDataUrl(file, function(dataUrl){
+                    if (!dataUrl){ avisar('No se pudo leer: elegí un archivo de imagen (JPG, PNG, WEBP).'); return; }
+                    guardarFoto(dataUrl);
+                });
+            });
             async function guardarFoto(ruta){
                 var nombre = String(entry.nombre || '').trim();
                 if (!nombre){ avisar('Elegí primero el nombre de la persona.'); return false; }
@@ -12098,13 +12148,7 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
             f.addEventListener('click', async function(ev){
                 ev.stopPropagation();
                 if (!String(entry.nombre || '').trim()){ avisar('Elegí primero el nombre de la persona.'); return; }
-                try{
-                    var r = await fetch('/api/elegir_foto', {method:'POST'});
-                    var d = await r.json();
-                    if (!r.ok){ avisar(d.error || 'No se pudo abrir el explorador'); return; }
-                    if (!d.ruta) return;
-                    await guardarFoto(d.ruta);
-                }catch(e){ avisar('Error de red'); }
+                inpFile.click();
             });
             ['dragover','dragenter'].forEach(function(evt){ f.addEventListener(evt, function(ev){ ev.preventDefault(); ev.stopPropagation(); f.classList.add('over'); }); });
             ['dragleave','drop'].forEach(function(evt){ f.addEventListener(evt, function(ev){ ev.preventDefault(); ev.stopPropagation(); f.classList.remove('over'); }); });
@@ -12113,15 +12157,10 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
                 if (!file || !String(file.type||'').startsWith('image/')) return;
                 var nombre = String(entry.nombre || '').trim();
                 if (!nombre){ avisar('Elegí primero el nombre de la persona.'); return; }
-                var fd = new FormData();
-                fd.append('foto', file);
-                fd.append('nombre', nombre);
-                try{
-                    var r = await fetch('/api/foto_subir', {method:'POST', body: fd});
-                    var d = await r.json();
-                    if (!r.ok){ avisar(d.error || 'No se pudo subir la foto'); return; }
-                    await guardarFoto(d.ruta);
-                }catch(e){ avisar('Error de red al subir la foto'); }
+                window.DHFotoDataUrl(file, function(dataUrl){
+                    if (!dataUrl){ avisar('No se pudo leer: elegí un archivo de imagen (JPG, PNG, WEBP).'); return; }
+                    guardarFoto(dataUrl);
+                });
             });
             return f;
         }

@@ -3488,6 +3488,23 @@ def get_persona_default():
 
 FOTOS_PERSONAS_PATH = Path("fotos_personas.csv")
 
+# La foto puede venir como archivo local, URL o imagen incrustada (data:).
+# En Render solo la imagen incrustada sobrevive (el disco es temporal), así que
+# el navegador la reduce y la manda como data: URL para guardarla en Neon.
+FOTO_MAX_BYTES = 3_000_000
+
+
+def _es_data_url(foto):
+    return str(foto or '').strip().lower().startswith('data:')
+
+
+def _error_foto(foto):
+    """Devuelve el mensaje de error si la foto no es aceptable."""
+    if _es_data_url(foto) and len(str(foto)) > FOTO_MAX_BYTES:
+        return 'La imagen es demasiado grande: elegí una foto más chica'
+    return ''
+
+
 
 def _cargar_fotos_personas():
     """Devuelve dict nombre(lower)->url foto. Archivo opcional nombre;foto."""
@@ -3670,14 +3687,20 @@ def api_persona_foto():
     if not nombre:
         return jsonify({'error': 'Falta el nombre'}), 400
     foto = str(data.get('foto') or '').strip()
+    err_foto = _error_foto(foto)
+    if err_foto:
+        return jsonify({'error': err_foto}), 413
+    ct = _cuenta_actual()
     if foto:
         es_url = bool(_re.match(r'^(?:https?:|data:|/)', foto, _re.I))
         if not es_url and not Path(foto).expanduser().is_file():
             return jsonify({'error': 'La foto no existe o se movió'}), 400
-        _guardar_foto_persona(nombre, foto)
+        # Con sesión, la imagen incrustada ya queda en el perfil (Neon); no se
+        # copia al CSV local para no inflarlo.
+        if not (_es_data_url(foto) and ct):
+            _guardar_foto_persona(nombre, foto)
     else:
         _borrar_foto_persona(nombre)
-    ct = _cuenta_actual()
     if ct:
         try:
             previo = next((p for p in (_perfiles_cuenta_actual() or [])
@@ -3792,6 +3815,9 @@ def _cuenta_perfil_desde_payload(data, nombre, previo=None):
     previo = previo or {}
     test = _dj(previo).get('test') or {}
     foto = str(data.get('foto') or '').strip() or str(_dj(previo).get('foto') or '').strip() or str(previo.get('foto') or '').strip()
+    err_foto = _error_foto(foto)
+    if err_foto:
+        return None, err_foto
     perfil = _perfil_de_lineas(consc_l[0] if consc_l else None, incon_l[0] if incon_l else None)
     return {
         'nombre': nombre,
