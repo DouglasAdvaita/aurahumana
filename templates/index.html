@@ -4678,6 +4678,8 @@
             try { if (typeof aplicarSimpl === 'function') aplicarSimpl(); } catch (err) {}
             try { renderListaFiltrada(); } catch (err) { console.error('renderListaFiltrada A:', err); }
             try { actualizarTransitos(); } catch (err) { console.error('actualizarTransitos A:', err); }
+            // El panel "Tránsitos en el tiempo" depende de las puertas de Persona 1.
+            try { renderMapaTransitos(); } catch (err) { console.error('renderMapaTransitos A:', err); }
             try { actualizarVisibilidad(); } catch (err) {}
             try { actualizarDatosBasicosA(persona); } catch (err) { console.error('actualizarDatosBasicosA:', err); }
             try { if (window._clanSetP1) window._clanSetP1(persona); } catch (err) {}
@@ -5363,8 +5365,14 @@
 
         // Convierte las muestras (1 por hora) en tramos con inicio y fin: un
         // cambio de puerta/estado se ubica en la mitad entre las dos muestras.
-        function tmSerieDesdeFilas(filas) {
+        // Un canal se enciende de dos maneras: con las dos puertas en el cielo
+        // (completo en el tránsito) o con una puerta del cielo y la otra de la
+        // carta de la persona (electromagnético: p. ej. Marte en 7 con la 31 de
+        // la persona = canal 7-31).
+        function tmSerieDesdeFilas(filas, puertasPersona) {
             if (!Array.isArray(filas) || filas.length < 2) return null;
+            const setP = new Set((puertasPersona || []).map(Number).filter(n => n >= 1 && n <= 64));
+            const personaKey = [...setP].sort((a, b) => a - b).join(',');
             const t0 = filas[0].t, t1 = filas[filas.length - 1].t;
             const abierto = new Map(), tramos = new Map();
             const paso = (clave, valor, corte) => {
@@ -5387,15 +5395,21 @@
                 const corte = i === 0 ? t0 : Math.round((filas[i - 1].t + f.t) / 2);
                 (f.planetas || []).forEach(pl => paso('P:' + pl.planeta, pl.puerta, corte));
                 const setG = new Set(f.puertas || []);
+                // Canal activo por cualquiera de las dos vías: completo en el
+                // cielo, o una puerta del cielo y la otra de la persona.
                 const setCan = new Set();
                 canales.forEach(k => {
                     const p = k.split('-').map(Number);
-                    if (setG.has(p[0]) && setG.has(p[1])) setCan.add(k);
+                    const cielo = setG.has(p[0]) && setG.has(p[1]);
+                    const conPersona = setP.size > 0 && (
+                        (setG.has(p[0]) && setP.has(p[1])) || (setG.has(p[1]) && setP.has(p[0])));
+                    if (cielo || conPersona) setCan.add(k);
                 });
                 canales.forEach(k => {
-                    const p = k.split('-').map(Number);
                     paso('K:' + k, setCan.has(k) ? 1 : 0, corte);
                 });
+                // Se define el centro si alguno de sus canales quedó activo,
+                // sea por el cielo o con las puertas de la persona.
                 ORDEN_CENTROS.forEach(id => {
                     const def = ((CENTRO_CANALES && CENTRO_CANALES[id]) || []).some(c => setCan.has(normCanalKey(c)));
                     paso('C:' + id, def ? 1 : 0, corte);
@@ -5407,10 +5421,14 @@
             });
             return {
                 t0, t1,
+                // Muestras y firma de puertas de la persona: sirven para rearmar
+                // la serie si se cambia de Persona 1 sin recargar el rango.
+                filas, personaKey,
                 planetas: PLANETAS_ORDEN.filter(p => tramos.has('P:' + p))
                     .map(p => ({ planeta: p, tramos: tramos.get('P:' + p) })),
-                // Solo los canales que se forman (ambas puertas presentes) en
-                // algún momento del rango.
+                // Solo los canales que se forman en algún momento del rango:
+                // entre dos puertas del cielo, o entre una del cielo y una de
+                // la persona.
                 canales: canales.map(k => ({
                     k,
                     centro: ((typeof CANAL_CENTROS !== 'undefined' && CANAL_CENTROS[k]) || [])[0] || '',
@@ -5419,6 +5437,23 @@
                   .sort((a, b) => a.k.localeCompare(b.k, undefined, { numeric: true })),
                 centros: ORDEN_CENTROS.map(id => ({ id, tramos: tramos.get('C:' + id) || [] }))
             };
+        }
+
+        // Firma de las puertas de Persona 1: si cambia, la serie quedó vieja.
+        function tmFirmaPersona(gates) {
+            return [...new Set((gates || []).map(Number).filter(n => n >= 1 && n <= 64))]
+                .sort((a, b) => a - b).join(',');
+        }
+        function tmPuertasPersona() {
+            return (dataPersonaA && dataPersonaA.todas_puertas) || [];
+        }
+        function tmRefrescarSeriePersona() {
+            const S = TRANSITO_SERIE;
+            if (!S || !Array.isArray(S.filas)) return;
+            const gates = tmPuertasPersona();
+            if (S.personaKey !== tmFirmaPersona(gates)) {
+                TRANSITO_SERIE = tmSerieDesdeFilas(S.filas, gates);
+            }
         }
 
         function tmAplicarVista() {
@@ -5486,6 +5521,9 @@
             const vp = document.getElementById('transitos-mapa-viewport');
             const hora = document.getElementById('tm-hora');
             if (!vp) return;
+            // Si cambió Persona 1, los canales que forma con el tránsito se
+            // recalculan antes de dibujar.
+            try { tmRefrescarSeriePersona(); } catch (e) {}
             const S = TRANSITO_SERIE;
             const st = transitoEstadoActual();
             if (!S || !st) {
@@ -10228,7 +10266,7 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
                     if (seq === cacheSeq) {
                         cache = c;
                         // Serie de la línea de tiempo (tramos de centros y planetas).
-                        TRANSITO_SERIE = tmSerieDesdeFilas(c.filas);
+                        TRANSITO_SERIE = tmSerieDesdeFilas(c.filas, tmPuertasPersona());
                     }
                     return c;
                 } catch (e) {

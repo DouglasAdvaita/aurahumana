@@ -10,10 +10,15 @@
   .card{background:#fff;border:1px solid var(--borde);border-radius:10px;padding:14px;margin-bottom:14px}
   h3{margin:0 0 10px;color:var(--azul);font-size:15px}
   label{display:block;margin:8px 0;font-size:13px}
-  input{width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--borde);border-radius:6px;font-size:14px;margin-top:3px}
+  input{display:block;width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--borde);border-radius:6px;font-size:14px;margin-top:4px}
+  /* Anchos acordes al dato: correo medio, contraseña media, código corto */
+  input[type=email]{max-width:340px}
+  input[type=password]{max-width:300px}
+  input.codigo-entrada{max-width:250px;font-family:ui-monospace,Consolas,monospace;letter-spacing:1px;text-transform:uppercase}
   button{padding:9px 14px;border:1px solid var(--borde);background:#fff;border-radius:6px;cursor:pointer;font-size:14px}
   button.prim{background:var(--azul);color:#fff;border-color:var(--azul);font-weight:600}
   button:hover{filter:brightness(.96)}
+  .acciones{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
   #msg{font-size:13px;margin:8px 0;min-height:18px}
   .ok{color:var(--ok)} .err{color:var(--err)}
   table{width:100%;border-collapse:collapse;font-size:13px}
@@ -21,7 +26,9 @@
   th{background:#f7f9fc;font-size:12px}
   .mini{color:#666;font-size:12px}
   .pill{display:inline-block;background:#eef;border:1px solid #ccd;border-radius:8px;padding:0 7px;font-size:12px}
-  .codigo{font-family:ui-monospace,Consolas,monospace;background:#fff8e1;border:1px solid #ffe082;padding:8px;border-radius:6px;word-break:break-all}
+  .codigo{font-family:ui-monospace,Consolas,monospace;background:#fff8e1;border:1px solid #ffe082;padding:10px 12px;border-radius:6px;word-break:break-all;max-width:360px;font-size:18px;letter-spacing:2px;user-select:all}
+  .aviso{border:1px solid #e8c469;background:#fffdf4}
+  .aviso h3{color:#8a6210}
   .oculto{display:none}
 </style></head>
 <body>
@@ -33,6 +40,18 @@
 </header>
 <main>
   <div id="msg"></div>
+
+  <!-- Aviso persistente: no vive dentro del panel de login, así no desaparece
+       cuando la pantalla cambia a "mis personas" justo después del registro. -->
+  <div id="caja-codigo" class="card aviso oculto">
+    <h3>Guardá este código de recuperación</h3>
+    <p class="mini">Es la única forma de recuperar la cuenta si olvidás la contraseña. Se muestra solo esta vez; después no se puede volver a consultar.</p>
+    <div class="codigo" id="codigo"></div>
+    <div class="acciones">
+      <button class="prim" id="btn-copiar">Copiar código</button>
+      <button id="btn-ok-codigo">Ya lo guardé</button>
+    </div>
+  </div>
 
   <div id="panel-login">
     <div class="card">
@@ -46,15 +65,12 @@
       <label>Correo<input id="r-email" type="email" autocomplete="username" placeholder="tu@mail.com"></label>
       <label>Contraseña (mínimo 8)<input id="r-pw" type="password" autocomplete="new-password"></label>
       <button class="prim" id="btn-registro">Crear cuenta</button>
-      <div id="caja-codigo" class="oculto" style="margin-top:12px">
-        <p class="mini">Guardá este código: es tu única forma de recuperar la cuenta si olvidás la contraseña. No se vuelve a mostrar.</p>
-        <div class="codigo" id="codigo"></div>
-      </div>
+      <p class="mini" style="margin:10px 0 0">Al crearla vas a recibir un código de recuperación: anotalo, no se vuelve a mostrar.</p>
     </div>
     <div class="card">
       <h3>Olvidé mi contraseña</h3>
       <label>Correo<input id="f-email" type="email"></label>
-      <label>Código de recuperación<input id="f-codigo" placeholder="XXXX-XXXX-XXXX-XXXX"></label>
+      <label>Código de recuperación<input id="f-codigo" class="codigo-entrada" placeholder="XXXX-XXXX-XXXX-XXXX"></label>
       <label>Contraseña nueva<input id="f-nueva" type="password" autocomplete="new-password"></label>
       <button id="btn-recuperar">Cambiar contraseña</button>
     </div>
@@ -164,15 +180,39 @@ $('btn-registro').onclick = async ()=>{
   if(r.ok){
     $('codigo').textContent = (r.j||{}).codigo_recuperacion || '';
     $('caja-codigo').classList.remove('oculto');
-    msg('Cuenta creada. Guardá el código de recuperación.', 'ok');
+    $('caja-codigo').scrollIntoView({block:'start'});
+    msg('Cuenta creada. El código de recuperación quedó arriba: copialo o anotalo.', 'ok');
     await pintar();
   } else msg((r.j||{}).error || 'No se pudo crear', 'err');
 };
 
+$('btn-copiar').onclick = async ()=>{
+  const cod = ($('codigo').textContent || '').trim();
+  if(!cod) return;
+  try{
+    await navigator.clipboard.writeText(cod);
+    msg('Código copiado al portapapeles.', 'ok');
+  }catch(e){
+    const rango = document.createRange();
+    rango.selectNodeContents($('codigo'));
+    const sel = getSelection();
+    sel.removeAllRanges();
+    sel.addRange(rango);
+    msg('El código quedó seleccionado: copialo con Ctrl+C.', '');
+  }
+};
+
+$('btn-ok-codigo').onclick = ()=>{ $('caja-codigo').classList.add('oculto'); };
+
 $('btn-recuperar').onclick = async ()=>{
   const r = await api('/api/cuenta/recuperar',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({email:$('f-email').value,codigo:$('f-codigo').value,nueva:$('f-nueva').value})});
-  msg(r.ok?'Contraseña cambiada. Entrá de nuevo.':((r.j||{}).error||'No se pudo cambiar'), r.ok?'ok':'err');
+  if(r.ok){
+    $('l-email').value = $('f-email').value;
+    $('l-pw').value = '';
+    $('f-email').value = ''; $('f-codigo').value = ''; $('f-nueva').value = '';
+    msg('Contraseña cambiada. Entrá de nuevo con la contraseña nueva.', 'ok');
+  } else msg((r.j||{}).error || 'No se pudo cambiar', 'err');
 };
 
 $('salir').onclick = async ()=>{
