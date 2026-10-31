@@ -70,3 +70,17 @@ def mis_perfiles(device_id):
         return [dict(zip(cols, r)) for r in cur.fetchall()]
     finally:
         c.close()
+
+
+def ping() -> bool:
+    """Consulta minima para mantener Neon activo (evita suspend)."""
+    if not disponible():
+        return False
+    c = _conn()
+    try:
+        cur = c.cursor()
+        cur.execute("SELECT 1")
+        cur.fetchone()
+        return True
+    finally:
+        c.close()
