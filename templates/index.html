@@ -53,7 +53,7 @@
         }
         #btn-tema:hover { border-color: var(--acento); }
         #fuente-bar {
-            position: fixed; top: 12px; right: 64px; z-index: 10001;
+            position: absolute; top: 8px; right: 8px; z-index: 5;
             display: flex; gap: 6px; align-items: center;
             background: var(--card); color: var(--titulo);
             border: 2px solid var(--borde3); border-radius: 8px;
@@ -588,6 +588,7 @@
             font-size: 11px;
         }
         .add-persona {
+            position: relative;
             width: 100%;
             max-width: 1850px;
             margin: 0 auto 15px auto;
@@ -1471,7 +1472,7 @@
             }
             #fuente-bar {
                 top: 8px;
-                right: 48px;
+                right: 8px;
                 padding: 3px 6px;
                 font-size: 11px;
                 max-width: calc(100vw - 60px);
@@ -1662,18 +1663,12 @@
 </head>
 <body>
     <button id="btn-tema" type="button" title="Tema: crema (clic para cambiar)">◐</button>
-    <div id="fuente-bar">
-        <span id="fuente-nombre" title="Fuente de datos activa">datos.csv</span>
-        <select id="fuente-xlsx-combo" title="Elegir un .xlsx para leer"></select>
-        <button type="button" id="btn-fuente-csv" title="Volver a leer los CSV">Usar CSV</button>
-        <a href="/cuenta" id="link-cuenta" title="Entrar o crear cuenta" style="margin-left:auto;font-size:12px;padding:2px 8px;border:1px solid var(--borde3);border-radius:4px;text-decoration:none;color:var(--texto)">Mi cuenta</a>
-    </div>
     <script>
     (function(){fetch('/api/cuenta/estado',{cache:'no-store'}).then(r=>r.json()).then(j=>{
       const a=document.getElementById('link-cuenta');
       if(!a) return;
       if(j && j.logueado){ a.textContent = j.email || 'Mi cuenta'; a.style.background='#e8f0fb'; }
-      else if(j && j.configurado===false){ a.textContent='Mi cuenta (sin Neon)'; }
+      else if(j && j.configurado===false){ a.textContent='Mi cuenta'; }
     }).catch(()=>{});})();
     </script>
     <script>
@@ -1761,6 +1756,12 @@
     </script>
     <details class="add-persona" data-caja="Agregar-Persona">
         <summary>Agregar nueva persona</summary>
+        <div id="fuente-bar">
+            <span id="fuente-nombre" title="Fuente de datos activa">datos.csv</span>
+            <select id="fuente-xlsx-combo" title="Elegir un .xlsx para leer"></select>
+            <button type="button" id="btn-fuente-csv" title="Volver a leer los CSV">Usar CSV</button>
+            <a href="/cuenta" id="link-cuenta" title="Entrar o crear cuenta" style="margin-left:auto;font-size:12px;padding:2px 8px;border:1px solid var(--borde3);border-radius:4px;text-decoration:none;color:var(--texto)">Mi cuenta</a>
+        </div>
         <div class="add-persona-form">
             <label>Nombre<input type="text" id="nuevo-nombre" placeholder="Nombre"></label>
             <label>Fecha nacimiento (DD/MM/AAAA)<input type="text" id="nuevo-fecha" placeholder="24/4/1968"></label>
@@ -11123,7 +11124,8 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
                         if (ps[i].clave === 'D:' + g) {
                             if (!window._snResp[g]) return null;
                             var el = document.querySelector('input[name="snq' + i + '"]:checked');
-                            var v = el ? parseInt(el.value, 10) : 2;
+                            if (!el) return null;
+                            var v = parseInt(el.value, 10);
                             var emo = (window._snEmo || {})[g] || (window._snEmo || {})[String(g)] || {};
                             if (v === 3) return {emo: emo.emoji_noser || null, estado: emo.estado_noser || 'Sombra', brillo: false, concepto: emo.concepto || '', v: v};
                             if (v === 2) return {emo: emo.emoji_normal || null, estado: emo.estado_normal || 'Normal', brillo: false, concepto: emo.concepto || '', v: v};
@@ -11314,7 +11316,7 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
                         + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
                         + [['3', 'Siempre'], ['2', 'A veces'], ['1', 'Raro'], ['0', 'Nunca']].map(function(par){
                             var v = par[0], t = par[1];
-                            return '<label style="font-size:11px;display:inline-block;border:1px solid var(--borde3);border-radius:10px;padding:1px 8px;cursor:pointer" data-snlab="1"><input type="radio" name="snq' + i + '" value="' + v + '" style="display:none"' + (dg ? ' data-sndoor="' + dg + '"' : '') + (v === '0' ? ' checked' : '') + '><span>' + t + '</span></label>';
+                            return '<label style="font-size:11px;display:inline-block;border:1px solid var(--borde3);border-radius:10px;padding:1px 8px;cursor:pointer" data-snlab="1"><input type="radio" name="snq' + i + '" value="' + v + '" style="display:none"' + (dg ? ' data-sndoor="' + dg + '"' : '') + '><span>' + t + '</span></label>';
                         }).join('')
                         + '</div></div>';
                 });
@@ -11374,19 +11376,20 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
                 if (!ps.length) { if (est) est.textContent = 'Primero elegí Persona 1.'; return; }
                 var vals = ps.map(function(_, i){
                     var el = document.querySelector('input[name="snq' + i + '"]:checked');
-                    return el ? parseInt(el.value, 10) : 0;
+                    return el ? parseInt(el.value, 10) : null;
                 });
                 // Solo cuentan las respondidas (las sin responder no suman ni al máximo).
                 var tmp = window._snTmp || {};
                 var nResp = 0, suma = 0, max = 0;
                 ps.forEach(function(p, i){
-                    if (tmp[p.clave] == null) return;
+                    if (tmp[p.clave] == null || vals[i] == null) return;
                     nResp++; suma += vals[i]; max += 3;
                 });
                 var alin = max ? Math.round((1 - suma / max) * 100) : 100;
                 try { window._sernoserVals = vals; window._sernoserAlin = alin; } catch (e) {}
                 var orden = ps.map(function(p, i){ return {p:p, v:vals[i], i:i}; })
-                    .sort(function(a, b){ return b.v - a.v; }).slice(0, 3).filter(function(x){ return x.v > 0; });
+                    .filter(function(x){ return x.v != null && x.v > 0; })
+                    .sort(function(a, b){ return b.v - a.v; }).slice(0, 3);
                 var col = alin >= 75 ? '#2e7d32' : (alin >= 45 ? '#ef6c00' : '#c62828');
                 var emoji = alin >= 75 ? '🌟' : (alin >= 45 ? '🌊' : '🌧️');
                 var h = '<div style="text-align:center;padding:10px 8px;border-radius:12px;background:linear-gradient(135deg,#e8eaf6,#f3e5f5);border:1px solid var(--borde3)">'
@@ -11452,8 +11455,8 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
                 var nom = '';
                 try { nom = (window._bioP1 || (document.getElementById('selector-persona-a') || {}).value || '').trim(); } catch (e) {}
                 if (!nom) { if (est) est.textContent = 'Elegí Persona 1.'; return; }
-                var fugas = ps.map(function(p, i){ return p.clave + '=' + (SN_PALABRA[vals[i]] || vals[i]); }).join(' | ');
-                var top = ps.map(function(p, i){ return {p:p, v:vals[i]}; }).sort(function(a, b){ return b.v - a.v; }).slice(0, 3).filter(function(x){ return x.v > 0; }).map(function(x){ return x.p.capa + ' (' + (SN_PALABRA[x.v] || x.v) + ')'; }).join('; ');
+                var fugas = ps.map(function(p, i){ if (vals[i] == null) return null; return p.clave + '=' + (SN_PALABRA[vals[i]] || vals[i]); }).filter(function(x){ return x; }).join(' | ');
+                var top = ps.map(function(p, i){ return {p:p, v:vals[i]}; }).filter(function(x){ return x.v != null && x.v > 0; }).sort(function(a, b){ return b.v - a.v; }).slice(0, 3).map(function(x){ return x.p.capa + ' (' + (SN_PALABRA[x.v] || x.v) + ')'; }).join('; ');
                 if (est) est.textContent = 'Guardando…';
                 fetch('/api/sernoser', {method:'POST', headers:{'Content-Type':'application/json'},
                     body: JSON.stringify({nombre: nom, alin: alin, fugas: top, resp: fugas})})

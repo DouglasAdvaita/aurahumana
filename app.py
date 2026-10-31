@@ -5852,6 +5852,247 @@ def api_clan_post():
     return jsonify({'ok': True})
 
 
+# ---------- Análisis avanzado del clan ----------
+_CLAN_DEFENSA = {'6-59', '27-50'}
+_CLAN_EGO = {'19-49', '40-37', '54-32', '26-44', '21-45'}
+_CLAN_PUENTES = {1: {4}, 4: {1}, 2: {5}, 5: {2}, 3: {6}, 6: {3}}
+_CLAN_ROL_LINEA = {1: 'Investigador', 2: 'Ermitaño', 3: 'Mártir', 4: 'Oportunista', 5: 'Hereje', 6: 'Modelo'}
+
+
+def _clan_lineas_perfil(perfil):
+    """Líneas 1-6 del perfil (acepta '5/1' o '5-1')."""
+    out = []
+    for x in str(perfil or '').replace('-', '/').split('/'):
+        try:
+            n = int(str(x).strip())
+        except Exception:
+            continue
+        if 1 <= n <= 6 and n not in out:
+            out.append(n)
+    return out
+
+
+def _clan_canales_par(puertas_a, puertas_b):
+    """Canales que aparecen al juntar dos personas (electromagnético, compañía, dominio)."""
+    A = set(int(p) for p in (puertas_a or []))
+    B = set(int(p) for p in (puertas_b or []))
+    out = []
+    for k in sorted(set(_hd_norm_canal(c) for c in _HD_CANAL_CENTROS)):
+        try:
+            x, y = [int(z) for z in k.split('-')]
+        except Exception:
+            continue
+        a1, a2 = x in A, y in A
+        b1, b2 = x in B, y in B
+        if (a1 and b2) or (a2 and b1):
+            out.append({'canal': k, 'tipo': 'electromagnetico'})
+        elif a1 and a2 and b1 and b2:
+            out.append({'canal': k, 'tipo': 'compania'})
+        elif (a1 and a2 and not (b1 or b2)) or (b1 and b2 and not (a1 or a2)):
+            out.append({'canal': k, 'tipo': 'dominio'})
+    return out
+
+
+def _clan_analisis(p1):
+    """Análisis agregado del clan: repeticiones, compensaciones, parejas, circuitos,
+    puentes de perfil, roles generacionales, evolución y Penta."""
+    p1 = str(p1 or '').strip()
+    filas = _leer_clan_df()
+    plow = p1.lower()
+    miembros, vistos = [], set()
+
+    def _add(nombre, rol):
+        nombre = str(nombre or '').strip()
+        if not nombre or nombre.lower() in vistos:
+            return
+        vistos.add(nombre.lower())
+        miembros.append({'nombre': nombre, 'rol': str(rol or '').strip()})
+
+    if p1:
+        _add(p1, 'p1')
+    for r in filas:
+        try:
+            kp1 = str(r.get('P1') or r.get('p1') or '').strip()
+        except Exception:
+            continue
+        if kp1.lower() != plow:
+            continue
+        _add(r.get('familiar'), r.get('rol'))
+
+    fichas = {}
+    try:
+        _df_all = cargar_datos()
+        _vinc_all = cargar_vinculos()
+    except Exception:
+        _df_all = _vinc_all = None
+    for m in miembros:
+        try:
+            f, err = _ficha_basica_para_persona(m['nombre'], _df=_df_all, _vinc=_vinc_all)
+        except Exception:
+            f, err = None, 'error'
+        if f and not err:
+            fichas[m['nombre']] = f
+
+    puertas_por, canales_por = {}, {}
+    for nombre, f in fichas.items():
+        for p in (f.get('puertas') or []):
+            try:
+                puertas_por.setdefault(int(p), set()).add(nombre)
+            except Exception:
+                pass
+        for c in (f.get('canales') or []):
+            canales_por.setdefault(_hd_norm_canal(c), set()).add(nombre)
+
+    repeticiones = []
+    for p in sorted(puertas_por):
+        personas = sorted(puertas_por[p])
+        if len(personas) >= 2:
+            repeticiones.append({'puerta': p, 'personas': personas})
+    repeticiones.sort(key=lambda x: (-len(x['personas']), x['puerta']))
+
+    compensaciones = []
+    todos = sorted(fichas)
+    for p in sorted(puertas_por):
+        definida = sorted(puertas_por[p])
+        abierta = [n for n in todos if n not in puertas_por[p]]
+        if definida and abierta:
+            compensaciones.append({'puerta': p, 'definida_en': definida, 'abierta_en': abierta})
+    compensaciones.sort(key=lambda x: (-len(x['definida_en']), x['puerta']))
+
+    # Pares: P1 con cada integrante + parejas declaradas por rol.
+    por_rol = {}
+    for m in miembros:
+        por_rol.setdefault(m['rol'], m['nombre'])
+    pares = []
+    if p1:
+        for m in miembros:
+            if m['nombre'] != p1:
+                pares.append((p1, m['nombre']))
+    for a, b in [('ap_abuelo', 'ap_abuela'), ('am_abuelo', 'am_abuela'),
+                 ('padre', 'madre'), ('p1', 'pareja')]:
+        if a in por_rol and b in por_rol:
+            pares.append((por_rol[a], por_rol[b]))
+    canales_pareja, vistos_pares = [], set()
+    for a, b in pares:
+        if a not in fichas or b not in fichas or a == b:
+            continue
+        k = tuple(sorted((a, b)))
+        if k in vistos_pares:
+            continue
+        vistos_pares.add(k)
+        ch = _clan_canales_par(fichas[a].get('puertas'), fichas[b].get('puertas'))
+        if ch:
+            canales_pareja.append({'entre': [a, b], 'canales': ch})
+
+    canales_clan = set(canales_por)
+    for par in canales_pareja:
+        for c in par['canales']:
+            canales_clan.add(c['canal'])
+    defensa = sorted(c for c in canales_clan if c in _CLAN_DEFENSA)
+    ego = sorted(c for c in canales_clan if c in _CLAN_EGO)
+
+    def _personas_de(lista):
+        return sorted({n for c in lista for n in canales_por.get(c, set())})
+
+    puentes = []
+    nombres = sorted(fichas)
+    for i, a in enumerate(nombres):
+        la = _clan_lineas_perfil(fichas[a].get('perfil'))
+        for b in nombres[i + 1:]:
+            lb = _clan_lineas_perfil(fichas[b].get('perfil'))
+            res = []
+            for x in la:
+                for y in lb:
+                    if y in _CLAN_PUENTES.get(x, set()):
+                        res.append([x, y])
+            if res:
+                puentes.append({'entre': [a, b], 'lineas': res})
+
+    generacion = {
+        'ap_abuelo': 'G1', 'ap_abuela': 'G1', 'am_abuelo': 'G1', 'am_abuela': 'G1',
+        'padre': 'G2', 'madre': 'G2', 'p1': 'G3', 'pareja': 'G3',
+    }
+    roles_generacionales = []
+    for m in miembros:
+        f = fichas.get(m['nombre'])
+        if not f:
+            continue
+        lineas = _clan_lineas_perfil(f.get('perfil'))
+        rol = m['rol']
+        gen = generacion.get(rol)
+        if not gen:
+            if rol.startswith(('mayor_', 'menor_', 'pareja_')):
+                gen = 'G3'
+            elif rol.startswith('hijo_'):
+                gen = 'G4'
+            else:
+                gen = ''
+        roles_generacionales.append({
+            'persona': m['nombre'], 'rol': rol, 'generacion': gen,
+            'perfil': f.get('perfil'), 'lineas': lineas,
+            'rol_linea': [_CLAN_ROL_LINEA.get(x, '') for x in lineas],
+        })
+
+    planificacion = ('37-40' in canales_clan) or (37 in puertas_por and 40 in puertas_por)
+    mutacion = ('3-60' in canales_clan) or (3 in puertas_por and 60 in puertas_por) or (55 in puertas_por)
+    claves = []
+    if planificacion:
+        claves.append('37-40')
+    if '3-60' in canales_clan:
+        claves.append('3-60')
+    if 55 in puertas_por:
+        claves.append('55')
+    fase = 'mixta' if (planificacion and mutacion) else ('planificacion' if planificacion else ('mutacion' if mutacion else 'indefinida'))
+
+    penta = None
+    if len(fichas) >= 3:
+        union = set()
+        for f in fichas.values():
+            union.update(int(p) for p in (f.get('puertas') or []))
+        canales_penta = _hd_canales_de_puertas(union)
+        penta = {
+            'integrantes': sorted(fichas),
+            'canales': canales_penta,
+            'centros': sorted(_hd_centros_definidos(canales_penta)),
+        }
+
+    integrantes = []
+    for m in miembros:
+        f = fichas.get(m['nombre']) or {}
+        integrantes.append({
+            'nombre': m['nombre'], 'rol': m['rol'],
+            'perfil': f.get('perfil'), 'tipo': f.get('tipo'),
+            'autoridad': f.get('autoridad'), 'definicion': f.get('definicion'),
+        })
+
+    return {
+        'p1': p1,
+        'integrantes': integrantes,
+        'repeticiones': repeticiones,
+        'compensaciones': compensaciones,
+        'canales_pareja': canales_pareja,
+        'circuitos': {
+            'defensa': {'canales': defensa, 'personas': _personas_de(defensa)},
+            'ego': {'canales': ego, 'personas': _personas_de(ego)},
+        },
+        'puentes': puentes,
+        'roles_generacionales': roles_generacionales,
+        'evolucion': {'fase': fase, 'claves': claves},
+        'penta': penta,
+    }
+
+
+@app.route('/api/clan_analisis')
+def api_clan_analisis():
+    p1 = (request.args.get('p1') or '').strip()
+    if not p1:
+        return jsonify({'error': 'falta p1'}), 400
+    try:
+        return jsonify(_clan_analisis(p1))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/fichas_batch', methods=['POST'])
 def api_fichas_batch():
     """Fichas básicas de N personas en 1 request (el clan pedía 1 fetch por integrante)."""
