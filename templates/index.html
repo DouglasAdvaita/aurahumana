@@ -732,6 +732,7 @@
             background: var(--panel);
             color: var(--texto);
         }
+        #btn-elegir-foto { display: inline-block; line-height: 1.1; user-select: none; }
         #btn-eliminar {
             padding: 8px 14px;
             border: 1px solid #b71c1c;
@@ -1770,8 +1771,8 @@
             <div class="foto-field full-row">Foto
                 <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
                     <input type="hidden" id="nuevo-foto">
-                    <input type="file" id="nuevo-foto-file" accept="image/*" style="display:none">
-                    <button type="button" id="btn-elegir-foto">Examinar…</button>
+                    <input type="file" id="nuevo-foto-file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)">
+                    <label for="nuevo-foto-file" id="btn-elegir-foto" role="button" tabindex="0">Examinar…</label>
                     <img id="nuevo-foto-preview" alt="" style="display:none;width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--borde3)">
                 </span>
             </div>
@@ -5026,14 +5027,23 @@
             if (inpFoto) inpFoto.addEventListener('input', actualizarPreviewFoto);
             const fileFoto = $('nuevo-foto-file');
             const btnElegirFoto = $('btn-elegir-foto');
-            if (btnElegirFoto && fileFoto) btnElegirFoto.addEventListener('click', function(){
-                const msg = $('add-persona-msg');
-                if (msg) { msg.className = ''; msg.textContent = ''; }
-                fileFoto.value = '';
-                fileFoto.click();
-            });
+            // El botón es un <label for> : abre el selector del sistema sin JS
+            // (funciona en escritorio, Android y iPhone). El teclado usa click().
+            if (btnElegirFoto && fileFoto) {
+                btnElegirFoto.addEventListener('keydown', function(ev){
+                    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); fileFoto.click(); }
+                });
+                const ua = navigator.userAgent || '';
+                if (/FBAN|FBAV|Instagram|WhatsApp|; wv\)|Line\//i.test(ua)) {
+                    const aviso = document.createElement('span');
+                    aviso.style.cssText = 'font-size:11px;color:#b26a00;flex-basis:100%';
+                    aviso.textContent = 'Si el selector no se abre, abrí esta página en Chrome o Safari.';
+                    if (btnElegirFoto.parentNode) btnElegirFoto.parentNode.appendChild(aviso);
+                }
+            }
             if (fileFoto) fileFoto.addEventListener('change', function(){
                 const f = fileFoto.files && fileFoto.files[0];
+                fileFoto.value = '';
                 if (!f) return;
                 const msg = $('add-persona-msg');
                 if (msg) { msg.className = ''; msg.textContent = 'Preparando la foto…'; }
@@ -12114,7 +12124,8 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
             function avisar(txt){ try{ alert(txt); }catch(e){} }
             // Selector del navegador (funciona igual en local y en Render).
             var inpFile = document.createElement('input');
-            inpFile.type = 'file'; inpFile.accept = 'image/*'; inpFile.style.display = 'none';
+            inpFile.type = 'file'; inpFile.accept = 'image/*';
+            inpFile.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)';
             f.appendChild(inpFile);
             inpFile.addEventListener('click', function(ev){ ev.stopPropagation(); });
             inpFile.addEventListener('change', function(){

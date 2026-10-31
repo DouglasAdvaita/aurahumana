@@ -50,6 +50,10 @@ app = Flask(__name__)
 @app.after_request
 def _gzip_response(resp):
     try:
+        if resp.mimetype == 'text/html':
+            # Sin esto el navegador puede quedarse con el HTML viejo tras un
+            # despliegue (el botón de foto parecía no responder).
+            resp.headers['Cache-Control'] = 'no-cache, must-revalidate'
         if resp.status_code < 200 or resp.status_code >= 300:
             return resp
         if 'gzip' not in (request.headers.get('Accept-Encoding') or '').lower():
