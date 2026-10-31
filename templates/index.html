@@ -1663,97 +1663,6 @@
 </head>
 <body>
     <button id="btn-tema" type="button" title="Tema: crema (clic para cambiar)">◐</button>
-    <script>
-    (function(){fetch('/api/cuenta/estado',{cache:'no-store'}).then(r=>r.json()).then(j=>{
-      const a=document.getElementById('link-cuenta');
-      if(!a) return;
-      if(j && j.logueado){ a.textContent = j.email || 'Mi cuenta'; a.style.background='#e8f0fb'; }
-      else if(j && j.configurado===false){ a.textContent='Mi cuenta'; }
-    }).catch(()=>{});})();
-    </script>
-    <script>
-    (function(){
-        var nomEl = document.getElementById('fuente-nombre');
-        var fx = document.getElementById('fuente-xlsx-combo');
-        var jActivo = null;
-
-        function poblarCombo(lista) {
-            if (!fx) return;
-            fx.innerHTML = '';
-            var optInicial = null;
-            for (var i = 0; i < lista.length; i++) {
-                var o = document.createElement('option');
-                o.value = lista[i];
-                o.textContent = lista[i];
-                fx.appendChild(o);
-                if (lista[i] === (jActivo || '')) optInicial = o;
-            }
-            if (optInicial) fx.value = optInicial.value;
-        }
-
-        function poblarComboDesdeXlsx() {
-            fetch('/api/fuente', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-                if (j && j.xlsx && j.xlsx.length) poblarCombo(j.xlsx);
-            }).catch(function(){});
-        }
-
-        function pintar(nombre, tipo){
-            if(!nomEl) return;
-            nomEl.textContent = tipo === 'xlsx' ? ('xlsx: ' + (nombre||'')) : 'datos.csv';
-            nomEl.style.color = tipo === 'xlsx' ? '#b26500' : '';
-        }
-
-        function refrescar(){
-            fetch('/api/fuente', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-                jActivo = j && j.activo;
-                if (j) pintar(j.activo, j.tipo);
-                poblarComboDesdeXlsx();
-            }).catch(function(){});
-        }
-
-        function actualizarP1() {
-            fetch('/api/personas', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-                if (!j || !j.personas) return;
-                var selA = document.getElementById('selector-persona-a');
-                if (!selA) return;
-                selA.innerHTML = '<option value="">-- Elegir Persona 1 --</option>';
-                for (var i = 0; i < j.personas.length; i++) {
-                    var o = document.createElement('option');
-                    o.value = j.personas[i];
-                    o.textContent = j.personas[i];
-                    selA.appendChild(o);
-                }
-                var valA = document.getElementById('selector-persona-a').value;
-                if (valA && ![...selA.options].some(function(o){ return o.value === valA; })) {
-                    selA.value = '';
-                }
-            }).catch(function(){});
-        }
-
-        if (fx) {
-            fx.addEventListener('change', function() {
-                var sel = fx.value || null;
-                if (!sel) { alert('Elegí un .xlsx del listado'); return; }
-                var txt = fx.textContent; fx.disabled = true; fx.textContent = 'Cargando…';
-                fetch('/api/fuente', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:sel})})
-                  .then(function(r){return r.json();}).then(function(j){
-                    fx.disabled = false; fx.textContent = txt;
-                    if (j && j.error) { alert('No se pudo cargar: ' + j.error); return; }
-                    jActivo = j.activo;
-                    pintar(j.activo, j.tipo);
-                    poblarComboDesdeXlsx();
-                    actualizarP1();
-                }).catch(function(){ fx.disabled = false; fx.textContent = txt; alert('Error al cargar la fuente'); });
-            });
-        }
-        var bc = document.getElementById('btn-fuente-csv');
-        if (bc) bc.addEventListener('click', function() {
-            fetch('/api/fuente', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:null})})
-              .then(function(r){return r.json();}).then(function(){ location.reload(); }).catch(function(){});
-        });
-        refrescar();
-    })();
-    </script>
     <details class="add-persona" data-caja="Agregar-Persona">
         <summary>Agregar nueva persona</summary>
         <div id="fuente-bar">
@@ -1877,6 +1786,97 @@
             <span id="add-persona-msg"></span>
         </div>
     </details>
+    <script>
+    (function(){fetch('/api/cuenta/estado',{cache:'no-store'}).then(r=>r.json()).then(j=>{
+      const a=document.getElementById('link-cuenta');
+      if(!a) return;
+      if(j && j.logueado){ a.textContent = j.email || 'Mi cuenta'; a.style.background='#e8f0fb'; }
+      else if(j && j.configurado===false){ a.textContent='Mi cuenta'; }
+    }).catch(()=>{});})();
+    </script>
+    <script>
+    (function(){
+        var nomEl = document.getElementById('fuente-nombre');
+        var fx = document.getElementById('fuente-xlsx-combo');
+        var jActivo = null;
+
+        function poblarCombo(lista) {
+            if (!fx) return;
+            fx.innerHTML = '';
+            var optInicial = null;
+            for (var i = 0; i < lista.length; i++) {
+                var o = document.createElement('option');
+                o.value = lista[i];
+                o.textContent = lista[i];
+                fx.appendChild(o);
+                if (lista[i] === (jActivo || '')) optInicial = o;
+            }
+            if (optInicial) fx.value = optInicial.value;
+        }
+
+        function poblarComboDesdeXlsx() {
+            fetch('/api/fuente', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+                if (j && j.xlsx && j.xlsx.length) poblarCombo(j.xlsx);
+            }).catch(function(){});
+        }
+
+        function pintar(nombre, tipo){
+            if(!nomEl) return;
+            nomEl.textContent = tipo === 'xlsx' ? ('xlsx: ' + (nombre||'')) : 'datos.csv';
+            nomEl.style.color = tipo === 'xlsx' ? '#b26500' : '';
+        }
+
+        function refrescar(){
+            fetch('/api/fuente', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+                jActivo = j && j.activo;
+                if (j) pintar(j.activo, j.tipo);
+                poblarComboDesdeXlsx();
+            }).catch(function(){});
+        }
+
+        function actualizarP1() {
+            fetch('/api/personas', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+                if (!j || !j.personas) return;
+                var selA = document.getElementById('selector-persona-a');
+                if (!selA) return;
+                selA.innerHTML = '<option value="">-- Elegir Persona 1 --</option>';
+                for (var i = 0; i < j.personas.length; i++) {
+                    var o = document.createElement('option');
+                    o.value = j.personas[i];
+                    o.textContent = j.personas[i];
+                    selA.appendChild(o);
+                }
+                var valA = document.getElementById('selector-persona-a').value;
+                if (valA && ![...selA.options].some(function(o){ return o.value === valA; })) {
+                    selA.value = '';
+                }
+            }).catch(function(){});
+        }
+
+        if (fx) {
+            fx.addEventListener('change', function() {
+                var sel = fx.value || null;
+                if (!sel) { alert('Elegí un .xlsx del listado'); return; }
+                var txt = fx.textContent; fx.disabled = true; fx.textContent = 'Cargando…';
+                fetch('/api/fuente', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:sel})})
+                  .then(function(r){return r.json();}).then(function(j){
+                    fx.disabled = false; fx.textContent = txt;
+                    if (j && j.error) { alert('No se pudo cargar: ' + j.error); return; }
+                    jActivo = j.activo;
+                    pintar(j.activo, j.tipo);
+                    poblarComboDesdeXlsx();
+                    actualizarP1();
+                }).catch(function(){ fx.disabled = false; fx.textContent = txt; alert('Error al cargar la fuente'); });
+            });
+        }
+        var bc = document.getElementById('btn-fuente-csv');
+        if (bc) bc.addEventListener('click', function() {
+            fetch('/api/fuente', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:null})})
+              .then(function(r){return r.json();}).then(function(){ location.reload(); }).catch(function(){});
+        });
+        refrescar();
+    })();
+    </script>
     <div class="layout-main">
         <div class="panel-lateral panel-izq" data-caja="Columna-P1">
             <div class="card selector-box" data-caja="P1-Selector">
@@ -2319,6 +2319,8 @@
         <div id="clan-lectura" class="info-list" style="display:block;">Elegí Persona 1 para empezar. Después sumá padres, abuelos, pareja y hermanos.</div>
         <h3 style="font-size:13px;color:#1a237e;margin:10px 0 6px 0;">Experiencias del alma en 3 generaciones</h3>
         <div id="clan-alma" class="info-list" style="display:block;">-</div>
+        <h3 style="font-size:13px;color:#1a237e;margin:10px 0 6px 0;">Análisis avanzado: repeticiones, circuitos, puentes y evolución</h3>
+        <div id="clan-analisis" class="info-list" style="display:block;">-</div>
         <div style="margin:8px 0 2px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button id="btn-clan-guardar" type="button" style="padding:6px 12px;cursor:pointer;">Guardar / Calcular</button>
             <button id="btn-clan-copiar-ia" type="button" style="padding:6px 12px;cursor:pointer;">Copiar pregunta a la IA</button>
@@ -12472,6 +12474,41 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
             });
             return out;
         }
+        function renderAnalisisClan(j){
+            var el = document.getElementById('clan-analisis');
+            if (!el) return;
+            if (!j || j.error){ el.textContent = '-'; return; }
+            function e2(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+            var out = [];
+            var rep = j.repeticiones || [];
+            out.push('<b>Puertas repetidas:</b> ' + (rep.length ? rep.slice(0,12).map(function(r){ return 'P'+r.puerta+' ('+r.personas.map(e2).join(', ')+')'; }).join(' · ') : '—'));
+            var comp = j.compensaciones || [];
+            out.push('<b>Compensaciones:</b> ' + (comp.length ? comp.slice(0,10).map(function(c){ return 'P'+c.puerta+' definida en '+c.definida_en.map(e2).join(', ')+'; abierta en '+c.abierta_en.map(e2).join(', '); }).join(' · ') : '—'));
+            var cp = j.canales_pareja || [];
+            out.push('<b>Canales que se completan en pareja:</b> ' + (cp.length ? cp.map(function(p){ return e2(p.entre[0])+' + '+e2(p.entre[1])+': '+p.canales.map(function(c){ return c.canal+' ('+c.tipo+')'; }).join(', '); }).join(' · ') : '—'));
+            var cir = j.circuitos || {};
+            var def = (cir.defensa && cir.defensa.canales) || [];
+            var ego = (cir.ego && cir.ego.canales) || [];
+            out.push('<b>Circuitos tribales:</b> Defensa '+(def.length?def.join(', '):'—')+' · Ego '+(ego.length?ego.join(', '):'—'));
+            var pu = j.puentes || [];
+            out.push('<b>Puentes de perfil:</b> ' + (pu.length ? pu.map(function(p){ return e2(p.entre[0])+' ↔ '+e2(p.entre[1])+' ('+p.lineas.map(function(l){ return l[0]+'/'+l[1]; }).join(', ')+')'; }).join(' · ') : '—'));
+            var rg = j.roles_generacionales || [];
+            if (rg.length) out.push('<b>Roles generacionales:</b> ' + rg.map(function(r){ return e2(r.persona)+' '+r.generacion+' '+((r.rol_linea||[]).join('/'))+(r.perfil?' ('+r.perfil+')':''); }).join(' · '));
+            var ev = j.evolucion || {};
+            out.push('<b>Evolución del clan:</b> '+(ev.fase||'indefinida')+(ev.claves&&ev.claves.length?' ('+ev.claves.join(', ')+')':''));
+            if (j.penta) out.push('<b>Penta:</b> '+j.penta.integrantes.length+' integrantes; canales '+((j.penta.canales||[]).join(', ')||'—')+'; centros '+((j.penta.centros||[]).join(', ')||'—'));
+            el.innerHTML = out.join('<br>');
+        }
+        var _analisisTimer = null;
+        function actualizarAnalisisClan(){
+            if (_analisisTimer) clearTimeout(_analisisTimer);
+            _analisisTimer = setTimeout(function(){
+                var p1 = (S.miembros.p1 && S.miembros.p1.nombre) || '';
+                var el = document.getElementById('clan-analisis');
+                if (!p1){ if (el) el.textContent = '-'; return; }
+                fetch('/api/clan_analisis?p1='+encodeURIComponent(p1)).then(function(r){ return r.json(); }).then(renderAnalisisClan).catch(function(){});
+            }, 400);
+        }
         function actualizarLectura(){
             var lec = document.getElementById('clan-lectura');
             var alm = document.getElementById('clan-alma');
@@ -12482,7 +12519,7 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
             S.mayores.forEach(function(h){ if (h.data && (h.nombre||'').trim()) conDatos.push('hM'+h.uid); });
             S.menores.forEach(function(h){ if (h.data && (h.nombre||'').trim()) conDatos.push('hm'+h.uid); });
             (S.parejas||[]).forEach(function(h){ if (h.data && (h.nombre||'').trim()) conDatos.push('px'+h.uid); });
-            if (!conDatos.length){ lec.textContent = 'Elegí a cada integrante del clan con su combo. Lo elegido se guarda en este navegador.'; if (alm) alm.textContent='-'; window._clanTronco = []; window._clanAbajo = []; window._clanSignificativo = {puertas:[], canales:[]}; try{ window.dispatchEvent(new CustomEvent('clan-actualizado')); }catch(e){} return; }
+            if (!conDatos.length){ lec.textContent = 'Elegí a cada integrante del clan con su combo. Lo elegido se guarda en este navegador.'; if (alm) alm.textContent='-'; window._clanTronco = []; window._clanAbajo = []; window._clanSignificativo = {puertas:[], canales:[]}; try{ actualizarAnalisisClan(); }catch(e){} try{ window.dispatchEvent(new CustomEvent('clan-actualizado')); }catch(e){} return; }
             function setDe(k){
                 if (S.miembros[k]) return setPuertas(S.miembros[k].data||{});
                 var h = S.mayores.concat(S.menores).concat(S.parejas||[]).find(function(x){ return ('hM'+x.uid)===k || ('hm'+x.uid)===k || ('px'+x.uid)===k; });
@@ -12631,6 +12668,7 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
                     try{ window.dispatchEvent(new CustomEvent('clan-actualizado')); }catch(e2){}
                 }catch(eSig){}
             }
+            try{ actualizarAnalisisClan(); }catch(e){}
         }
         function construirPromptClan(){
             function nom(k, rol){
@@ -12648,9 +12686,10 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
             var parex = (S.parejas||[]).filter(function(h){ return h.data || h.nombre; }).map(function(h){ return h.nombre || 'pareja'; });
             var encabezado = '¿Qué conclusiones se pueden sacar de estas relaciones entre ' + partes[0] + ' y su clan (' + partes[1] + (hnos.length ? ', hermanos=' + hnos.join(', ') : '') + (parex.length ? ', parejas extra=' + parex.join(', ') : '') + ') en base a Px (Puertas de diseño humano DH) y canales (x-y)? Análisis profundo de la evolución y comportamiento del alma.';
             var guiaTrans = 'Guía transgeneracional (alma del clan): G1/G2/G3 listan SOLO canales completos individuales (no electromagnetismos). Rojo=G2 repite de G1; en G3 rojo=viene de G1, azul=viene de G2, violeta=viene de G1+G2. "Solo clan" = canal que ninguna generación cierra sola (electromagnetismo entre generaciones). Memoria biogenética va en Diseño rojo: lo que fue tránsito/compromiso en padres y se vuelve canal fijo rojo en hijos = aprendizaje cristalizado. Vigilar: puerta 18 (corrección), puerta 3 + canal 3-60 (mutación), canal 18-58 (juicio/corrección), canal 27-50 (custodia), canal 13-33 (testigo), puerta 44 (memoria instintiva). Pedir al informe: 1) qué se hereda fijo, 2) qué se corrige (18), 3) qué muta (3-60), 4) propuesta concreta para mejorar el programa (qué cruce falta: tránsitos de padres en concepción vs rojo del hijo).';
-            var lec = '', alm = '';
+            var lec = '', alm = '', ana = '';
             try{ lec = document.getElementById('clan-lectura').textContent.trim(); }catch(e){}
             try{ alm = document.getElementById('clan-alma').textContent.trim(); }catch(e){}
+            try{ ana = document.getElementById('clan-analisis').textContent.trim(); }catch(e){}
             var roles = {ap_abuelo:'abuelo paterno', ap_abuela:'abuela paterna', am_abuelo:'abuelo materno', am_abuela:'abuela materna', padre:'padre', madre:'madre', p1:'P1', pareja:'pareja'};
             var puertas = [];
             Object.keys(roles).forEach(function(k){
@@ -12675,7 +12714,7 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
                 var arr4 = Array.from(setPuertas(h.data)).sort(function(a,b){return a-b;});
                 puertas.push((h.nombre || ('hijo '+(idx+1))) + ' (hijo/a): ' + arr4.map(function(p){return 'P'+p;}).join(' '));
             });
-            return encabezado + '\n' + guiaTrans + '\nLectura del clan: repeticiones, compensaciones y parejas que completan\n' + lec + '\nExperiencias del alma en 3 generaciones\n' + alm + (puertas.length ? '\nPuertas de cada miembro (datos adicionales):\n' + puertas.join('\n') : '');
+            return encabezado + '\n' + guiaTrans + '\nLectura del clan: repeticiones, compensaciones y parejas que completan\n' + lec + '\nExperiencias del alma en 3 generaciones\n' + alm + (ana ? '\nAnálisis avanzado del clan\n' + ana : '') + (puertas.length ? '\nPuertas de cada miembro (datos adicionales):\n' + puertas.join('\n') : '');
         }
         var btnClan = document.getElementById('btn-clan-copiar-ia');
         if (btnClan) btnClan.addEventListener('click', async function(){
