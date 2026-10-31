@@ -12474,6 +12474,10 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
             });
             return out;
         }
+        function clanEmojis(){ try{ if (typeof emojisPuerta==='function') return emojisPuerta()||{}; }catch(e){} try{ if (typeof mapaEmojis==='function') return mapaEmojis()||{}; }catch(e){} return {}; }
+        function clanEmP(p){ var m=clanEmojis(); var e=m[p]||m[String(p)]; if(e) return '<span title="P'+p+'">'+esc(String(e))+'</span>'; return 'P'+p; }
+        function clanEmCanal(c){ var ps=String(c||'').split('-'); if(ps.length!==2) return esc(String(c)); var a=parseInt(ps[0],10), b=parseInt(ps[1],10); if(isNaN(a)||isNaN(b)) return esc(String(c)); var m=clanEmojis(); var ea=m[a]||m[String(a)], eb=m[b]||m[String(b)]; return '<span title="'+esc(String(c))+'">'+esc(ea?String(ea):('P'+a))+esc(eb?String(eb):('P'+b))+'</span>'; }
+        function clanEmChTxt(txt){ var t=String(txt||''); var i=t.indexOf(' '); var c=i<0?t:t.slice(0,i), resto=i<0?'':t.slice(i); return clanEmCanal(c)+esc(resto); }
         function renderAnalisisClan(j){
             var el = document.getElementById('clan-analisis');
             if (!el) return;
@@ -12481,11 +12485,11 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
             function e2(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
             var out = [];
             var rep = j.repeticiones || [];
-            out.push('<b>Puertas repetidas:</b> ' + (rep.length ? rep.slice(0,12).map(function(r){ return 'P'+r.puerta+' ('+r.personas.map(e2).join(', ')+')'; }).join(' · ') : '—'));
+            out.push('<b>Puertas repetidas:</b> ' + (rep.length ? rep.slice(0,12).map(function(r){ return clanEmP(r.puerta)+' ('+r.personas.map(e2).join(', ')+')'; }).join(' · ') : '—'));
             var comp = j.compensaciones || [];
-            out.push('<b>Compensaciones:</b> ' + (comp.length ? comp.slice(0,10).map(function(c){ return 'P'+c.puerta+' definida en '+c.definida_en.map(e2).join(', ')+'; abierta en '+c.abierta_en.map(e2).join(', '); }).join(' · ') : '—'));
+            out.push('<b>Compensaciones:</b> ' + (comp.length ? comp.slice(0,10).map(function(c){ return clanEmP(c.puerta)+' definida en '+c.definida_en.map(e2).join(', ')+'; abierta en '+c.abierta_en.map(e2).join(', '); }).join(' · ') : '—'));
             var cp = j.canales_pareja || [];
-            out.push('<b>Canales que se completan en pareja:</b> ' + (cp.length ? cp.map(function(p){ return e2(p.entre[0])+' + '+e2(p.entre[1])+': '+p.canales.map(function(c){ return c.canal+' ('+c.tipo+')'; }).join(', '); }).join(' · ') : '—'));
+            out.push('<b>Canales que se completan en pareja:</b> ' + (cp.length ? cp.map(function(p){ return e2(p.entre[0])+' + '+e2(p.entre[1])+': '+p.canales.map(function(c){ return clanEmCanal(c.canal)+' ('+c.tipo+')'; }).join(', '); }).join(' · ') : '—'));
             var cir = j.circuitos || {};
             var def = (cir.defensa && cir.defensa.canales) || [];
             var ego = (cir.ego && cir.ego.canales) || [];
@@ -12553,21 +12557,21 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
                 var nomG = {indiv:'Individual', tribal:'Tribal', colec:'Colectivo'};
                 repTxt = ['indiv','tribal','colec'].map(function(g){
                     if (!grupos[g].length) return nomG[g]+': —';
-                    return nomG[g]+': '+grupos[g].map(function(p){ return 'P'+p+' ('+cuenta[p].map(function(k){ return escH(nombreDe(k)); }).join(', ')+')'; }).join(' · ');
+                    return nomG[g]+': '+grupos[g].map(function(p){ return clanEmP(p)+' ('+cuenta[p].map(function(k){ return escH(nombreDe(k)); }).join(', ')+')'; }).join(' · ');
                 }).join('<br>');
             }
             lineas.push(boldP(escH('Puertas repetidas en el clan: ')) + repTxt);
-            lineas.push(boldP(escH('La 3ª generación trae nuevo (no estaba arriba): ') + (compensa.length ? compensa.map(function(p){return 'P'+p;}).join(', ') : '—')));
+            lineas.push('<b>La 3ª generación trae nuevo (no estaba arriba):</b> ' + (compensa.length ? compensa.map(clanEmP).join(', ') : '—'));
             parejas.forEach(function(pp){
                 var A=S.miembros[pp[0]], B=S.miembros[pp[1]];
                 if (!A.data || !B.data) return;
                 var ch = listaCanales(setPuertas(A.data), setPuertas(B.data));
-                lineas.push('<b>Pareja '+escH(A.nombre||pp[0])+' + '+escH(B.nombre||pp[1])+'</b>: '+escH(ch.length? ch.join(', ') : 'sin canal directo'));
+                lineas.push('<b>Pareja '+escH(A.nombre||pp[0])+' + '+escH(B.nombre||pp[1])+'</b>: '+(ch.length? ch.map(clanEmChTxt).join(', ') : 'sin canal directo'));
             });
             (S.parejas||[]).forEach(function(h, idx){
                 if (!S.miembros.p1.data || !h.data) return;
                 var chx = listaCanales(setPuertas(S.miembros.p1.data), setPuertas(h.data));
-                lineas.push('<b>Pareja '+escH(S.miembros.p1.nombre||'P1')+' + '+escH(h.nombre||('Pareja '+(idx+2)))+'</b>: '+escH(chx.length? chx.join(', ') : 'sin canal directo'));
+                lineas.push('<b>Pareja '+escH(S.miembros.p1.nombre||'P1')+' + '+escH(h.nombre||('Pareja '+(idx+2)))+'</b>: '+(chx.length? chx.map(clanEmChTxt).join(', ') : 'sin canal directo'));
             });
             var mezclas = [];
             Object.keys(S.miembros).forEach(function(k){ var e=S.miembros[k]; if (e.overlays && e.overlays.length) mezclas.push((e.nombre||k)+' ← '+e.overlays.map(function(o){return o.nombre;}).join(', ')); });
@@ -12609,17 +12613,20 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
                 var cT = canalesDe(todos);
                 var s1=new Set(c1), s2=new Set(c2), s3=new Set(c3);
                 var soloClan = cT.filter(function(c){ return !s1.has(c)&&!s2.has(c)&&!s3.has(c); });
-                function fmtCanales(lista, heredaDe){
+                function fmtCanales(lista, colorea){
                     if (!lista.length) return '—';
                     return lista.map(function(c){
-                        var cls = heredaDe ? heredaDe(c) : null;
-                        if (cls) return '<span style="color:'+cls+';font-weight:800;">'+escH(c)+'</span>';
-                        return escH(c);
+                        var col = colorea ? colorea(c) : null;
+                        var em = clanEmCanal(c);
+                        if (col) return '<span style="color:'+col+';font-weight:800;">'+em+'</span>';
+                        return em;
                     }).join(', ');
                 }
-                var heredaG2 = function(c){ return s1.has(c) ? '#c62828' : null; };
-                var heredaG3 = function(c){ var en1=s1.has(c), en2=s2.has(c); if (en1&&en2) return '#6a1b9a'; if (en1) return '#c62828'; if (en2) return '#1565c0'; return null; };
-                alm.innerHTML = '<span style="font-size:11px;"><span style="color:#c62828;font-weight:800;">abuelos</span>, <span style="color:#1565c0;font-weight:800;">padres</span>, <span style="color:#6a1b9a;font-weight:800;">ambos</span></span><br><b>G1 abuelos</b>: '+fmtCanales(c1,null)+'<br><br><b>G2 padres</b>: '+fmtCanales(c2,heredaG2)+'<br><br><b>G3 P1+pareja+hermanos</b>: '+fmtCanales(c3,heredaG3)+'<br><br>Experiencias que ninguna generación cierra sola y el clan sí (electromagnetismos entre generaciones): '+escH(soloClan.join(', ')||'—');
+                function colorHer(c, e1, e2, e3){ if(!((e1&&e2)||(e1&&e3)||(e2&&e3))) return null; if(e1&&e2) return '#6a1b9a'; if(e1) return '#c62828'; return '#1565c0'; }
+                var colG1 = function(c){ return colorHer(c, true, s2.has(c), s3.has(c)); };
+                var colG2 = function(c){ return colorHer(c, s1.has(c), true, s3.has(c)); };
+                var colG3 = function(c){ return colorHer(c, s1.has(c), s2.has(c), true); };
+                alm.innerHTML = '<span style="font-size:11px;">Colores: <span style="color:#c62828;font-weight:800;">raíz en abuelos</span> · <span style="color:#1565c0;font-weight:800;">raíz en padres</span> · <span style="color:#6a1b9a;font-weight:800;">en ambas líneas</span></span><br><b>G1 abuelos</b>: '+fmtCanales(c1,colG1)+'<br><br><b>G2 padres</b>: '+fmtCanales(c2,colG2)+'<br><br><b>G3 P1+pareja+hermanos</b>: '+fmtCanales(c3,colG3)+'<br><br>Experiencias que ninguna generación cierra sola y el clan sí (electromagnetismos entre generaciones): '+(soloClan.length ? soloClan.map(clanEmCanal).join(', ') : '—');
                 // --- Exponer tronco + significativo para P1-Condicionamientos (solo tronco, solo pie) ---
                 try{
                     var TRONCO_KEYS = ['p1','padre','madre','ap_abuelo','ap_abuela','am_abuela','am_abuelo'];
