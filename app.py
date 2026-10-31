@@ -3613,39 +3613,6 @@ def _elegir_xlsx_dialogo():
     return salida.splitlines()[-1].strip() if salida else ''
 
 
-def _elegir_foto_dialogo():
-    """Abre el explorador nativo de Windows para elegir una foto."""
-    import subprocess
-    import sys
-    codigo = (
-        "import tkinter as tk\n"
-        "from tkinter import filedialog\n"
-        "r = tk.Tk()\n"
-        "r.withdraw()\n"
-        "r.attributes('-topmost', True)\n"
-        "p = filedialog.askopenfilename(title='Elegir foto de la persona',\n"
-        "    filetypes=[('Imagenes', '*.jpg *.jpeg *.png *.webp *.gif *.bmp'), ('Todos', '*.*')],\n"
-        "    initialdir='.')\n"
-        "print(p)\n"
-    )
-    try:
-        res = subprocess.run([sys.executable, '-c', codigo],
-                             capture_output=True, text=True, timeout=600)
-    except Exception:
-        return ''
-    salida = (res.stdout or '').strip()
-    return salida.splitlines()[-1].strip() if salida else ''
-
-
-@app.route('/api/elegir_foto', methods=['POST'])
-def api_elegir_foto():
-    """Devuelve la ruta local elegida en el explorador (solo uso local)."""
-    if _es_render():
-        return jsonify({'error': 'En Render no se puede abrir el explorador del equipo. Cargá la foto desde la app local.'}), 400
-    ruta = _elegir_foto_dialogo()
-    return jsonify({'ruta': ruta, 'cancelado': not bool(ruta)})
-
-
 @app.route('/api/foto_local')
 def api_foto_local():
     """Sirve una foto local por su ruta para poder previsualizarla."""
@@ -3658,28 +3625,6 @@ def api_foto_local():
     if p.suffix.lower() not in ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'):
         return jsonify({'error': 'Formato de imagen no permitido'}), 400
     return send_file(str(p))
-
-
-@app.route('/api/foto_subir', methods=['POST'])
-def api_foto_subir():
-    """Guarda una imagen enviada por el navegador y devuelve su ruta."""
-    f = request.files.get('foto')
-    if f is None or not (f.filename or '').strip():
-        return jsonify({'error': 'Falta la imagen'}), 400
-    ext = Path(f.filename).suffix.lower()
-    if ext not in ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'):
-        return jsonify({'error': 'Formato de imagen no permitido'}), 400
-    nombre = str(request.form.get('nombre') or '').strip()
-    base = _re.sub(r'[^A-Za-z0-9_-]+', '_', nombre).strip('_') or 'foto'
-    import uuid
-    try:
-        carpeta = Path('fotos_personas')
-        carpeta.mkdir(parents=True, exist_ok=True)
-        destino = carpeta / f'{base}_{uuid.uuid4().hex[:8]}{ext}'
-        f.save(str(destino))
-    except Exception:
-        return jsonify({'error': 'No se pudo guardar la imagen'}), 500
-    return jsonify({'ruta': destino.as_posix()})
 
 
 @app.route('/api/persona_foto', methods=['POST'])
@@ -6057,6 +6002,33 @@ def api_nube_health():
         return jsonify({'ok': True, 'db': False, 'msg': 'Sin DATABASE_URL: solo navegador'})
     except Exception as e:
         return jsonify({'ok': False, 'error': str(e)[:300]}), 500
+
+
+# ---------- Keep-alive Render + Neon ----------
+@app.route('/health')
+@app.route('/api/health')
+def api_health_keepalive():
+    """Endpoint ligero para pings externos (Render no duerme, Neon no suspende)."""
+    db_ok = None
+    err = None
+    try:
+        import nube_db as _nube
+        if _nube.disponible():
+            try:
+                db_ok = _nube.ping()
+            except Exception:
+                _nube.init_db()
+                db_ok = _nube.ping()
+        else:
+            db_ok = None
+    except Exception as e:
+        err = str(e)[:200]
+        db_ok = False
+    payload = {'ok': True, 'service': 'diseno-humano', 'db': db_ok}
+    if err:
+        payload['error'] = err
+    return jsonify(payload), 200
+
 
 
 @app.route('/api/nube/guardar', methods=['POST'])
