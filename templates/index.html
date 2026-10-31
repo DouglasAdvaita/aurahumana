@@ -300,7 +300,7 @@
             content: '▸ ';
         }
         .panel-lateral .card.colapsada > :not(h4) {
-            display: none;
+            display: none !important;
         }
         .panel-compuesto-controles > h4.desplegable {
             cursor: pointer;
@@ -319,7 +319,7 @@
             content: '▸ ';
         }
         .panel-compuesto-controles.colapsada > :not(h4) {
-            display: none;
+            display: none !important;
         }
         .grafico-card {
             background: var(--card);
@@ -329,6 +329,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
         .grafico-card.compuesto-card {
             border: 2px solid var(--indigo);
@@ -598,11 +599,14 @@
         }
         .add-persona summary { cursor: pointer; font-weight: 700; color: var(--titulo); }
         .add-persona-form {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 10px;
-            flex-wrap: wrap;
             margin-top: 10px;
-            align-items: flex-end;
+            align-items: end;
+        }
+        .add-persona-form .full-row {
+            grid-column: 1 / -1;
         }
         .add-persona-form label {
             display: flex;
@@ -612,22 +616,90 @@
             font-size: 12px;
             color: var(--suave);
         }
-        .add-persona-form input[type="text"] {
+        .add-persona-form input[type="text"],
+        .add-persona-form input[type="url"],
+        .add-persona-form select,
+        #test-autoconocimiento input[type="text"],
+        #test-autoconocimiento select {
+            height: 36px;
+            min-height: 36px;
+            box-sizing: border-box;
             padding: 7px 9px;
             border: 1px solid var(--borde3);
             border-radius: 6px;
             font-size: 13px;
             outline: none;
+            background: var(--panel);
+            color: var(--texto);
         }
         .add-persona-form select {
-            width: auto;
-            padding: 7px 9px;
-            font-size: 13px;
+            width: 100%;
         }
-        #nuevo-nombre { width: 180px; }
-        #nuevo-incon, #nuevo-consc { width: 300px; }
-        #nuevo-vinculo-tipo { width: 170px; }
-        #nuevo-vinculo-ref { width: 190px; }
+        #test-autoconocimiento label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--suave);
+        }
+        #test-autoconocimiento select,
+        #test-autoconocimiento input[type="text"] {
+            width: 100%;
+        }
+        #test-autoconocimiento .test-row-2,
+        #test-autoconocimiento .test-row-4 {
+            display: grid;
+            gap: 10px;
+            align-items: end;
+        }
+        #test-autoconocimiento .test-row-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        #test-autoconocimiento .test-row-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        #test-autoconocimiento .test-row-4 + .test-row-4 {
+            border-top: 1px solid var(--borde);
+            padding-top: 10px;
+        }
+        @media (max-width: 980px) {
+            #test-autoconocimiento .test-row-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 620px) {
+            #test-autoconocimiento .test-row-2,
+            #test-autoconocimiento .test-row-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .foto-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--suave);
+        }
+        .add-persona-actions {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 8px;
+            align-items: center;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+        .add-persona-actions #add-persona-msg {
+            white-space: nowrap;
+        }
+        #fila-puertas-nuevas {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            max-width: 330px;
+        }
+        #nuevo-nombre { width: 100%; }
+        #nuevo-incon, #nuevo-consc { width: 100%; }
+        #nuevo-vinculo-tipo, #nuevo-vinculo-ref { width: 100%; }
         #btn-agregar {
             padding: 8px 16px;
             background: var(--indigo);
@@ -650,7 +722,7 @@
             font-size: 13px;
         }
         #btn-calcular:hover { background: var(--acento-os); }
-        #btn-modificar, #btn-limpiar, #btn-cargar-p1 {
+        #btn-modificar, #btn-limpiar, #btn-cargar-p1, #btn-elegir-foto {
             padding: 8px 14px;
             border: 1px solid var(--borde3);
             border-radius: 6px;
@@ -660,7 +732,18 @@
             background: var(--panel);
             color: var(--texto);
         }
-        #btn-modificar:disabled { opacity: .5; cursor: not-allowed; }
+        #btn-eliminar {
+            padding: 8px 14px;
+            border: 1px solid #b71c1c;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            background: #c62828;
+            color: #fff;
+        }
+        #btn-eliminar:hover { background: #b71c1c; }
+        #btn-modificar:disabled, #btn-limpiar:disabled { opacity: .5; cursor: not-allowed; }
         #btn-cargar-p1 { background: #e8eaf6; border-color: #7986cb; color: #1a237e; }
         #btn-limpiar { background: #fff; }
         .modo-edicion { font-size: 12px; font-weight: 700; color: var(--titulo); align-self: center; }
@@ -804,17 +887,18 @@
            Controles. Aparece solo con «Superponer tránsito» en ON. */
         .transito-rail {
             position: absolute;
-            right: 2px;
+            left: 30%;
             top: 50%;
-            transform: translateY(-50%);
+            /* Centrado horizontal en la columna 2 de 5 y subido 1/4 de su alto. */
+            transform: translate(-50%, -75%);
             z-index: 9;
             display: none;
             flex-direction: column;
             align-items: center;
             gap: 3px;
-            width: 54px;
-            padding: 8px 5px 7px;
-            border-radius: 24px;
+            width: 44px;
+            padding: 7px 4px 6px;
+            border-radius: 22px;
             border: 1px solid var(--borde2);
             background: var(--card);
             background: color-mix(in srgb, var(--card) 88%, transparent);
@@ -831,15 +915,15 @@
         }
         .transito-rail .rail-slider-wrap {
             position: relative;
-            width: 32px;
-            height: 330px;
+            width: 28px;
+            height: 78px;
             flex: 0 0 auto;
         }
         .transito-rail input[type="range"] {
             position: absolute;
             left: 50%;
             top: 50%;
-            width: 330px;
+            width: 78px;
             height: 26px;
             margin: 0;
             transform: translate(-50%, -50%) rotate(-90deg);
@@ -886,6 +970,22 @@
             max-width: 48px;
         }
         .transito-rail .rail-time b { display: block; font-size: 10px; color: var(--titulo); }
+        .transito-rail .rail-tri {
+            width: 22px;
+            height: 16px;
+            border: 1px solid var(--borde3);
+            border-radius: 6px;
+            background: var(--panel2);
+            color: var(--suave);
+            font-size: 9px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .transito-rail .rail-tri:hover { border-color: var(--indigo); color: var(--indigo); }
         /* En pantallas angostas (celular) el rail taps el gráfico: se oculta. */
         @media (max-width: 768px) {
             .transito-rail { display: none !important; }
@@ -1667,6 +1767,13 @@
             <label class="lugar-wrap">Lugar (escribí la ciudad)<input type="text" id="nuevo-lugar" autocomplete="off" placeholder="Ej. Montevideo, Madrid, Rosario..."><div id="geo-sug"></div></label>
             <span id="lugar-elegido"></span>
             <label id="wrap-coords" style="display:none">Lat, lon, tz<input type="text" id="nuevo-coords" placeholder="-34.9, -56.2, -3"></label>
+            <div class="foto-field full-row">Foto
+                <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <input type="hidden" id="nuevo-foto">
+                    <button type="button" id="btn-elegir-foto">Examinar…</button>
+                    <img id="nuevo-foto-preview" alt="" style="display:none;width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--borde3)">
+                </span>
+            </div>
         </div>
         <div id="panel-dia" style="display:none;margin:8px 0;padding:8px;border:1px solid #c5cae9;border-radius:8px;overflow-x:auto">
             <div style="font-size:12px;font-weight:700;color:#1a237e;margin-bottom:4px">Panel del día — Tipo y Perfil hora por hora <span id="panel-dia-estado" style="font-weight:400;color:#555"></span></div>
@@ -1674,23 +1781,26 @@
             <div style="font-size:10px;color:#555;margin-top:2px">Línea vertical roja = cambia el valor respecto a la hora anterior. Línea amarilla (con fondo crema) = la hora que colocaste.</div>
         </div>
         <div id="test-autoconocimiento" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--borde)">
-            <div style="font-weight:700;color:var(--titulo);font-size:13px">Test de autoconocimiento — el informe se agrega al Informe PDF</div>
             <div style="font-size:12px;color:var(--muted);margin:6px 0">Respondé lo primero que harías, no lo ideal. Podés dejar en blanco lo que no quieras responder.</div>
             <div style="display:flex;flex-direction:column;gap:10px;margin:10px 0;font-size:12px">
-                <label>1) Entra un borracho desconocido a una reunión formal, tu primera reacción <select id="ac-triada"><option value="">— elegir —</option><option value="ira">IRA: enojo e impulso de actuar/ordenar</option><option value="verguenza">VERGÜENZA: me afecta imagen/rechazo, me cuido</option><option value="miedo">MIEDO: alerta, anticipo peligro, me aseguro</option></select></label>
-                <label>2) En reunión familiar, tu postura más típica <select id="ac-modo"><option value="">— elegir —</option><option value="combativo">COMBATIVA: enfrento, propongo, impongo</option><option value="sumiso">SUMISA: me adapto, ayudo, cumplo</option><option value="reservado">RESERVADA: observo, me repliego</option></select></label>
-                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <div class="test-row-4">
+                    <label>1) Entra un borracho desconocido a una reunión formal, tu primera reacción <select id="ac-triada"><option value="">— elegir —</option><option value="ira">IRA: enojo e impulso de actuar/ordenar</option><option value="verguenza">VERGÜENZA: me afecta imagen/rechazo, me cuido</option><option value="miedo">MIEDO: alerta, anticipo peligro, me aseguro</option></select></label>
+                    <label>2) En reunión familiar, tu postura más típica <select id="ac-modo"><option value="">— elegir —</option><option value="combativo">COMBATIVA: enfrento, propongo, impongo</option><option value="sumiso">SUMISA: me adapto, ayudo, cumplo</option><option value="reservado">RESERVADA: observo, me repliego</option></select></label>
+                </div>
+                <div class="test-row-4">
                     <label>Foco (ej: seguir una charla) <select id="ac-foco"><option value="">— elegir —</option><option value="pierdo">Me distraigo, pierdo el hilo</option><option value="hiper">Me engancho horas sin parar</option><option value="ambos">A veces me distraigo, a veces me engancho</option><option value="ninguno">Me concentro normal, sin problema</option></select></label>
                     <label>Ruido/luces/contacto <select id="ac-sensorial"><option value="">— elegir —</option><option value="mucho">Me agotan mucho, necesito salir</option><option value="aveces">A veces molestan</option><option value="no">No me afectan</option></select></label>
                     <label>Cambios (ej: plan a último momento) <select id="ac-rutina"><option value="">— elegir —</option><option value="rutina">Necesito rutina, el cambio me cuesta</option><option value="aburro">Me aburro sin novedad</option><option value="ambas">Me adapto bien a los cambios</option></select></label>
                     <label>Con gente (ej: chistes con doble sentido) <select id="ac-social"><option value="">— elegir —</option><option value="lectura">Entiendo literal, me cuesta el entrelíneas</option><option value="intenso">Temas que me apasionan horas</option><option value="ambos2">Ambas</option><option value="ninguno2">Entiendo el doble sentido sin problema</option></select></label>
                 </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <div class="test-row-4">
                     <label>Cuerpo/energía habitual <select id="ac-cuerpo"><option value="">— elegir —</option><option value="vata">Liviano y variable, me enfrío</option><option value="pitta">Medio e intenso, me da calor</option><option value="kapha">Pesado y estable, constante</option></select></label>
                     <label>Digestión/carácter <select id="ac-diges"><option value="">— elegir —</option><option value="vata">Irregular y ansioso</option><option value="pitta">Fuerte e irritable</option><option value="kapha">Lenta y tranquilo</option></select></label>
                     <label>Sueño/mente <select id="ac-sueno"><option value="">— elegir —</option><option value="vata">Liviano y mente que no para</option><option value="pitta">Corto e intensa</option><option value="kapha">Largo y calma</option></select></label>
                 </div>
-                <label>Nombre para numerología <input id="ac-nombre-num" style="width:260px" title="El número de Destino se calcula del nombre que pongas (probá nombre completo, primer nombre + apellido, etc.). La Vida sale de la fecha."></label>
+                <div class="test-row-4">
+                    <label>Nombre para numerología <input type="text" id="ac-nombre-num" style="width:100%" title="El número de Destino se calcula del nombre que pongas (probá nombre completo, primer nombre + apellido, etc.). La Vida sale de la fecha."></label>
+                </div>
             </div>
         </div>
         <script>
@@ -1728,6 +1838,7 @@
                 const coordsManual=wrap&&wrap.style.display!=='none'&&coordsEl&&coordsEl.value.trim();
                 const p={nombre:nombreClave,nombre_num:nomNum||nombreClave,
                     fecha:v('nuevo-fecha'),hora:v('nuevo-hora'),lugar:v('nuevo-lugar'),
+                    foto:v('nuevo-foto'),
                     triada:v('ac-triada'),modo:v('ac-modo'),foco:v('ac-foco'),sensorial:v('ac-sensorial'),
                     rutina:v('ac-rutina'),social:v('ac-social'),cuerpo:v('ac-cuerpo'),diges:v('ac-diges'),
                     sueno:v('ac-sueno')};
@@ -1746,17 +1857,20 @@
         })();
         </script>
         <div class="add-persona-form" id="fila-puertas-nuevas">
-            <label>Puertas inconscientes (13, comas; con línea opcional ej. 41.1)<input type="text" id="nuevo-incon" placeholder="41.1, 31, 10, ..."></label>
-            <label>Puertas conscientes (13, comas; con línea opcional ej. 27.5)<input type="text" id="nuevo-consc" placeholder="27, 28, 36, ..."></label>
+            <div style="display:none" aria-hidden="true">
+                <input type="text" id="nuevo-incon">
+                <input type="text" id="nuevo-consc">
+            </div>
             <label>Vínculo con<select id="nuevo-vinculo-tipo"><option value="">— sin vínculo —</option></select></label>
             <label>Persona<select id="nuevo-vinculo-ref"><option value="">— —</option></select></label>
-            <span id="modo-edicion" class="modo-edicion">Nueva persona</span>
+        </div>
+        <div class="add-persona-actions">
             <button id="btn-cargar-p1" type="button" title="Carga los datos de la Persona 1 seleccionada">Cargar P1</button>
             <button id="btn-calcular" type="button" title="Recalcula las puertas desde fecha, hora y lugar">Calcular</button>
             <button id="btn-agregar" type="button" title="Agrega la persona nueva">Agregar</button>
             <button id="btn-modificar" type="button" disabled title="Guarda los cambios de la Persona 1 cargada">Modificar</button>
-            <button id="btn-eliminar" type="button" style="display:none;background:#c62828;color:#fff" title="Elimina a la persona en edición de datos y vínculos (pide confirmación)">Eliminar</button>
-            <button id="btn-limpiar" type="button" title="Vacía el panel para cargar una persona nueva">Limpiar</button>
+            <button id="btn-eliminar" type="button" style="display:none" title="Elimina a la persona en edición de datos y vínculos (pide confirmación)">Eliminar</button>
+            <button id="btn-limpiar" type="button" disabled title="Vacía el panel para cargar una persona nueva">Limpiar</button>
             <span id="add-persona-msg"></span>
         </div>
     </details>
@@ -1827,6 +1941,18 @@
                     <div class="svg-box" id="svg-persona-a">
                         {{ svg_content | safe }}
                     </div>
+                    <!-- Rail vertical de tiempo: flota sobre el gráfico principal. -->
+                    <div class="transito-rail" id="transito-rail" aria-hidden="true">
+                        <button type="button" class="rail-tri rail-tri-up" id="rail-tri-up" title="Punto de cambio siguiente">▲</button>
+                        <span class="rail-ext" id="transito-rail-max">+7d</span>
+                        <div class="rail-slider-wrap">
+                            <input type="range" id="transito-slider-v" min="0" max="20160" step="10" value="10080"
+                                   title="Deslizá para recorrer el rango Atrás/Adelante. Mueve la misma hora que el deslizador de Controles.">
+                        </div>
+                        <span class="rail-ext" id="transito-rail-min">−7d</span>
+                        <button type="button" class="rail-tri rail-tri-down" id="rail-tri-down" title="Punto de cambio anterior">▼</button>
+                        <span class="rail-time" id="transito-rail-time" title="Clic para volver a la hora base">—</span>
+                    </div>
                 </div>
                 <div class="grafico-card compuesto-card" id="card-grafico-compuesto" data-caja="Grafico-Compuesto">
                     <h4 id="titulo-grafico-compuesto">Gráfico Compuesto (A + B)</h4>
@@ -1841,17 +1967,6 @@
                     <div class="svg-box" id="svg-persona-b">
                         <!-- clonado por JS -->
                     </div>
-                </div>
-                <!-- Rail vertical de tiempo: una sola hora para todo el tránsito.
-                     Se muestra solo con «Superponer tránsito» en ON. -->
-                <div class="transito-rail" id="transito-rail" aria-hidden="true">
-                    <span class="rail-ext" id="transito-rail-max">+7d</span>
-                    <div class="rail-slider-wrap">
-                        <input type="range" id="transito-slider-v" min="0" max="20160" step="10" value="10080"
-                               title="Deslizá para recorrer el rango Atrás/Adelante. Mueve la misma hora que el deslizador de Controles.">
-                    </div>
-                    <span class="rail-ext" id="transito-rail-min">−7d</span>
-                    <span class="rail-time" id="transito-rail-time" title="Clic para volver a la hora base">—</span>
                 </div>
             </div>
 
@@ -1894,6 +2009,21 @@
                     <span id="sernoser-estado" style="font-size:11px;color:var(--muted)"></span>
                 </div>
                 <div id="sernoser-informe" class="info-list" style="margin-top:8px;"></div>
+            </div>
+
+            <style>
+            .pc-wrap{padding:4px 0}
+            .pc-grupo-titulo{font-size:11px;font-weight:700;color:var(--muted);margin:8px 0 4px 0;letter-spacing:.5px;text-transform:uppercase}
+            .pc-grid{display:grid;grid-template-columns:repeat(auto-fill,78px);gap:6px;margin-bottom:6px}
+            .pc-cell{display:flex;align-items:center;justify-content:center}
+            .pc-filtros{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 6px 0}
+            .pc-filtro-btn{font-size:16px;line-height:1;padding:3px 6px;border:1.5px solid #2E86C1;border-radius:6px;background:#fff;cursor:pointer}
+            .pc-filtro-btn.off{opacity:.3;filter:grayscale(1);border-color:#bbb}
+            </style>
+            <div class="panel-compuesto-controles" id="card-publicos-canales" data-caja="Publicos-Canales">
+                <h4 class="desplegable" title="Clic para plegar/desplegar">Personajes con parecidos</h4>
+                <div id="pc-filtros" class="pc-filtros"></div>
+                <div id="publicos-canales-box" class="pc-wrap"></div>
             </div>
 
             <div id="filtros-lista-wrap" data-caja="Filtros-Lista" title="Puertas y líneas de Persona 1, Persona 2 y Tránsito según los filtros (descripciones de lineas_popup.csv)">
@@ -4402,7 +4532,7 @@
                 box.innerHTML=html;
                 if(_bt) _bt.value=(f.bio||'');
                 // El briefing (prompt IA) reutiliza esta ficha: Tipo, Autoridad, Centros, Puertas.
-                try{ if (window._fichaCache) window._fichaCache[persona] = f; }catch(e){}
+                try{ window._fichaCache = window._fichaCache || {}; window._fichaCache[persona] = f; }catch(e){}
                 fetch(`/api/ia_descripcion?persona=${encodeURIComponent(persona)}`).catch(()=>{});
             }catch(e){ box.textContent='Error'; if(_bt) _bt.value=''; pintarFotoPublicaA(''); }
         }
@@ -4450,7 +4580,8 @@
                 vinculo_referente: document.getElementById('nuevo-vinculo-ref').value,
                 fecha: document.getElementById('nuevo-fecha').value.trim(),
                 hora: document.getElementById('nuevo-hora').value.trim(),
-                lugar: inpLugar2 ? inpLugar2.value.trim() : ''
+                lugar: inpLugar2 ? inpLugar2.value.trim() : '',
+                foto: (document.getElementById('nuevo-foto') || {}).value || ''
             };
             const editarA = editar ? (window._editandoP1 || '') : '';
             if (editar && !editarA) {
@@ -4520,6 +4651,7 @@
                 actualizarCompuesto();
                 document.getElementById('transitos-tabla').innerHTML = '-';
                 try { actualizarBotonSNS('', false); } catch (e) {}
+                try { const _pb=document.getElementById('publicos-canales-box'); if(_pb) _pb.innerHTML=''; } catch(e){}
                 return;
             }
             let resp;
@@ -4536,6 +4668,7 @@
                 try{ actualizarDatosBasicosA(''); }catch(e){}
                 actualizarCompuesto();
                 try { actualizarBotonSNS('', false); } catch (e) {}
+                try { const _pb=document.getElementById('publicos-canales-box'); if(_pb) _pb.innerHTML=''; } catch(e){}
                 return;
             }
             // Cada paso protegido: el gráfico siempre se pinta aunque falle un detalle.
@@ -4549,6 +4682,7 @@
             try { actualizarDatosBasicosA(persona); } catch (err) { console.error('actualizarDatosBasicosA:', err); }
             try { if (window._clanSetP1) window._clanSetP1(persona); } catch (err) {}
             try { actualizarBotonSNS(persona, dataPersonaA && dataPersonaA.tiene_sns); } catch (err) {}
+            try { mostrarPublicosCanales(dataPersonaA); } catch (err) { console.error('mostrarPublicosCanales:', err); }
         });
 
         selectorB.addEventListener('change', async (e) => {
@@ -4693,7 +4827,8 @@
 
             function limpiarEditor(keepMsg) {
                 ['nuevo-nombre', 'nuevo-fecha', 'nuevo-hora', 'nuevo-lugar', 'nuevo-coords',
-                 'nuevo-incon', 'nuevo-consc', 'nuevo-vinculo-tipo', 'nuevo-vinculo-ref'].forEach(id => {
+                 'nuevo-incon', 'nuevo-consc', 'nuevo-vinculo-tipo', 'nuevo-vinculo-ref',
+                 'nuevo-foto'].forEach(id => {
                     const el = $(id); if (el) el.value = '';
                 });
                 const inp = $('nuevo-lugar');
@@ -4701,9 +4836,11 @@
                 const le = $('lugar-elegido'); if (le) le.textContent = '';
                 const wc = $('wrap-coords'); if (wc) wc.style.display = 'none';
                 const pd = $('panel-dia'); if (pd) pd.style.display = 'none';
+                const img = $('nuevo-foto-preview'); if (img) { img.style.display = 'none'; img.src = ''; }
                 try { if (typeof window._testLimpiar === 'function') window._testLimpiar(); } catch (e) {}
                 if (!keepMsg) { const msg = $('add-persona-msg'); if (msg) { msg.className = ''; msg.textContent = ''; } }
                 setModo(null);
+                actualizarBotonLimpiar();
             }
 
             async function cargarP1() {
@@ -4725,6 +4862,9 @@
                     $('nuevo-hora').value = d.hora || '';
                     const inpL = $('nuevo-lugar');
                     if (inpL) { inpL.value = d.lugar || ''; delete inpL.dataset.lat; delete inpL.dataset.lon; delete inpL.dataset.tzname; }
+                    const inpF = $('nuevo-foto');
+                    if (inpF) { inpF.value = d.foto || ''; }
+                    try { actualizarPreviewFoto(); } catch (e) {}
                     const fmt = (arr, lin) => (arr || []).map((p, i) => fmtPuertaLinea(p, (lin || [])[i])).join(', ');
                     $('nuevo-incon').value = fmt(d.puertas_inconscientes, d.inconscientes_lineas);
                     $('nuevo-consc').value = fmt(d.puertas_conscientes, d.conscientes_lineas);
@@ -4752,7 +4892,8 @@
                         if (btnAdd) { btnAdd.textContent = 'Editor: ON'; btnAdd.classList.add('on'); }
                     }
                     setModo(p1);
-                    if (msg) { msg.className = 'ok'; msg.textContent = 'Datos de ' + p1 + ' cargados. Revisá y pulsá Modificar.'; }
+                    actualizarBotonLimpiar();
+                    if (msg) { msg.className = ''; msg.textContent = ''; }
                 } catch (e) { if (msg) { msg.className = 'err'; msg.textContent = 'Error de red'; } }
             }
 
@@ -4773,6 +4914,7 @@
                 if (!f || !h) { if (msg) { msg.className = 'err'; msg.textContent = 'Completá fecha y hora para calcular.'; } return; }
                 if (!l && !manual) { if (msg) { msg.className = 'err'; msg.textContent = 'Completá el lugar para calcular.'; } return; }
                 try { calcularPreview(); } catch (e) {}
+                actualizarBotonLimpiar();
             });
             const btnLimpiar = $('btn-limpiar');
             if (btnLimpiar) btnLimpiar.addEventListener('click', () => limpiarEditor(false));
@@ -4814,6 +4956,67 @@
                     } catch (e) {}
                 });
             }
+            function actualizarPreviewFoto(){
+                const el = $('nuevo-foto');
+                const img = $('nuevo-foto-preview');
+                if (!el || !img) return;
+                const valor = el.value.trim();
+                if (!valor) { img.style.display = 'none'; img.src = ''; return; }
+                let src = valor;
+                if (!/^(https?:|data:|\/)/i.test(valor)) {
+                    src = '/api/foto_local?ruta=' + encodeURIComponent(valor);
+                }
+                img.src = src;
+                img.style.display = '';
+                img.onerror = function(){ img.style.display = 'none'; };
+            }
+            function hayDatosPanel(){
+                const campos = ['nuevo-nombre','nuevo-fecha','nuevo-hora','nuevo-lugar','nuevo-coords',
+                    'nuevo-foto','nuevo-incon','nuevo-consc','ac-nombre-num',
+                    'nuevo-vinculo-tipo','nuevo-vinculo-ref'];
+                for (const id of campos) {
+                    const el = $(id);
+                    if (el && String(el.value || '').trim()) return true;
+                }
+                const sel = ['ac-triada','ac-modo','ac-foco','ac-sensorial','ac-rutina','ac-social','ac-cuerpo','ac-diges','ac-sueno'];
+                for (const id of sel) {
+                    const el = $(id);
+                    if (el && String(el.value || '').trim()) return true;
+                }
+                return false;
+            }
+            function actualizarBotonLimpiar(){
+                const btn = $('btn-limpiar');
+                if (btn) btn.disabled = !hayDatosPanel();
+            }
+            const inpFoto = $('nuevo-foto');
+            if (inpFoto) inpFoto.addEventListener('input', actualizarPreviewFoto);
+            const btnElegirFoto = $('btn-elegir-foto');
+            if (btnElegirFoto) btnElegirFoto.addEventListener('click', async function(){
+                const msg = $('add-persona-msg');
+                try {
+                    const r = await fetch('/api/elegir_foto', {method: 'POST'});
+                    const d = await r.json();
+                    if (!r.ok) {
+                        if (msg) { msg.className = 'err'; msg.textContent = d.error || 'No se pudo abrir el explorador'; }
+                        return;
+                    }
+                    if (d.ruta) {
+                        if (inpFoto) inpFoto.value = d.ruta;
+                        actualizarPreviewFoto();
+                        actualizarBotonLimpiar();
+                    }
+                } catch (e) {
+                    if (msg) { msg.className = 'err'; msg.textContent = 'Error de red'; }
+                }
+            });
+            const panelForm = document.querySelector('details.add-persona');
+            if (panelForm) {
+                panelForm.addEventListener('input', actualizarBotonLimpiar);
+                panelForm.addEventListener('change', actualizarBotonLimpiar);
+            }
+            actualizarPreviewFoto();
+            actualizarBotonLimpiar();
             setModo(null);
         })();
 
@@ -5292,6 +5495,13 @@
                 TM_VIEW.geo = null;
                 return;
             }
+            // Si la serie no cambió, solo se mueve la marca de la hora elegida:
+            // evita reconstruir el SVG completo (costoso) en cada movimiento.
+            if (TM_VIEW.serie === S && vp.querySelector('svg')) {
+                if (hora) hora.textContent = '🕒 ' + _fmtFechaMVD(TRANSITO_ACTUAL.t_ms);
+                tmMarcarAhora(TRANSITO_ACTUAL.t_ms);
+                return;
+            }
             const p2 = (n) => String(n).padStart(2, '0');
 
             if (hora) hora.textContent = '🕒 ' + _fmtFechaMVD(TRANSITO_ACTUAL.t_ms);
@@ -5420,6 +5630,10 @@
             vp.scrollLeft = destino;
             TM_VIEW.serie = S;
             TM_VIEW.geo = { t0: S.t0, t1: S.t1, gutter, plotW };
+            // Puntos de cambio (gates/centros) para los triángulos del rail.
+            const cambios = new Set();
+            [S.centros, S.canales, S.planetas].forEach(arr => (arr || []).forEach(row => (row.tramos || []).forEach(tr => { cambios.add(tr.ini); cambios.add(tr.fin); })));
+            TM_VIEW.cambios = [...cambios].filter(t => t > S.t0 && t < S.t1).sort((a, b) => a - b);
             tmInitPan();
             if (!mismaSerie) {
                 // El panel puede estar plegado o sin ancho en este pase: se
@@ -7138,6 +7352,52 @@
                 elem.style.strokeWidth = grosor;
             });
             svgScope._centrosDefinidos = definidos;
+            // Recolorear números de puertas inactivas: gris claro sobre centros
+            // blancos (indefinidos) y gris 50% (#808080) sobre centros con color
+            // (definidos), para que se vean sobre el fondo coloreado.
+            try {
+                for (let g = 1; g <= 64; g++) {
+                    let centroId = null;
+                    for (const [cid, gates] of Object.entries(PUERTA_CENTRO)) {
+                        if ((gates || []).indexOf(g) !== -1) { centroId = cid; break; }
+                    }
+                    const circleId = (typeof gateToCircleMap !== 'undefined') ? gateToCircleMap[g] : null;
+                    const circle = circleId ? svgScope.querySelector('#' + circleId) : null;
+                    const inactivo = !circle || circle.style.visibility === 'hidden' ||
+                        circle.style.display === 'none' || circle.style.opacity === '0';
+                    if (!inactivo) continue;
+                    const elem = centroId ? svgScope.querySelector('#' + centroId) : null;
+                    let centroConColor = false;
+                    let fillCentro = '';
+                    if (elem) {
+                        fillCentro = String(elem.style.fill || '').trim();
+                        if (fillCentro === '' || fillCentro.toLowerCase() === 'none') {
+                            centroConColor = true;
+                            fillCentro = (typeof CENTRO_COLOR !== 'undefined' && CENTRO_COLOR[centroId]) || '';
+                        } else if (fillCentro.toLowerCase() !== 'white' && fillCentro.toLowerCase() !== '#ffffff' && fillCentro.toLowerCase() !== 'rgb(255, 255, 255)') {
+                            centroConColor = true;
+                        }
+                    }
+                    // Si el centro está en el set de definidos, también tiene color.
+                    if (centroId && definidos && definidos.has(centroId)) {
+                        centroConColor = true;
+                        if (!fillCentro) fillCentro = (typeof CENTRO_COLOR !== 'undefined' && CENTRO_COLOR[centroId]) || '';
+                    }
+                    let color, opacidad;
+                    if (!centroConColor) {
+                        color = '#888888';
+                        opacidad = '0.4';
+                    } else {
+                        // Gris oscuro, sin transparencia, para que se vea sobre el color.
+                        color = '#424242';
+                        opacidad = '1';
+                    }
+                    svgScope.querySelectorAll(`[id="puerta_${g}_texto"], [id="pueta_${g}_texto"]`).forEach(p => {
+                        p.style.opacity = opacidad;
+                        p.style.fill = color;
+                    });
+                }
+            } catch (e) {}
             return definidos;
         }
 
@@ -8036,6 +8296,244 @@
                 cont.appendChild(item);
             });
         }
+
+        let publicasCanalesCache = null;
+        async function cargarPublicasCanales() {
+            if (publicasCanalesCache) return publicasCanalesCache;
+            try {
+                const r = await fetch('/api/publicas_canales');
+                if (!r.ok) return [];
+                publicasCanalesCache = await r.json();
+                return publicasCanalesCache;
+            } catch (e) { console.error('cargarPublicasCanales:', e); return []; }
+        }
+        function normCanalStr(s){ const p=String(s).split('-').map(Number); if(p.length!==2||p.some(isNaN)) return String(s).trim(); return Math.min(p[0],p[1])+'-'+Math.max(p[0],p[1]); }
+var EMOJI={"1": "\ud83c\udfa8", "2": "\ud83e\udded", "3": "\ud83e\uddec", "4": "\ud83d\udca1", "5": "\u23f3", "6": "\ud83d\udee1\ufe0f", "7": "\ud83e\uddd1\u200d\u2708\ufe0f", "8": "\ud83c\udf81", "9": "\ud83d\udd0d", "10": "\ud83e\ude9e", "11": "\ud83d\udcad", "12": "\ud83c\udfa4", "13": "\ud83d\udc42", "14": "\ud83d\udcb0", "15": "\ud83c\udf17", "16": "\ud83c\udfb8", "17": "\ud83e\udd14", "18": "\ud83d\udd28", "19": "\ud83e\udef4", "20": "\u26a1", "21": "\ud83d\udd79\ufe0f", "22": "\ud83c\udf39", "23": "\ud83d\udde3\ufe0f", "24": "\u262f\ufe0f", "25": "\ud83e\udd0d", "26": "\ud83c\udfa9", "27": "\ud83e\udd32", "28": "\u2694\ufe0f", "29": "\u270b", "30": "\ud83d\udd25", "31": "\ud83d\udce2", "32": "\ud83d\udee3\ufe0f", "33": "\ud83d\udcbe", "34": "\ud83d\udcaa", "35": "\ud83d\ude80", "36": "\ud83c\udf0a", "37": "\ud83c\udfe0", "38": "\ud83e\udd4a", "39": "\ud83d\ude08", "40": "\ud83e\udd1d", "41": "\ud83c\udf31", "42": "\ud83d\udcc8", "43": "\ud83d\udc8e", "44": "\ud83d\udc3e", "45": "\ud83d\udc51", "46": "\ud83e\uddcd", "47": "\ud83e\udde9", "48": "\ud83d\udd73\ufe0f", "49": "\u2696\ufe0f", "50": "\ud83c\udfdb\ufe0f", "51": "\u26a1", "52": "\ud83e\uddd8", "53": "\ud83c\udf05", "54": "\ud83c\udfc6", "55": "\ud83c\udfb6", "56": "\ud83d\udcd6", "57": "\ud83d\udc41\ufe0f", "58": "\ud83d\ude04", "59": "\ud83d\udc9e", "60": "\ud83e\uddf1", "61": "\ud83d\udd2e", "62": "\ud83c\udff7\ufe0f", "63": "\u2753", "64": "\ud83c\udf2b\ufe0f"};
+var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5-15","6-59":"59-6","7-31":"7-31","9-52":"52-9","10-20":"10-20","10-34":"34-10","10-57":"57-10","11-56":"11-56","12-22":"22-12","13-33":"13-33","16-48":"48-16","17-62":"17-62","18-58":"58-18","19-49":"19-49","20-34":"34-20","20-57":"57-20","21-45":"21-45","23-43":"43-23","24-61":"61-24","25-51":"51-25","26-44":"44-26","27-50":"27-50","28-38":"38-28","29-46":"29-46","30-41":"41-30","32-54":"54-32","34-57":"34-57","35-36":"36-35","37-40":"37-40","39-55":"39-55","42-53":"53-42","47-64":"64-47"};
+        function pcEmo(g){return (typeof EMOJI!=="undefined" && EMOJI[g])?EMOJI[g]:g;}
+        function pcCanalOrden(ck){var p=ck.split("-").map(Number);if(p.length!==2||isNaN(p[0])||isNaN(p[1]))return ck;var k=Math.min(p[0],p[1])+"-"+Math.max(p[0],p[1]);return (typeof CANAL_ORDEN!=="undefined" && CANAL_ORDEN[k])?CANAL_ORDEN[k]:ck;}
+        function pcEmoPar(ck){var p=pcCanalOrden(ck).split("-");return pcEmo(+p[0])+pcEmo(+p[1]);}
+        let pcCanalesActivos = new Set();
+        let pcCurrentData = null;
+        async function mostrarPublicosCanales(data) {
+            pcCurrentData = data;
+            const cardPC = document.getElementById('card-publicos-canales');
+            if (cardPC && cardPC.classList.contains('colapsada')) return;
+            const box = document.getElementById('publicos-canales-box');
+            if (!box) return;
+            if (!data) { box.innerHTML = ''; return; }
+            const p1name = (typeof selectorA !== 'undefined' && selectorA && selectorA.value) ? selectorA.value : 'P1';
+            const h4 = document.querySelector('#card-publicos-canales h4');
+            if (h4) h4.textContent = 'Personajes con parecidos a ' + p1name;
+            const canalesA = new Set((window._canalesA || []).map(normCanalStr));
+            const filtrosBox = document.getElementById('pc-filtros');
+            if (filtrosBox) {
+                filtrosBox.innerHTML = '';
+                const lbl = document.createElement('span');
+                lbl.textContent = 'Filtrar por: ';
+                lbl.style.cssText = 'font-size:11px;color:var(--muted);align-self:center;margin-right:2px;';
+                filtrosBox.appendChild(lbl);
+                pcCanalesActivos = new Set(canalesA);
+                // boton discreto: solo personajes con mas canales totales que P1
+                if (!window.pcSoloMasCanales) window.pcSoloMasCanales = false;
+                const btnMas = document.createElement('button');
+                btnMas.className = 'pc-filtro-btn' + (window.pcSoloMasCanales ? '' : ' off');
+                btnMas.textContent = '≫';
+                btnMas.title = 'Solo con menos o igual canales que P1';
+                btnMas.style.marginLeft = 'auto';
+                btnMas.addEventListener('click', () => {
+                    window.pcSoloMasCanales = !window.pcSoloMasCanales;
+                    btnMas.classList.toggle('off', !window.pcSoloMasCanales);
+                    pcPintar();
+                });
+                [...canalesA].sort().forEach(ch => {
+                    const btn = document.createElement('button');
+                    btn.className = 'pc-filtro-btn';
+                    btn.textContent = pcEmoPar(ch);
+                    btn.title = ch;
+                    btn.dataset.canal = ch;
+                    btn.classList.toggle('off', !pcCanalesActivos.has(ch));
+                    btn.addEventListener('click', () => {
+                        if (pcCanalesActivos.has(ch)) pcCanalesActivos.delete(ch);
+                        else pcCanalesActivos.add(ch);
+                        btn.classList.toggle('off', !pcCanalesActivos.has(ch));
+                        pcPintar();
+                    });
+                    filtrosBox.appendChild(btn);
+                });
+                filtrosBox.appendChild(btnMas);
+            }
+            pcCurrentData = data;
+            await pcPintar();
+        }
+
+
+        async function pcPintar() {
+            const data = pcCurrentData;
+            if (!data) return;
+            const box = document.getElementById('publicos-canales-box');
+            if (!box) return;
+            const p1name = (typeof selectorA !== 'undefined' && selectorA && selectorA.value) ? selectorA.value : 'P1';
+            const h4 = document.querySelector('#card-publicos-canales h4');
+            if (h4) h4.textContent = 'Personajes con parecidos a ' + p1name;
+            const canalesA = new Set((window._canalesA || []).map(normCanalStr));
+            const tipoATxt = (typeof tipoDePuertas === 'function') ? (tipoDePuertas(data.todas_puertas) || '') : (data.tipo || '');
+            const perfilA = data.perfil || null;
+            const lista = await cargarPublicasCanales();
+            const items = [];
+            for (const p of (lista || [])) {
+                const chs = (p.canales || []).map(normCanalStr);
+                const comunes = chs.filter(c => canalesA.has(c));
+                if (!comunes.length) continue;
+                if (!comunes.some(c => pcCanalesActivos.has(c))) continue;
+                if (window.pcSoloMasCanales && new Set(chs).size > canalesA.size) continue;
+                const tipoMatch = !!(p.tipo && tipoATxt && p.tipo === tipoATxt);
+                const perfilMatch = !!(p.perfil && perfilA && p.perfil === perfilA);
+                let prio = 0;
+                if (tipoMatch && perfilMatch) prio = 3;
+                else if (tipoMatch) prio = 2;
+                else if (perfilMatch) prio = 1;
+                const diff = new Set(chs).size - comunes.length;
+                const mismoNro = (new Set(chs).size === canalesA.size) && (comunes.length === canalesA.size);
+                items.push({ p, comunes, prio, tipoMatch, perfilMatch, diff, frio: mismoNro });
+            }
+            box.innerHTML = '';
+            if (!items.length) { box.innerHTML = '<div class="exp-vacio">Sin públicos con canales en común.</div>'; return; }
+
+            const renderSection = (arr) => {
+                const grupos = {};
+                arr.forEach(it => { const k = it.comunes.length; (grupos[k] = grupos[k] || []).push(it); });
+                Object.keys(grupos).map(Number).sort((a,b) => b-a).forEach(k => {
+                    const g = grupos[k].slice().sort((a,b) => (b.frio?1:0) - (a.frio?1:0) || b.prio - a.prio || a.diff - b.diff || a.p.nombre.localeCompare(b.p.nombre));
+                    const titulo = document.createElement('div');
+                    titulo.className = 'pc-grupo-titulo';
+                    titulo.textContent = k + (k === 1 ? ' Canal' : ' Canales');
+                    box.appendChild(titulo);
+                    const grid = document.createElement('div');
+                    grid.className = 'pc-grid';
+                    g.forEach(it => {
+                        const p = it.p;
+                        const cell = document.createElement('div');
+                        cell.className = 'pc-cell';
+                        cell.style.position = 'relative';
+                        cell.style.width = '69px';
+                        cell.style.height = '69px';
+                        let color = '';
+                        if (it.frio) {
+                            if (it.tipoMatch && it.perfilMatch) color = '#8e24aa';
+                            else if (it.tipoMatch) color = '#1e88e5';
+                            else if (it.perfilMatch) color = '#29b6f6';
+                            else color = '#4caf50';
+                        } else {
+                            if (it.tipoMatch && it.perfilMatch) color = '#e53935';
+                            else if (it.tipoMatch) color = '#ff9800';
+                            else if (it.perfilMatch) color = '#fdd835';
+                        }
+                        const ring = color ? `box-shadow:0 0 0 3px ${color};` : '';
+                        const img = document.createElement('img');
+                        img.className = 'pc-foto';
+                        img.loading = 'lazy';
+                        img.decoding = 'async';
+                        img.src = p.foto || '';
+                        img.alt = '';
+                        img.style.cssText = ring + 'width:69px;height:69px;object-fit:cover;border-radius:6px;cursor:pointer;';
+                        if (!p.foto) img.style.display = 'none';
+                        img.onerror = () => { img.style.display = 'none'; };
+                        img.onmouseover = () => { clearTimeout(window._pcHideTimer); abrirPopupPublico(p, it.comunes, it.tipoMatch, it.perfilMatch, img); };
+                        img.onmouseout = () => { window._pcHideTimer = setTimeout(() => { const _pp=document.getElementById('pc-popup'); if(_pp && !_pp.matches(':hover')) _pp.style.display='none'; }, 320); };
+                        img.addEventListener('click', () => { cargarPublicoComoP2(p.nombre); });
+                        cell.appendChild(img);
+                        const lab = document.createElement('span');
+                        lab.textContent = p.nombre;
+                        lab.style.cssText = 'position:absolute;left:0;right:0;bottom:1px;text-align:center;font-size:8px;line-height:1;color:#fff;text-shadow:0 0 2px #000,0 0 2px #000;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                        cell.appendChild(lab);
+                        grid.appendChild(cell);
+                    });
+                    box.appendChild(grid);
+                });
+            };
+
+            // Un solo renglon por cantidad de canales; frios primero dentro del renglon.
+            renderSection(items);
+        }
+
+        function abrirPopupPublico(p, comunes, tipoMatch, perfilMatch, anchor) {
+            let pop = document.getElementById('pc-popup');
+            if (!pop) {
+                pop = document.createElement('div');
+                pop.id = 'pc-popup';
+                pop.style.cssText = 'position:fixed;z-index:9999;display:none;background:#fff;border:1px solid #b0b8c4;border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.25);padding:10px;font-size:12px;max-width:260px;';
+                document.body.appendChild(pop);
+                pop.onmouseover = () => { clearTimeout(window._pcHideTimer); };
+                pop.onmouseout = () => { window._pcHideTimer = setTimeout(() => { pop.style.display = 'none'; }, 320); };
+            }
+            const imgHtml = p.foto ? `<img src="${escHtml(p.foto)}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;float:left;margin-right:8px;" onerror="this.style.display='none'">` : '';
+            const badges = (tipoMatch ? 'Mismo Tipo ' : '') + (perfilMatch ? 'Mismo Perfil' : '');
+            const bio = p.bio ? `<br><span style="font-size:11px;color:var(--muted);">${escHtml(p.bio)}</span>` : '';
+            pop.innerHTML = `${imgHtml}<div style="overflow:hidden;"><b>${escHtml(p.nombre)}</b><br>` +
+                `Tipo: ${escHtml(p.tipo || '—')}<br>Perfil: ${escHtml(p.perfil || '—')}<br>` +
+                `Canales: ${(p.canales||[]).map(c => comunes.includes(normCanalStr(c)) ? '<b>'+escHtml(c)+'</b>' : escHtml(c)).join(', ')}` +
+                (badges ? `<br><span style="color:#e53935;font-weight:700;">${escHtml(badges.trim())}</span>` : '') +
+                bio +
+                `</div><div style="clear:both;margin-top:8px;text-align:right;"><button type="button" style="font-size:11px;padding:2px 8px;cursor:pointer;" onclick="document.getElementById('pc-popup').style.display='none'">Cerrar</button></div>`;
+            pop.style.display = 'block';
+            if (anchor && anchor.getBoundingClientRect) {
+                const r = anchor.getBoundingClientRect();
+                let left = r.left;
+                if (left + pop.offsetWidth > window.innerWidth - 6) left = window.innerWidth - pop.offsetWidth - 6;
+                if (left < 6) left = 6;
+                let top = r.top - pop.offsetHeight - 6;
+                if (top < 6) top = r.bottom + 6;
+                pop.style.left = left + 'px';
+                pop.style.top = top + 'px';
+            } else {
+                pop.style.left = (window.innerWidth/2 - pop.offsetWidth/2) + 'px';
+                pop.style.top = (window.innerHeight/2 - pop.offsetHeight/2) + 'px';
+            }
+        }
+
+        async function cargarPublicoComoP2(nombre) {
+            if (!nombre) return;
+            const gen = ++genPersonaB;
+            const tituloB = document.getElementById('titulo-grafico-b');
+            if (tituloB) tituloB.textContent = nombre;
+            let f = null;
+            if (publicasCanalesCache) {
+                f = publicasCanalesCache.find(x => x.nombre === nombre);
+            }
+            if (!f) {
+                try {
+                    const r = await fetch(`/api/publica/${encodeURIComponent(nombre)}`);
+                    if (gen !== genPersonaB) return;
+                    if (!r.ok) return;
+                    f = await r.json();
+                    if (!f || f.error) return;
+                } catch (err) { console.error('cargarPublicoComoP2 fetch:', err); return; }
+            }
+            if (gen !== genPersonaB) return;
+            if (gen !== genPersonaB) return;
+            dataPersonaB = {
+                puertas_inconscientes: f.puertas_incon || [],
+                puertas_conscientes: f.puertas_con || [],
+                inconscientes_lineas: f.lineas_incon || [],
+                conscientes_lineas: f.lineas_con || [],
+                todas_puertas: f.todas_puertas || [...new Set([...(f.puertas_incon||[]), ...(f.puertas_con||[])])].sort((a,b)=>a-b),
+                perfil: f.perfil || null,
+                tiene_sns: false
+            };
+            try { mostrarPuertas(dataPersonaB, 'b'); } catch (err) { console.error('mostrarPuertas B:', err); }
+            try { actualizarSVGIndividual(svgContainerB, dataPersonaB, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto); } catch (err) { console.error('actualizarSVGIndividual B:', err); }
+            try { pintarFotoPublicaB(f.foto || ''); } catch (e) {}
+            try { actualizarCompuesto(); } catch (err) { console.error('actualizarCompuesto B:', err); }
+            try { if (typeof aplicarSimpl === 'function') aplicarSimpl(); } catch (err) {}
+            try { renderListaFiltrada(); } catch (err) { console.error('renderListaFiltrada B:', err); }
+            try { actualizarVisibilidad(); } catch (err) {}
+            try { if (dataPersonaA) mostrarCompatibilidades(dataPersonaA); } catch (err) {}
+        }
+        document.addEventListener('click', (e) => {
+            const pop = document.getElementById('pc-popup');
+            if (pop && pop.style.display === 'block' && !pop.contains(e.target)) pop.style.display = 'none';
+        });
         function poblarFiltrosCompat() {
             const selO = document.getElementById('filtro-comp-orden');
             if (!selO) return;
@@ -8486,6 +8984,21 @@
                 if (hContactos) hContactos.addEventListener('click', () => {
                     cardContactos.classList.toggle('colapsada');
                     try { localStorage.setItem('dhContactosAbierto', cardContactos.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                });
+            }
+            const cardPublicosCanales = document.getElementById('card-publicos-canales');
+            if (cardPublicosCanales) {
+                let pcAbierto = null;
+                try { pcAbierto = localStorage.getItem('dhPublicosCanalesAbierto'); } catch (e) {}
+                if (pcAbierto === '0') cardPublicosCanales.classList.add('colapsada');
+                else cardPublicosCanales.classList.remove('colapsada');
+                const hPC = cardPublicosCanales.querySelector('h4.desplegable');
+                if (hPC) hPC.addEventListener('click', () => {
+                    cardPublicosCanales.classList.toggle('colapsada');
+                    try { localStorage.setItem('dhPublicosCanalesAbierto', cardPublicosCanales.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                    if (!cardPublicosCanales.classList.contains('colapsada')) {
+                        try { mostrarPublicosCanales(pcCurrentData || (typeof dataPersonaA !== 'undefined' ? dataPersonaA : null)); } catch (e) { console.error('mostrarPublicosCanales:', e); }
+                    }
                 });
             }
             // Lista de puertas/líneas filtradas: plegable, recuerda si se la dejó abierta.
@@ -9831,6 +10344,26 @@
                 fijarTiempo(baseMs);
                 try { moverCursorEvol(); } catch (e) {}
             });
+            const railUp = document.getElementById('rail-tri-up');
+            const railDown = document.getElementById('rail-tri-down');
+            const saltarCambio = (dir) => {
+                const pts = TM_VIEW.cambios || [];
+                if (!pts.length) return;
+                const ms = msActual;
+                let destino = null;
+                if (dir > 0) {
+                    for (const t of pts) { if (t > ms + 60000) { destino = t; break; } }
+                } else {
+                    for (let i = pts.length - 1; i >= 0; i--) { if (pts[i] < ms - 60000) { destino = pts[i]; break; } }
+                }
+                if (destino == null) return;
+                const r = rango();
+                const ini = baseMs - r.a * DAY;
+                const val = Math.max(0, Math.min((r.a + r.d) * 1440, Math.round((destino - ini) / 60000)));
+                if (vSlider) { vSlider.value = String(val); vSlider.dispatchEvent(new Event('input', { bubbles: true })); }
+            };
+            if (railUp) railUp.addEventListener('click', () => saltarCambio(1));
+            if (railDown) railDown.addEventListener('click', () => saltarCambio(-1));
             slider.addEventListener('input', () => {
                 const off = parseInt(slider.value || '0', 10) || 0;
                 fijarTiempo(baseMs + off * DAY);
@@ -10447,6 +10980,7 @@
 
         // ---------- Autotest Ser / No-Ser P1 (dinámico: Tipo + centros abiertos + perfil) ----------
         (function initSerNoSer(){
+            try { window._fichaCache = window._fichaCache || {}; } catch (e) {}
             var SN_PALABRA = {3: 'Siempre', 2: 'A veces', 1: 'Raro', 0: 'Nunca'};
             var SN_NUM = {'Siempre': '3', 'A veces': '2', 'Raro': '1', 'Nunca': '0', '3': '3', '2': '2', '1': '1', '0': '0'};
             var TIPO_Q = {
@@ -11481,32 +12015,76 @@
             });
             return card;
         }
+        // Ruta guardada en la ficha -> dirección que el navegador puede mostrar.
+        function fotoMostrable(valor){
+            var v = String(valor || '').trim();
+            if (!v) return '';
+            if (/^(https?:|data:|\/)/i.test(v)) return v;
+            return '/api/foto_local?ruta=' + encodeURIComponent(v);
+        }
+        // Recuadro de foto del clan: muestra y guarda la MISMA foto de la ficha
+        // de la persona (no una copia aparte).
         function fotoBox(entry, color){
             var f = document.createElement('div');
             f.className = 'clan-foto';
-            f.title = 'Clic o arrastrar foto';
-            var inp = document.createElement('input');
-            inp.type = 'file'; inp.accept = 'image/*'; inp.style.display = 'none';
-            function ponerFoto(src){ entry.foto = src; f.innerHTML=''; var im=document.createElement('img'); im.src=src; f.appendChild(im); }
-            if (entry.foto) ponerFoto(entry.foto); else f.textContent = '📷';
-            f.addEventListener('click', function(ev){ ev.stopPropagation(); inp.click(); });
-            inp.addEventListener('change', function(){
-                var file = inp.files && inp.files[0];
-                if (!file) return;
-                var rd = new FileReader();
-                rd.onload = function(){ ponerFoto(rd.result); };
-                rd.readAsDataURL(file);
+            f.title = 'Clic o arrastrar para elegir la foto de esta persona';
+            function ponerFoto(src){
+                entry.foto = src || '';
+                f.innerHTML = '';
+                var s = fotoMostrable(src);
+                if (!s){ f.textContent = '📷'; return; }
+                var im = document.createElement('img'); im.src = s; f.appendChild(im);
+            }
+            var inicial = entry.foto || (entry.data && entry.data.foto) || '';
+            ponerFoto(inicial);
+            function avisar(txt){ try{ alert(txt); }catch(e){} }
+            async function guardarFoto(ruta){
+                var nombre = String(entry.nombre || '').trim();
+                if (!nombre){ avisar('Elegí primero el nombre de la persona.'); return false; }
+                try{
+                    var r = await fetch('/api/persona_foto', {method:'POST', headers:{'Content-Type':'application/json'},
+                        body: JSON.stringify({nombre: nombre, foto: ruta})});
+                    var d = await r.json();
+                    if (!r.ok){ avisar(d.error || 'No se pudo guardar la foto'); return false; }
+                    entry.foto = ruta;
+                    if (entry.data) entry.data.foto = ruta;
+                    try{ if (_clanCache[nombre]) _clanCache[nombre].foto = ruta; }catch(e){}
+                    ponerFoto(ruta);
+                    try{
+                        if (String((S.miembros.p1 && S.miembros.p1.nombre) || '').toLowerCase() === nombre.toLowerCase())
+                            pintarFotoPublicaA(fotoMostrable(ruta));
+                    }catch(e){}
+                    return true;
+                }catch(e){ avisar('Error de red al guardar la foto'); return false; }
+            }
+            f.addEventListener('click', async function(ev){
+                ev.stopPropagation();
+                if (!String(entry.nombre || '').trim()){ avisar('Elegí primero el nombre de la persona.'); return; }
+                try{
+                    var r = await fetch('/api/elegir_foto', {method:'POST'});
+                    var d = await r.json();
+                    if (!r.ok){ avisar(d.error || 'No se pudo abrir el explorador'); return; }
+                    if (!d.ruta) return;
+                    await guardarFoto(d.ruta);
+                }catch(e){ avisar('Error de red'); }
             });
             ['dragover','dragenter'].forEach(function(evt){ f.addEventListener(evt, function(ev){ ev.preventDefault(); ev.stopPropagation(); f.classList.add('over'); }); });
             ['dragleave','drop'].forEach(function(evt){ f.addEventListener(evt, function(ev){ ev.preventDefault(); ev.stopPropagation(); f.classList.remove('over'); }); });
-            f.addEventListener('drop', function(ev){
+            f.addEventListener('drop', async function(ev){
                 var file = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
                 if (!file || !String(file.type||'').startsWith('image/')) return;
-                var rd = new FileReader();
-                rd.onload = function(){ ponerFoto(rd.result); };
-                rd.readAsDataURL(file);
+                var nombre = String(entry.nombre || '').trim();
+                if (!nombre){ avisar('Elegí primero el nombre de la persona.'); return; }
+                var fd = new FormData();
+                fd.append('foto', file);
+                fd.append('nombre', nombre);
+                try{
+                    var r = await fetch('/api/foto_subir', {method:'POST', body: fd});
+                    var d = await r.json();
+                    if (!r.ok){ avisar(d.error || 'No se pudo subir la foto'); return; }
+                    await guardarFoto(d.ruta);
+                }catch(e){ avisar('Error de red al subir la foto'); }
             });
-            f.appendChild(inp);
             return f;
         }
         var _clanCache = {};

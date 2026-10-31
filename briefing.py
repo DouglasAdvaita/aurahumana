@@ -248,138 +248,127 @@ def _canales_de_centro(canales, centro, t):
                   and any(s <= t < e for s, e, _ in lst))
 
 
-def _fin_de_canal(canales, canal, t, dia_fin):
-    # Un canal que termina justo a medianoche sigue "todo el día": no es evento.
+def _tramo_en(canales, canal, t):
+    """Intervalo del canal que contiene el momento t."""
     for s, e, _ in canales.get(canal, []):
-        if s <= t < e and e < dia_fin:
-            return e
+        if s <= t < e:
+            return s, e
     return None
 
 
-def _canal_que_definia(canales, centro, t):
-    """Canal que definía el centro en t (para el estado de ayer)."""
-    ops = _canales_de_centro(canales, centro, t)
-    return ops[0] if ops else None
-
-
-def _fin_de_centro(canales, centro, t, dia_fin):
-    """Fin del canal que definía el centro en t, si termina antes de dia_fin."""
-    canal = _canal_que_definia(canales, centro, t)
-    if not canal:
-        return None, None
-    return canal, _fin_de_canal(canales, canal, t, dia_fin)
-
-
-def _texto_hoy(canales, centros, ficha, t, dia_fin):
+def _secciones(canales, centros, ficha, t, d, dia_fin):
+    """AYER / HOY / MAÑANA con lo nuevo, lo que cambia y lo que se mantiene."""
     natal = set(int(x) for x in ficha['puertas'])
     abiertos = list(ficha['centros_indefinidos'])
-    hoy_centros = _activos(centros, t)
+    orden = {c: i for i, c in enumerate(abiertos)}
+
     ayer_t = t - timedelta(days=1)
+    dia_man_fin = dia_fin + timedelta(days=1)
 
-    ayer_abiertos = []
-    for c in abiertos:
-        if c in _activos(centros, ayer_t) and c not in hoy_centros:
-            canal, fin = _fin_de_centro(canales, c, ayer_t, t)
-            if canal:
-                ayer_abiertos.append((c, canal, fin))
+    can_hoy = set(_activos(canales, t))
+    can_ayer = set(_activos(canales, ayer_t))
 
-    fines = []
-    for canal in canales:
-        for s, e, _ in canales.get(canal, []):
-            if s <= t < e and e < dia_fin:
-                fines.append((e, canal, s))
-    fines.sort()
+    def eventos(desde, hasta):
+        inicios, fines = [], []
+        for canal, lst in canales.items():
+            for s, e, _ in lst:
+                if desde <= s < hasta:
+                    inicios.append((s, canal))
+                if desde <= e < hasta:
+                    fines.append((e, canal))
+        return sorted(inicios), sorted(fines)
 
-    inicios = []
-    for canal, lst in canales.items():
-        for s, e, _ in lst:
-            if t < s < dia_fin:
-                inicios.append((s, canal))
-    inicios.sort()
+    hoy_inicios, hoy_fines = eventos(d, dia_fin)
+    man_inicios, man_fines = eventos(dia_fin, dia_man_fin)
 
-    # AYER: solo lo que cambia. Un canal que termina hoy y sigue activo, o un
-    # centro que ayer estaba definido y hoy quedó abierto.
-    ayer_items = []
-    for c, canal, fin in ayer_abiertos:
-        extra = f' hasta {_hora(fin)}' if fin else ''
-        ayer_items.append(f'{_nombre_centro(c)} por {_fmt_canal(canal, natal)} ({_fmt_centros(canal)}){extra}')
-    for fin, canal, ini in fines:
-        if ini < dia_fin - timedelta(days=1):
-            ayer_items.append(f'{_fmt_canal(canal, natal)} ({_fmt_centros(canal)})')
+    # AYER: canales que estaban activos ayer a esta hora y ya no están.
+    ayer = []
+    for canal in sorted(can_ayer - can_hoy):
+        tramo = _tramo_en(canales, canal, ayer_t)
+        if not tramo:
+            continue
+        _, fin = tramo
+        if fin <= d:
+            ayer.append(
+                f'Se fue {_fmt_canal(canal, natal)} ({_fmt_centros(canal)}) '
+                f'a las {_hora(fin)}: {_implicacion(canal)}.'
+            )
+    if not ayer:
+        ayer.append('Sin cambios respecto de ayer.')
 
-    # HOY
-    partes = []
-    mencionados = set()
-    for c, canal, fin in ayer_abiertos:
-        sens = _sensacion(canal)
-        if sens.startswith('impulso '):
-            sens = 'el ' + sens
-        partes.append(f'{_nombre_centro(c)} abierto: se va {sens}.')
-        mencionados.add(c)
-    for fin, canal, _ in fines:
-        sens = _sensacion(canal)
-        extra = ''
-        # Si al terminar el canal el centro queda abierto, decirlo una vez.
-        for c in _centros_canal(canal):
-            if c in abiertos and not _canales_de_centro(canales, c, fin + timedelta(minutes=1)):
-                extra = f' {_nombre_centro(c)} queda abierto.'
-                mencionados.add(c)
-                break
-        partes.append(f'{_fmt_canal(canal, natal)} ->| {_hora(fin)}: {sens}.{extra}')
-        mencionados.update(_centros_canal(canal))
-    for ini, canal in inicios:
-        partes.append(f'{_fmt_canal(canal, natal)} entra {_hora(ini)}: {_implicacion(canal)}.')
-        mencionados.update(_centros_canal(canal))
+    # HOY: canales que entran y canales que se van durante el día.
+    nuevos = []
+    for ini, canal in hoy_inicios:
+        nuevos.append(
+            f'Entra {_fmt_canal(canal, natal)} ({_fmt_centros(canal)}) '
+            f'a las {_hora(ini)}: {_implicacion(canal)}.'
+        )
 
-    # Centros que siguen definidos: agrupar por canal. Si el grupo toca un
-    # centro mencionado, se muestra con su implicación; si no, va en "Siguen".
-    sin_eventos = not ayer_items and not fines and not inicios and not ayer_abiertos
-    event_channels = ({canal for _, canal, _ in fines}
-                      | {canal for _, canal in inicios}
-                      | {canal for _, canal, _ in ayer_abiertos})
+    cambios = []
+    for fin, canal in hoy_fines:
+        verbo = 'Se fue' if fin <= t else 'Se va'
+        cambios.append(
+            f'{verbo} {_fmt_canal(canal, natal)} ({_fmt_centros(canal)}) '
+            f'a las {_hora(fin)}: {_implicacion(canal)}.'
+        )
+
+    can_evento = {canal for _, canal in hoy_inicios} | {canal for _, canal in hoy_fines}
+    estables = can_hoy - can_evento
+
     grupos = {}
-    for c in hoy_centros:
-        # El canal que se está yendo ya se contó como evento: no repetirlo.
-        ops = tuple(k for k in _canales_de_centro(canales, c, t)
-                    if k not in event_channels)
+    for c in set(_activos(centros, t)):
+        ops = tuple(sorted(k for k in _canales_de_centro(canales, c, t) if k in estables))
         if ops:
             grupos.setdefault(ops, []).append(c)
-    siguen = []
-    for canales_grupo, centros_grupo in grupos.items():
-        toca = any(c in mencionados for c in centros_grupo)
-        if sin_eventos or toca:
-            cs = '/'.join(_nombre_centro(c) for c in centros_grupo)
-            canales_txt = ', '.join(_fmt_canal(k, natal) for k in canales_grupo)
-            impl = '; '.join(_implicacion(k) for k in canales_grupo)
-            partes.append(f'{cs} por {canales_txt}: {impl}.')
+
+    mantiene = []
+    for ops, cs in sorted(grupos.items(), key=lambda kv: min(orden.get(c, 99) for c in kv[1])):
+        cs = sorted(cs, key=lambda c: orden.get(c, 99))
+        cs_txt = '/'.join(_nombre_centro(c) for c in cs)
+        if len(ops) > 1:
+            mantiene.append(f'• {cs_txt}:')
+            for canal in ops:
+                mantiene.append(f'   – {_fmt_canal(canal, natal)}: {_implicacion(canal)}.')
         else:
-            siguen.append((centros_grupo, canales_grupo))
-    if siguen:
-        items = []
-        for centros_grupo, canales_grupo in siguen:
-            cs = '/'.join(_nombre_centro(c) for c in centros_grupo)
-            canales_txt = ', '.join(_fmt_canal(k, natal) for k in canales_grupo)
-            items.append(f'{cs} ({canales_txt})')
-        partes.append('Siguen ' + _lista_y(items) + '.')
+            canal = ops[0]
+            mantiene.append(f'• {cs_txt} por {_fmt_canal(canal, natal)}: {_implicacion(canal)}.')
+    if not mantiene:
+        mantiene.append('• Sin canales estables.')
 
-    return ayer_items, partes
+    hoy_txt = (
+        'Nuevo: ' + (' '.join(nuevos) if nuevos else 'sin canales nuevos.') + '\n'
+        'Cambia: ' + (' '.join(cambios) if cambios else 'sin cambios durante el día.') + '\n'
+        'Se mantiene:\n' + '\n'.join(mantiene)
+    )
 
+    # MAÑANA: lo que entra o se va mañana, unido por canal.
+    man_por_canal = {}
+    for ini, canal in man_inicios:
+        man_por_canal.setdefault(canal, {})['ini'] = ini
+    for fin, canal in man_fines:
+        man_por_canal.setdefault(canal, {})['fin'] = fin
+    manana = []
+    for canal in sorted(man_por_canal):
+        datos = man_por_canal[canal]
+        ini, fin = datos.get('ini'), datos.get('fin')
+        base = f'{_fmt_canal(canal, natal)} ({_fmt_centros(canal)})'
+        impl = _implicacion(canal)
+        if ini and fin:
+            manana.append(
+                f'Entra {base} a las {_hora(ini)} y se va a las {_hora(fin)}: {impl}.'
+            )
+        elif ini:
+            manana.append(f'Entra {base} a las {_hora(ini)}: {impl}.')
+        elif fin:
+            manana.append(f'Se va {base} a las {_hora(fin)}: {impl}.')
+    if not manana:
+        manana.append('Sin cambios respecto de hoy.')
 
-def _texto_manana(canales, centros, ficha, t):
-    """Solo si mañana cambia el set de centros abiertos definidos."""
-    natal = set(int(x) for x in ficha['puertas'])
-    hoy = set(_activos(centros, t))
-    man = set(_activos(centros, t + timedelta(days=1)))
-    if hoy == man:
-        return []
-    partes = []
-    for c in sorted(man - hoy, key=lambda x: ORDEN_CENTROS.index(x) if x in ORDEN_CENTROS else 99):
-        ops = _canales_de_centro(canales, c, t + timedelta(days=1))
-        if ops:
-            partes.append(f'{_nombre_centro(c)} por {", ".join(_fmt_canal(k, natal) for k in ops)}.')
-    for c in sorted(hoy - man, key=lambda x: ORDEN_CENTROS.index(x) if x in ORDEN_CENTROS else 99):
-        partes.append(f'{_nombre_centro(c)} abierto.')
-    return partes
+    return [
+        {'etiqueta': 'AYER', 'texto': ' '.join(ayer)},
+        {'etiqueta': 'HOY', 'texto': hoy_txt},
+        {'etiqueta': 'MAÑANA', 'texto': ' '.join(manana)},
+    ]
 
 
 def generar_briefing(persona: str, fecha: str | None = None, hora: str | None = None,
@@ -412,21 +401,11 @@ def generar_briefing(persona: str, fecha: str | None = None, hora: str | None = 
     canales = _canales_temporales(ficha, puertas)
     centros = _centros_temporales(ficha['centros_indefinidos'], canales)
 
-    ayer, hoy = _texto_hoy(canales, centros, ficha, ref, dia_fin)
-    manana = _texto_manana(canales, centros, ficha, ref)
-
-    lineas = []
-    if ayer:
-        lineas.append({'etiqueta': 'AYER', 'texto': ' · '.join(ayer)})
-    if hoy:
-        lineas.append({'etiqueta': 'HOY', 'texto': ' '.join(hoy)})
-    if manana:
-        lineas.append({'etiqueta': 'MAÑANA', 'texto': ' '.join(manana)})
-    if not lineas:
-        lineas.append({'etiqueta': 'HOY', 'texto': 'El clima sigue igual que ayer.'})
+    lineas = _secciones(canales, centros, ficha, ref, d, dia_fin)
 
     cab = f'Briefing {d.strftime("%d/%m")} · {_hora(ref)} · {ficha["nombre"]}'
-    texto = cab + '\n' + '\n'.join(f'{l["etiqueta"]}: {l["texto"]}' for l in lineas)
+    bloques = [f'{l["etiqueta"]}\n{l["texto"]}' for l in lineas]
+    texto = cab + '\n\n' + '\n\n'.join(bloques)
     out = {
         'ok': True,
         'persona': ficha['nombre'],

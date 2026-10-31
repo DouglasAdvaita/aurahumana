@@ -36,6 +36,7 @@ desktop.ini
 
 # Datos personales LLENOS: solo se publican las plantillas vacias de plantillas/
 /datos.csv
+/fotos_personas.csv
 /datos_sin_analia.csv
 /vinculos.csv
 /clan.csv
@@ -57,5 +58,6 @@ desktop.ini
 # Medios pesados (se regeneran / no van al repo)
 /static/canales_audio/
 /videos_canales/
+/fotos_personas/
 # /Publicos/
 /avatares_arquetipos/

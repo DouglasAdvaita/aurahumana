@@ -1,4 +1,4 @@
-from flask import Flask, g, has_request_context, render_template, jsonify, request, send_from_directory, Response
+from flask import Flask, g, has_request_context, render_template, jsonify, request, send_from_directory, send_file, Response
 import csv
 import functools as _functools
 import gzip as _gzip
@@ -1408,7 +1408,7 @@ def _datos_csv_utilizables():
         return False
 
 
-_DEFAULT_XLSX = Path(__file__).with_name('datos_publicos.xlsx')
+_DEFAULT_XLSX = Path(__file__).with_name('actores_hollywood.xlsx')
 _FUENTE = {'path': (_DEFAULT_XLSX if (_DEFAULT_XLSX.exists()
                                        and (not _datos_csv_utilizables() or _es_render())) else None)}
 _TABLAS_MUTABLES = ('datos', 'vinculos', 'test', 'clan')
@@ -2078,6 +2078,43 @@ def _foto_publica_para(nombre):
         return ''
 
 
+def _foto_persona_para(nombre):
+    """Foto lista para mostrar en el navegador.
+
+    Orden: planilla pública (xlsx), foto de la cuenta en Neon y, al final, la
+    foto local elegida en el panel (fotos_personas.csv). Las rutas del equipo se
+    devuelven como /api/foto_local?ruta=... para que el SVG pueda cargarlas.
+    """
+    nombre = str(nombre or '').strip()
+    if not nombre:
+        return ''
+    candidatas = []
+    try:
+        candidatas.append(_foto_publica_para(nombre))
+    except Exception:
+        pass
+    try:
+        for _p in (_perfiles_cuenta_actual() or []):
+            if str(_p.get('nombre') or '').strip().lower() == nombre.lower():
+                candidatas.append(str(_p.get('foto') or '').strip())
+                candidatas.append(str(_dj(_p).get('foto') or '').strip())
+                break
+    except Exception:
+        pass
+    try:
+        candidatas.append(_cargar_fotos_personas().get(nombre.lower(), ''))
+    except Exception:
+        pass
+    for foto in candidatas:
+        foto = str(foto or '').strip()
+        if not foto:
+            continue
+        if _re.match(r'^(?:https?:|data:|/)', foto, _re.I):
+            return foto
+        return '/api/foto_local?ruta=' + _urlparse.quote(foto, safe='')
+    return ''
+
+
 def _ficha_basica_para_persona(nombre, _df=None, _vinc=None):
     """Ficha BASICO: tipo/autoridad/perfil/definición/centros/canales/puertas para la persona."""
     df=_df if _df is not None else cargar_datos()
@@ -2268,7 +2305,7 @@ def _ficha_basica_para_persona(nombre, _df=None, _vinc=None):
             _sol=_luna=_asc=None
     ficha={
         'nombre': str(nombre),
-        'foto': _foto_publica_para(nombre),
+        'foto': _foto_persona_para(nombre),
         'bio': _bio,
         'informe': informes.get(str(nombre).strip().lower(), ''),
         'fecha': (_nac or {}).get('fecha','') or '',
@@ -3449,6 +3486,87 @@ def get_persona_default():
     return str(df['Nombre'].iloc[0])
 
 
+FOTOS_PERSONAS_PATH = Path("fotos_personas.csv")
+
+
+def _cargar_fotos_personas():
+    """Devuelve dict nombre(lower)->url foto. Archivo opcional nombre;foto."""
+    out = {}
+    try:
+        with open(FOTOS_PERSONAS_PATH, 'r', encoding='utf-8-sig', newline='') as f:
+            import csv as _csv
+            reader = _csv.DictReader(f, delimiter=';')
+            for row in reader:
+                nom = str((row or {}).get('nombre') or '').strip()
+                if nom:
+                    out[nom.lower()] = str((row or {}).get('foto') or '').strip()
+    except FileNotFoundError:
+        pass
+    except Exception:
+        pass
+    return out
+
+
+def _guardar_foto_persona(nombre, foto):
+    nombre = str(nombre or '').strip()
+    if not nombre:
+        return
+    foto = str(foto or '').strip()
+    rows = []
+    fieldnames = ['nombre', 'foto']
+    try:
+        with open(FOTOS_PERSONAS_PATH, 'r', encoding='utf-8-sig', newline='') as f:
+            import csv as _csv
+            reader = _csv.DictReader(f, delimiter=';')
+            if reader.fieldnames:
+                fieldnames = [str(c).strip() for c in reader.fieldnames]
+            for row in reader:
+                if str((row or {}).get('nombre') or '').strip().lower() != nombre.lower():
+                    rows.append({k: str((row or {}).get(k) or '') for k in fieldnames})
+    except FileNotFoundError:
+        pass
+    # quitar existente y agregar si hay foto
+    rows = [r for r in rows if str(r.get('nombre') or '').strip().lower() != nombre.lower()]
+    if foto:
+        row = {k: '' for k in fieldnames}
+        if 'nombre' not in fieldnames:
+            fieldnames = ['nombre', 'foto'] + [k for k in fieldnames if k not in ('nombre', 'foto')]
+        row['nombre'] = nombre
+        row['foto'] = foto
+        rows.append(row)
+    with open(FOTOS_PERSONAS_PATH, 'w', newline='', encoding='utf-8-sig') as f:
+        import csv as _csv
+        w = _csv.DictWriter(f, fieldnames=fieldnames, delimiter=';')
+        w.writeheader()
+        for r in rows:
+            w.writerow({k: r.get(k, '') for k in fieldnames})
+
+
+def _borrar_foto_persona(nombre):
+    nombre = str(nombre or '').strip()
+    if not nombre:
+        return
+    rows = []
+    fieldnames = ['nombre', 'foto']
+    try:
+        with open(FOTOS_PERSONAS_PATH, 'r', encoding='utf-8-sig', newline='') as f:
+            import csv as _csv
+            reader = _csv.DictReader(f, delimiter=';')
+            if reader.fieldnames:
+                fieldnames = [str(c).strip() for c in reader.fieldnames]
+            for row in reader:
+                if str((row or {}).get('nombre') or '').strip().lower() != nombre.lower():
+                    rows.append({k: str((row or {}).get(k) or '') for k in fieldnames})
+    except FileNotFoundError:
+        return
+    with open(FOTOS_PERSONAS_PATH, 'w', newline='', encoding='utf-8-sig') as f:
+        import csv as _csv
+        w = _csv.DictWriter(f, fieldnames=fieldnames, delimiter=';')
+        w.writeheader()
+        for r in rows:
+            w.writerow({k: r.get(k, '') for k in fieldnames})
+
+
 # ---------- Fuente de datos: elegir xlsx (modo A) o volver a CSV ----------
 def _elegir_xlsx_dialogo():
     """Abre el diálogo nativo de Windows (tkinter) en un subproceso aparte.
@@ -3472,6 +3590,109 @@ def _elegir_xlsx_dialogo():
         return ''
     salida = (res.stdout or '').strip()
     return salida.splitlines()[-1].strip() if salida else ''
+
+
+def _elegir_foto_dialogo():
+    """Abre el explorador nativo de Windows para elegir una foto."""
+    import subprocess
+    import sys
+    codigo = (
+        "import tkinter as tk\n"
+        "from tkinter import filedialog\n"
+        "r = tk.Tk()\n"
+        "r.withdraw()\n"
+        "r.attributes('-topmost', True)\n"
+        "p = filedialog.askopenfilename(title='Elegir foto de la persona',\n"
+        "    filetypes=[('Imagenes', '*.jpg *.jpeg *.png *.webp *.gif *.bmp'), ('Todos', '*.*')],\n"
+        "    initialdir='.')\n"
+        "print(p)\n"
+    )
+    try:
+        res = subprocess.run([sys.executable, '-c', codigo],
+                             capture_output=True, text=True, timeout=600)
+    except Exception:
+        return ''
+    salida = (res.stdout or '').strip()
+    return salida.splitlines()[-1].strip() if salida else ''
+
+
+@app.route('/api/elegir_foto', methods=['POST'])
+def api_elegir_foto():
+    """Devuelve la ruta local elegida en el explorador (solo uso local)."""
+    if _es_render():
+        return jsonify({'error': 'En Render no se puede abrir el explorador del equipo. Cargá la foto desde la app local.'}), 400
+    ruta = _elegir_foto_dialogo()
+    return jsonify({'ruta': ruta, 'cancelado': not bool(ruta)})
+
+
+@app.route('/api/foto_local')
+def api_foto_local():
+    """Sirve una foto local por su ruta para poder previsualizarla."""
+    ruta = str(request.args.get('ruta') or '').strip().strip('"')
+    if not ruta:
+        return jsonify({'error': 'Falta ruta'}), 400
+    p = Path(ruta).expanduser()
+    if not p.is_file():
+        return jsonify({'error': 'La foto no existe o se movió'}), 404
+    if p.suffix.lower() not in ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'):
+        return jsonify({'error': 'Formato de imagen no permitido'}), 400
+    return send_file(str(p))
+
+
+@app.route('/api/foto_subir', methods=['POST'])
+def api_foto_subir():
+    """Guarda una imagen enviada por el navegador y devuelve su ruta."""
+    f = request.files.get('foto')
+    if f is None or not (f.filename or '').strip():
+        return jsonify({'error': 'Falta la imagen'}), 400
+    ext = Path(f.filename).suffix.lower()
+    if ext not in ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'):
+        return jsonify({'error': 'Formato de imagen no permitido'}), 400
+    nombre = str(request.form.get('nombre') or '').strip()
+    base = _re.sub(r'[^A-Za-z0-9_-]+', '_', nombre).strip('_') or 'foto'
+    import uuid
+    try:
+        carpeta = Path('fotos_personas')
+        carpeta.mkdir(parents=True, exist_ok=True)
+        destino = carpeta / f'{base}_{uuid.uuid4().hex[:8]}{ext}'
+        f.save(str(destino))
+    except Exception:
+        return jsonify({'error': 'No se pudo guardar la imagen'}), 500
+    return jsonify({'ruta': destino.as_posix()})
+
+
+@app.route('/api/persona_foto', methods=['POST'])
+def api_persona_foto():
+    """Guarda (o borra) la foto de una persona: única fuente para el panel,
+    Persona 1/2, el clan y el informe."""
+    data = request.get_json(force=True, silent=True) or {}
+    nombre = str(data.get('nombre') or '').strip()
+    if not nombre:
+        return jsonify({'error': 'Falta el nombre'}), 400
+    foto = str(data.get('foto') or '').strip()
+    if foto:
+        es_url = bool(_re.match(r'^(?:https?:|data:|/)', foto, _re.I))
+        if not es_url and not Path(foto).expanduser().is_file():
+            return jsonify({'error': 'La foto no existe o se movió'}), 400
+        _guardar_foto_persona(nombre, foto)
+    else:
+        _borrar_foto_persona(nombre)
+    ct = _cuenta_actual()
+    if ct:
+        try:
+            previo = next((p for p in (_perfiles_cuenta_actual() or [])
+                           if str(p.get('nombre') or '').strip().lower() == nombre.lower()), None)
+            if previo is not None:
+                perfil = dict(previo)
+                dj = dict(_dj(previo))
+                dj['foto'] = foto
+                perfil['datos_json'] = dj
+                perfil['foto'] = foto
+                _auth.subir_perfil(ct['id'], perfil)
+                g.perfiles_cuenta = None
+        except Exception:
+            pass
+    return jsonify({'ok': True, 'nombre': nombre, 'foto': _foto_persona_para(nombre)})
 
 
 def _validar_xlsx(path):
@@ -3570,6 +3791,7 @@ def _cuenta_perfil_desde_payload(data, nombre, previo=None):
                    for i, e in enumerate(consc_l)]
     previo = previo or {}
     test = _dj(previo).get('test') or {}
+    foto = str(data.get('foto') or '').strip() or str(_dj(previo).get('foto') or '').strip() or str(previo.get('foto') or '').strip()
     perfil = _perfil_de_lineas(consc_l[0] if consc_l else None, incon_l[0] if incon_l else None)
     return {
         'nombre': nombre,
@@ -3578,10 +3800,11 @@ def _cuenta_perfil_desde_payload(data, nombre, previo=None):
         'lugar': str(data.get('lugar') or '').strip() or previo.get('lugar') or '',
         'lat': previo.get('lat'), 'lon': previo.get('lon'), 'tz': previo.get('tz'),
         'tz_name': previo.get('tz_name') or '',
+        'foto': foto,
         'visibilidad': data.get('visibilidad') or previo.get('visibilidad') or 'privado',
         'datos_json': {'inconscientes': incon, 'conscientes': consc,
                        'inconscientes_lineas': incon_l, 'conscientes_lineas': consc_l,
-                       'perfil': perfil, 'test': test},
+                       'perfil': perfil, 'test': test, 'foto': foto},
     }, None
 
 
@@ -3720,6 +3943,80 @@ def publicas():
     return render_template('publicas.html',
                            svg_content=cargar_svg(),
                            categorias=[{'cat': c, 'n': conteo[c]} for c in cats])
+
+PUBLICAS_XLSX = ['datos_publicos.xlsx','publicos_hoy.xlsx','influyentes_historia.xlsx',
+                  'historia_destacados.xlsx','politicos_uy.xlsx','actores_hollywood.xlsx']
+
+def cargar_publicas_canales():
+    """Lista de públicos (de las planillas xlsx) con nombre, canales, tipo, perfil y foto.
+    Deduplica por nombre (primera aparición)."""
+    import openpyxl
+    seen = set()
+    out = []
+    for p in PUBLICAS_XLSX:
+        path = Path(p)
+        if not path.exists():
+            continue
+        try:
+            wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+        except Exception:
+            continue
+        if 'fichas' not in wb.sheetnames:
+            continue
+        ws = wb['fichas']
+        hdr = [c.value for c in next(ws.iter_rows(min_row=1, max_row=1))]
+        def col(name):
+            return hdr.index(name) if name in hdr else None
+        ci_nombre = col('nombre')
+        ci_canales = col('canales')
+        ci_tipo = col('tipo')
+        ci_perfil = col('perfil')
+        ci_foto = col('foto')
+        ci_desc = col('descripcion')
+        ci_pin = col('puertas_incon')
+        ci_pco = col('puertas_con')
+        ci_lin = col('lineas_incon')
+        ci_lco = col('lineas_con')
+        if ci_nombre is None:
+            continue
+        for r in ws.iter_rows(min_row=2, values_only=True):
+            if not r or not r[ci_nombre]:
+                continue
+            nombre = str(r[ci_nombre]).strip()
+            if not nombre or nombre in seen:
+                continue
+            seen.add(nombre)
+            canales_raw = str(r[ci_canales] or '') if ci_canales is not None else ''
+            canales = [x.strip() for x in canales_raw.replace(',', '|').split('|') if x.strip()]
+            tipo = str(r[ci_tipo]).strip() if ci_tipo is not None and r[ci_tipo] is not None else ''
+            perfil = str(r[ci_perfil]).strip() if ci_perfil is not None and r[ci_perfil] is not None else ''
+            foto = str(r[ci_foto]).strip() if ci_foto is not None and r[ci_foto] is not None else ''
+            if foto:
+                foto = '/publicos/' + Path(foto).name
+            desc = str(r[ci_desc]).strip() if ci_desc is not None and r[ci_desc] is not None else ''
+            def _ints(v):
+                out=[]
+                for x in str(v or '').split(','):
+                    x=x.strip()
+                    if x.lstrip('-').isdigit():
+                        out.append(int(x))
+                return out
+            pin = _ints(r[ci_pin] if ci_pin is not None else '')
+            pco = _ints(r[ci_pco] if ci_pco is not None else '')
+            lin = _ints(r[ci_lin] if ci_lin is not None else '')
+            lco = _ints(r[ci_lco] if ci_lco is not None else '')
+            todas = sorted(set(pin) | set(pco))
+            out.append({'nombre': nombre, 'canales': canales, 'tipo': tipo,
+                        'perfil': perfil, 'foto': foto, 'bio': desc,
+                        'puertas_incon': pin, 'puertas_con': pco,
+                        'lineas_incon': lin, 'lineas_con': lco,
+                        'todas_puertas': todas})
+        wb.close()
+    return out
+
+@app.route('/api/publicas_canales')
+def api_publicas_canales():
+    return jsonify(cargar_publicas_canales())
 
 @app.route('/api/publicas')
 def api_publicas():
@@ -3915,6 +4212,13 @@ def api_agregar_persona():
         for i, p in enumerate(consc):
             w.writerow(_fila(p, consc_l[i] if i < len(consc_l) else None, 'Consciente'))
     _cache_invalidate(CSV_PATH)
+    # Foto opcional de la persona (URL local o remota).
+    if 'foto' in data:
+        _f = str(data.get('foto') or '').strip()
+        if _f:
+            _guardar_foto_persona(nombre, _f)
+        else:
+            _borrar_foto_persona(nombre)
     # Vínculo opcional con otra persona -> vinculos.csv (referente + tipo).
     vinc_tipo = str(data.get('vinculo_tipo', '') or '').strip()
     vinc_ref = str(data.get('vinculo_referente', '') or '').strip()
@@ -4108,6 +4412,14 @@ def api_modificar_persona(nombre):
         _renombrar_en_csv(CONOCIDOS_PATH, viejo, nuevo, ('p1', 'P1'))
         _renombrar_en_csv(IA_CSV_PATH, viejo, nuevo, ('nombre',))
         _renombrar_en_csv(INFORME_CSV_PATH, viejo, nuevo, ('nombre',))
+    if 'foto' in data:
+        if nuevo != viejo:
+            _borrar_foto_persona(viejo)
+        _f = str(data.get('foto') or '').strip()
+        if _f:
+            _guardar_foto_persona(nuevo, _f)
+        else:
+            _borrar_foto_persona(nuevo)
     perfil = _perfil_de_lineas(consc_l[0] if consc_l else None, incon_l[0] if incon_l else None)
     return jsonify({'ok': True, 'nombre': nuevo, 'personas': get_personas(), 'perfil': perfil})
 
@@ -4191,6 +4503,7 @@ def api_eliminar_persona(nombre):
     test_borrados = _borrar_test(viejo)
     clan_borrados = _borrar_clan(viejo)
     ia_borrados = _borrar_ia(viejo)
+    _borrar_foto_persona(viejo)
     with _IA_LOCK:
         _IA_EN_PROCESO.discard(viejo.lower())
     return jsonify({'ok': True, 'nombre': viejo, 'filas_datos': eliminadas,
@@ -4280,7 +4593,8 @@ def _datos_persona_dict(nombre, _df=None):
         'conscientes_lineas': conscientes_lineas,
         'perfil': perfil,
         'puertas_mixtas': puertas_mixtas,
-        'todas_puertas': todas_puertas
+        'todas_puertas': todas_puertas,
+        'foto': _foto_persona_para(nombre)
     }
 
 
@@ -4335,6 +4649,15 @@ def get_persona_completa(nombre):
     fecha = str(vinc.get('fecha') or '').strip() or str(test.get('fecha') or '').strip()
     hora = str(vinc.get('hora') or '').strip() or str(test.get('hora') or '').strip()
     lugar = str(vinc.get('lugar') or '').strip() or str(test.get('lugar') or '').strip()
+    foto = ''
+    _ct = _cuenta_actual()
+    if _ct:
+        for _p in (_perfiles_cuenta_actual() or []):
+            if str(_p.get('nombre') or '').strip().lower() == nombre.lower():
+                foto = str(_p.get('foto') or '').strip() or str(_dj(_p).get('foto') or '').strip()
+                break
+    if not foto:
+        foto = _cargar_fotos_personas().get(nombre.lower(), '')
     return jsonify({
         'nombre': nombre,
         'fecha': fecha,
@@ -4343,6 +4666,7 @@ def get_persona_completa(nombre):
         'lat': '',
         'lon': '',
         'tz': '',
+        'foto': foto,
         'bio': bio,
         'puertas_inconscientes': d.get('puertas_inconscientes', []),
         'puertas_conscientes': d.get('puertas_conscientes', []),
