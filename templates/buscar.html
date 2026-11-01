@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buscar personas — RAVE</title>
+<style>
+:root{--azul:#1a3d6d;--borde:#d7dde5;--ok:#2e7d32;--err:#c62828}
+body{font-family:system-ui,Arial,sans-serif;margin:0;background:#eef1f5;color:#222;font-size:14px}
+header{background:#fff;border-bottom:1px solid var(--borde);padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+header b{color:var(--azul);font-size:16px}
+main{padding:14px;max-width:760px;margin:0 auto;display:grid;gap:14px}
+.card{background:#fff;border:1px solid var(--borde);border-radius:12px;padding:14px}
+h3{margin:0 0 8px;color:var(--azul);font-size:15px}
+.mini{color:#666;font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+select,input,textarea{padding:8px;border:1px solid var(--borde);border-radius:6px;font-size:14px;max-width:100%}
+button{padding:10px 16px;border:1px solid var(--borde);background:#fff;border-radius:10px;cursor:pointer;font-size:16px}
+button.prim{background:var(--azul);color:#fff;border-color:var(--azul);font-weight:600}
+button.igual{font-size:22px;font-weight:800;border-width:2px}
+button.equis{font-size:22px;font-weight:800}
+#foto{width:100%;max-height:320px;object-fit:cover;border-radius:10px;background:#f3f5f8;display:none}
+.pill{display:inline-block;background:#eef;border:1px solid #ccd;border-radius:8px;padding:0 7px;font-size:12px;margin:2px}
+#msg{min-height:18px;font-size:13px}
+.ok{color:var(--ok)} .err{color:var(--err)}
+.chatbox{border:1px solid var(--borde);border-radius:8px;padding:8px;max-height:220px;overflow:auto;background:#fafbfe;font-size:13px}
+.chatbox div{margin:4px 0}
+.mio{text-align:right}
+</style></head>
+<body>
+<header><b>Buscar personas</b><a href="/cuenta" style="font-size:13px">Mi cuenta</a><a href="/" style="margin-left:auto;font-size:13px">Volver a RAVE</a></header>
+<main>
+<div id="msg"></div>
+<div class="card"><h3>1. Tu persona visible</h3>
+<p class="mini">Solo participan personas en público. Se muestra nombre, foto pública, canales, tipo y perfil. Sin fecha, hora ni lugar.</p>
+<div class="row"><select id="base"></select><button class="prim" id="btn-ver">Buscar</button>
+<label class="mini"><input type="checkbox" id="solo-nuevos" checked> ocultar ya votados</label></div></div>
+<div class="card"><h3 id="nombre">—</h3>
+<img id="foto" alt="" referrerpolicy="no-referrer"><p class="mini" id="detalle">Iniciá sesión en Mi cuenta y marcá una persona como pública.</p>
+<div id="canales"></div>
+<div class="row" style="margin-top:10px">
+<button class="equis" id="btn-x" title="Ocultar">X</button>
+<button class="igual prim" id="btn-igual" title="Me gusta">=</button></div></div>
+<div class="card"><h3>2. Matches (= mutuo)</h3><div id="matches" class="mini">Todavía sin matches.</div></div>
+<div class="card"><h3>3. Chat</h3>
+<div class="row"><select id="chat-con"></select><button id="btn-chat">Cargar chat</button></div>
+<div class="chatbox" id="chat"></div>
+<div class="row" style="margin-top:8px"><input id="texto" placeholder="Escribí…" style="flex:1;min-width:200px"><button class="prim" id="btn-enviar">Enviar</button></div>
+<div class="row" style="margin-top:8px"><button id="btn-bloquear">Bloquear</button><button id="btn-reportar">Reportar</button></div></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let cola=[],actual=null;
+function msg(t,c){const m=$('msg');m.className=c||'';m.textContent=t||'';}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+async function api(u,o){const r=await fetch(u,o||{});let j={};try{j=await r.json();}catch(e){}return{ok:r.ok,j};}
+async function init(){
+ const m=await api('/api/buscar/mis');
+ if(!m.ok){msg('Entrá en Mi cuenta primero.','err');return;}
+ if(!(m.j.mis||[]).length){msg('Marcá una persona como pública en Mi cuenta para buscar.','err');}
+ $('base').innerHTML=(m.j.mis||[]).map(n=>'<option>'+esc(n)+'</option>').join('')||'<option value="">(sin públicas)</option>';
+ await cargarMatches();
+}
+async function buscar(){
+ const b=$('base').value; if(!b){msg('Elegí tu persona base.','err');return;}
+ msg('Buscando…');
+ const r=await api('/api/buscar/candidatos?base='+encodeURIComponent(b)+'&solo_nuevos='+($('solo-nuevos').checked?'1':'0'));
+ if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
+ cola=r.j.candidatos||[]; msg(cola.length?('Encontrados: '+cola.length):'Sin candidatos nuevos. Probá destildar el filtro.');
+ siguiente();
+}
+function siguiente(){
+ actual=cola.shift()||null;
+ if(!actual){$('nombre').textContent='—';$('detalle').textContent='No hay más por ahora.';$('canales').innerHTML='';$('foto').style.display='none';return;}
+ $('nombre').textContent=actual.nombre;
+ $('detalle').textContent=(actual.comunes||0)+' canales en común'+(actual.tipo_match?' · mismo tipo':'')+(actual.perfil_match?' · mismo perfil':'');
+ $('canales').innerHTML=(actual.canales||[]).map(c=>'<span class="pill">'+esc(c)+'</span>').join('')+'<div class="mini">'+esc(actual.tipo||'')+' '+esc(actual.perfil||'')+'</div>';
+ if(actual.foto){$('foto').src=actual.foto;$('foto').style.display='block';}else{$('foto').style.display='none';}
+}
+async function votar(v){
+ if(!actual)return;
+ const r=await api('/api/buscar/votar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({a_cuenta:actual.cuenta_id,a_nombre:actual.nombre,valor:v,de_nombre:$('base').value})});
+ if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
+ if(r.j.match)msg('¡Match! Ya pueden chatear.','ok');else msg(v==='='?'Marcado con =. Si te devuelve =, hay match.':'Oculto con X.');
+ await cargarMatches(); siguiente();
+}
+async function cargarMatches(){
+ const r=await api('/api/buscar/matches'); if(!r.ok)return;
+ const ms=r.j.matches||[];
+ $('matches').innerHTML=ms.length?ms.map(m=>'<div><b>'+esc(m.nombre)+'</b> <span class="mini">tu: '+esc(m.mi_nombre)+'</span> <span class="pill">'+esc(m.comunes)+' en común</span> <span class="mini">'+esc(m.tipo||'')+' '+esc(m.perfil||'')+'</span></div>').join(''):'Todavía sin matches.';
+ const vistos={};
+ $('chat-con').innerHTML=ms.filter(m=>{if(vistos[m.cuenta_id])return false;vistos[m.cuenta_id]=1;return true;}).map(m=>'<option value="'+m.cuenta_id+'">'+esc(m.nombre)+'</option>').join('');
+}
+async function cargarChat(){
+ const c=$('chat-con').value; if(!c)return;
+ const r=await api('/api/buscar/mensajes?con='+c); if(!r.ok)return;
+ $('chat').innerHTML=(r.j.mensajes||[]).map(m=>'<div class="'+(m.mio?'mio':'')+'">'+esc(m.texto)+'</div>').join('')||'<span class="mini">Sin mensajes.</span>';
+}
+$('btn-ver').onclick=buscar; $('btn-x').onclick=()=>votar('X'); $('btn-igual').onclick=()=>votar('=');
+$('btn-chat').onclick=cargarChat;
+$('btn-enviar').onclick=async()=>{
+ const c=$('chat-con').value,t=$('texto').value.trim(); if(!c||!t)return;
+ const r=await api('/api/buscar/mensajes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({a_cuenta:c,texto:t})});
+ if(r.ok){$('texto').value='';cargarChat();}else msg((r.j||{}).error||'No se pudo enviar','err');
+};
+$('btn-bloquear').onclick=async()=>{
+ const c=$('chat-con').value; if(!c||!confirm('¿Bloquear? No verán más tus datos ni chat.'))return;
+ await api('/api/buscar/bloquear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({a_cuenta:c})});
+ await cargarMatches(); msg('Bloqueado.');
+};
+$('btn-reportar').onclick=async()=>{
+ const c=$('chat-con').value; if(!c)return; const m=prompt('Motivo del reporte:')||'';
+ if(!m.trim()){msg('Escribí el motivo en una frase.','err');return;}
+ const r=await api('/api/buscar/reportar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({a_cuenta:c,motivo:m})});
+ msg(r.ok?'Reportado. Lo revisamos.':((r.j||{}).error||'No se pudo reportar'),r.ok?'ok':'err');
+};
+init();
+</script></body></html>

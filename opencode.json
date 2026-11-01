@@ -1,6 +1,18 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "freellmapi/auto",
+  "model": "opencode-go/deepseek-v4-pro",
+  "providers": {
+    "opencode-go": {
+      "models": {
+        "glm-5.3-flash": {
+          "disabled": true
+        },
+        "glm-5.3": {
+          "disabled": true
+        }
+      }
+    }
+  },
   "provider": {
     "freellmapi": {
       "npm": "@ai-sdk/openai-compatible",

@@ -6631,6 +6631,384 @@ def api_cuenta_importar():
                     'errores': errores, 'total': len(personas)})
 
 
+# ---------- Fase 4: Buscar personas (= / X, match, chat, bloqueo, reporte) ----------
+_BUSCAR_OK = False
+_BUSCAR_RATE = {}
+
+
+def _buscar_init():
+    global _BUSCAR_OK
+    if _BUSCAR_OK:
+        return
+    try:
+        from pathlib import Path as _P
+        from nube_db import _conn as _c
+        sql = (_P(__file__).parent / 'schema_fase4.sql').read_text(encoding='utf-8')
+        c = _c()
+        try:
+            cur = c.cursor()
+            cur.execute(sql)
+            c.commit()
+        finally:
+            c.close()
+        _BUSCAR_OK = True
+    except Exception:
+        pass
+
+
+def _buscar_foto_ok(foto):
+    f = str(foto or '').strip()
+    if not f or len(f) > 2000:
+        return ''
+    if f.startswith('/publicos/'):
+        return f
+    if f.startswith('https://') and len(f) < 500:
+        return f
+    return ''
+
+
+def _buscar_limite(clave, max_n, ventana_seg):
+    import time as _t
+    ahora = _t.time()
+    lista = _BUSCAR_RATE.get(clave) or []
+    lista = [x for x in lista if ahora - x < ventana_seg]
+    if len(lista) >= max_n:
+        _BUSCAR_RATE[clave] = lista
+        return False
+    lista.append(ahora)
+    _BUSCAR_RATE[clave] = lista
+    return True
+
+
+def _buscar_ficha(dj):
+    try:
+        incon = [int(x) for x in (dj.get('inconscientes') or [])]
+        consc = [int(x) for x in (dj.get('conscientes') or [])]
+    except Exception:
+        incon, consc = [], []
+    puertas = sorted(set(incon) | set(consc))
+    try:
+        canales = _hd_canales_de_puertas(puertas)
+    except Exception:
+        canales = []
+    try:
+        centros = _hd_centros_definidos(canales)
+        tipo, _aut = _hd_tipo_autoridad(centros, canales)
+    except Exception:
+        tipo = ''
+    perfil = dj.get('perfil') or _perfil_de_lineas(
+        (dj.get('conscientes_lineas') or [None])[0] if dj.get('conscientes_lineas') else None,
+        (dj.get('inconscientes_lineas') or [None])[0] if dj.get('inconscientes_lineas') else None) or ''
+    return {'canales': canales, 'tipo': tipo or '', 'perfil': perfil or '',
+            'foto': _buscar_foto_ok(dj.get('foto'))}
+
+
+@app.route('/buscar')
+def pagina_buscar():
+    return render_template('buscar.html')
+
+
+@app.route('/api/buscar/mis')
+def api_buscar_mis():
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    try:
+        perfiles = _auth.perfiles_de(ct['id'])
+    except Exception as e:
+        return jsonify({'error': str(e)[:200]}), 500
+    pubs = [p.get('nombre') for p in perfiles if (p.get('visibilidad') or '') == 'publico']
+    todas = [p.get('nombre') for p in perfiles]
+    return jsonify({'mis': pubs, 'todas': todas})
+
+
+@app.route('/api/buscar/candidatos')
+def api_buscar_candidatos():
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    base = (request.args.get('base') or '').strip()
+    solo_nuevos = (request.args.get('solo_nuevos') or '1') == '1'
+    try:
+        _buscar_init()
+        from nube_db import _conn as _c
+        mias = {str(p.get('nombre') or '').strip().lower(): p for p in _auth.perfiles_de(ct['id'])}
+        b = mias.get(base.lower()) if base else None
+        if not b:
+            return jsonify({'error': 'Elegí tu persona pública base'}), 400
+        if (b.get('visibilidad') or '') != 'publico':
+            return jsonify({'error': 'Tu persona base debe estar en público (Mi cuenta)'}), 400
+        fb = _buscar_ficha(_dj(b))
+        set_b = set(_hd_norm_canal(c) for c in fb['canales'])
+        c = _c()
+        try:
+            cur = c.cursor()
+            cur.execute("SELECT cuenta_id, nombre, datos_json FROM perfiles_cuenta "
+                        "WHERE visibilidad='publico' AND cuenta_id<>%s ORDER BY updated_at DESC LIMIT 120",
+                        (ct['id'],))
+            filas = cur.fetchall()
+            cur.execute("SELECT a_cuenta, a_nombre FROM buscar_votos WHERE de_cuenta=%s AND de_nombre=%s",
+                        (ct['id'], b.get('nombre')))
+            votados = {(r[0], str(r[1]).lower()) for r in cur.fetchall()}
+            cur.execute("SELECT de_cuenta FROM buscar_bloqueos WHERE a_cuenta=%s", (ct['id'],))
+            me_bloq = {r[0] for r in cur.fetchall()}
+            cur.execute("SELECT a_cuenta FROM buscar_bloqueos WHERE de_cuenta=%s", (ct['id'],))
+            yo_bloq = {r[0] for r in cur.fetchall()}
+        finally:
+            c.close()
+        out = []
+        for cid, nom, dj in filas:
+            if cid in me_bloq or cid in yo_bloq:
+                continue
+            if solo_nuevos and (cid, str(nom).lower()) in votados:
+                continue
+            if isinstance(dj, str):
+                try:
+                    import json as _j
+                    dj = _j.loads(dj)
+                except Exception:
+                    dj = {}
+            f = _buscar_ficha(dj or {})
+            chs = [_hd_norm_canal(x) for x in f['canales']]
+            comunes = [x for x in chs if x in set_b]
+            if not comunes:
+                continue
+            out.append({'cuenta_id': cid, 'nombre': nom, 'canales': chs,
+                        'comunes': len(comunes), 'tipo': f['tipo'], 'perfil': f['perfil'],
+                        'foto': f['foto'],
+                        'tipo_match': bool(f['tipo'] and f['tipo'] == fb['tipo']),
+                        'perfil_match': bool(f['perfil'] and f['perfil'] == fb['perfil'])})
+        out.sort(key=lambda x: (-x['comunes'], -(x['tipo_match'] + x['perfil_match']), x['nombre']))
+        return jsonify({'candidatos': out[:60], 'base': b.get('nombre')})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/buscar/votar', methods=['POST'])
+def api_buscar_votar():
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    if not _buscar_limite(f"voto:{ct['id']}", 100, 3600):
+        return jsonify({'error': 'Límite de votos por hora alcanzado'}), 429
+    d = request.get_json(force=True, silent=True) or {}
+    try:
+        a_cuenta = int(d.get('a_cuenta'))
+    except Exception:
+        return jsonify({'error': 'Falta destinatario'}), 400
+    a_nombre = str(d.get('a_nombre') or '').strip()
+    de_nombre = str(d.get('de_nombre') or d.get('base') or '').strip()
+    valor = str(d.get('valor') or '').strip()
+    if valor not in ('=', 'X') or not a_nombre or not de_nombre or a_cuenta == ct['id']:
+        return jsonify({'error': 'Voto inválido'}), 400
+    try:
+        _buscar_init()
+        from nube_db import _conn as _c
+        c = _c()
+        try:
+            cur = c.cursor()
+            cur.execute("SELECT visibilidad FROM perfiles_cuenta WHERE cuenta_id=%s AND nombre=%s",
+                        (ct['id'], de_nombre))
+            r = cur.fetchone()
+            if not r or (r[0] or '') != 'publico':
+                return jsonify({'error': 'Tu persona base debe ser pública'}), 400
+            cur.execute("SELECT 1 FROM perfiles_cuenta WHERE cuenta_id=%s AND nombre=%s "
+                        "AND visibilidad='publico'", (a_cuenta, a_nombre))
+            if not cur.fetchone():
+                return jsonify({'error': 'Esa persona ya no es pública'}), 404
+            cur.execute("INSERT INTO buscar_votos(de_cuenta,de_nombre,a_cuenta,a_nombre,valor) "
+                        "VALUES(%s,%s,%s,%s,%s) ON CONFLICT(de_cuenta,de_nombre,a_cuenta,a_nombre) "
+                        "DO UPDATE SET valor=EXCLUDED.valor, updated_at=now()",
+                        (ct['id'], de_nombre, a_cuenta, a_nombre, valor))
+            match = False
+            if valor == '=':
+                cur.execute("SELECT 1 FROM buscar_votos WHERE de_cuenta=%s AND a_cuenta=%s "
+                            "AND a_nombre=%s AND valor='=' LIMIT 1", (a_cuenta, ct['id'], de_nombre))
+                match = bool(cur.fetchone())
+            c.commit()
+        finally:
+            c.close()
+        return jsonify({'ok': True, 'match': match})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/buscar/matches')
+def api_buscar_matches():
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    try:
+        _buscar_init()
+        from nube_db import _conn as _c
+        c = _c()
+        try:
+            cur = c.cursor()
+            cur.execute("SELECT DISTINCT v1.de_nombre, v1.a_cuenta, v1.a_nombre FROM buscar_votos v1 "
+                        "JOIN buscar_votos v2 ON v2.de_cuenta=v1.a_cuenta AND v2.a_cuenta=%s "
+                        "AND v2.a_nombre=v1.de_nombre AND v2.valor='=' "
+                        "WHERE v1.de_cuenta=%s AND v1.valor='='", (ct['id'], ct['id']))
+            pares = cur.fetchall()
+            cur.execute("SELECT a_cuenta FROM buscar_bloqueos WHERE de_cuenta=%s", (ct['id'],))
+            yo_bloq = {r[0] for r in cur.fetchall()}
+            cur.execute("SELECT de_cuenta FROM buscar_bloqueos WHERE a_cuenta=%s", (ct['id'],))
+            me_bloq = {r[0] for r in cur.fetchall()}
+            cur.execute("SELECT nombre, datos_json FROM perfiles_cuenta WHERE cuenta_id=%s "
+                        "AND visibilidad='publico'", (ct['id'],))
+            mias_dj = {str(r[0]): r[1] for r in cur.fetchall()}
+            cur.execute("SELECT cuenta_id, nombre, datos_json FROM perfiles_cuenta "
+                        "WHERE visibilidad='publico' AND cuenta_id<>%s", (ct['id'],))
+            otros = {(r[0], str(r[1])): r[2] for r in cur.fetchall()}
+        finally:
+            c.close()
+        import json as _j
+
+        def _dj2(x):
+            if isinstance(x, str):
+                try:
+                    return _j.loads(x)
+                except Exception:
+                    return {}
+            return x or {}
+        ms = []
+        for mi_nombre, cid, su_nombre in pares:
+            if cid in yo_bloq or cid in me_bloq:
+                continue
+            fb = _buscar_ficha(_dj2(mias_dj.get(mi_nombre)))
+            fo = _buscar_ficha(_dj2(otros.get((cid, su_nombre))))
+            set_b = set(_hd_norm_canal(x) for x in fb['canales'])
+            comunes = len([x for x in fo['canales'] if _hd_norm_canal(x) in set_b])
+            ms.append({'cuenta_id': cid, 'nombre': su_nombre, 'mi_nombre': mi_nombre,
+                       'comunes': comunes, 'tipo': fo['tipo'], 'perfil': fo['perfil']})
+        ms.sort(key=lambda x: (-x['comunes'], x['nombre']))
+        return jsonify({'matches': ms})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/buscar/bloquear', methods=['POST'])
+def api_buscar_bloquear():
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    d = request.get_json(force=True, silent=True) or {}
+    try:
+        a_cuenta = int(d.get('a_cuenta'))
+    except Exception:
+        return jsonify({'error': 'Falta cuenta'}), 400
+    if a_cuenta == ct['id']:
+        return jsonify({'error': 'No te puedes bloquear'}), 400
+    try:
+        _buscar_init()
+        from nube_db import _conn as _c
+        c = _c()
+        try:
+            cur = c.cursor()
+            cur.execute("INSERT INTO buscar_bloqueos(de_cuenta,a_cuenta) VALUES(%s,%s) ON CONFLICT DO NOTHING",
+                        (ct['id'], a_cuenta))
+            c.commit()
+        finally:
+            c.close()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)[:200]}), 500
+
+
+@app.route('/api/buscar/reportar', methods=['POST'])
+def api_buscar_reportar():
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    if not _buscar_limite(f"rep:{ct['id']}", 10, 3600):
+        return jsonify({'error': 'Límite de reportes alcanzado'}), 429
+    d = request.get_json(force=True, silent=True) or {}
+    try:
+        a_cuenta = int(d.get('a_cuenta'))
+    except Exception:
+        return jsonify({'error': 'Falta cuenta'}), 400
+    motivo = str(d.get('motivo') or '').strip()[:500]
+    if a_cuenta == ct['id']:
+        return jsonify({'error': 'No te puedes reportar'}), 400
+    if not motivo:
+        return jsonify({'error': 'Contanos el motivo en una frase'}), 400
+    try:
+        _buscar_init()
+        from nube_db import _conn as _c
+        c = _c()
+        try:
+            cur = c.cursor()
+            cur.execute("INSERT INTO buscar_reportes(de_cuenta,a_cuenta,motivo) VALUES(%s,%s,%s)",
+                        (ct['id'], a_cuenta, motivo))
+            c.commit()
+        finally:
+            c.close()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)[:200]}), 500
+
+
+@app.route('/api/buscar/mensajes', methods=['GET', 'POST'])
+def api_buscar_mensajes():
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+
+    def _parse_con(v):
+        s = str(v or '').strip()
+        if '|' in s:
+            s = s.split('|')[0]
+        return int(s)
+    try:
+        _buscar_init()
+        from nube_db import _conn as _c
+        if request.method == 'GET':
+            try:
+                con = _parse_con(request.args.get('con'))
+            except Exception:
+                return jsonify({'error': 'Falta conversación'}), 400
+        else:
+            if not _buscar_limite(f"msg:{ct['id']}", 60, 3600):
+                return jsonify({'error': 'Límite de mensajes por hora alcanzado'}), 429
+            d = request.get_json(force=True, silent=True) or {}
+            try:
+                con = _parse_con(d.get('a_cuenta') or d.get('con'))
+            except Exception:
+                return jsonify({'error': 'Falta destinatario'}), 400
+            if con == ct['id']:
+                return jsonify({'error': 'No te puedes escribir'}), 400
+        c = _c()
+        try:
+            cur = c.cursor()
+            cur.execute("SELECT 1 FROM buscar_votos v1 JOIN buscar_votos v2 ON "
+                        "v2.de_cuenta=v1.a_cuenta AND v2.a_cuenta=%s AND v2.valor='=' "
+                        "WHERE v1.de_cuenta=%s AND v1.a_cuenta=%s AND v1.valor='=' LIMIT 1",
+                        (ct['id'], ct['id'], con))
+            if not cur.fetchone():
+                return jsonify({'error': 'Solo con match (= mutuo) se puede chatear'}), 403
+            cur.execute("SELECT 1 FROM buscar_bloqueos WHERE (de_cuenta=%s AND a_cuenta=%s) "
+                        "OR (de_cuenta=%s AND a_cuenta=%s) LIMIT 1", (ct['id'], con, con, ct['id']))
+            if cur.fetchone():
+                return jsonify({'error': 'Conversación bloqueada'}), 403
+            if request.method == 'GET':
+                cur.execute("SELECT de_cuenta, texto, created_at FROM buscar_mensajes "
+                            "WHERE (de_cuenta=%s AND a_cuenta=%s) OR (de_cuenta=%s AND a_cuenta=%s) "
+                            "ORDER BY id LIMIT 200", (ct['id'], con, con, ct['id']))
+                ms = [{'mio': r[0] == ct['id'], 'texto': r[1],
+                       'fecha': str(r[2])[:16] if r[2] else ''} for r in cur.fetchall()]
+                return jsonify({'mensajes': ms})
+            texto = str((request.get_json(force=True, silent=True) or {}).get('texto') or '').strip()[:2000]
+            if not texto:
+                return jsonify({'error': 'Mensaje vacío'}), 400
+            cur.execute("INSERT INTO buscar_mensajes(de_cuenta,a_cuenta,texto) VALUES(%s,%s,%s)",
+                        (ct['id'], con, texto))
+            c.commit()
+            return jsonify({'ok': True})
+        finally:
+            c.close()
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
 if __name__ == '__main__':
     puerto = int(os.environ.get('PORT', 5000))
     # Producción: waitress con 8 hilos (Windows), fallback a Flask debug

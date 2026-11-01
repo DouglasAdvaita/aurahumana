@@ -35,6 +35,7 @@
 <header>
   <b>Mi cuenta</b>
   <span id="quien" class="mini"></span>
+  <a id="link-buscar" href="/buscar" class="oculto" style="font-size:13px;border:1px solid var(--borde);border-radius:6px;padding:6px 10px;text-decoration:none">Buscar personas</a>
   <button id="salir" class="oculto">Cerrar sesión</button>
   <a href="/" style="margin-left:auto;font-size:13px">Volver a RAVE</a>
 </header>
@@ -100,11 +101,12 @@
     </div>
     <div class="card">
       <h3>Cambiar visibilidad de una persona de mi cuenta</h3>
+      <p class="mini">En público se muestra nombre, foto pública, canales, tipo y perfil. Sin fecha, hora ni lugar.</p>
       <label>Nombre exacto<input id="s-nombre" placeholder="Ej. Jorge"></label>
       <label>Visibilidad
         <select id="s-vis" style="width:100%;padding:8px;border:1px solid var(--borde);border-radius:6px">
-          <option value="privado">privado</option>
-          <option value="publico">público (latente, todavía nadie la ve)</option>
+          <option value="privado">privado (solo vos)</option>
+          <option value="publico">público (visible en Buscar)</option>
         </select>
       </label>
       <button class="prim" id="btn-subir">Guardar visibilidad</button>
@@ -131,12 +133,14 @@ async function pintar(){
     $('panel-login').classList.add('oculto');
     $('panel-cuenta').classList.remove('oculto');
     $('salir').classList.remove('oculto');
+    $('link-buscar').classList.remove('oculto');
     $('quien').textContent = j.email || '';
     await lista();
   } else {
     $('panel-login').classList.remove('oculto');
     $('panel-cuenta').classList.add('oculto');
     $('salir').classList.add('oculto');
+    $('link-buscar').classList.add('oculto');
     $('quien').textContent = 'sin sesión';
   }
 }
