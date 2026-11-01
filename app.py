@@ -6680,6 +6680,15 @@ def _buscar_limite(clave, max_n, ventana_seg):
     return True
 
 
+def _buscar_familia_tipo(tipo):
+    """Familia base del tipo: 'Generador Manifestante' -> 'Generador'."""
+    t = str(tipo or '').strip().lower()
+    for fam in ('generador', 'proyector', 'manifestador', 'reflector'):
+        if t.startswith(fam):
+            return fam
+    return ''
+
+
 def _buscar_ficha(dj):
     try:
         incon = [int(x) for x in (dj.get('inconscientes') or [])]
@@ -6729,6 +6738,7 @@ def api_buscar_candidatos():
         return jsonify({'error': 'No logueado'}), 401
     base = (request.args.get('base') or '').strip()
     solo_nuevos = (request.args.get('solo_nuevos') or '1') == '1'
+    por_nombre = (request.args.get('q') or '').strip()[:80]
     try:
         _buscar_init()
         from nube_db import _conn as _c
@@ -6743,9 +6753,14 @@ def api_buscar_candidatos():
         c = _c()
         try:
             cur = c.cursor()
-            cur.execute("SELECT cuenta_id, nombre, datos_json FROM perfiles_cuenta "
-                        "WHERE visibilidad='publico' AND cuenta_id<>%s",
-                        (ct['id'],))
+            if por_nombre:
+                cur.execute("SELECT cuenta_id, nombre, datos_json FROM perfiles_cuenta "
+                            "WHERE visibilidad='publico' AND cuenta_id<>%s AND nombre ILIKE %s "
+                            "ORDER BY nombre LIMIT 60", (ct['id'], '%' + por_nombre + '%'))
+            else:
+                cur.execute("SELECT cuenta_id, nombre, datos_json FROM perfiles_cuenta "
+                            "WHERE visibilidad='publico' AND cuenta_id<>%s",
+                            (ct['id'],))
             filas = cur.fetchall()
             cur.execute("SELECT a_cuenta, a_nombre FROM buscar_votos WHERE de_cuenta=%s AND de_nombre=%s",
                         (ct['id'], b.get('nombre')))
@@ -6756,7 +6771,7 @@ def api_buscar_candidatos():
             yo_bloq = {r[0] for r in cur.fetchall()}
         finally:
             c.close()
-        out = []
+        con_canales, solo_afines = [], []
         for cid, nom, dj in filas:
             if cid in me_bloq or cid in yo_bloq:
                 continue
@@ -6771,21 +6786,52 @@ def api_buscar_candidatos():
             f = _buscar_ficha(dj or {})
             chs = [_hd_norm_canal(x) for x in f['canales']]
             comunes = [x for x in chs if x in set_b]
-            if not comunes:
-                continue
             tipo_match = bool(f['tipo'] and f['tipo'] == fb['tipo'])
             perfil_match = bool(f['perfil'] and f['perfil'] == fb['perfil'])
+            fam_match = bool(_buscar_familia_tipo(f['tipo'])
+                             and _buscar_familia_tipo(f['tipo']) == _buscar_familia_tipo(fb['tipo']))
+            # Sin canales en común solo entra si comparte familia de tipo:
+            # así el resultado sigue siendo afinidad, no una lista al azar.
+            # En la búsqueda por nombre se muestran todos los que coinciden.
+            if not por_nombre and not comunes and not fam_match:
+                continue
             prio = (3 if (tipo_match and perfil_match) else
                     2 if tipo_match else 1 if perfil_match else 0)
             diff = len(set(chs)) - len(comunes)
             frio = (len(set(chs)) == len(set_b)) and (len(comunes) == len(set_b))
-            out.append({'cuenta_id': cid, 'nombre': nom, 'canales': chs,
-                        'comunes': len(comunes), 'tipo': f['tipo'], 'perfil': f['perfil'],
-                        'foto': f['foto'], 'tipo_match': tipo_match,
-                        'perfil_match': perfil_match, 'prio': prio, 'diff': diff,
-                        'frio': frio})
-        out.sort(key=lambda x: (-x['comunes'], -x['frio'], -x['prio'], x['diff'], x['nombre']))
-        return jsonify({'candidatos': out[:60], 'base': b.get('nombre')})
+            item = {'cuenta_id': cid, 'nombre': nom, 'canales': chs,
+                    'comunes': len(comunes), 'tipo': f['tipo'], 'perfil': f['perfil'],
+                    'foto': f['foto'], 'tipo_match': tipo_match,
+                    'perfil_match': perfil_match, 'fam_match': fam_match,
+                    'prio': prio, 'diff': diff, 'frio': frio}
+            (con_canales if comunes else solo_afines).append(item)
+        con_canales.sort(key=lambda x: (-x['comunes'], -x['frio'], -x['prio'],
+                                        x['diff'], x['nombre']))
+        solo_afines.sort(key=lambda x: (-x['prio'], x['nombre']))
+
+        def _sin_repetidos(lista):
+            """Un solo resultado por nombre: si hay homónimos en varias cuentas,
+            queda el mejor ubicado (prefiere el que tiene foto)."""
+            vistos, out = {}, []
+            for it in lista:
+                k = str(it['nombre']).strip().lower()
+                if k not in vistos:
+                    vistos[k] = len(out)
+                    out.append(it)
+                elif it['foto'] and not out[vistos[k]]['foto']:
+                    out[vistos[k]] = it
+            return out
+
+        con_canales = _sin_repetidos(con_canales)
+        solo_afines = _sin_repetidos(solo_afines)
+        if por_nombre:
+            todos = con_canales + solo_afines
+            todos.sort(key=lambda x: (-x['comunes'], x['nombre']))
+            return jsonify({'candidatos': todos[:60], 'afinidad': [],
+                            'total': len(todos), 'base': b.get('nombre'),
+                            'por_nombre': por_nombre})
+        return jsonify({'candidatos': con_canales[:60], 'afinidad': solo_afines[:20],
+                        'total': len(con_canales), 'base': b.get('nombre')})
     except Exception as e:
         return jsonify({'error': str(e)[:300]}), 500
 
