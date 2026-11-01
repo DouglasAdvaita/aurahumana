@@ -10,6 +10,12 @@ main{padding:14px;max-width:760px;margin:0 auto;display:grid;gap:14px}
 .card{background:#fff;border:1px solid var(--borde);border-radius:12px;padding:14px}
 h3{margin:0 0 8px;color:var(--azul);font-size:15px}
 .mini{color:#666;font-size:12px}
+.mini2{font-size:11px;color:#666;border:1px solid var(--borde);border-radius:8px;padding:2px 8px;background:#fff;cursor:pointer}
+.mini2.igual{font-weight:800;border-width:2px}
+#lista{display:grid;gap:10px}
+.item{border:1px solid var(--borde);border-radius:10px;padding:10px;background:#fafbfe}
+.item .top{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.item img{width:100%;max-width:220px;max-height:140px;object-fit:contain;border-radius:8px;background:#f3f5f8;display:block;margin:6px auto}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 select,input,textarea{padding:8px;border:1px solid var(--borde);border-radius:6px;font-size:14px;max-width:100%}
 button{padding:10px 16px;border:1px solid var(--borde);background:#fff;border-radius:10px;cursor:pointer;font-size:16px}
@@ -32,12 +38,9 @@ button.equis{font-size:22px;font-weight:800}
 <p class="mini">Solo participan personas en público. Se muestra nombre, foto pública, canales, tipo y perfil. Sin fecha, hora ni lugar.</p>
 <div class="row"><select id="base"></select><button class="prim" id="btn-ver">Buscar</button>
 <label class="mini"><input type="checkbox" id="solo-nuevos" checked> ocultar ya votados</label></div></div>
-<div class="card"><h3 id="nombre">—</h3>
-<img id="foto" alt="" referrerpolicy="no-referrer"><p class="mini" id="detalle">Cargando tu sesión…</p>
-<div id="canales"></div>
-<div class="row" style="margin-top:10px">
-<button class="equis" id="btn-x" title="Ocultar">X</button>
-<button class="igual prim" id="btn-igual" title="Me gusta">=</button></div></div>
+<div class="card"><h3>Candidatos (máx 10)</h3>
+<p class="mini" id="detalle">Cargando tu sesión…</p>
+<div id="lista"><span class="mini">Apretá Buscar.</span></div></div>
 <div class="card"><h3>2. Matches (= mutuo)</h3><div id="matches" class="mini">Todavía sin matches.</div></div>
 <div class="card"><h3>3. Chat</h3>
 <div class="row"><select id="chat-con"></select><button id="btn-chat">Cargar chat</button></div>
@@ -47,7 +50,7 @@ button.equis{font-size:22px;font-weight:800}
 </main>
 <script>
 const $=id=>document.getElementById(id);
-let cola=[],actual=null;
+let cola=[];
 function msg(t,c){const m=$('msg');m.className=c||'';m.textContent=t||'';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 async function api(u,o){const r=await fetch(u,o||{});let j={};try{j=await r.json();}catch(e){}return{ok:r.ok,j};}
@@ -64,23 +67,29 @@ async function buscar(){
  msg('Buscando…');
  const r=await api('/api/buscar/candidatos?base='+encodeURIComponent(b)+'&solo_nuevos='+($('solo-nuevos').checked?'1':'0'));
  if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
- cola=r.j.candidatos||[]; msg(cola.length?('Encontrados: '+cola.length):'Sin candidatos nuevos. Probá destildar el filtro.');
- siguiente();
+ cola=(r.j.candidatos||[]).slice(0,10); msg(cola.length?('Mostrando '+cola.length):'Sin candidatos nuevos. Probá destildar el filtro.');
+ pintar();
 }
-function siguiente(){
- actual=cola.shift()||null;
- if(!actual){$('nombre').textContent='—';$('detalle').textContent='No hay más por ahora.';$('canales').innerHTML='';$('foto').style.display='none';return;}
- $('nombre').textContent=actual.nombre;
- $('detalle').textContent=(actual.comunes||0)+' canales en común'+(actual.tipo_match?' · mismo tipo':'')+(actual.perfil_match?' · mismo perfil':'');
- $('canales').innerHTML=(actual.canales||[]).map(c=>'<span class="pill">'+esc(c)+'</span>').join('')+'<div class="mini">'+esc(actual.tipo||'')+' '+esc(actual.perfil||'')+'</div>';
- if(actual.foto){$('foto').src=actual.foto;$('foto').style.display='block';}else{$('foto').style.display='none';}
+function pintar(){
+ const box=$('lista');
+ if(!cola.length){box.innerHTML='<span class="mini">No hay más por ahora.</span>';return;}
+ box.innerHTML=cola.map((c,i)=>'<div class="item"><div class="top"><b>'+esc(c.nombre)+'</b>'
+  +'<span style="margin-left:auto"></span>'
+  +'<button class="mini2" data-x="'+i+'" title="Ocultar">X</button>'
+  +'<button class="mini2 igual" data-eq="'+i+'" title="Me gusta">=</button></div>'
+  +'<div class="mini">'+esc(c.comunes||0)+' en común'+(c.tipo_match?' · mismo tipo':'')+(c.perfil_match?' · mismo perfil':'')+' · '+esc(c.tipo||'')+' '+esc(c.perfil||'')+'</div>'
+  +(c.foto?'<img src="'+esc(c.foto)+'" alt="" referrerpolicy="no-referrer" loading="lazy">':'')
+  +'<div>'+(c.canales||[]).map(x=>'<span class="pill">'+esc(x)+'</span>').join('')+'</div></div>').join('');
+ box.querySelectorAll('[data-eq]').forEach(b=>{b.onclick=()=>votar(cola[+b.dataset.eq],'=');});
+ box.querySelectorAll('[data-x]').forEach(b=>{b.onclick=()=>votar(cola[+b.dataset.x],'X');});
 }
-async function votar(v){
- if(!actual)return;
- const r=await api('/api/buscar/votar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({a_cuenta:actual.cuenta_id,a_nombre:actual.nombre,valor:v,de_nombre:$('base').value})});
+async function votar(cand,v){
+ if(!cand)return;
+ const r=await api('/api/buscar/votar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({a_cuenta:cand.cuenta_id,a_nombre:cand.nombre,valor:v,de_nombre:$('base').value})});
  if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
- if(r.j.match)msg('¡Match! Ya pueden chatear.','ok');else msg(v==='='?'Marcado con =. Si te devuelve =, hay match.':'Oculto con X.');
- await cargarMatches(); siguiente();
+ if(r.j.match)msg('¡Match con '+cand.nombre+'! Ya pueden chatear.','ok');else msg(v==='='?('= a '+cand.nombre+'. Si te devuelve =, hay match.'):('X a '+cand.nombre+'.'));
+ cola=cola.filter(x=>!(x.cuenta_id===cand.cuenta_id&&x.nombre===cand.nombre));
+ await cargarMatches(); pintar();
 }
 async function cargarMatches(){
  const r=await api('/api/buscar/matches'); if(!r.ok)return;
@@ -94,7 +103,7 @@ async function cargarChat(){
  const r=await api('/api/buscar/mensajes?con='+c); if(!r.ok)return;
  $('chat').innerHTML=(r.j.mensajes||[]).map(m=>'<div class="'+(m.mio?'mio':'')+'">'+esc(m.texto)+'</div>').join('')||'<span class="mini">Sin mensajes.</span>';
 }
-$('btn-ver').onclick=buscar; $('btn-x').onclick=()=>votar('X'); $('btn-igual').onclick=()=>votar('=');
+$('btn-ver').onclick=buscar;
 $('btn-chat').onclick=cargarChat;
 $('btn-enviar').onclick=async()=>{
  const c=$('chat-con').value,t=$('texto').value.trim(); if(!c||!t)return;
