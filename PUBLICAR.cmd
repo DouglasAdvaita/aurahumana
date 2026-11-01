@@ -52,4 +52,3 @@ echo Guardado LOCAL. Falta configurar el remoto para subir a GitHub.
 
 :fin
 echo.
-pause
