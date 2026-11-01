@@ -35,10 +35,19 @@ button:hover{filter:brightness(.97)}
 .chatbox{border:1px solid var(--borde);border-radius:8px;padding:8px;height:220px;overflow:auto;background:#fafbfe;font-size:13px}
 .chatbox div{margin:5px 0;padding:6px 9px;border-radius:10px;background:#eef1f5;max-width:80%;width:fit-content}
 .chatbox div.mio{margin-left:auto;background:#dce8f8}
+.mini2{font-size:11px;padding:4px 9px;border:1px solid var(--borde);border-radius:8px;background:#fff;cursor:pointer}
+.match-fila{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:5px 0;border-bottom:1px solid #eef0f4}
+#aviso{position:sticky;top:0;z-index:30;display:none;gap:10px;flex-wrap:wrap;align-items:center;
+ background:#e8f5e9;border:1px solid #a5d6a7;color:#1b5e20;border-radius:12px;padding:10px 12px;font-size:13.5px;
+ box-shadow:0 4px 14px rgba(20,60,30,.10)}
+#aviso b{font-size:14px}
+#aviso button{padding:6px 11px;font-size:12.5px;border-radius:8px;cursor:pointer}
+#aviso .aviso-ok{background:#2e7d32;border-color:#2e7d32;color:#fff;font-weight:600}
 </style></head>
 <body>
 <header><b>Buscar personas</b><a href="/cuenta" style="font-size:13px">Mi cuenta</a><a href="/" style="margin-left:auto;font-size:13px">Volver a RAVE</a></header>
 <main>
+<div id="aviso"></div>
 <div id="msg"></div>
 
 <div class="card"><h3>1. Tu persona visible</h3>
@@ -55,7 +64,8 @@ button:hover{filter:brightness(.97)}
 
 <div class="card"><h3>3. Matches (= mutuo) <span class="mini" id="estado-matches"></span></h3>
 <div id="matches" class="mini">Todavía sin matches.</div>
-<div class="row" style="margin-top:8px"><button id="btn-refrescar">Revisar ahora</button></div></div>
+<div class="row" style="margin-top:8px"><button id="btn-refrescar" class="mini2">Actualizar ahora</button>
+<span class="mini">No hace falta: se revisa solo cada 12 s y al volver a esta pestaña.</span></div></div>
 
 <div class="card"><h3>4. Chat</h3>
 <div class="row"><select id="chat-con"></select><button id="btn-chat">Abrir chat</button></div>
@@ -65,7 +75,39 @@ button:hover{filter:brightness(.97)}
 </main>
 <script>
 const $=id=>document.getElementById(id);
-let cola=[], idsMatches=new Set(), abierta=null;
+let cola=[], abierta=null;
+const CLAVE_VISTOS='buscar_ya_vistos';
+let vistos=new Set();
+try{vistos=new Set(JSON.parse(localStorage.getItem(CLAVE_VISTOS)||'[]'));}catch(e){}
+let pendientes=[];
+const claveMatch=m=>(m.mi_nombre||'')+'|'+m.cuenta_id+'|'+(m.nombre||'');
+function guardarVistos(){try{localStorage.setItem(CLAVE_VISTOS,JSON.stringify([...vistos]));}catch(e){}}
+function pintarAviso(){
+ const box=$('aviso');
+ if(!pendientes.length){box.style.display='none';box.innerHTML='';return;}
+ box.style.display='flex';
+ box.innerHTML='<b>¡Tenés '+pendientes.length+(pendientes.length===1?' match':' matches')+'!</b>'
+  +pendientes.map(m=>'<button class="aviso-ok" data-abrir="'+esc(claveMatch(m))+'">Chatear con '+esc(m.nombre)+'</button>').join('')
+  +'<button data-ocultar="1" style="margin-left:auto">Ocultar</button>';
+ box.querySelectorAll('[data-abrir]').forEach(b=>b.onclick=()=>{
+   const m=pendientes.find(x=>claveMatch(x)===b.dataset.abrir);
+   if(m) abrirChat(m);
+ });
+ box.querySelector('[data-ocultar]').onclick=()=>{
+   pendientes.forEach(m=>vistos.add(claveMatch(m)));
+   guardarVistos(); pintarAviso();
+ };
+}
+function verMatch(m){vistos.add(claveMatch(m));guardarVistos();
+ pendientes=pendientes.filter(x=>claveMatch(x)!==claveMatch(m));pintarAviso();}
+function abrirChat(m){
+ verMatch(m);
+ const sel=$('chat-con');
+ const opt=[...sel.options].find(o=>o.value===String(m.cuenta_id));
+ if(opt) sel.value=opt.value;
+ cargarChat(false);
+ $('chat').scrollIntoView({behavior:'smooth',block:'center'});
+}
 function msg(t,c){const m=$('msg');m.className=c||'';m.textContent=t||'';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 async function api(u,o){const r=await fetch(u,o||{});let j={};try{j=await r.json();}catch(e){}return{ok:r.ok,j};}
@@ -147,25 +189,32 @@ async function votar(cand,v){
  if(r.j.match)msg('¡Match con '+cand.nombre+'! Ya pueden chatear.','ok');
  else msg(v==='='?('= a '+cand.nombre+'. Si te devuelve =, hay match.'):('X a '+cand.nombre+'.'));
  cola=cola.filter(x=>!(x.cuenta_id===cand.cuenta_id&&x.nombre===cand.nombre));
- await cargarMatches(false); pintar();
+ await cargarMatches(true); pintar();
 }
 
 async function cargarMatches(avisar){
  const r=await api('/api/buscar/matches'); if(!r.ok)return;
  const ms=r.j.matches||[];
- const nuevos=ms.filter(m=>!idsMatches.has(m.cuenta_id+'|'+m.nombre));
- ms.forEach(m=>idsMatches.add(m.cuenta_id+'|'+m.nombre));
- if(avisar && nuevos.length){
-   msg('¡Nuevo match con '+nuevos.map(m=>m.nombre).join(', ')+'!','ok');
+ const antes=pendientes.length;
+ pendientes=ms.filter(m=>!vistos.has(claveMatch(m)));
+ pintarAviso();
+ if(avisar && pendientes.length>antes){
+   const nuevos=pendientes.slice(antes).map(m=>m.nombre).join(', ');
+   msg('¡Match con '+nuevos+'! Ya pueden chatear.','ok');
  }
- $('matches').innerHTML=ms.length?ms.map(m=>'<div style="margin:4px 0"><b>'+esc(m.nombre)+'</b> '
+ $('matches').innerHTML=ms.length?ms.map(m=>'<div class="match-fila"><b>'+esc(m.nombre)+'</b> '
    +'<span class="mini">con '+esc(m.mi_nombre)+'</span> '
    +'<span class="pill">'+(m.comunes?esc(m.comunes)+' canales':'sin canales')+'</span> '
-   +'<span class="mini">'+esc(m.tipo||'')+' '+esc(m.perfil||'')+'</span></div>').join(''):'Todavía sin matches.';
- const vistos={};
- $('chat-con').innerHTML=ms.filter(m=>{if(vistos[m.cuenta_id])return false;vistos[m.cuenta_id]=1;return true;})
+   +'<span class="mini">'+esc(m.tipo||'')+' '+esc(m.perfil||'')+'</span>'
+   +'<button class="mini2" data-chat="'+m.cuenta_id+'" style="margin-left:auto">Chatear</button></div>').join('')
+   :'Todavía sin matches.';
+ const vistosC={};
+ $('chat-con').innerHTML=ms.filter(m=>{if(vistosC[m.cuenta_id])return false;vistosC[m.cuenta_id]=1;return true;})
    .map(m=>'<option value="'+m.cuenta_id+'">'+esc(m.nombre)+'</option>').join('');
- $('estado-matches').textContent='· se revisa solo cada 30 s';
+ $('estado-matches').textContent='· se revisa solo cada 12 s';
+ $('matches').querySelectorAll('[data-chat]').forEach(b=>{
+   b.onclick=()=>{const m=ms.find(x=>String(x.cuenta_id)===b.dataset.chat); if(m) abrirChat(m);};
+ });
 }
 
 async function cargarChat(silencio){
@@ -181,6 +230,7 @@ async function cargarChat(silencio){
    if(abajo||!silencio) box.scrollTop=box.scrollHeight;
  }
  abierta=c;
+ if(!silencio){ const mm=pendientes.find(x=>String(x.cuenta_id)===String(c)); if(mm) verMatch(mm); }
 }
 
 $('btn-ver').onclick=buscar;
@@ -208,7 +258,10 @@ $('btn-reportar').onclick=async()=>{
 };
 
 // Aviso de matches y mensajes nuevos: solo con la pestaña visible.
-setInterval(()=>{ if(document.visibilityState==='visible') cargarMatches(true); },30000);
-setInterval(()=>{ if(document.visibilityState==='visible'&&abierta) cargarChat(true); },15000);
+setInterval(()=>{ if(document.visibilityState==='visible') cargarMatches(true); },12000);
+setInterval(()=>{ if(document.visibilityState==='visible'&&abierta) cargarChat(true); },10000);
+document.addEventListener('visibilitychange',()=>{
+ if(document.visibilityState==='visible'){ cargarMatches(true); if(abierta) cargarChat(true); }
+});
 init();
 </script></body></html>
