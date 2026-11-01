@@ -37,6 +37,25 @@ button:hover{filter:brightness(.97)}
 .chatbox div.mio{margin-left:auto;background:#dce8f8}
 .mini2{font-size:11px;padding:4px 9px;border:1px solid var(--borde);border-radius:8px;background:#fff;cursor:pointer}
 .match-fila{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:5px 0;border-bottom:1px solid #eef0f4}
+#ficha{position:fixed;inset:0;background:rgba(18,28,44,.55);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}
+#ficha.abierta{display:flex}
+.ficha-caja{background:#fff;border-radius:14px;max-width:860px;width:100%;max-height:92vh;overflow:auto;padding:16px 18px;position:relative}
+.ficha-x{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;padding:0;font-size:14px}
+.ficha-grid{display:grid;grid-template-columns:1fr 270px;gap:18px;align-items:start}
+@media(max-width:680px){.ficha-grid{grid-template-columns:1fr}}
+.ficha-cab{display:flex;gap:16px;flex-wrap:wrap}
+.ficha-foto{width:190px;height:190px;border-radius:12px;overflow:hidden;background:#e6eaf1;flex:0 0 auto;position:relative}
+.ficha-foto img{width:100%;height:100%;object-fit:cover;object-position:center 22%}
+.ficha-foto .pc-nofoto{font-size:64px}
+.ficha-datos{flex:1;min-width:220px}
+.ficha-datos h2{margin:0 0 4px;font-size:19px;color:var(--azul)}
+.ficha-chip{display:inline-block;background:#eef2f8;border:1px solid #d3dbe7;border-radius:7px;padding:2px 8px;font-size:12px;margin:3px 4px 0 0}
+.ficha-chip.comun{background:#e8f5e9;border-color:#a5d6a7;font-weight:600}
+.ficha-bio{margin:8px 0 0;font-size:13px;line-height:1.45;color:#33414f;background:#f7f9fc;border-left:3px solid #c9d8ec;padding:7px 10px;border-radius:0 8px 8px 0}
+.ficha-mapa{margin-top:0;border-top:none;padding-top:0}
+.ficha-mapa svg{max-height:400px;max-width:100%;width:auto;display:block;margin:0 auto}
+.ficha-mapa .mini{text-align:center;margin-top:6px}
+@media(max-width:680px){.ficha-mapa{border-top:1px solid var(--borde);padding-top:10px}}
 #aviso{position:sticky;top:0;z-index:30;display:none;gap:10px;flex-wrap:wrap;align-items:center;
  background:#e8f5e9;border:1px solid #a5d6a7;color:#1b5e20;border-radius:12px;padding:10px 12px;font-size:13.5px;
  box-shadow:0 4px 14px rgba(20,60,30,.10)}
@@ -51,11 +70,10 @@ button:hover{filter:brightness(.97)}
 <div id="msg"></div>
 
 <div class="card"><h3>1. Tu persona visible</h3>
-<p class="mini">Solo participan personas en público. Se muestra nombre, foto, canales, tipo y perfil. Sin fecha, hora ni lugar.</p>
+<p class="mini">Solo participan personas en público: nombre, foto, canales, tipo y perfil. Sin fecha, hora ni lugar.</p>
 <div class="row"><select id="base"></select><button class="prim" id="btn-ver">Buscar parecidos</button>
 <label class="mini"><input type="checkbox" id="solo-nuevos" checked> ocultar ya votados</label></div>
-<div class="row" style="margin-top:8px"><input id="q" placeholder="Buscar por nombre: Fabiana" style="flex:1;min-width:180px"><button id="btn-nombre">Buscar por nombre</button></div>
-<p class="mini" style="margin:6px 0 0">Si alguien no comparte canales contigo, buscalo por nombre: aparece igual.</p></div>
+<div class="row" style="margin-top:8px"><input id="q" placeholder="Buscar por nombre" style="flex:1;min-width:180px"><button id="btn-nombre">Buscar por nombre</button></div></div>
 
 <div class="card"><h3>2. Resultados</h3>
 <p class="mini" id="detalle">Cargando tu sesión…</p>
@@ -64,14 +82,40 @@ button:hover{filter:brightness(.97)}
 
 <div class="card"><h3>3. Matches (= mutuo) <span class="mini" id="estado-matches"></span></h3>
 <div id="matches" class="mini">Todavía sin matches.</div>
-<div class="row" style="margin-top:8px"><button id="btn-refrescar" class="mini2">Actualizar ahora</button>
-<span class="mini">No hace falta: se revisa solo cada 12 s y al volver a esta pestaña.</span></div></div>
+<div class="row" style="margin-top:8px"><button id="btn-refrescar" class="mini2">Actualizar</button></div></div>
 
 <div class="card"><h3>4. Chat</h3>
 <div class="row"><select id="chat-con"></select><button id="btn-chat">Abrir chat</button></div>
 <div class="chatbox" id="chat" style="margin-top:8px"></div>
 <div class="row" style="margin-top:8px"><input id="texto" placeholder="Escribí…" style="flex:1;min-width:200px"><button class="prim" id="btn-enviar">Enviar</button></div>
 <div class="row" style="margin-top:8px"><button id="btn-bloquear">Bloquear</button><button id="btn-reportar">Reportar</button></div></div>
+
+<div id="ficha">
+ <div class="ficha-caja">
+  <button class="ficha-x" id="ficha-cerrar" title="Cerrar">✕</button>
+  <div class="ficha-grid">
+   <div>
+    <div class="ficha-cab">
+     <div class="ficha-foto" id="ficha-foto"></div>
+     <div class="ficha-datos">
+      <h2 id="ficha-nombre"></h2>
+      <div class="mini" id="ficha-meta"></div>
+      <p class="ficha-bio" id="ficha-bio" style="display:none"></p>
+      <div id="ficha-canales" style="margin-top:6px"></div>
+      <div class="row" style="margin-top:12px">
+       <button class="prim" id="ficha-eq">= Me gusta</button>
+       <button id="ficha-x2">✕ Descartar</button>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="ficha-mapa">
+    <div id="ficha-mapa"></div>
+    <p class="mini" id="ficha-mapa-txt">Mapa de diseño</p>
+   </div>
+  </div>
+ </div>
+</div>
 </main>
 <script>
 const $=id=>document.getElementById(id);
@@ -116,8 +160,8 @@ async function init(){
  const m=await api('/api/buscar/mis');
  if(!m.ok){$('detalle').textContent='Entrá en Mi cuenta primero y volvé acá.';msg('Entrá en Mi cuenta primero.','err');return;}
  const pubs=m.j.mis||[];
- if(!pubs.length){$('detalle').textContent='Tu cuenta no tiene personas en público. Marcala en Mi cuenta y volvé.';msg('Marcá una persona como pública en Mi cuenta para buscar.','err');}
- else{$('detalle').textContent='Elegí tu persona arriba y apretá Buscar parecidos. En cada tarjeta: X descarta, = propone match.';}
+ if(!pubs.length){$('detalle').textContent='No tenés personas en público. Marcala en Mi cuenta.';msg('Marcá una persona como pública en Mi cuenta para buscar.','err');}
+ else{$('detalle').textContent='Elegí tu persona y apretá Buscar parecidos. Clic en la foto: ficha y mapa.';}
  $('base').innerHTML=pubs.map(n=>'<option>'+esc(n)+'</option>').join('')||'<option value="">(sin públicas)</option>';
  await cargarMatches(false);
 }
@@ -140,7 +184,7 @@ function celda(c,i){
   ?'<img class="pc-foto" src="'+esc(c.foto)+'" alt="'+esc(c.nombre)+'" referrerpolicy="no-referrer" loading="lazy" data-foto="'+i+'">'
   :'<div class="pc-nofoto">'+ini+'</div>';
  return '<div class="pc-cell" style="box-shadow:inset 0 3px 0 '+col+'" title="'+det+'">'
-  +'<div class="pc-foto-wrap">'+foto
+  +'<div class="pc-foto-wrap" data-ver="'+i+'" style="cursor:pointer">'+foto
   +'<div class="pc-acciones">'
   +'<button class="pc-btn" data-x="'+i+'" title="Descartar (X)">✕</button>'
   +'<button class="pc-btn eq" data-eq="'+i+'" title="Me gusta (=)">=</button>'
@@ -150,8 +194,12 @@ function celda(c,i){
 }
 function pintar(){
  const box=$('lista');
- $('leyenda').innerHTML='Franja superior: <b style="color:#e53935">rojo</b> mismo tipo y perfil · <b style="color:#ff9800">naranja</b> mismo tipo · <b style="color:#c9a800">amarillo</b> mismo perfil · <b style="color:#9e9e9e">gris</b> sin canales en común. Primero personas de cuentas personales; después, más canales primero.';
+ $('leyenda').innerHTML='Franja: <b style="color:#e53935">rojo</b> mismo tipo y perfil · <b style="color:#ff9800">naranja</b> mismo tipo · <b style="color:#c9a800">amarillo</b> mismo perfil · <b style="color:#9e9e9e">gris</b> sin canales en común.';
  box.innerHTML=cola.length?cola.map((c,i)=>celda(c,i)).join(''):'<span class="mini">Sin resultados.</span>';
+ box.querySelectorAll('[data-ver]').forEach(el=>{el.onclick=(ev)=>{
+   if(ev.target.closest('button')) return;
+   const c=cola[+el.dataset.ver]; if(c) abrirFicha(c);
+ };});
  box.querySelectorAll('[data-foto]').forEach(img=>{img.onerror=()=>{
   const src=cola[+img.dataset.foto]||{};
   const d=document.createElement('div');d.className='pc-nofoto';
@@ -160,6 +208,84 @@ function pintar(){
  box.querySelectorAll('[data-x]').forEach(b=>{b.onclick=()=>votar(cola[+b.dataset.x],'X');});
 }
 
+// Centros y sus canales, igual que en el gráfico de RAVE.
+const CENTRO_CANALES = {
+ 'Raiz':['18-58','38-28','54-32','53-42','60-3','52-9','19-49','39-55','41-30'],
+ 'Sacro':['5-15','14-2','29-46','59-6','9-52','3-60','42-53','27-50','34-57','34-10','34-20'],
+ 'Bazo':['48-16','57-34','57-20','57-10','44-26','50-27','32-54','28-38','18-58'],
+ 'Plexo':['6-59','37-40','49-19','55-39','30-41','36-35','22-12'],
+ 'Ego':['21-45','40-37','26-44','51-25'],
+ 'G':['1-8','2-14','7-31','13-33','10-20','10-34','10-57','25-51','15-5','46-29'],
+ 'Garganta':['16-48','20-57','20-34','20-10','31-7','8-1','33-13','35-36','12-22','45-21','62-17','23-43','56-11'],
+ 'Ajna':['11-56','24-61','43-23','47-64','4-63','17-62'],
+ 'Corona':['61-24','63-4','64-47']
+};
+const normCanal=s=>{const p=String(s).split('-').map(Number);return (p[0]<p[1]?p[0]+'-'+p[1]:p[1]+'-'+p[0]);};
+const CENTRO_COLOR={Corona:'#DED676',Ajna:'#7BC03A',Garganta:'#C0A062',G:'#DED676',Ego:'#D93946',Bazo:'#C0A062',Plexo:'#C0A062',Sacro:'#B7673C',Raiz:'#C0A062'};
+let mapaSVG=null, fichaActual=null;
+async function traerMapa(){
+ if(mapaSVG) return mapaSVG;
+ const r=await fetch('/mapa.svg'); const t=await r.text();
+ const i=t.indexOf('<svg'); mapaSVG=i>=0?t.slice(i):t;
+ return mapaSVG;
+}
+function pintarMapa(box,canales){
+ const set=new Set((canales||[]).map(normCanal));
+ box.querySelectorAll('[id^="c"]').forEach(el=>{
+  const m=el.id.match(/^c(\d+)-(\d+)$/); if(!m) return;
+  const on=set.has(normCanal(m[1]+'-'+m[2]));
+  el.style.stroke=on?'#1a3d6d':'#b9c0ca';
+  el.style.strokeWidth=on?'3.4':'1';
+  el.style.opacity=on?'1':'0.35';
+ });
+ Object.entries(CENTRO_CANALES).forEach(([centro,lista])=>{
+  const el=box.querySelector('#'+centro); if(!el) return;
+  const on=lista.some(c=>set.has(normCanal(c)));
+  el.style.fill=on?(CENTRO_COLOR[centro]||'#c9d8ec'):'#ffffff';
+  el.style.strokeWidth=on?'2':'1.2';
+ });
+}
+async function abrirFicha(c){
+ fichaActual=c;
+ $('ficha-nombre').textContent=c.nombre||'';
+ const meta=[c.tipo||'sin tipo',c.perfil||''].filter(Boolean).join(' · ');
+ $('ficha-meta').textContent=meta+(c.comunes?(' · '+c.comunes+' canales en común contigo'):'');
+ $('ficha-bio').style.display='none'; $('ficha-bio').textContent='';
+ $('ficha-foto').innerHTML=c.foto
+  ?'<img src="'+esc(c.foto)+'" alt="'+esc(c.nombre)+'" referrerpolicy="no-referrer">'
+  :'<div class="pc-nofoto">'+esc(String(c.nombre||'?').trim().charAt(0).toUpperCase())+'</div>';
+ $('ficha-canales').innerHTML='<span class="mini">Cargando canales…</span>'; $('ficha-mapa').innerHTML='';
+ $('ficha').classList.add('abierta');
+ const base=$('base').value;
+ const r=await api('/api/buscar/ficha?cuenta='+c.cuenta_id+'&nombre='+encodeURIComponent(c.nombre)+'&base='+encodeURIComponent(base||''));
+ if(!r.ok){$('ficha-canales').textContent=(r.j||{}).error||'No se pudo cargar la ficha';return;}
+ const f=r.j;
+ const bio=String(f.bio||'').trim();
+ $('ficha-bio').style.display=bio?'block':'none';
+ $('ficha-bio').textContent=bio;
+ const comunes=new Set((f.comunes||[]).map(normCanal));
+ $('ficha-canales').innerHTML=(f.canales||[]).length
+  ?(f.canales||[]).map(x=>'<span class="ficha-chip'+(comunes.has(normCanal(x))?' comun':'')+'">'+esc(x)+'</span>').join('')
+  :'<span class="mini">Sin canales definidos.</span>';
+ $('ficha-mapa-txt').textContent='Mapa de diseño · '+(f.tipo||'sin tipo')+' '+(f.perfil||'')
+   +(f.centros&&f.centros.length?(' · centros definidos: '+f.centros.join(', ')):'');
+ try{
+  $('ficha-mapa').innerHTML=await traerMapa();
+  pintarMapa($('ficha-mapa'),f.canales);
+  const svg=$('ficha-mapa').querySelector('svg');
+  if(svg){
+   const panel=svg.querySelector('#Capa_panel_planetas'); if(panel) panel.remove();
+   const emo=svg.querySelector('#capa_emojis'); if(emo) emo.remove();
+   try{
+    const bb=svg.getBBox();
+    if(bb.width>10&&bb.height>10)
+     svg.setAttribute('viewBox',(bb.x-6)+' '+(bb.y-6)+' '+(bb.width+12)+' '+(bb.height+12));
+   }catch(e){}
+  }
+ }catch(e){ $('ficha-mapa').innerHTML=''; $('ficha-mapa-txt').textContent='Mapa no disponible.'; }
+}
+function cerrarFicha(){$('ficha').classList.remove('abierta');fichaActual=null;}
+
 async function buscar(){
  const b=$('base').value; if(!b){msg('Elegí tu persona base.','err');return;}
  msg('Buscando…');
@@ -167,7 +293,7 @@ async function buscar(){
  if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
  const todos=r.j.candidatos||[];
  cola=todos.slice(0,20);
- msg(todos.length?('Resultados: '+todos.length+(todos.length>20?' (mostrando 20)':'')+'. Las personas con pocas fichas públicas van primero.'):'Sin candidatos nuevos. Probá destildar el filtro.');
+ msg(todos.length?('Resultados: '+todos.length+(todos.length>20?' · mostrando 20':'')):'Sin candidatos nuevos. Probá destildar el filtro.');
  pintar();
 }
 async function buscarPorNombre(){
@@ -179,15 +305,15 @@ async function buscarPorNombre(){
  if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
  const todos=r.j.candidatos||[];
  cola=todos.slice(0,20);
- msg(todos.length?('Por nombre "'+q+'": '+todos.length+(todos.length>20?' (mostrando 20)':'')):'No hay ninguna persona pública con ese nombre.');
+ msg(todos.length?('Por nombre: '+todos.length+(todos.length>20?' · mostrando 20':'')):'No hay ninguna persona pública con ese nombre.');
  pintar();
 }
 async function votar(cand,v){
  if(!cand)return;
  const r=await api('/api/buscar/votar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({a_cuenta:cand.cuenta_id,a_nombre:cand.nombre,valor:v,de_nombre:$('base').value})});
  if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
- if(r.j.match)msg('¡Match con '+cand.nombre+'! Ya pueden chatear.','ok');
- else msg(v==='='?('= a '+cand.nombre+'. Si te devuelve =, hay match.'):('X a '+cand.nombre+'.'));
+ if(r.j.match)msg('¡Match con '+cand.nombre+'!','ok');
+ else msg(v==='='?('= a '+cand.nombre):('X a '+cand.nombre));
  cola=cola.filter(x=>!(x.cuenta_id===cand.cuenta_id&&x.nombre===cand.nombre));
  await cargarMatches(true); pintar();
 }
@@ -211,7 +337,7 @@ async function cargarMatches(avisar){
  const vistosC={};
  $('chat-con').innerHTML=ms.filter(m=>{if(vistosC[m.cuenta_id])return false;vistosC[m.cuenta_id]=1;return true;})
    .map(m=>'<option value="'+m.cuenta_id+'">'+esc(m.nombre)+'</option>').join('');
- $('estado-matches').textContent='· se revisa solo cada 12 s';
+ $('estado-matches').textContent='· automático';
  $('matches').querySelectorAll('[data-chat]').forEach(b=>{
    b.onclick=()=>{const m=ms.find(x=>String(x.cuenta_id)===b.dataset.chat); if(m) abrirChat(m);};
  });
@@ -256,6 +382,12 @@ $('btn-reportar').onclick=async()=>{
  const r=await api('/api/buscar/reportar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({a_cuenta:c,motivo:m})});
  msg(r.ok?'Reportado. Lo revisamos.':((r.j||{}).error||'No se pudo reportar'),r.ok?'ok':'err');
 };
+
+$('ficha-cerrar').onclick=cerrarFicha;
+$('ficha').onclick=e=>{if(e.target===$('ficha')) cerrarFicha();};
+$('ficha-eq').onclick=()=>{const c=fichaActual; if(!c)return; cerrarFicha(); votar(c,'=');};
+$('ficha-x2').onclick=()=>{const c=fichaActual; if(!c)return; cerrarFicha(); votar(c,'X');};
+document.addEventListener('keydown',e=>{if(e.key==='Escape') cerrarFicha();});
 
 // Aviso de matches y mensajes nuevos: solo con la pestaña visible.
 setInterval(()=>{ if(document.visibilityState==='visible') cargarMatches(true); },12000);

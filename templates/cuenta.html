@@ -100,8 +100,8 @@
       </div>
     </div>
     <div class="card">
-      <h3>Cambiar visibilidad de una persona de mi cuenta</h3>
-      <p class="mini">En público se muestra nombre, foto pública, canales, tipo y perfil. Sin fecha, hora ni lugar.</p>
+      <h3>Visibilidad y bio de una persona</h3>
+      <p class="mini">En público se muestra nombre, foto pública, canales, tipo, perfil y tu bio. Sin fecha, hora ni lugar.</p>
       <label>Nombre exacto<input id="s-nombre" placeholder="Ej. Jorge"></label>
       <label>Visibilidad
         <select id="s-vis" style="width:100%;padding:8px;border:1px solid var(--borde);border-radius:6px">
@@ -109,12 +109,14 @@
           <option value="publico">público (visible en Buscar)</option>
         </select>
       </label>
-      <button class="prim" id="btn-subir">Guardar visibilidad</button>
+      <label>Bio breve (máx. 280, se muestra en Buscar)<textarea id="s-bio" rows="3" maxlength="280" style="width:100%;padding:8px;border:1px solid var(--borde);border-radius:6px;font:inherit"></textarea></label>
+      <button class="prim" id="btn-subir">Guardar</button>
     </div>
   </div>
 </main>
 <script>
 const $ = id => document.getElementById(id);
+let PERFILES = [];
 function msg(t, cls){ const m=$('msg'); m.className = cls||''; m.textContent = t||''; }
 async function api(url, opts){ const r = await fetch(url, opts||{}); let j={}; try{ j=await r.json(); }catch(e){} return {ok:r.ok, status:r.status, j}; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -148,11 +150,17 @@ async function lista(){
   const tb = $('tabla');
   if(!r.ok){ tb.innerHTML = '<tr><td colspan="5" class="err">'+esc((r.j||{}).error||'Error')+'</td></tr>'; return; }
   const ps = (r.j||{}).perfiles||[];
+  PERFILES = ps;
   if(!ps.length){ tb.innerHTML = '<tr><td colspan="5" class="mini">Todavía no subiste ninguna persona.</td></tr>'; return; }
   tb.innerHTML = ps.map(p=>{
     const nac = [p.fecha,p.hora,p.lugar].filter(Boolean).join(' · ') || '—';
     const fe = p.updated_at ? String(p.updated_at).slice(0,16).replace('T',' ') : '';
-    return '<tr><td><b>'+esc(p.nombre)+'</b></td><td>'+esc(nac)+'</td>'
+    let dj = p.datos_json;
+    if(typeof dj === 'string'){ try{ dj = JSON.parse(dj); }catch(e){ dj = {}; } }
+    const bio = (dj && dj.bio) || '';
+    return '<tr><td><b>'+esc(p.nombre)+'</b>'
+      +(bio?'<div class="mini">'+esc(String(bio).slice(0,90))+'</div>':'')
+      +'</td><td>'+esc(nac)+'</td>'
       + '<td><span class="pill">'+esc(p.visibilidad)+'</span></td>'
       + '<td class="mini">'+esc(fe)+'</td>'
       + '<td><button data-borrar="'+esc(p.nombre)+'">quitar</button></td></tr>';
@@ -242,14 +250,23 @@ $('btn-importar').onclick = async ()=>{
   await lista();
 };
 
-$('btn-subir').onclick = async ()=>{
-  const nombre = $('s-nombre').value.trim();
+$('btn-subir').onclick = async ()=>{  const nombre = $('s-nombre').value.trim();
   if(!nombre){ msg('Poné el nombre exacto de la persona.', 'err'); return; }
-  msg('Subiendo…');
+  msg('Guardando…');
   const r = await api('/api/cuenta/subir',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({nombre:nombre, visibilidad:$('s-vis').value})});
-  msg(r.ok?('"'+nombre+'" guardada en la nube.'):((r.j||{}).error||'Error al subir'), r.ok?'ok':'err');
+    body:JSON.stringify({nombre:nombre, visibilidad:$('s-vis').value, bio:$('s-bio').value})});
+  msg(r.ok?('"'+nombre+'" guardada.'):((r.j||{}).error||'Error al guardar'), r.ok?'ok':'err');
   if(r.ok) await lista();
+};
+
+$('s-nombre').onchange = ()=>{
+  const n = $('s-nombre').value.trim().toLowerCase();
+  const p = PERFILES.find(x => String(x.nombre||'').trim().toLowerCase() === n);
+  if(!p) return;
+  $('s-vis').value = p.visibilidad || 'privado';
+  let dj = p.datos_json;
+  if(typeof dj === 'string'){ try{ dj = JSON.parse(dj); }catch(e){ dj = {}; } }
+  $('s-bio').value = (dj && dj.bio) || '';
 };
 
 $('btn-bajar').onclick = async ()=>{

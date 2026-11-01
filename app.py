@@ -6437,6 +6437,18 @@ def api_cuenta_subir():
             return jsonify({'error': f'"{nombre}" no está en tu cuenta. Usá Agregar para crearla.'}), 404
         perfil = dict(previo)
         perfil['visibilidad'] = str(data.get('visibilidad') or previo.get('visibilidad') or 'privado')
+        if 'bio' in data:
+            dj = perfil.get('datos_json')
+            if isinstance(dj, str):
+                import json as _jb
+                try:
+                    dj = _jb.loads(dj)
+                except Exception:
+                    dj = {}
+            if not isinstance(dj, dict):
+                dj = {}
+            dj['bio'] = str(data.get('bio') or '').strip()[:280]
+            perfil['datos_json'] = dj
         _auth.subir_perfil(ct['id'], perfil)
         g.perfiles_cuenta = None
         return jsonify({'ok': True, 'nombre': nombre, 'visibilidad': perfil['visibilidad']})
@@ -6743,6 +6755,73 @@ def api_buscar_mis():
     pubs = [p.get('nombre') for p in perfiles if (p.get('visibilidad') or '') == 'publico']
     todas = [p.get('nombre') for p in perfiles]
     return jsonify({'mis': pubs, 'todas': todas})
+
+
+@app.route('/api/buscar/ficha')
+def api_buscar_ficha():
+    """Ficha pública de una persona: foto, tipo, perfil, canales y centros.
+    Solo datos que ya se muestran en el buscador; nunca fecha, hora ni lugar."""
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    try:
+        cuenta = int(request.args.get('cuenta') or 0)
+    except Exception:
+        return jsonify({'error': 'Cuenta inválida'}), 400
+    nombre = (request.args.get('nombre') or '').strip()[:80]
+    base = (request.args.get('base') or '').strip()[:80]
+    if not cuenta or not nombre:
+        return jsonify({'error': 'Falta la persona'}), 400
+    try:
+        _buscar_init()
+        from nube_db import _conn as _c
+        c = _c()
+        try:
+            cur = c.cursor()
+            cur.execute("SELECT datos_json FROM perfiles_cuenta WHERE cuenta_id=%s AND nombre=%s "
+                        "AND visibilidad='publico'", (cuenta, nombre))
+            r = cur.fetchone()
+            if not r:
+                return jsonify({'error': 'Esa persona no es pública'}), 404
+            dj = r[0]
+            if isinstance(dj, str):
+                import json as _j
+                try:
+                    dj = _j.loads(dj)
+                except Exception:
+                    dj = {}
+            comunes = []
+            if base:
+                cur.execute("SELECT datos_json FROM perfiles_cuenta WHERE cuenta_id=%s AND nombre=%s "
+                            "AND visibilidad='publico'", (ct['id'], base))
+                rb = cur.fetchone()
+                if rb:
+                    djb = rb[0]
+                    if isinstance(djb, str):
+                        import json as _j2
+                        try:
+                            djb = _j2.loads(djb)
+                        except Exception:
+                            djb = {}
+                    fb = _buscar_ficha(djb or {})
+                    mios = set(_hd_norm_canal(x) for x in fb['canales'])
+                    f0 = _buscar_ficha(dj or {})
+                    comunes = [x for x in f0['canales'] if _hd_norm_canal(x) in mios]
+        finally:
+            c.close()
+        f = _buscar_ficha(dj or {})
+        return jsonify({'nombre': nombre, 'foto': f['foto'], 'tipo': f['tipo'],
+                        'perfil': f['perfil'], 'canales': f['canales'],
+                        'centros': sorted(_hd_centros_definidos(f['canales'])),
+                        'bio': str((dj or {}).get('bio') or '').strip()[:280],
+                        'comunes': comunes})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/mapa.svg')
+def mapa_svg_buscar():
+    return Response(cargar_svg(), mimetype='image/svg+xml')
 
 
 @app.route('/api/buscar/candidatos')
