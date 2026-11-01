@@ -6339,6 +6339,12 @@ def pagina_cuenta():
     return render_template('cuenta.html')
 
 
+@app.route('/alma')
+def pagina_alma():
+    """Vista móvil de RAVE para el APK AlmaVista."""
+    return render_template('alma_vista.html')
+
+
 @app.route('/api/cuenta/estado')
 def api_cuenta_estado():
     try:
