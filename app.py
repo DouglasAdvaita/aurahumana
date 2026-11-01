@@ -6769,6 +6769,12 @@ def api_buscar_candidatos():
             me_bloq = {r[0] for r in cur.fetchall()}
             cur.execute("SELECT a_cuenta FROM buscar_bloqueos WHERE de_cuenta=%s", (ct['id'],))
             yo_bloq = {r[0] for r in cur.fetchall()}
+            # Cuentas personales = pocas fichas públicas. En producción cada
+            # cuenta tendrá una persona, así que esto solo separa datos de prueba
+            # (cuentas con cientos de fichas) de personas reales.
+            cur.execute("SELECT cuenta_id, COUNT(*) FROM perfiles_cuenta "
+                        "WHERE visibilidad='publico' GROUP BY cuenta_id")
+            cuantas = {r[0]: r[1] for r in cur.fetchall()}
         finally:
             c.close()
         con_canales, solo_afines = [], []
@@ -6803,11 +6809,18 @@ def api_buscar_candidatos():
                     'comunes': len(comunes), 'tipo': f['tipo'], 'perfil': f['perfil'],
                     'foto': f['foto'], 'tipo_match': tipo_match,
                     'perfil_match': perfil_match, 'fam_match': fam_match,
-                    'prio': prio, 'diff': diff, 'frio': frio}
+                    'prio': prio, 'diff': diff, 'frio': frio,
+                    'personal': cuantas.get(cid, 1) <= 3}
             (con_canales if comunes else solo_afines).append(item)
-        con_canales.sort(key=lambda x: (-x['comunes'], -x['frio'], -x['prio'],
-                                        x['diff'], x['nombre']))
-        solo_afines.sort(key=lambda x: (-x['prio'], x['nombre']))
+
+        # Cuentas personales primero (una persona real gana a un catálogo de
+        # fichas de prueba); dentro de cada grupo manda la afinidad.
+        def _orden(x, sin_canales):
+            return (0 if x['personal'] else 1, 0 if sin_canales else 0,
+                    -x['comunes'], -x['frio'], -x['prio'], x['diff'], x['nombre'])
+
+        con_canales.sort(key=lambda x: _orden(x, False))
+        solo_afines.sort(key=lambda x: _orden(x, True))
 
         def _sin_repetidos(lista):
             """Un solo resultado por nombre: si hay homónimos en varias cuentas,
@@ -6826,12 +6839,18 @@ def api_buscar_candidatos():
         solo_afines = _sin_repetidos(solo_afines)
         if por_nombre:
             todos = con_canales + solo_afines
-            todos.sort(key=lambda x: (-x['comunes'], x['nombre']))
+            todos.sort(key=lambda x: (0 if x['personal'] else 1, -x['comunes'], x['nombre']))
             return jsonify({'candidatos': todos[:60], 'afinidad': [],
                             'total': len(todos), 'base': b.get('nombre'),
                             'por_nombre': por_nombre})
-        return jsonify({'candidatos': con_canales[:60], 'afinidad': solo_afines[:20],
-                        'total': len(con_canales), 'base': b.get('nombre')})
+        # Una sola lista: personas de cuentas personales primero y, dentro de
+        # cada grupo, los que más canales comparten. Así una persona real no
+        # queda enterrada por un catálogo de fichas.
+        todos = con_canales + solo_afines
+        todos.sort(key=lambda x: (0 if x['personal'] else 1, -x['comunes'],
+                                  -x['frio'], -x['prio'], x['diff'], x['nombre']))
+        return jsonify({'candidatos': todos[:60], 'afinidad': [],
+                        'total': len(todos), 'base': b.get('nombre')})
     except Exception as e:
         return jsonify({'error': str(e)[:300]}), 500
 
