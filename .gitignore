@@ -65,3 +65,6 @@ desktop.ini
 /fotos_personas/
 # /Publicos/
 /avatares_arquetipos/
+
+# Publicador local (no versionar)
+/PUBLICAR.cmd
