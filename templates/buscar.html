@@ -23,9 +23,9 @@ button:hover{filter:brightness(.97)}
 #lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
 .pc-cell{position:relative;background:#fff;border:1px solid var(--borde);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:transform .12s,box-shadow .12s}
 .pc-cell:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(20,35,60,.12)}
-.pc-foto-wrap{position:relative;aspect-ratio:1/1;background:#e6eaf1}
-.pc-foto{width:100%;height:100%;object-fit:cover;display:block}
-.pc-nofoto{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#7b8798}
+.pc-foto-wrap{position:relative;aspect-ratio:1/1;background:#e6eaf1;overflow:hidden}
+.pc-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block}
+.pc-nofoto{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;color:#7b8798}
 .pc-acciones{position:absolute;top:6px;right:6px;display:flex;gap:6px}
 .pc-btn{width:30px;height:30px;padding:0;border-radius:50%;border:1px solid rgba(0,0,0,.12);background:rgba(255,255,255,.94);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer}
 .pc-btn.eq{background:var(--azul);color:#fff;border-color:var(--azul)}
@@ -65,7 +65,7 @@ button:hover{filter:brightness(.97)}
 </main>
 <script>
 const $=id=>document.getElementById(id);
-let cola=[], afinidad=[], idsMatches=new Set(), abierta=null;
+let cola=[], idsMatches=new Set(), abierta=null;
 function msg(t,c){const m=$('msg');m.className=c||'';m.textContent=t||'';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 async function api(u,o){const r=await fetch(u,o||{});let j={};try{j=await r.json();}catch(e){}return{ok:r.ok,j};}
@@ -87,7 +87,7 @@ function colorBorde(c){
  if(c.perfil_match) return '#fdd835';
  return '';
 }
-function celda(c,i,L){
+function celda(c,i){
  const col=colorBorde(c);
  const ini=esc(String(c.nombre||'?').trim().charAt(0).toUpperCase());
  const meta=c.comunes>0
@@ -95,13 +95,13 @@ function celda(c,i,L){
    :'sin canales en común · afín por tipo';
  const det=esc(c.nombre)+' · '+esc(meta)+' · '+esc(c.tipo||'sin tipo')+' '+esc(c.perfil||'');
  const foto=c.foto
-  ?'<img class="pc-foto" src="'+esc(c.foto)+'" alt="'+esc(c.nombre)+'" referrerpolicy="no-referrer" loading="lazy" data-foto="'+L+':'+i+'">'
+  ?'<img class="pc-foto" src="'+esc(c.foto)+'" alt="'+esc(c.nombre)+'" referrerpolicy="no-referrer" loading="lazy" data-foto="'+i+'">'
   :'<div class="pc-nofoto">'+ini+'</div>';
  return '<div class="pc-cell" style="box-shadow:inset 0 3px 0 '+col+'" title="'+det+'">'
   +'<div class="pc-foto-wrap">'+foto
   +'<div class="pc-acciones">'
-  +'<button class="pc-btn" data-x="'+L+':'+i+'" title="Descartar (X)">✕</button>'
-  +'<button class="pc-btn eq" data-eq="'+L+':'+i+'" title="Me gusta (=)">=</button>'
+  +'<button class="pc-btn" data-x="'+i+'" title="Descartar (X)">✕</button>'
+  +'<button class="pc-btn eq" data-eq="'+i+'" title="Me gusta (=)">=</button>'
   +'</div></div>'
   +'<div class="pc-info"><div class="pc-nom">'+esc(c.nombre)+'</div>'
   +'<div class="pc-meta">'+esc(meta)+'</div></div></div>';
@@ -124,8 +124,8 @@ async function buscar(){
  const r=await api('/api/buscar/candidatos?base='+encodeURIComponent(b)+'&solo_nuevos='+($('solo-nuevos').checked?'1':'0'));
  if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
  const todos=r.j.candidatos||[];
- cola=todos.slice(0,20); afinidad=[];
- msg(todos.length?('Con canales en común: '+todos.length):'Sin candidatos nuevos. Probá destildar el filtro.');
+ cola=todos.slice(0,20);
+ msg(todos.length?('Resultados: '+todos.length+(todos.length>20?' (mostrando 20)':'')+'. Las personas con pocas fichas públicas van primero.'):'Sin candidatos nuevos. Probá destildar el filtro.');
  pintar();
 }
 async function buscarPorNombre(){
@@ -136,7 +136,7 @@ async function buscarPorNombre(){
  const r=await api('/api/buscar/candidatos?base='+encodeURIComponent(b)+'&q='+encodeURIComponent(q));
  if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
  const todos=r.j.candidatos||[];
- cola=todos.slice(0,20); afinidad=[];
+ cola=todos.slice(0,20);
  msg(todos.length?('Por nombre "'+q+'": '+todos.length+(todos.length>20?' (mostrando 20)':'')):'No hay ninguna persona pública con ese nombre.');
  pintar();
 }
@@ -146,8 +146,7 @@ async function votar(cand,v){
  if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
  if(r.j.match)msg('¡Match con '+cand.nombre+'! Ya pueden chatear.','ok');
  else msg(v==='='?('= a '+cand.nombre+'. Si te devuelve =, hay match.'):('X a '+cand.nombre+'.'));
- const quitar=arr=>arr.filter(x=>!(x.cuenta_id===cand.cuenta_id&&x.nombre===cand.nombre));
- cola=quitar(cola); afinidad=quitar(afinidad);
+ cola=cola.filter(x=>!(x.cuenta_id===cand.cuenta_id&&x.nombre===cand.nombre));
  await cargarMatches(false); pintar();
 }
 
