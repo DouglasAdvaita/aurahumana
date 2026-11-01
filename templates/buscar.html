@@ -16,7 +16,7 @@ button{padding:10px 16px;border:1px solid var(--borde);background:#fff;border-ra
 button.prim{background:var(--azul);color:#fff;border-color:var(--azul);font-weight:600}
 button.igual{font-size:22px;font-weight:800;border-width:2px}
 button.equis{font-size:22px;font-weight:800}
-#foto{width:100%;max-height:320px;object-fit:cover;border-radius:10px;background:#f3f5f8;display:none}
+#foto{width:100%;max-width:420px;max-height:240px;object-fit:contain;border-radius:10px;background:#f3f5f8;display:none;margin:0 auto}
 .pill{display:inline-block;background:#eef;border:1px solid #ccd;border-radius:8px;padding:0 7px;font-size:12px;margin:2px}
 #msg{min-height:18px;font-size:13px}
 .ok{color:var(--ok)} .err{color:var(--err)}
@@ -33,7 +33,7 @@ button.equis{font-size:22px;font-weight:800}
 <div class="row"><select id="base"></select><button class="prim" id="btn-ver">Buscar</button>
 <label class="mini"><input type="checkbox" id="solo-nuevos" checked> ocultar ya votados</label></div></div>
 <div class="card"><h3 id="nombre">—</h3>
-<img id="foto" alt="" referrerpolicy="no-referrer"><p class="mini" id="detalle">Iniciá sesión en Mi cuenta y marcá una persona como pública.</p>
+<img id="foto" alt="" referrerpolicy="no-referrer"><p class="mini" id="detalle">Cargando tu sesión…</p>
 <div id="canales"></div>
 <div class="row" style="margin-top:10px">
 <button class="equis" id="btn-x" title="Ocultar">X</button>
@@ -53,8 +53,9 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','
 async function api(u,o){const r=await fetch(u,o||{});let j={};try{j=await r.json();}catch(e){}return{ok:r.ok,j};}
 async function init(){
  const m=await api('/api/buscar/mis');
- if(!m.ok){msg('Entrá en Mi cuenta primero.','err');return;}
- if(!(m.j.mis||[]).length){msg('Marcá una persona como pública en Mi cuenta para buscar.','err');}
+ if(!m.ok){$('detalle').textContent='Entrá en Mi cuenta primero y volvé acá.';msg('Entrá en Mi cuenta primero.','err');return;}
+ if(!(m.j.mis||[]).length){$('detalle').textContent='Tu cuenta no tiene personas en público. Marcala en Mi cuenta y volvé.';msg('Marcá una persona como pública en Mi cuenta para buscar.','err');}
+ else{$('detalle').textContent='Elegí tu persona arriba y apretá Buscar: 1 Buscar, 2 = o X, 3 match y chat.';msg('');}
  $('base').innerHTML=(m.j.mis||[]).map(n=>'<option>'+esc(n)+'</option>').join('')||'<option value="">(sin públicas)</option>';
  await cargarMatches();
 }

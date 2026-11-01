@@ -6744,7 +6744,7 @@ def api_buscar_candidatos():
         try:
             cur = c.cursor()
             cur.execute("SELECT cuenta_id, nombre, datos_json FROM perfiles_cuenta "
-                        "WHERE visibilidad='publico' AND cuenta_id<>%s ORDER BY updated_at DESC LIMIT 120",
+                        "WHERE visibilidad='publico' AND cuenta_id<>%s",
                         (ct['id'],))
             filas = cur.fetchall()
             cur.execute("SELECT a_cuenta, a_nombre FROM buscar_votos WHERE de_cuenta=%s AND de_nombre=%s",
@@ -6773,12 +6773,18 @@ def api_buscar_candidatos():
             comunes = [x for x in chs if x in set_b]
             if not comunes:
                 continue
+            tipo_match = bool(f['tipo'] and f['tipo'] == fb['tipo'])
+            perfil_match = bool(f['perfil'] and f['perfil'] == fb['perfil'])
+            prio = (3 if (tipo_match and perfil_match) else
+                    2 if tipo_match else 1 if perfil_match else 0)
+            diff = len(set(chs)) - len(comunes)
+            frio = (len(set(chs)) == len(set_b)) and (len(comunes) == len(set_b))
             out.append({'cuenta_id': cid, 'nombre': nom, 'canales': chs,
                         'comunes': len(comunes), 'tipo': f['tipo'], 'perfil': f['perfil'],
-                        'foto': f['foto'],
-                        'tipo_match': bool(f['tipo'] and f['tipo'] == fb['tipo']),
-                        'perfil_match': bool(f['perfil'] and f['perfil'] == fb['perfil'])})
-        out.sort(key=lambda x: (-x['comunes'], -(x['tipo_match'] + x['perfil_match']), x['nombre']))
+                        'foto': f['foto'], 'tipo_match': tipo_match,
+                        'perfil_match': perfil_match, 'prio': prio, 'diff': diff,
+                        'frio': frio})
+        out.sort(key=lambda x: (-x['comunes'], -x['frio'], -x['prio'], x['diff'], x['nombre']))
         return jsonify({'candidatos': out[:60], 'base': b.get('nombre')})
     except Exception as e:
         return jsonify({'error': str(e)[:300]}), 500
