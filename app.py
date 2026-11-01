@@ -6689,6 +6689,20 @@ def _buscar_familia_tipo(tipo):
     return ''
 
 
+def _buscar_match_mutuo(cur, mi_cuenta, mi_nombre, su_nombre):
+    """= mutuo entre dos personas, aunque el mismo nombre esté público en
+    varias cuentas (homónimos de prueba). El par se compara por nombre."""
+    cur.execute(
+        "SELECT 1 FROM buscar_votos m "
+        "JOIN buscar_votos o ON o.de_nombre=m.a_nombre AND o.a_nombre=m.de_nombre "
+        "                   AND o.valor='=' AND o.de_cuenta<>m.de_cuenta "
+        "WHERE m.de_cuenta=%s AND m.de_nombre=%s AND m.a_nombre=%s AND m.valor='=' "
+        "AND EXISTS (SELECT 1 FROM perfiles_cuenta p WHERE p.cuenta_id=o.de_cuenta "
+        "            AND p.nombre=o.de_nombre AND p.visibilidad='publico') LIMIT 1",
+        (mi_cuenta, mi_nombre, su_nombre))
+    return bool(cur.fetchone())
+
+
 def _buscar_ficha(dj):
     try:
         incon = [int(x) for x in (dj.get('inconscientes') or [])]
@@ -6893,9 +6907,7 @@ def api_buscar_votar():
                         (ct['id'], de_nombre, a_cuenta, a_nombre, valor))
             match = False
             if valor == '=':
-                cur.execute("SELECT 1 FROM buscar_votos WHERE de_cuenta=%s AND a_cuenta=%s "
-                            "AND a_nombre=%s AND valor='=' LIMIT 1", (a_cuenta, ct['id'], de_nombre))
-                match = bool(cur.fetchone())
+                match = _buscar_match_mutuo(cur, ct['id'], de_nombre, a_nombre)
             c.commit()
         finally:
             c.close()
@@ -6915,10 +6927,14 @@ def api_buscar_matches():
         c = _c()
         try:
             cur = c.cursor()
-            cur.execute("SELECT DISTINCT v1.de_nombre, v1.a_cuenta, v1.a_nombre FROM buscar_votos v1 "
-                        "JOIN buscar_votos v2 ON v2.de_cuenta=v1.a_cuenta AND v2.a_cuenta=%s "
+            cur.execute("SELECT DISTINCT v1.de_nombre, v2.de_cuenta, v1.a_nombre "
+                        "FROM buscar_votos v1 "
+                        "JOIN buscar_votos v2 ON v2.de_nombre=v1.a_nombre "
                         "AND v2.a_nombre=v1.de_nombre AND v2.valor='=' "
-                        "WHERE v1.de_cuenta=%s AND v1.valor='='", (ct['id'], ct['id']))
+                        "AND v2.de_cuenta<>v1.de_cuenta "
+                        "JOIN perfiles_cuenta pv ON pv.cuenta_id=v2.de_cuenta "
+                        "AND pv.nombre=v1.a_nombre AND pv.visibilidad='publico' "
+                        "WHERE v1.de_cuenta=%s AND v1.valor='='", (ct['id'],))
             pares = cur.fetchall()
             cur.execute("SELECT a_cuenta FROM buscar_bloqueos WHERE de_cuenta=%s", (ct['id'],))
             yo_bloq = {r[0] for r in cur.fetchall()}
@@ -6952,7 +6968,13 @@ def api_buscar_matches():
             ms.append({'cuenta_id': cid, 'nombre': su_nombre, 'mi_nombre': mi_nombre,
                        'comunes': comunes, 'tipo': fo['tipo'], 'perfil': fo['perfil']})
         ms.sort(key=lambda x: (-x['comunes'], x['nombre']))
-        return jsonify({'matches': ms})
+        vistos, unicos = set(), []
+        for m in ms:
+            k = (str(m['mi_nombre']).strip().lower(), str(m['nombre']).strip().lower())
+            if k not in vistos:
+                vistos.add(k)
+                unicos.append(m)
+        return jsonify({'matches': unicos})
     except Exception as e:
         return jsonify({'error': str(e)[:300]}), 500
 
@@ -7050,10 +7072,15 @@ def api_buscar_mensajes():
         c = _c()
         try:
             cur = c.cursor()
-            cur.execute("SELECT 1 FROM buscar_votos v1 JOIN buscar_votos v2 ON "
-                        "v2.de_cuenta=v1.a_cuenta AND v2.a_cuenta=%s AND v2.valor='=' "
-                        "WHERE v1.de_cuenta=%s AND v1.a_cuenta=%s AND v1.valor='=' LIMIT 1",
-                        (ct['id'], ct['id'], con))
+            cur.execute("SELECT 1 FROM buscar_votos m "
+                        "JOIN perfiles_cuenta p ON p.cuenta_id=%s AND p.nombre=m.a_nombre "
+                        "AND p.visibilidad='publico' "
+                        "JOIN buscar_votos o ON o.de_nombre=m.a_nombre AND o.a_nombre=m.de_nombre "
+                        "AND o.valor='=' AND o.de_cuenta<>m.de_cuenta "
+                        "JOIN perfiles_cuenta po ON po.cuenta_id=o.de_cuenta "
+                        "AND po.nombre=o.de_nombre AND po.visibilidad='publico' "
+                        "WHERE m.de_cuenta=%s AND m.valor='=' LIMIT 1",
+                        (con, ct['id']))
             if not cur.fetchone():
                 return jsonify({'error': 'Solo con match (= mutuo) se puede chatear'}), 403
             cur.execute("SELECT 1 FROM buscar_bloqueos WHERE (de_cuenta=%s AND a_cuenta=%s) "
