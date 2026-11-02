@@ -73,7 +73,7 @@ button:hover{filter:brightness(.97)}
 <p class="mini">Solo participan personas en público: nombre, foto, canales, tipo y perfil. Sin fecha, hora ni lugar.</p>
 <div class="row"><select id="base"></select><button class="prim" id="btn-ver">Buscar parecidos</button>
 <label class="mini"><input type="checkbox" id="solo-nuevos" checked> ocultar ya votados</label></div>
-<div class="row" style="margin-top:8px"><input id="q" placeholder="Buscar por nombre" style="flex:1;min-width:180px"><button id="btn-nombre">Buscar por nombre</button></div></div>
+</div>
 
 <div class="card"><h3>2. Resultados</h3>
 <p class="mini" id="detalle">Cargando tu sesión…</p>
@@ -296,18 +296,6 @@ async function buscar(){
  msg(todos.length?('Resultados: '+todos.length+(todos.length>20?' · mostrando 20':'')):'Sin candidatos nuevos. Probá destildar el filtro.');
  pintar();
 }
-async function buscarPorNombre(){
- const b=$('base').value, q=$('q').value.trim();
- if(!b){msg('Elegí tu persona base.','err');return;}
- if(!q){msg('Escribí un nombre.','err');return;}
- msg('Buscando "'+q+'"…');
- const r=await api('/api/buscar/candidatos?base='+encodeURIComponent(b)+'&q='+encodeURIComponent(q));
- if(!r.ok){msg((r.j||{}).error||'Error','err');return;}
- const todos=r.j.candidatos||[];
- cola=todos.slice(0,20);
- msg(todos.length?('Por nombre: '+todos.length+(todos.length>20?' · mostrando 20':'')):'No hay ninguna persona pública con ese nombre.');
- pintar();
-}
 async function votar(cand,v){
  if(!cand)return;
  const r=await api('/api/buscar/votar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({a_cuenta:cand.cuenta_id,a_nombre:cand.nombre,valor:v,de_nombre:$('base').value})});
@@ -360,8 +348,6 @@ async function cargarChat(silencio){
 }
 
 $('btn-ver').onclick=buscar;
-$('btn-nombre').onclick=buscarPorNombre;
-$('q').onkeydown=e=>{if(e.key==='Enter')buscarPorNombre();};
 $('btn-refrescar').onclick=()=>cargarMatches(true);
 $('btn-chat').onclick=()=>cargarChat(false);
 $('chat-con').onchange=()=>cargarChat(false);
