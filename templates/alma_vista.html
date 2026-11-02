@@ -948,10 +948,25 @@ viewBox="78 -12 380 654">
         loginEmail = (rc && rc.email) || nuevoCorreo;
       }
       await api('/api/cuenta/recuperar', { method: 'POST', body: { email: loginEmail, codigo: codigo, nueva: nueva } });
-      setMsg('#rec-msg', nuevoCorreo ? 'Correo y contraseña cambiados. Entrá con el nuevo correo.' : 'Contraseña cambiada. Entrá con la nueva.', 'ok');
-      $('#auth-email').value = loginEmail;
+      setMsg('#rec-msg', 'Contraseña cambiada. Entrando…', 'ok');
       $('#rec-nueva').value = '';
       $('#rec-nuevo').value = '';
+      // Entrar directo con los datos nuevos, sin pedir que los escriba otra vez.
+      try {
+        await api('/api/cuenta/login', { method: 'POST', body: { email: loginEmail, pw: nueva } });
+        state.cuenta = { email: loginEmail };
+        renderCuenta();
+        setMsg('#auth-msg', 'Listo. Ya estás dentro.', 'ok');
+        await cargarPersonas();
+        await cargarBuscar();
+        if (state.yo) {
+          await cargarFicha(state.yo);
+          showTab('grafico');
+        }
+      } catch (e2) {
+        setMsg('#rec-msg', 'Contraseña cambiada. Entrá con la nueva.', 'ok');
+        $('#auth-email').value = loginEmail;
+      }
     } catch (e) {
       setMsg('#rec-msg', e.message || 'No se pudo cambiar. Revisá correo y código.', 'err');
     } finally {

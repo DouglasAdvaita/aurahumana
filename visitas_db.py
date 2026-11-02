@@ -17,6 +17,21 @@ def ip_real(request):
     xff = (request.headers.get("X-Forwarded-For") or "").split(",")[0].strip()
     return (xff or request.remote_addr or "")[:80]
 
+def _asegurar():
+    global _OK
+    try:
+        _OK
+    except NameError:
+        globals()['_OK'] = False
+    if _OK:
+        return True
+    try:
+        init_db()
+        globals()['_OK'] = True
+        return True
+    except Exception:
+        return False
+
 def registrar(ip, path, user_agent, referer):
     if not disponible():
         return None
@@ -33,10 +48,17 @@ def registrar(ip, path, user_agent, referer):
             return vid
         finally:
             c.close()
-    except Exception:
+    except Exception as e:
+        # Primera visita tras el deploy: la tabla aun no existe -> crear y reintentar una vez.
+        if 'visitas' in str(e).lower() or 'does not exist' in str(e):
+            if _asegurar():
+                try:
+                    return registrar(ip, path, user_agent, referer)
+                except Exception:
+                    return None
         return None
 
-def cerrar(vid, segundos):
+def cerrar(vid, segundos, ip=None):
     if not disponible() or not vid:
         return False
     try:
@@ -47,16 +69,39 @@ def cerrar(vid, segundos):
         c = _conn()
         try:
             cur = c.cursor()
-            cur.execute(
-                "UPDATE visitas SET duracion_seg=%s, updated_at=now() WHERE id=%s",
-                (segundos, vid),
-            )
+            if ip:
+                cur.execute(
+                    "UPDATE visitas SET duracion_seg=%s, updated_at=now() WHERE id=%s AND ip=%s",
+                    (segundos, vid, ip[:80]),
+                )
+            else:
+                cur.execute(
+                    "UPDATE visitas SET duracion_seg=%s, updated_at=now() WHERE id=%s",
+                    (segundos, vid),
+                )
+            ok = cur.rowcount > 0
             c.commit()
-            return True
+            return ok
         finally:
             c.close()
     except Exception:
         return False
+
+
+def limpiar(dias=90):
+    """Borra visitas viejas para no llenar Neon. Llamar de vez en cuando."""
+    try:
+        c = _conn()
+        try:
+            cur = c.cursor()
+            cur.execute("DELETE FROM visitas WHERE created_at < now() - (%s || ' days')::interval", (str(int(dias)),))
+            n = cur.rowcount
+            c.commit()
+            return n
+        finally:
+            c.close()
+    except Exception:
+        return 0
 
 def ultimas(limit=200):
     c = _conn()

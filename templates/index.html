@@ -12881,5 +12881,27 @@ var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5
         setTimeout(function(){ actualizarVisDinamica(); cargarDinamica(false); }, 1200);
     })();
     </script>
+    <script>
+    // Registro de visita (Fase 3): avisa entrada y duracion. No bloquea la pagina.
+    (function(){
+        var t0 = Date.now(), vid = null;
+        function seg(){ return Math.round((Date.now() - t0) / 1000); }
+        try {
+            fetch('/api/visita/inicio', {method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({path: location.pathname})}).then(function(r){ return r.json(); })
+            .then(function(j){ if (j && j.id) vid = j.id; }).catch(function(){});
+        } catch(e){}
+        function fin(){
+            if (!vid) return;
+            try {
+                var dato = JSON.stringify({id: vid, segundos: seg()});
+                if (navigator.sendBeacon) navigator.sendBeacon('/api/visita/fin', new Blob([dato], {type:'application/json'}));
+                else fetch('/api/visita/fin', {method:'POST', headers:{'Content-Type':'application/json'}, body: dato, keepalive: true});
+            } catch(e){}
+        }
+        window.addEventListener('pagehide', fin);
+        document.addEventListener('visibilitychange', function(){ if (document.hidden) fin(); });
+    })();
+    </script>
 </body>
 </html>
