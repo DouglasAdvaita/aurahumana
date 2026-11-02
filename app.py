@@ -6483,6 +6483,24 @@ def api_cuenta_recuperar():
         return jsonify({'error': str(e)[:300]}), 500
 
 
+@app.route('/api/cuenta/cambiar_correo', methods=['POST'])
+def api_cuenta_cambiar_correo():
+    data = request.get_json(force=True, silent=True) or {}
+    try:
+        if not _auth.disponible():
+            return jsonify({'error': 'Neon no configurado'}), 503
+        try:
+            ok = _auth.cambiar_email(data.get('email') or '', data.get('codigo') or '',
+                                     data.get('nuevo') or '')
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 409
+        if not ok:
+            return jsonify({'error': 'Correo o código inválidos'}), 401
+        return jsonify({'ok': True, 'email': _auth._norm_email(data.get('nuevo'))})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
 @app.route('/api/cuenta/mis')
 def api_cuenta_mis():
     ct = _cuenta_actual()

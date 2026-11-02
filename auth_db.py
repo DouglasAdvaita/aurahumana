@@ -120,6 +120,30 @@ def recuperar(email: str, codigo: str, nueva: str):
         c.close()
 
 
+def cambiar_email(email: str, codigo: str, nuevo: str):
+    """Cambia el correo de la cuenta usando el código de recuperación."""
+    nuevo = _norm_email(nuevo)
+    if "@" not in nuevo or "." not in nuevo.split("@")[-1]:
+        raise ValueError("Correo nuevo inválido")
+    c = _conn_base()
+    try:
+        cur = c.cursor()
+        cur.execute("SELECT id, cod_rec_hash FROM cuentas WHERE email=%s", (_norm_email(email),))
+        r = cur.fetchone()
+        if not r or not r[1]:
+            return False
+        if not check_pass((codigo or "").replace("-", "").replace(" ", "").upper(), r[1]):
+            return False
+        cur.execute("SELECT id FROM cuentas WHERE email=%s", (nuevo,))
+        if cur.fetchone():
+            raise ValueError("Ese correo ya tiene cuenta")
+        cur.execute("UPDATE cuentas SET email=%s, updated_at=now() WHERE id=%s", (nuevo, r[0]))
+        c.commit()
+        return True
+    finally:
+        c.close()
+
+
 # ---------- sesiones ----------
 def crear_sesion(cuenta_id: int) -> str:
     token = secrets.token_urlsafe(32)

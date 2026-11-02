@@ -205,6 +205,8 @@
               <input id="rec-nueva" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" minlength="8" required>
               <button type="button" class="eye" id="toggle-rec" title="Mostrar contraseña" aria-label="Mostrar contraseña">👁</button>
             </div>
+            <label for="rec-nuevo">Correo nuevo (opcional, para cambiarlo)</label>
+            <input id="rec-nuevo" type="email" inputmode="email" placeholder="Solo si querés cambiarlo">
             <div style="margin-top:12px"><button class="btn primary" type="submit" id="rec-submit">Cambiar contraseña</button></div>
           </form>
           <div id="rec-msg" class="msg" role="status"></div>
@@ -931,16 +933,25 @@ viewBox="78 -12 380 654">
     const email = $('#rec-email').value.trim();
     const codigo = $('#rec-codigo').value.trim();
     const nueva = $('#rec-nueva').value;
-    if (!email || !codigo || !nueva) { setMsg('#rec-msg', 'Completá los tres campos.', 'err'); return; }
+    const nuevoCorreo = $('#rec-nuevo').value.trim();
+    if (!email || !codigo || !nueva) { setMsg('#rec-msg', 'Completá correo, código y contraseña nueva.', 'err'); return; }
     if (nueva.length < 8) { setMsg('#rec-msg', 'La contraseña nueva debe tener al menos 8 caracteres.', 'err'); return; }
     const btn = $('#rec-submit');
     btn.disabled = true;
     setMsg('#rec-msg', 'Cambiando…', '');
     try {
-      await api('/api/cuenta/recuperar', { method: 'POST', body: { email: email, codigo: codigo, nueva: nueva } });
-      setMsg('#rec-msg', 'Contraseña cambiada. Entrá con la nueva.', 'ok');
-      $('#auth-email').value = email;
+      let loginEmail = email;
+      if (nuevoCorreo) {
+        const rc = await api('/api/cuenta/cambiar_correo', {
+          method: 'POST', body: { email: email, codigo: codigo, nuevo: nuevoCorreo }
+        });
+        loginEmail = (rc && rc.email) || nuevoCorreo;
+      }
+      await api('/api/cuenta/recuperar', { method: 'POST', body: { email: loginEmail, codigo: codigo, nueva: nueva } });
+      setMsg('#rec-msg', nuevoCorreo ? 'Correo y contraseña cambiados. Entrá con el nuevo correo.' : 'Contraseña cambiada. Entrá con la nueva.', 'ok');
+      $('#auth-email').value = loginEmail;
       $('#rec-nueva').value = '';
+      $('#rec-nuevo').value = '';
     } catch (e) {
       setMsg('#rec-msg', e.message || 'No se pudo cambiar. Revisá correo y código.', 'err');
     } finally {
