@@ -196,8 +196,20 @@
         </div>
 
         <div class="card">
-          <h2>Agregar persona</h2>
-          <p class="help">Calculamos su Diseño Humano y lo guardamos en tu cuenta.</p>
+          <h2>Mi perfil</h2>
+          <p class="help">Este eres tú: con este perfil buscas y chateas.</p>
+          <div id="yo-card" class="lista-personas"></div>
+        </div>
+
+        <div class="card">
+          <h2>Mis personas</h2>
+          <div id="mis-personas" class="lista-personas"></div>
+        </div>
+
+        <div class="card">
+          <details>
+            <summary><b>Agregar otra persona</b></summary>
+            <p class="help">Calculamos su Diseño Humano y lo guardamos en tu cuenta.</p>
           <form id="form-persona">
             <label for="p-nombre">Nombre</label>
             <input id="p-nombre" type="text" maxlength="120" placeholder="Nombre y apellido" required>
@@ -227,11 +239,7 @@
             <div style="margin-top:14px"><button class="btn primary" type="submit" id="p-submit">Calcular y guardar</button></div>
           </form>
           <div id="p-msg" class="msg" role="status"></div>
-        </div>
-
-        <div class="card">
-          <h2>Mis personas</h2>
-          <div id="mis-personas" class="lista-personas"></div>
+          </details>
         </div>
       </div>
     </section>
@@ -308,7 +316,7 @@
   </main>
 
   <nav id="tabs" aria-label="Secciones">
-    <button type="button" data-tab="cuenta" class="tab active"><span class="ico">👤</span><span>Cuenta</span></button>
+    <button type="button" data-tab="cuenta" class="tab active"><span class="ico">👤</span><span>Perfil</span></button>
     <button type="button" data-tab="grafico" class="tab"><span class="ico">🪐</span><span>Gráfico</span></button>
     <button type="button" data-tab="buscar" class="tab"><span class="ico">🔎</span><span>Buscar</span></button>
     <button type="button" data-tab="chat" class="tab"><span class="ico">💬</span><span>Chat</span></button>
@@ -324,7 +332,7 @@
 </div>
 
 <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="125mm" height="295.9mm" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
-viewBox="92 -92 355 760">
+viewBox="78 -12 380 654">
  <defs>
   <style type="text/css">
    
@@ -879,6 +887,11 @@ viewBox="92 -92 355 760">
       setMsg('#auth-msg', state.authMode === 'login' ? 'Listo. Ya estás dentro.' : 'Cuenta creada.', 'ok');
       await cargarPersonas();
       await cargarBuscar();
+      // El yo es la primera persona de la cuenta: ir directo a su gráfico (pantalla 2).
+      if (state.yo) {
+        await cargarFicha(state.yo);
+        showTab('grafico');
+      }
     } catch (e) {
       setMsg('#auth-msg', e.message || 'No se pudo entrar.', 'err');
     } finally {
@@ -890,6 +903,8 @@ viewBox="92 -92 355 760">
     try { await api('/api/cuenta/logout', { method: 'POST' }); } catch (e) {}
     state.cuenta = null;
     state.personas = [];
+    state.yo = null;
+    state.personaSel = null;
     state.ficha = null;
     state.mis = [];
     state.base = '';
@@ -903,39 +918,51 @@ viewBox="92 -92 355 760">
     showTab('cuenta');
   }
 
-  // ---------- personas ----------
+  // ---------- personas (el yo es la primera persona de la cuenta) ----------
   async function cargarPersonas() {
-    if (!state.cuenta) { state.personas = []; renderPersonas(); return; }
+    if (!state.cuenta) { state.personas = []; state.yo = null; renderPersonas(); return; }
     try {
       const r = await api('/api/personas');
       state.personas = r.personas || [];
     } catch (e) {
       state.personas = [];
     }
+    state.yo = state.personas.length ? state.personas[0] : null;
+    if (!state.personaSel && state.yo) state.personaSel = state.yo;
     renderPersonas();
   }
 
   function renderPersonas() {
     const box = $('#mis-personas');
     const sel = $('#g-persona');
+    const yoCard = $('#yo-card');
     if (!state.cuenta) {
+      if (yoCard) yoCard.innerHTML = '';
       box.innerHTML = '<div class="empty">Entrá a tu cuenta para ver tus personas.</div>';
       sel.innerHTML = '<option value="">Sin personas</option>';
       return;
     }
+    if (yoCard) {
+      yoCard.innerHTML = state.yo
+        ? '<div class="persona-fila"><div><b>' + esc(state.yo) + '</b><div class="mini">Este eres tú · buscas y chateas como ' + esc(state.yo) + '</div></div>' +
+          '<button class="btn small primary" type="button" data-ver="' + esc(state.yo) + '">Mi gráfico</button></div>'
+        : '<div class="empty">Todavía no tienes tu persona. Créala con el formulario de abajo.</div>';
+    }
     if (!state.personas.length) {
-      box.innerHTML = '<div class="empty">Todavía no cargaste ninguna persona. Usá el formulario de arriba.</div>';
+      box.innerHTML = '<div class="empty">Sin otras personas.</div>';
       sel.innerHTML = '<option value="">Sin personas</option>';
       return;
     }
     box.innerHTML = state.personas.map((n) =>
       '<div class="persona-fila"><b>' + esc(n) + '</b>' +
+      (n === state.yo ? '<span class="pill ok">yo</span>' : '') +
       '<button class="btn small" type="button" data-ver="' + esc(n) + '">Ver gráfico</button></div>'
     ).join('');
     sel.innerHTML = state.personas.map((n) =>
-      '<option value="' + esc(n) + '">' + esc(n) + '</option>'
+      '<option value="' + esc(n) + '">' + esc(n) + (n === state.yo ? ' (yo)' : '') + '</option>'
     ).join('');
     if (state.personaSel && state.personas.includes(state.personaSel)) sel.value = state.personaSel;
+    else if (state.yo) { sel.value = state.yo; state.personaSel = state.yo; }
   }
 
   async function cargarFicha(nombre) {
@@ -979,49 +1006,130 @@ viewBox="92 -92 355 760">
 
   const CENTROS = ['Corona', 'Ajna', 'Garganta', 'G', 'Ego', 'Bazo', 'Plexo', 'Sacro', 'Raiz'];
 
+  // Mismo mapa de círculos que AuraHumana: varias puertas comparten el grupo puerta_58.
+  const CIRCULO_POR_PUERTA = {
+    1: 'puerta_1_circulo', 2: 'puerta_2_circulo', 3: 'puerta_3_circulo', 4: 'puerta_58_circulo_8',
+    5: 'puerta_5_circulo', 6: 'puerta_6_circulo', 7: 'puerta_7_circulo', 8: 'puerta_8_circulo',
+    9: 'puerta_9_circulo', 10: 'puerta_10_circulo', 11: 'puerta_11_circulo', 12: 'puerta_12_circulo',
+    13: 'puerta_13_circulo', 14: 'puerta_14_circulo', 15: 'puerta_15_circulo', 16: 'puerta_16_circulo',
+    17: 'puerta_17_circulo', 18: 'puerta_58_circulo_0', 19: 'puerta_19_circulo', 20: 'puerta_20_circulo',
+    21: 'puerta_21_circulo', 22: 'puerta_58_circulo_7', 23: 'puerta_23_circulo', 24: 'puerta_24_circulo',
+    25: 'puerta_25_circulo', 26: 'puerta_26_circulo', 27: 'puerta_27_circulo', 28: 'puerta_28_circulo',
+    29: 'puerta_58_circulo_1', 30: 'puerta_58_circulo_5', 31: 'puerta_31_circulo', 32: 'puerta_32_circulo',
+    33: 'puerta_33_circulo', 34: 'puerta_34_circulo', 35: 'puerta_35_circulo', 36: 'puerta_58_circulo_6',
+    37: 'puerta_37_circulo', 38: 'puerta_38_circulo', 39: 'puerta_39_circulo', 40: 'puerta_40_circulo',
+    41: 'puerta_41_circulo', 42: 'puerta_42_circulo', 43: 'puerta_43_circulo', 44: 'puerta_44_circulo',
+    45: 'puerta_45_circulo', 46: 'puerta_46_circulo', 47: 'puerta_47_circulo', 48: 'puerta_48_circulo',
+    49: 'puerta_58_circulo_3', 50: 'puerta_50_circulo', 51: 'puerta_51_circulo', 52: 'puerta_52_circulo',
+    53: 'puerta_53_circulo', 54: 'puerta_54_circulo', 55: 'puerta_58_circulo_4', 56: 'puerta_56_circulo',
+    57: 'puerta_57_circulo', 58: 'puerta_58_circulo', 59: 'puerta_58_circulo_2', 60: 'puerta_60_circulo',
+    61: 'puerta_61_circulo', 62: 'puerta_62_circulo', 63: 'puerta_63_circulo', 64: 'puerta_64_circulo'
+  };
+  // Mismos colores que AuraHumana.
+  const COL_PUERTA = { incon: '#FF0000', consc: '#000000', mixto: '#00AA00' };
+
+  function normCanalKey(s) {
+    const p = String(s).split('-');
+    if (p.length !== 2) return String(s).trim();
+    const a = parseInt(p[0], 10), b = parseInt(p[1], 10);
+    if (isNaN(a) || isNaN(b)) return String(s).trim();
+    return [a, b].sort((x, y) => x - y).join('-');
+  }
+
+  function setTextoPuerta(svg, gate, active) {
+    svg.querySelectorAll('[id="puerta_' + gate + '_texto"], [id="pueta_' + gate + '_texto"]').forEach((p) => {
+      if (active) { p.style.opacity = '1'; p.style.fill = '#1F1A17'; }
+      else { p.style.opacity = '0.4'; p.style.fill = '#888888'; }
+    });
+  }
+
   function pintarMapa(f) {
     const svg = $('#mapa svg');
     if (!svg) return;
-    // limpiar
-    $$('path[id^="c"]', svg).forEach((p) => {
-      p.style.stroke = '#d7dbe7'; p.style.strokeWidth = '3.2'; p.style.strokeOpacity = '1';
+    // Puertas conscientes/inconscientes según la ficha (igual que AuraHumana: datosP1).
+    const setI = new Set((f.puertas_inconscientes || []).map(Number));
+    const setC = new Set((f.puertas_conscientes || []).map(Number));
+    const todas = new Set((f.puertas || []).map(Number));
+
+    // Tramos y círculos: ocultar todo y pintar solo las activas.
+    for (let i = 1; i <= 64; i++) {
+      const tramo = svg.querySelector('#tramo' + i);
+      if (tramo) {
+        tramo.style.visibility = 'hidden'; tramo.style.opacity = '';
+        tramo.style.strokeDasharray = ''; tramo.style.strokeLinecap = '';
+        tramo.style.strokeWidth = ''; tramo.style.strokeOpacity = '';
+      }
+      const circle = svg.querySelector('#' + CIRCULO_POR_PUERTA[i]);
+      if (circle) {
+        circle.style.visibility = todas.has(i) ? 'visible' : 'hidden';
+        circle.style.stroke = ''; circle.style.strokeOpacity = ''; circle.style.strokeDasharray = '';
+      }
+      setTextoPuerta(svg, i, todas.has(i));
+    }
+    setI.forEach((x) => {
+      if (setC.has(x)) return;
+      const t = svg.querySelector('#tramo' + x);
+      if (t) { t.style.stroke = COL_PUERTA.incon; t.style.visibility = 'visible'; }
     });
-    $$('circle[id^="puerta_"]', svg).forEach((c) => {
-      c.style.fill = '#e4e7f0'; c.style.stroke = '#c3c8d6'; c.style.strokeWidth = '.6';
+    setC.forEach((x) => {
+      if (setI.has(x)) return;
+      const t = svg.querySelector('#tramo' + x);
+      if (t) { t.style.stroke = COL_PUERTA.consc; t.style.visibility = 'visible'; }
     });
-    $$('[id$="_texto"]', svg).forEach((t) => { t.style.fill = '#7c8398'; });
+    setI.forEach((x) => {
+      if (!setC.has(x)) return;
+      const t = svg.querySelector('#tramo' + x);
+      if (t) { t.style.stroke = COL_PUERTA.mixto; t.style.visibility = 'visible'; }
+    });
+
+    // Canales completos opacos, el resto casi invisible (igual que AuraHumana).
+    const comp = [];
+    svg.querySelectorAll('[id^="c"]').forEach((canal) => {
+      const m = canal.id.match(/^c(\d+)-(\d+)$/);
+      if (!m) return;
+      const ok = todas.has(+m[1]) && todas.has(+m[2]);
+      canal.style.visibility = 'visible';
+      canal.style.opacity = ok ? '1' : '0.01';
+      if (ok) comp.push(m[1] + '-' + m[2]);
+    });
+
+    // Centros: definido = relleno original; indefinido = blanco con borde (igual que AuraHumana).
+    const defs = new Set(f.centros_definidos || []);
     CENTROS.forEach((c) => {
       const el = svg.querySelector('#' + c);
-      if (el) { el.style.fill = '#fafbfe'; el.style.stroke = '#c3c8d6'; }
+      if (!el) return;
+      if (defs.has(c)) { el.style.fill = ''; el.style.stroke = ''; el.style.strokeWidth = ''; }
+      else { el.style.fill = 'white'; el.style.stroke = '#111111'; el.style.strokeWidth = '1.8px'; }
     });
 
-    const puertas = (f.puertas || []).map(Number);
-    puertas.forEach((n) => {
-      const c = svg.querySelector('#puerta_' + n + '_circulo');
-      if (c) { c.style.fill = '#4338ca'; c.style.stroke = '#312e81'; }
-      $$('[id="puerta_' + n + '_texto"]', svg).forEach((t) => { t.style.fill = '#fff'; });
-    });
+    // Emojis solo en puertas activas (igual que AuraHumana).
+    const capa = svg.querySelector('[id="capa_emojis"]');
+    if (capa) {
+      capa.querySelectorAll('text').forEach((t) => {
+        let gate = null;
+        const title = t.querySelector('title');
+        if (title) {
+          const m = title.textContent.trim().match(/^(\d+)\b/);
+          if (m) gate = parseInt(m[1], 10);
+        }
+        if (gate == null && t.id && (t.id.indexOf('emoji-') === 0 || t.id.indexOf('emoji_') === 0)) {
+          const n = parseInt(t.id.replace('emoji-', '').replace('emoji_', ''), 10);
+          if (!isNaN(n)) gate = n;
+        }
+        if (gate == null) return;
+        t.style.display = todas.has(gate) ? '' : 'none';
+      });
+    }
 
-    (f.canales || []).forEach((ch) => {
-      const parts = String(ch).split('-');
-      if (parts.length !== 2) return;
-      const el = svg.querySelector('#c' + parts[0] + '-' + parts[1]) ||
-                 svg.querySelector('#c' + parts[1] + '-' + parts[0]);
-      if (el) { el.style.stroke = '#6366f1'; el.style.strokeWidth = '5.5'; el.style.strokeOpacity = '1'; }
-    });
-
-    (f.centros_definidos || []).forEach((c) => {
-      const el = svg.querySelector('#' + c);
-      if (el) { el.style.fill = '#a5b4fc'; el.style.stroke = '#4338ca'; }
-    });
-
-    // clic en puerta o canal
-    $$('circle[id^="puerta_"]', svg).forEach((c) => {
+    // clic en puerta o canal (mapa inverso: varias puertas comparten círculos puerta_58)
+    const CIRCULO_A_PUERTA = {};
+    Object.keys(CIRCULO_POR_PUERTA).forEach((g) => { CIRCULO_A_PUERTA[CIRCULO_POR_PUERTA[g]] = Number(g); });
+    Object.keys(CIRCULO_A_PUERTA).forEach((id) => {
+      const c = svg.querySelector('#' + CSS.escape(id));
+      if (!c) return;
       c.style.cursor = 'pointer';
       c.onclick = () => {
-        const m = /^puerta_(\d+)_circulo$/.exec(c.id);
-        if (!m) return;
-        const n = Number(m[1]);
+        const n = CIRCULO_A_PUERTA[id];
         const p = (f.puertas_detalle || []).find((x) => Number(x.puerta) === n);
         if (!p) return;
         let html = '<p>' + esc(p.descripcion || '') + '</p>';
@@ -1102,8 +1210,8 @@ viewBox="92 -92 355 760">
       return;
     }
     $('#b-base-help').textContent = 'Solo participan personas en público. Sin fecha, hora ni lugar.';
-    sel.innerHTML = state.mis.map((n) => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
-    if (!state.base || !state.mis.includes(state.base)) state.base = state.mis[0];
+    sel.innerHTML = state.mis.map((n) => '<option value="' + esc(n) + '">' + esc(n) + (n === state.yo ? ' (yo)' : '') + '</option>').join('');
+    if (!state.base || !state.mis.includes(state.base)) state.base = state.mis.includes(state.yo) ? state.yo : state.mis[0];
     sel.value = state.base;
   }
 
@@ -1496,11 +1604,19 @@ viewBox="92 -92 355 760">
     moveSvg();
     await cargarEstado();
     await cargarPersonas();
-    renderGrafico();
-    renderMatches();
-    renderChatSelect();
-    const hash = (location.hash || '').replace('#', '');
-    showTab(['cuenta', 'grafico', 'buscar', 'chat'].includes(hash) ? hash : 'cuenta');
+    // Sesión con cookie: el yo va directo a su gráfico (pantalla 2).
+    if (state.cuenta && state.yo) {
+      await cargarFicha(state.yo);
+      await cargarBuscar();
+      const hash = (location.hash || '').replace('#', '');
+      showTab(['cuenta', 'grafico', 'buscar', 'chat'].includes(hash) ? hash : 'grafico');
+    } else {
+      renderGrafico();
+      renderMatches();
+      renderChatSelect();
+      const hash = (location.hash || '').replace('#', '');
+      showTab(['cuenta', 'grafico', 'buscar', 'chat'].includes(hash) ? hash : 'cuenta');
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
