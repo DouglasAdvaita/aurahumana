@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
 <meta name="theme-color" content="#4f46e5">
 <title>AlmaVista</title>
 <style>
@@ -99,11 +99,25 @@
   .pill.ok{background:#e7f7ef;border-color:#b7e6cc;color:#087443}
   .pill.off{background:#f2f3f7;border-color:#e2e4ec;color:#6b7280}
   .pill.mix{background:#fff4e5;border-color:#f5d7a8;color:#8a5a00}
-  .mapa-wrap{position:relative;border:1px solid var(--line);border-radius:14px;background:#fff;overflow-x:auto;overflow-y:visible;padding:6px}
+  .mapa-wrap{position:relative;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:auto;touch-action:pan-x pan-y pinch-zoom;-webkit-overflow-scrolling:touch;padding:6px}
   .mapa{text-align:center}
-  .mapa svg{width:100%;height:auto;display:block;margin:0 auto;touch-action:manipulation}
-  .zoom{position:sticky;bottom:6px;display:flex;gap:6px;justify-content:center;margin-top:4px}
-  .zoom button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:19px;box-shadow:var(--shadow)}
+  .mapa svg{width:100%;height:auto;max-width:none;display:block;margin:0 auto}
+  /* Detalle estilo AuraHumana v2 */
+  .fl-sub{font-size:10px;font-weight:800;color:#877a64;text-transform:uppercase;letter-spacing:.4px;margin:14px 0 1px}
+  .fl-fila{display:flex;gap:6px;align-items:baseline;font-size:12px;line-height:1.4;padding:5px 2px;border-bottom:1px dotted #c3b28f}
+  .fl-num{font-weight:700;font-size:12px;white-space:nowrap}
+  .fl-emo{font-size:13px;display:inline-block;margin-left:2px}
+  .fl-left{flex:0 0 auto;min-width:56px;display:flex;flex-direction:column;align-items:center;text-align:center;line-height:1.1}
+  .fl-incon{color:#8E24AA}
+  .fl-consc{color:#111111}
+  .fl-desc-incon{color:#8E24AA}
+  .fl-desc-consc{color:#111111}
+  .fl-indiv{font-weight:800}
+  .fl-tribal{font-style:italic}
+  .canales-bloque{border:1px solid #e2d7bd;border-radius:8px;padding:8px 10px;margin:6px 0 10px;background:#faf5e9}
+  .canales-bloque h4{font-size:11px;font-weight:800;color:#43348b;margin-bottom:4px}
+  .canal-fila{display:flex;gap:6px;align-items:baseline;font-size:12px;line-height:1.4;padding:4px 2px;border-bottom:1px dotted #c3b28f}
+  .canal-fila:last-child{border-bottom:none}
   .det-item{border-top:1px solid #f0f1f5;padding:9px 0}
   .det-item:first-child{border-top:0}
   .det-head{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
@@ -256,10 +270,6 @@
           <div id="g-chips" class="chips"></div>
           <div class="mapa-wrap">
             <div id="mapa" class="mapa"></div>
-            <div class="zoom">
-              <button type="button" data-zoom="-" aria-label="Alejar">−</button>
-              <button type="button" data-zoom="+" aria-label="Acercar">+</button>
-            </div>
           </div>
           <p class="help center">Tocá una puerta o un canal para ver su descripción.</p>
           <div id="g-detalle"></div>
@@ -273,16 +283,12 @@
         <h2>Buscar personas</h2>
         <div id="b-login" class="empty hidden">Entrá a tu cuenta para buscar y hacer match.</div>
         <div id="b-contenido">
-          <label for="b-base">Tu persona visible</label>
-          <select id="b-base"></select>
+          <div class="mini">Buscas como</div>
+          <strong id="b-base-fija">—</strong>
           <p class="help" id="b-base-help">Solo participan personas en público. Sin fecha, hora ni lugar.</p>
           <div class="row" style="margin-top:10px">
             <button class="btn primary" type="button" id="b-buscar">Buscar parecidos</button>
             <label class="check mini"><input type="checkbox" id="b-nuevos" checked> Ocultar ya votados</label>
-          </div>
-          <div class="row" style="margin-top:8px">
-            <input id="b-q" type="search" placeholder="Buscar por nombre" class="grow">
-            <button class="btn" type="button" id="b-nombre">Buscar</button>
           </div>
           <div id="b-msg" class="msg" role="status"></div>
           <div id="b-lista" class="grid-personas"></div>
@@ -918,7 +924,21 @@ viewBox="78 -12 380 654">
     showTab('cuenta');
   }
 
-  // ---------- personas (el yo es la primera persona de la cuenta) ----------
+  // ---------- personas (el yo se elige de la lista y se guarda en este equipo) ----------
+  function claveYo() { return state.cuenta ? 'almavista_yo_' + state.cuenta.email : null; }
+  function leerYoGuardado() {
+    try {
+      const k = claveYo();
+      const v = k ? localStorage.getItem(k) : null;
+      return v || null;
+    } catch (e) { return null; }
+  }
+  function guardarYo(nombre) {
+    try {
+      const k = claveYo();
+      if (k) localStorage.setItem(k, nombre);
+    } catch (e) {}
+  }
   async function cargarPersonas() {
     if (!state.cuenta) { state.personas = []; state.yo = null; renderPersonas(); return; }
     try {
@@ -927,9 +947,28 @@ viewBox="78 -12 380 654">
     } catch (e) {
       state.personas = [];
     }
-    state.yo = state.personas.length ? state.personas[0] : null;
+    const pref = leerYoGuardado();
+    state.yo = (pref && state.personas.includes(pref)) ? pref : (state.personas.length ? state.personas[0] : null);
     if (!state.personaSel && state.yo) state.personaSel = state.yo;
     renderPersonas();
+  }
+  async function marcarYo(nombre) {
+    if (!state.cuenta || !nombre) return;
+    guardarYo(nombre);
+    state.yo = nombre;
+    state.base = nombre;
+    state.personaSel = nombre;
+    renderPersonas();
+    renderBaseFija();
+    try {
+      await api('/api/cuenta/subir', { method: 'POST', body: { nombre: nombre, visibilidad: 'publico' } });
+      toast('Este eres tú. Tu perfil quedó público para buscar.', 'ok');
+    } catch (e) {
+      toast(e.message || 'No se pudo hacer público tu perfil.', 'err');
+    }
+    await cargarFicha(nombre);
+    await cargarBuscar();
+    showTab('grafico');
   }
 
   function renderPersonas() {
@@ -955,7 +994,8 @@ viewBox="78 -12 380 654">
     }
     box.innerHTML = state.personas.map((n) =>
       '<div class="persona-fila"><b>' + esc(n) + '</b>' +
-      (n === state.yo ? '<span class="pill ok">yo</span>' : '') +
+      (n === state.yo ? '<span class="pill ok">yo</span>' :
+        '<button class="btn small" type="button" data-yo="' + esc(n) + '">Este soy yo</button>') +
       '<button class="btn small" type="button" data-ver="' + esc(n) + '">Ver gráfico</button></div>'
     ).join('');
     sel.innerHTML = state.personas.map((n) =>
@@ -1102,9 +1142,30 @@ viewBox="78 -12 380 654">
       else { el.style.fill = 'white'; el.style.stroke = '#111111'; el.style.strokeWidth = '1.8px'; }
     });
 
-    // Emojis solo en puertas activas (igual que AuraHumana).
+    // Emojis solo en puertas activas (igual que AuraHumana, con heartGate para
+    // los textos sin título como los minicorazones: heredan la puerta más cercana).
     const capa = svg.querySelector('[id="capa_emojis"]');
     if (capa) {
+      const conTitulo = [];
+      capa.querySelectorAll('text').forEach((t) => {
+        const title = t.querySelector('title');
+        if (!title) return;
+        const m = title.textContent.trim().match(/^(\d+)\b/);
+        if (!m) return;
+        const x = parseFloat(t.getAttribute('x')), y = parseFloat(t.getAttribute('y'));
+        if (isNaN(x) || isNaN(y)) return;
+        conTitulo.push({ gate: parseInt(m[1], 10), x: x, y: y });
+      });
+      const puertaCercana = (t) => {
+        const x = parseFloat(t.getAttribute('x')), y = parseFloat(t.getAttribute('y'));
+        if (isNaN(x) || isNaN(y) || !conTitulo.length) return null;
+        let best = null, bd = Infinity;
+        conTitulo.forEach((c) => {
+          const d = (c.x - x) * (c.x - x) + (c.y - y) * (c.y - y);
+          if (d < bd) { bd = d; best = c.gate; }
+        });
+        return best;
+      };
       capa.querySelectorAll('text').forEach((t) => {
         let gate = null;
         const title = t.querySelector('title');
@@ -1116,6 +1177,7 @@ viewBox="78 -12 380 654">
           const n = parseInt(t.id.replace('emoji-', '').replace('emoji_', ''), 10);
           if (!isNaN(n)) gate = n;
         }
+        if (gate == null) gate = puertaCercana(t);
         if (gate == null) return;
         t.style.display = todas.has(gate) ? '' : 'none';
       });
@@ -1129,10 +1191,10 @@ viewBox="78 -12 380 654">
       if (!c) return;
       c.style.cursor = 'pointer';
       c.onclick = () => {
-        const n = CIRCULO_A_PUERTA[id];
+        const n = Number(m[1]);
         const p = (f.puertas_detalle || []).find((x) => Number(x.puerta) === n);
         if (!p) return;
-        let html = '<p>' + esc(p.descripcion || '') + '</p>';
+        let html = '<p>' + descHtml(p.descripcion || '') + '</p>';
         if (p.linea) html += '<p class="mini">Línea ' + esc(p.linea) + (p.linea_arquetipo ? ' — <b>' + esc(p.linea_arquetipo) + '</b>' : '') + (p.linea_rasgo ? ': ' + esc(p.linea_rasgo) : '') + '</p>';
         showPopup('Puerta ' + n + ' · ' + (p.centro || ''), html);
       };
@@ -1145,39 +1207,137 @@ viewBox="78 -12 380 654">
         const key = Math.min(Number(m[1]), Number(m[2])) + '-' + Math.max(Number(m[1]), Number(m[2]));
         const c = (f.canales_detalle || []).find((x) => String(x.canal) === key);
         if (!c) return;
-        showPopup('Canal ' + key, '<p>' + esc(c.descripcion || '') + '</p>');
+        showPopup('Canal ' + key, '<p>' + descHtml(c.descripcion || '') + '</p>');
       };
     });
   }
 
+  // ---------- detalle estilo AuraHumana v2 ----------
+  const CIRCUITO_PUERTA = {
+    1: 'indiv', 2: 'indiv', 3: 'indiv', 8: 'indiv', 10: 'indiv', 12: 'indiv',
+    14: 'indiv', 20: 'indiv', 22: 'indiv', 23: 'indiv', 24: 'indiv', 25: 'indiv',
+    28: 'indiv', 34: 'indiv', 38: 'indiv', 39: 'indiv', 43: 'indiv', 51: 'indiv',
+    55: 'indiv', 57: 'indiv', 60: 'indiv', 61: 'indiv',
+    6: 'tribal', 19: 'tribal', 21: 'tribal', 26: 'tribal', 27: 'tribal', 32: 'tribal',
+    37: 'tribal', 40: 'tribal', 44: 'tribal', 45: 'tribal', 49: 'tribal', 50: 'tribal',
+    54: 'tribal', 59: 'tribal'
+  };
+  const FL_CIRCUITO_NOMBRE = { indiv: 'Individual', tribal: 'Tribal', colec: 'Colectivo' };
+  const circCls = (c) => c === 'indiv' ? ' fl-indiv' : (c === 'tribal' ? ' fl-tribal' : '');
+
+  function primeraOracion(txt) {
+    if (!txt) return '';
+    const s = String(txt).trim();
+    if (!s) return '';
+    const para = (s.split(/\r?\n\s*\r?\n/)[0] || s.split(/\r?\n/)[0] || s);
+    const linea = (para.split(/\r?\n/).map((l) => l.trim()).find((l) => l) || para).trim();
+    let m = linea.match(/^[^.!?]+[.!?]/);
+    if (m) return m[0].trim();
+    m = para.match(/^[^.!?]+[.!?]/);
+    if (m) return m[0].trim();
+    return linea;
+  }
+  function descHtml(txt) {
+    if (!txt) return '';
+    return esc(String(txt).replace(/\r\n/g, '\n')).replace(/\n\s*\n/g, '<br><br>').replace(/\n/g, '<br>');
+  }
+  function mapaEmojisSvg() {
+    const mapa = {};
+    try {
+      const svg = $('#mapa svg');
+      const capa = svg && svg.querySelector('[id="capa_emojis"]');
+      if (!capa) return mapa;
+      capa.querySelectorAll('text').forEach((t) => {
+        let gate = null;
+        const title = t.querySelector('title');
+        if (title) {
+          const m = title.textContent.trim().match(/^(\d+)\b/);
+          if (m) gate = parseInt(m[1], 10);
+        }
+        if (gate == null && t.id) {
+          const m2 = t.id.match(/emoji[_-](\d+)/);
+          if (m2) gate = parseInt(m2[1], 10);
+        }
+        if (gate == null) return;
+        let emo = '';
+        t.childNodes.forEach((n) => { if (n.nodeType === 3) emo += n.nodeValue; });
+        emo = emo.trim();
+        if (emo) mapa[gate] = emo;
+      });
+    } catch (e) {}
+    return mapa;
+  }
+
   function renderDetalle(f) {
-    const centros = (f.centros_detalle || []).map((c) =>
-      '<div class="det-item"><div class="det-head"><b>' + esc(c.centro) + '</b>' +
-      '<span class="pill ' + (c.estado === 'Definido' ? 'ok' : 'off') + '">' + esc(c.estado) + '</span></div>' +
-      (c.descripcion ? '<p>' + esc(c.descripcion) + '</p>' : '') + '</div>'
-    ).join('');
+    const emoMap = mapaEmojisSvg();
+    // Canales: número + emojis + primera oración (igual que v2).
+    const canalesHtml = '<div class="canales-bloque"><h4>Canales' +
+      ((f.canales || []).length ? ' (' + f.canales.length + ')' : ' (0)') + '</h4>' +
+      (((f.canales_detalle || []).length ? f.canales_detalle.map((c) => {
+        const partes = String(c.canal).split('-');
+        const emoA = emoMap[+partes[0]] || '', emoB = emoMap[+partes[1]] || '';
+        return '<div class="canal-fila" data-canal="' + esc(c.canal) + '">' +
+          '<span class="fl-num">' + esc(c.canal) + '</span>' +
+          '<span class="fl-emo">' + esc(emoA) + esc(emoB) + '</span>' +
+          '<span class="fl-desc">' + esc(primeraOracion(c.descripcion)) + '</span></div>';
+      }).join('') : '<p class="mini">Sin canales completos.</p>') + '</div>');
 
-    const canales = (f.canales_detalle || []).map((c) =>
-      '<div class="det-item"><div class="det-head"><b>Canal ' + esc(c.canal) + '</b></div>' +
-      (c.descripcion ? '<p>' + esc(c.descripcion) + '</p>' : '') + '</div>'
-    ).join('');
+    // Puertas por circuito: número.línea + emoji + arquetipo (igual que v2).
+    const porPuerta = {};
+    (f.puertas_detalle || []).forEach((p) => {
+      const g = Number(p.puerta);
+      if (!g) return;
+      (porPuerta[g] = porPuerta[g] || []).push(p);
+    });
+    const todas = (f.puertas || []).map(Number);
+    let puertasHtml = '';
+    ['indiv', 'tribal', 'colec'].forEach((circ) => {
+      const gates = todas.filter((g) => (CIRCUITO_PUERTA[g] || 'colec') === circ).sort((a, b) => a - b);
+      if (!gates.length) return;
+      puertasHtml += '<div class="fl-sub">' + FL_CIRCUITO_NOMBRE[circ] + ' (' + gates.length + ')</div>';
+      gates.forEach((g) => {
+        const det = porPuerta[g] || [];
+        const incon = det.length > 0 && det.every((p) => p.estado === 'inconsciente');
+        let lineas = [];
+        det.forEach((p) => {
+          const ls = Array.isArray(p.lineas) ? p.lineas : (p.linea != null ? [p.linea] : []);
+          ls.forEach((l) => { const n = Number(l); if (n && lineas.indexOf(n) < 0) lineas.push(n); });
+        });
+        lineas.sort((a, b) => a - b);
+        const num = lineas.length === 1 ? g + '.' + lineas[0] : (lineas.length > 1 ? g + '.' + lineas.join(',') : String(g));
+        const partes = [];
+        lineas.forEach((l) => {
+          const info = det.find((p) => Number(p.linea) === l) || det[0] || {};
+          if (info.linea_arquetipo || info.linea_rasgo) {
+            partes.push((info.linea_arquetipo || '') + (info.linea_arquetipo && info.linea_rasgo ? ' — ' : '') + (info.linea_rasgo || ''));
+          }
+        });
+        const desc = partes.length ? partes.join(' · ') : primeraOracion((det[0] || {}).descripcion);
+        puertasHtml += '<div class="fl-fila" data-puerta="' + g + '">' +
+          '<div class="fl-left"><div class="fl-num ' + (incon ? 'fl-incon' : 'fl-consc') + circCls(circ) + '">' + esc(num) + '</div>' +
+          (emoMap[g] ? '<div class="fl-emo">' + esc(emoMap[g]) + '</div>' : '') + '</div>' +
+          '<span class="fl-desc ' + (incon ? 'fl-desc-incon' : 'fl-desc-consc') + circCls(circ) + '">' + esc(desc) + '</span></div>';
+      });
+    });
 
-    const puertas = (f.puertas_por_centro || []).map((pair) => {
-      const centro = pair[0], lista = pair[1] || [];
-      return '<div class="det-grupo"><h4>' + esc(centro) + '</h4>' + lista.map((p) =>
-        '<div class="det-item"><div class="det-head"><b>Puerta ' + esc(p.puerta) + '</b>' +
-        (p.linea ? '<span class="pill">Línea ' + esc(p.linea) + '</span>' : '') +
-        '<span class="pill ' + (p.estado === 'consciente' ? 'ok' : p.estado === 'inconsciente' ? 'off' : 'mix') + '">' + esc(p.estado) + '</span></div>' +
-        (p.descripcion ? '<p>' + esc(p.descripcion) + '</p>' : '') +
-        (p.linea_arquetipo ? '<p class="mini"><b>' + esc(p.linea_arquetipo) + '</b>' + (p.linea_rasgo ? ' — ' + esc(p.linea_rasgo) : '') + '</p>' : '') +
-        '</div>'
-      ).join('') + '</div>';
-    }).join('');
+    $('#g-detalle').innerHTML = canalesHtml + (puertasHtml || '<p class="mini">Sin datos.</p>');
 
-    $('#g-detalle').innerHTML =
-      '<details open><summary><b>Centros</b> (' + (f.centros_definidos || []).length + ' definidos)</summary>' + (centros || '<p class="mini">Sin datos.</p>') + '</details>' +
-      '<details><summary><b>Canales</b> (' + (f.canales || []).length + ')</summary>' + (canales || '<p class="mini">Sin canales completos.</p>') + '</details>' +
-      '<details><summary><b>Puertas</b> (' + (f.puertas || []).length + ')</summary>' + (puertas || '<p class="mini">Sin datos.</p>') + '</details>';
+    // Toque en fila: descripción completa (igual que v2).
+    $('#g-detalle').querySelectorAll('[data-canal]').forEach((el) => {
+      el.style.cursor = 'pointer';
+      el.onclick = () => {
+        const c = (f.canales_detalle || []).find((x) => String(x.canal) === el.dataset.canal);
+        if (c) showPopup('Canal ' + c.canal, '<p>' + descHtml(c.descripcion) + '</p>');
+      };
+    });
+    $('#g-detalle').querySelectorAll('[data-puerta]').forEach((el) => {
+      el.style.cursor = 'pointer';
+      el.onclick = () => {
+        const g = Number(el.dataset.puerta);
+        const det = (porPuerta[g] || [])[0] || (f.puertas_detalle || []).find((x) => Number(x.puerta) === g);
+        if (det) showPopup('Puerta ' + g + ' · ' + (det.centro || ''), '<p>' + descHtml(det.descripcion) + '</p>');
+      };
+    });
   }
 
   // ---------- popup ----------
@@ -1188,7 +1348,7 @@ viewBox="78 -12 380 654">
   }
   function hidePopup() { $('#popup').classList.add('hidden'); }
 
-  // ---------- buscar ----------
+  // ---------- buscar (se busca siempre como el yo) ----------
   async function cargarBuscar() {
     if (!state.cuenta) { renderCuenta(); return; }
     try {
@@ -1198,29 +1358,30 @@ viewBox="78 -12 380 654">
       state.mis = [];
       if (e.status === 401) { state.cuenta = null; renderCuenta(); return; }
     }
-    renderBaseSelect();
+    state.base = state.yo;
+    renderBaseFija();
     await cargarMatches();
   }
 
-  function renderBaseSelect() {
-    const sel = $('#b-base');
-    if (!state.mis.length) {
-      sel.innerHTML = '<option value="">Sin personas públicas</option>';
-      $('#b-base-help').textContent = 'Poné una persona en público desde Cuenta para poder buscar.';
-      return;
+  function renderBaseFija() {
+    const el = $('#b-base-fija');
+    if (!el) return;
+    el.textContent = state.yo || '—';
+    state.base = state.yo;
+    if (!state.yo) {
+      $('#b-base-help').textContent = 'Elegí quién eres en la pestaña Perfil.';
+    } else if (!state.mis.includes(state.yo)) {
+      $('#b-base-help').textContent = 'Tu perfil aún no es público: se hace público al marcar "Este soy yo".';
+    } else {
+      $('#b-base-help').textContent = 'Solo participan personas en público. Sin fecha, hora ni lugar.';
     }
-    $('#b-base-help').textContent = 'Solo participan personas en público. Sin fecha, hora ni lugar.';
-    sel.innerHTML = state.mis.map((n) => '<option value="' + esc(n) + '">' + esc(n) + (n === state.yo ? ' (yo)' : '') + '</option>').join('');
-    if (!state.base || !state.mis.includes(state.base)) state.base = state.mis.includes(state.yo) ? state.yo : state.mis[0];
-    sel.value = state.base;
   }
 
-  async function buscarCandidatos(q) {
-    if (!state.base) { setMsg('#b-msg', 'Elegí tu persona visible.', 'err'); return; }
+  async function buscarCandidatos() {
+    if (!state.base) { setMsg('#b-msg', 'Elegí quién eres en la pestaña Perfil.', 'err'); return; }
     setMsg('#b-msg', 'Buscando…', '');
     try {
       const params = new URLSearchParams({ base: state.base, solo_nuevos: state.nuevos ? '1' : '0' });
-      if (q) params.set('q', q);
       const r = await api('/api/buscar/candidatos?' + params.toString());
       renderCandidatos(r);
       setMsg('#b-msg', (r.total || 0) + ' personas encontradas.', 'ok');
@@ -1449,9 +1610,14 @@ viewBox="78 -12 380 654">
       state.lugarSel = null;
       $('#p-lugar').value = '';
       await cargarPersonas();
-      state.personaSel = r.nombre;
-      await cargarFicha(r.nombre);
-      showTab('grafico');
+      if (!leerYoGuardado()) {
+        // Primera persona: es el yo y queda pública para buscar.
+        await marcarYo(r.nombre);
+      } else {
+        state.personaSel = r.nombre;
+        await cargarFicha(r.nombre);
+        showTab('grafico');
+      }
     } catch (e) {
       setMsg('#p-msg', e.message || 'No se pudo guardar.', 'err');
     } finally {
@@ -1517,24 +1683,23 @@ viewBox="78 -12 380 654">
       if (n) cargarFicha(n);
     });
     $('#mis-personas').addEventListener('click', (ev) => {
+      const y = ev.target.closest('[data-yo]');
+      if (y) { marcarYo(y.dataset.yo); return; }
       const b = ev.target.closest('[data-ver]');
       if (!b) return;
       cargarFicha(b.dataset.ver);
       showTab('grafico');
     });
-    $('#mapa').addEventListener('click', (ev) => {
-      const b = ev.target.closest('[data-zoom]');
+
+    $('#yo-card').addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-ver]');
       if (!b) return;
-      state.zoom = Math.max(0.8, Math.min(2.6, state.zoom + (b.dataset.zoom === '+' ? 0.2 : -0.2)));
-      const svg = $('#mapa svg');
-      if (svg) { svg.style.width = Math.round(100 * state.zoom) + '%'; svg.style.maxWidth = 'none'; }
+      cargarFicha(b.dataset.ver);
+      showTab('grafico');
     });
 
-    $('#b-base').addEventListener('change', (ev) => { state.base = ev.target.value; });
     $('#b-nuevos').addEventListener('change', (ev) => { state.nuevos = ev.target.checked; });
-    $('#b-buscar').addEventListener('click', () => buscarCandidatos(''));
-    $('#b-nombre').addEventListener('click', () => buscarCandidatos($('#b-q').value.trim()));
-    $('#b-q').addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); buscarCandidatos($('#b-q').value.trim()); } });
+    $('#b-buscar').addEventListener('click', () => buscarCandidatos());
 
     $('#b-lista').addEventListener('click', (ev) => {
       const v = ev.target.closest('[data-votar]');
