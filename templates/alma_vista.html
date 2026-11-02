@@ -99,9 +99,9 @@
   .pill.ok{background:#e7f7ef;border-color:#b7e6cc;color:#087443}
   .pill.off{background:#f2f3f7;border-color:#e2e4ec;color:#6b7280}
   .pill.mix{background:#fff4e5;border-color:#f5d7a8;color:#8a5a00}
-  .mapa-wrap{position:relative;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:auto;touch-action:pan-x pan-y pinch-zoom;-webkit-overflow-scrolling:touch;padding:6px}
-  .mapa{text-align:center}
-  .mapa svg{width:100%;height:auto;max-width:none;display:block;margin:0 auto}
+  .mapa-wrap{position:relative;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:auto;touch-action:pan-x pan-y pinch-zoom;-webkit-overflow-scrolling:touch;padding:6px;height:68vh;height:calc(100dvh - 300px);min-height:340px;display:flex}
+  .mapa{margin:auto;text-align:center}
+  .mapa svg{display:block;height:66vh;height:calc(100dvh - 316px);min-height:324px;width:auto;max-width:none;margin:0 auto;touch-action:pinch-zoom}
   /* Detalle estilo AuraHumana v2 */
   .fl-sub{font-size:10px;font-weight:800;color:#877a64;text-transform:uppercase;letter-spacing:.4px;margin:14px 0 1px}
   .fl-fila{display:flex;gap:6px;align-items:baseline;font-size:12px;line-height:1.4;padding:5px 2px;border-bottom:1px dotted #c3b28f}
@@ -907,7 +907,11 @@ viewBox="78 -12 380 654">
       }
       state.cuenta = { email: (r && r.email) || email };
       renderCuenta();
-      setMsg('#auth-msg', state.authMode === 'login' ? 'Listo. Ya estás dentro.' : 'Cuenta creada.', 'ok');
+      if (state.authMode === 'registro' && r && r.codigo_enviado) {
+        setMsg('#auth-msg', 'Cuenta creada. Te enviamos el código al correo.', 'ok');
+      } else {
+        setMsg('#auth-msg', state.authMode === 'login' ? 'Listo. Ya estás dentro.' : 'Cuenta creada.', 'ok');
+      }
       await cargarPersonas();
       await cargarBuscar();
       // El yo es la primera persona de la cuenta: ir directo a su gráfico (pantalla 2).

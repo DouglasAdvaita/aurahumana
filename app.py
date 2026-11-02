@@ -6271,6 +6271,68 @@ def api_health_keepalive():
     return jsonify(payload), 200
 
 
+# ---------- Fase 3: registro de visitas (IP completa para pais posterior) ----------
+_VIS_TASA = {}
+@app.route('/api/visita/inicio', methods=['POST'])
+def api_visita_inicio():
+    """Crea una fila de visita (la llama el navegador tras cargar la portada)."""
+    try:
+        import time as _t
+        import visitas_db as _vis
+        if not _vis.disponible():
+            return jsonify({'ok': False, 'sin_db': True})
+        ip = _vis.ip_real(request)
+        ahora = _t.time()
+        ultimo = _VIS_TASA.get(ip, 0)
+        if ahora - ultimo < 10:
+            return jsonify({'ok': False, 'tasa': True})
+        _VIS_TASA[ip] = ahora
+        if len(_VIS_TASA) > 2000:
+            _VIS_TASA.clear()
+        data = request.get_json(force=True, silent=True) or {}
+        vid = _vis.registrar(
+            ip,
+            str(data.get('path') or request.referrer or '/')[:200],
+            (request.headers.get('User-Agent') or '')[:300],
+            (request.referrer or '')[:300],
+        )
+        # Limpieza ocasional (1 de cada ~50) para no llenar Neon.
+        try:
+            import random as _r
+            if _r.randint(1, 50) == 1:
+                _vis.limpiar(90)
+        except Exception:
+            pass
+        return jsonify({'ok': True, 'id': vid})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)[:200]}), 500
+
+
+@app.route('/api/visita/fin', methods=['POST'])
+def api_visita_fin():
+    """Actualiza la duracion en segundos (beacon al salir/ocultar la pagina)."""
+    try:
+        import visitas_db as _vis
+        # sendBeacon puede llegar sin JSON (texto): aceptar ambas formas.
+        data = request.get_json(force=True, silent=True) or {}
+        if not isinstance(data, dict):
+            data = {}
+        vid = data.get('id')
+        try:
+            vid = int(vid)
+        except (ValueError, TypeError):
+            vid = None
+        try:
+            seg = int(data.get('segundos') or data.get('seg') or 0)
+        except (ValueError, TypeError):
+            seg = 0
+        if not vid:
+            return jsonify({'ok': False}), 400
+        return jsonify({'ok': _vis.cerrar(vid, seg, _vis.ip_real(request))})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)[:200]}), 500
+
+
 
 @app.route('/api/nube/guardar', methods=['POST'])
 def api_nube_guardar():
@@ -6365,8 +6427,15 @@ def api_cuenta_registro():
         _auth.init_db()
         cuenta_id, codigo = _auth.crear_cuenta(data.get('email') or '', data.get('pw') or '')
         token = _auth.crear_sesion(cuenta_id)
-        return _poner_cookie(jsonify({'ok': True, 'email': _auth._norm_email(data.get('email')),
-                                      'codigo_recuperacion': codigo}), token)
+        email = _auth._norm_email(data.get('email'))
+        try:
+            import mail_cuenta
+            mail_ok = mail_cuenta.enviar_codigo(email, codigo)
+        except Exception:
+            mail_ok = False
+        return _poner_cookie(jsonify({'ok': True, 'email': email,
+                                      'codigo_recuperacion': codigo,
+                                      'codigo_enviado': bool(mail_ok)}), token)
     except ValueError as e:
         return jsonify({'error': str(e)}), 409
     except Exception as e:
