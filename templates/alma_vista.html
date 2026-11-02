@@ -192,6 +192,23 @@
           <div style="margin-top:12px"><button class="btn primary" type="submit" id="auth-submit">Entrar</button></div>
         </form>
         <div id="auth-msg" class="msg" role="status"></div>
+        <details style="margin-top:12px">
+          <summary><b>Olvidé mi contraseña</b></summary>
+          <form id="form-recuperar" style="margin-top:8px">
+            <label for="rec-email">Correo de la cuenta</label>
+            <input id="rec-email" type="email" inputmode="email" placeholder="tu@mail.com" required>
+            <label for="rec-codigo">Código de recuperación</label>
+            <input id="rec-codigo" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" required
+              style="font-family:ui-monospace,Consolas,monospace;letter-spacing:1px;text-transform:uppercase">
+            <label for="rec-nueva">Contraseña nueva</label>
+            <div class="pw-wrap">
+              <input id="rec-nueva" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" minlength="8" required>
+              <button type="button" class="eye" id="toggle-rec" title="Mostrar contraseña" aria-label="Mostrar contraseña">👁</button>
+            </div>
+            <div style="margin-top:12px"><button class="btn primary" type="submit" id="rec-submit">Cambiar contraseña</button></div>
+          </form>
+          <div id="rec-msg" class="msg" role="status"></div>
+        </details>
         <div id="codigo-box" class="codigo-box hidden">
           <h3>Guardá este código</h3>
           <p class="help">Es la única forma de recuperar la cuenta. Se muestra una sola vez.</p>
@@ -900,6 +917,28 @@ viewBox="78 -12 380 654">
       }
     } catch (e) {
       setMsg('#auth-msg', e.message || 'No se pudo entrar.', 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function doRecuperar(ev) {
+    ev.preventDefault();
+    const email = $('#rec-email').value.trim();
+    const codigo = $('#rec-codigo').value.trim();
+    const nueva = $('#rec-nueva').value;
+    if (!email || !codigo || !nueva) { setMsg('#rec-msg', 'Completá los tres campos.', 'err'); return; }
+    if (nueva.length < 8) { setMsg('#rec-msg', 'La contraseña nueva debe tener al menos 8 caracteres.', 'err'); return; }
+    const btn = $('#rec-submit');
+    btn.disabled = true;
+    setMsg('#rec-msg', 'Cambiando…', '');
+    try {
+      await api('/api/cuenta/recuperar', { method: 'POST', body: { email: email, codigo: codigo, nueva: nueva } });
+      setMsg('#rec-msg', 'Contraseña cambiada. Entrá con la nueva.', 'ok');
+      $('#auth-email').value = email;
+      $('#rec-nueva').value = '';
+    } catch (e) {
+      setMsg('#rec-msg', e.message || 'No se pudo cambiar. Revisá correo y código.', 'err');
     } finally {
       btn.disabled = false;
     }
@@ -1650,7 +1689,15 @@ viewBox="78 -12 380 654">
       $('#toggle-pw').title = visible ? 'Mostrar contraseña' : 'Ocultar contraseña';
     });
 
+    $('#toggle-rec').addEventListener('click', () => {
+      const inp = $('#rec-nueva');
+      const visible = inp.type === 'text';
+      inp.type = visible ? 'password' : 'text';
+      $('#toggle-rec').textContent = visible ? '👁' : '🙈';
+    });
+
     $('#form-auth').addEventListener('submit', doAuth);
+    $('#form-recuperar').addEventListener('submit', doRecuperar);
     $('#btn-logout').addEventListener('click', logout);
     $('#codigo-copiar').addEventListener('click', async () => {
       const txt = $('#codigo-valor').textContent || '';
