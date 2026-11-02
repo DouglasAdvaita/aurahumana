@@ -3,6 +3,9 @@
 # Secretos
 .env
 
+# Herramienta local de cuentas (muestra correos y genera códigos): queda local
+/cuentas_neon.py
+
 # Python / temporales
 __pycache__/
 *.py[cod]

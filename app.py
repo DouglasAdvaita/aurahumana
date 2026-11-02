@@ -35,7 +35,7 @@ try:
                 continue
             _k, _v = _line.split('=', 1)
             _k, _v = _k.strip(), _v.strip().strip('"').strip("'")
-            if _k and _k not in os.environ and _k in ('GEMINI_API_KEY', 'GEMINI_MODEL', 'PORT',
+            if _k and _k not in os.environ and _k in ('DATABASE_URL', 'GEMINI_API_KEY', 'GEMINI_MODEL', 'PORT',
                     'IA_PROVIDER', 'IA_MODEL', 'IA_TIMEOUT',
                     'GROQ_API_KEY', 'GROQ_MODEL',
                     'CEREBRAS_API_KEY', 'CEREBRAS_MODEL',
