@@ -63,6 +63,7 @@ desktop.ini
 !historia_destacados.xlsx
 !politicos_uy.xlsx
 !actores_hollywood.xlsx
+!publicos_sin_hora.xlsx
 
 # Medios pesados (se regeneran / no van al repo)
 /static/canales_audio/
