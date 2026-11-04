@@ -1,6 +1,6 @@
 {
-  "versionCode": 6,
-  "versionName": "1.5",
+  "versionCode": 7,
+  "versionName": "1.6",
   "apk": "/static/alma/Alma.apk",
-  "notas": "Recuperar contrasena y marcar 'Este soy yo' en la app; Chat con lista de conversaciones; fotos en Buscar y Chat; filtros plegados; violeta de marca."
+  "notas": "Fichas de Buscar como antes (texto a todo el ancho) con la foto al lado del nombre."
 }
