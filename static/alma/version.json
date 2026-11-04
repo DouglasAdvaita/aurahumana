@@ -1,6 +1,6 @@
 {
-  "versionCode": 3,
-  "versionName": "1.2",
+  "versionCode": 5,
+  "versionName": "1.4",
   "apk": "/static/alma/Alma.apk",
-  "notas": "Buscar muestra tipo, perfil, canales, centros y bio en cada tarjeta; Ver carga la persona como P2 en el Gráfico sin guardarla."
+  "notas": "Buscar: lista de votados (X/=) con opcion de cambiar o quitar; Chatear solo en Chat; el que pasa a match sale de la lista."
 }

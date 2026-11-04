@@ -7077,6 +7077,67 @@ def api_buscar_candidatos():
         return jsonify({'error': str(e)[:300]}), 500
 
 
+@app.route('/api/buscar/votos')
+def api_buscar_votos():
+    """Votos dados por la cuenta (para revisar a quién se le dio X o =)."""
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    base = (request.args.get('base') or '').strip()
+    try:
+        _buscar_init()
+        from nube_db import _conn as _c
+        c = _c()
+        try:
+            cur = c.cursor()
+            if base:
+                cur.execute("SELECT a_cuenta, a_nombre, valor FROM buscar_votos "
+                            "WHERE de_cuenta=%s AND de_nombre=%s ORDER BY a_nombre",
+                            (ct['id'], base))
+            else:
+                cur.execute("SELECT a_cuenta, a_nombre, valor FROM buscar_votos "
+                            "WHERE de_cuenta=%s ORDER BY a_nombre", (ct['id'],))
+            votos = [{'cuenta_id': r[0], 'nombre': str(r[1]), 'valor': r[2]}
+                     for r in cur.fetchall()]
+        finally:
+            c.close()
+        return jsonify({'votos': votos, 'base': base})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/buscar/voto_borrar', methods=['POST'])
+def api_buscar_voto_borrar():
+    """Borra un voto para limpiar la lista de votados (se puede volver a votar)."""
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    d = request.get_json(force=True, silent=True) or {}
+    try:
+        a_cuenta = int(d.get('a_cuenta'))
+    except Exception:
+        return jsonify({'error': 'Falta destinatario'}), 400
+    a_nombre = str(d.get('a_nombre') or '').strip()
+    de_nombre = str(d.get('de_nombre') or d.get('base') or '').strip()
+    if not a_nombre or not de_nombre:
+        return jsonify({'error': 'Falta la persona'}), 400
+    try:
+        _buscar_init()
+        from nube_db import _conn as _c
+        c = _c()
+        try:
+            cur = c.cursor()
+            cur.execute("DELETE FROM buscar_votos WHERE de_cuenta=%s AND de_nombre=%s "
+                        "AND a_cuenta=%s AND a_nombre=%s",
+                        (ct['id'], de_nombre, a_cuenta, a_nombre))
+            c.commit()
+        finally:
+            c.close()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
 @app.route('/api/buscar/votar', methods=['POST'])
 def api_buscar_votar():
     ct = _cuenta_actual()
