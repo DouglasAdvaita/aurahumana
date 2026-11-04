@@ -7028,6 +7028,8 @@ def api_buscar_candidatos():
             item = {'cuenta_id': cid, 'nombre': nom, 'canales': chs,
                     'comunes': len(comunes), 'tipo': f['tipo'], 'perfil': f['perfil'],
                     'foto': f['foto'], 'tipo_match': tipo_match,
+                    'centros': sorted(_hd_centros_definidos(f['canales'])),
+                    'bio': str((dj or {}).get('bio') or '').strip()[:280],
                     'perfil_match': perfil_match, 'fam_match': fam_match,
                     'prio': prio, 'diff': diff, 'frio': frio,
                     'personal': cuantas.get(cid, 1) <= 3}

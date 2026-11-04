@@ -1,6 +1,6 @@
 {
-  "versionCode": 2,
-  "versionName": "1.1",
+  "versionCode": 3,
+  "versionName": "1.2",
   "apk": "/static/alma/Alma.apk",
-  "notas": "Buscar, Chat y Cuenta nativos (sin ventana de navegador); copia de tus personas al equipo al entrar; icono propio."
+  "notas": "Buscar muestra tipo, perfil, canales, centros y bio en cada tarjeta; Ver carga la persona como P2 en el Gráfico sin guardarla."
 }
