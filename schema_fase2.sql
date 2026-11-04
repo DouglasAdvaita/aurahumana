@@ -39,3 +39,6 @@ CREATE TABLE IF NOT EXISTS perfiles_cuenta (
 );
 
 CREATE INDEX IF NOT EXISTS idx_perfiles_cuenta ON perfiles_cuenta(cuenta_id);
+
+-- Yo persistido en Neon (no solo localStorage): la persona con la que busca/chatea.
+ALTER TABLE cuentas ADD COLUMN IF NOT EXISTS yo_nombre TEXT DEFAULT '';

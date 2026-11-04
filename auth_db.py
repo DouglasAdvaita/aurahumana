@@ -231,3 +231,38 @@ def borrar_perfil(cuenta_id: int, nombre: str):
         return n
     finally:
         c.close()
+
+
+def get_yo(cuenta_id: int):
+    """Nombre del yo guardado en Neon. '' si no hay."""
+    c = _conn_base()
+    try:
+        cur = c.cursor()
+        try:
+            cur.execute("SELECT yo_nombre FROM cuentas WHERE id=%s", (cuenta_id,))
+            r = cur.fetchone()
+            return (str(r[0] or '').strip() if r else '')
+        except Exception:
+            c.rollback()
+            return ''
+    finally:
+        c.close()
+
+
+def set_yo(cuenta_id: int, nombre: str):
+    c = _conn_base()
+    try:
+        cur = c.cursor()
+        try:
+            cur.execute("UPDATE cuentas SET yo_nombre=%s, updated_at=now() WHERE id=%s",
+                        (str(nombre or '').strip()[:120], cuenta_id))
+            c.commit()
+        except Exception:
+            # Columna aún no migrada en Neon: reintentar tras crearla.
+            c.rollback()
+            cur.execute("ALTER TABLE cuentas ADD COLUMN IF NOT EXISTS yo_nombre TEXT DEFAULT ''")
+            cur.execute("UPDATE cuentas SET yo_nombre=%s, updated_at=now() WHERE id=%s",
+                        (str(nombre or '').strip()[:120], cuenta_id))
+            c.commit()
+    finally:
+        c.close()

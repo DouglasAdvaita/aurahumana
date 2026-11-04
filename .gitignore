@@ -18,6 +18,8 @@ venv/
 *.bak*
 *.apk
 *.aab
+# El APK de Alma se publica a propósito para actualizar por internet
+!/static/alma/*.apk
 /.idea/
 /app - copia.py
 /* - copia.*

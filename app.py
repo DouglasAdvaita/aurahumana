@@ -6507,7 +6507,36 @@ def api_cuenta_mis():
     if not ct:
         return jsonify({'error': 'No logueado'}), 401
     try:
-        return jsonify({'email': ct['email'], 'perfiles': _auth.perfiles_de(ct['id'])})
+        return jsonify({'email': ct['email'], 'perfiles': _auth.perfiles_de(ct['id']),
+                        'yo': _auth.get_yo(ct['id'])})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+@app.route('/api/cuenta/yo', methods=['GET', 'POST'])
+def api_cuenta_yo():
+    """Yo persistido en Neon: GET lo lee, POST lo fija (y deja pública la persona)."""
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    try:
+        if request.method == 'GET':
+            return jsonify({'ok': True, 'yo': _auth.get_yo(ct['id'])})
+        data = request.get_json(force=True, silent=True) or {}
+        nombre = str(data.get('nombre') or data.get('yo') or '').strip()
+        if not nombre:
+            return jsonify({'error': 'Falta nombre'}), 400
+        perfiles = _auth.perfiles_de(ct['id'])
+        previo = next((p for p in perfiles
+                       if str(p.get('nombre') or '').strip().lower() == nombre.lower()), None)
+        if not previo:
+            return jsonify({'error': f'"{nombre}" no está en tu cuenta. Usá Agregar para crearla.'}), 404
+        _auth.set_yo(ct['id'], previo.get('nombre') or nombre)
+        perfil = dict(previo)
+        perfil['visibilidad'] = 'publico'
+        _auth.subir_perfil(ct['id'], perfil)
+        g.perfiles_cuenta = None
+        return jsonify({'ok': True, 'yo': previo.get('nombre') or nombre})
     except Exception as e:
         return jsonify({'error': str(e)[:300]}), 500
 
@@ -6903,11 +6932,16 @@ def api_buscar_ficha():
         finally:
             c.close()
         f = _buscar_ficha(dj or {})
+        dd = dj or {}
         return jsonify({'nombre': nombre, 'foto': f['foto'], 'tipo': f['tipo'],
                         'perfil': f['perfil'], 'canales': f['canales'],
                         'centros': sorted(_hd_centros_definidos(f['canales'])),
-                        'bio': str((dj or {}).get('bio') or '').strip()[:280],
-                        'comunes': comunes})
+                        'bio': str((dd or {}).get('bio') or '').strip()[:280],
+                        'comunes': comunes,
+                        'inconscientes': dd.get('inconscientes') or [],
+                        'conscientes': dd.get('conscientes') or [],
+                        'inconscientes_lineas': dd.get('inconscientes_lineas') or [],
+                        'conscientes_lineas': dd.get('conscientes_lineas') or []})
     except Exception as e:
         return jsonify({'error': str(e)[:300]}), 500
 

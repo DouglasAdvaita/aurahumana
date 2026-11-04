@@ -161,6 +161,10 @@
   .tab{border:0;background:transparent;color:#8a90a5;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;font-size:11px;font-weight:600}
   .tab .ico{font-size:19px;line-height:1.1}
   .tab.active{color:var(--brand)}
+  /* Dentro del APK Alma el navegador nativo ya tiene su barra: ocultar la web. */
+  body.embed-alma #tabs{display:none}
+  body.embed-alma #views{padding-bottom:0}
+  body.embed-alma #app{padding-bottom:8px}
 </style>
 </head>
 <body>
@@ -232,11 +236,7 @@
           <h2>Mi perfil</h2>
           <p class="help">Este eres tú: con este perfil buscas y chateas.</p>
           <div id="yo-card" class="lista-personas"></div>
-        </div>
-
-        <div class="card">
-          <h2>Mis personas</h2>
-          <div id="mis-personas" class="lista-personas"></div>
+          <p class="help">Tus personas están en el combo del Gráfico.</p>
         </div>
 
         <div class="card">
@@ -283,6 +283,10 @@
         <div class="row-between">
           <h2>Gráfico</h2>
           <select id="g-persona" class="grow" style="max-width:260px"></select>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn small" type="button" id="g-yo">Este soy yo</button>
+          <span class="mini">Marca quién eres: con ese perfil buscas y chateas.</span>
         </div>
         <div id="g-vacio" class="empty" style="margin-top:12px">Elegí o agregá una persona para ver su diseño.</div>
         <div id="g-contenido" class="hidden">
@@ -915,6 +919,7 @@ viewBox="78 -12 380 654">
         setMsg('#auth-msg', state.authMode === 'login' ? 'Listo. Ya estás dentro.' : 'Cuenta creada.', 'ok');
       }
       await cargarPersonas();
+      await subirPendientes();
       await cargarBuscar();
       // El yo es la primera persona de la cuenta: ir directo a su gráfico (pantalla 2).
       if (state.yo) {
@@ -958,6 +963,7 @@ viewBox="78 -12 380 654">
         renderCuenta();
         setMsg('#auth-msg', 'Listo. Ya estás dentro.', 'ok');
         await cargarPersonas();
+        await subirPendientes();
         await cargarBuscar();
         if (state.yo) {
           await cargarFicha(state.yo);
@@ -1010,14 +1016,37 @@ viewBox="78 -12 380 654">
   }
   async function cargarPersonas() {
     if (!state.cuenta) { state.personas = []; state.yo = null; renderPersonas(); return; }
+    let yoServidor = '';
     try {
-      const r = await api('/api/personas');
-      state.personas = r.personas || [];
+      const m = await api('/api/cuenta/mis');
+      if (m && Array.isArray(m.personas)) {
+        state.personas = m.personas.map((p) => (typeof p === 'string' ? p : p.nombre)).filter(Boolean);
+      } else {
+        const r = await api('/api/personas');
+        state.personas = r.personas || [];
+      }
+      yoServidor = (m && m.yo) || '';
     } catch (e) {
-      state.personas = [];
+      try {
+        const r = await api('/api/personas');
+        state.personas = r.personas || [];
+      } catch (e2) {
+        state.personas = [];
+      }
     }
     const pref = leerYoGuardado();
-    state.yo = (pref && state.personas.includes(pref)) ? pref : (state.personas.length ? state.personas[0] : null);
+    if (yoServidor && state.personas.includes(yoServidor)) state.yo = yoServidor;
+    else if (pref && state.personas.includes(pref)) {
+      // El equipo sabía un yo que Neon aún no tiene: subirlo.
+      state.yo = pref;
+      try { await api('/api/cuenta/yo', { method: 'POST', body: { nombre: pref } }); } catch (e) {}
+    } else state.yo = state.personas.length ? state.personas[0] : null;
+    if (state.yo) guardarYo(state.yo);
+    // Bajada a local: copia de Neon en este equipo para consulta sin conexión.
+    try {
+      const k = claveYo();
+      if (k) localStorage.setItem(k + '_personas', JSON.stringify(state.personas || []));
+    } catch (e) {}
     if (!state.personaSel && state.yo) state.personaSel = state.yo;
     renderPersonas();
   }
@@ -1030,7 +1059,7 @@ viewBox="78 -12 380 654">
     renderPersonas();
     renderBaseFija();
     try {
-      await api('/api/cuenta/subir', { method: 'POST', body: { nombre: nombre, visibilidad: 'publico' } });
+      await api('/api/cuenta/yo', { method: 'POST', body: { nombre: nombre } });
       toast('Este eres tú. Tu perfil quedó público para buscar.', 'ok');
     } catch (e) {
       toast(e.message || 'No se pudo hacer público tu perfil.', 'err');
@@ -1039,15 +1068,41 @@ viewBox="78 -12 380 654">
     await cargarBuscar();
     showTab('grafico');
   }
+  // Subida a Neon: personas agregadas sin sesión que quedaron en cola local.
+  function colaPendiente() {
+    try { return JSON.parse(localStorage.getItem('almavista_pendientes') || '[]'); }
+    catch (e) { return []; }
+  }
+  function guardarCola(lista) {
+    try { localStorage.setItem('almavista_pendientes', JSON.stringify(lista)); } catch (e) {}
+  }
+  async function subirPendientes() {
+    if (!state.cuenta) return;
+    const cola = colaPendiente();
+    if (!cola.length) return;
+    const resto = [];
+    for (const item of cola) {
+      try {
+        await api('/api/persona', { method: 'POST', body: item });
+      } catch (e) {
+        if (e && e.status === 409) continue; // ya existe en Neon: no reintentar
+        resto.push(item);
+      }
+    }
+    guardarCola(resto);
+    await cargarPersonas();
+    if (resto.length) toast('Quedaron ' + resto.length + ' personas sin subir.', 'err');
+    else toast('Personas pendientes subidas a tu cuenta.', 'ok');
+  }
 
   function renderPersonas() {
-    const box = $('#mis-personas');
     const sel = $('#g-persona');
     const yoCard = $('#yo-card');
+    const btnYo = $('#g-yo');
     if (!state.cuenta) {
       if (yoCard) yoCard.innerHTML = '';
-      box.innerHTML = '<div class="empty">Entrá a tu cuenta para ver tus personas.</div>';
       sel.innerHTML = '<option value="">Sin personas</option>';
+      if (btnYo) btnYo.disabled = true;
       return;
     }
     if (yoCard) {
@@ -1057,26 +1112,25 @@ viewBox="78 -12 380 654">
         : '<div class="empty">Todavía no tienes tu persona. Créala con el formulario de abajo.</div>';
     }
     if (!state.personas.length) {
-      box.innerHTML = '<div class="empty">Sin otras personas.</div>';
       sel.innerHTML = '<option value="">Sin personas</option>';
+      if (btnYo) btnYo.disabled = true;
       return;
     }
-    box.innerHTML = state.personas.map((n) =>
-      '<div class="persona-fila"><b>' + esc(n) + '</b>' +
-      (n === state.yo ? '<span class="pill ok">yo</span>' :
-        '<button class="btn small" type="button" data-yo="' + esc(n) + '">Este soy yo</button>') +
-      '<button class="btn small" type="button" data-ver="' + esc(n) + '">Ver gráfico</button></div>'
-    ).join('');
     sel.innerHTML = state.personas.map((n) =>
       '<option value="' + esc(n) + '">' + esc(n) + (n === state.yo ? ' (yo)' : '') + '</option>'
     ).join('');
     if (state.personaSel && state.personas.includes(state.personaSel)) sel.value = state.personaSel;
     else if (state.yo) { sel.value = state.yo; state.personaSel = state.yo; }
+    if (btnYo) btnYo.disabled = !state.personaSel || state.personaSel === state.yo;
   }
 
   async function cargarFicha(nombre) {
     if (!nombre) { state.ficha = null; renderGrafico(); return; }
     state.personaSel = nombre;
+    const sel = $('#g-persona');
+    if (sel && [...sel.options].some((o) => o.value === nombre)) sel.value = nombre;
+    const btnYo = $('#g-yo');
+    if (btnYo) btnYo.disabled = !state.personaSel || state.personaSel === state.yo;
     try {
       const f = await api('/api/ficha_basica?persona=' + encodeURIComponent(nombre));
       state.ficha = f;
@@ -1688,7 +1742,19 @@ viewBox="78 -12 380 654">
         showTab('grafico');
       }
     } catch (e) {
-      setMsg('#p-msg', e.message || 'No se pudo guardar.', 'err');
+      if (e && e.status === 401) {
+        // En Render sin sesión no se puede guardar: queda en cola local y sube al entrar.
+        const cola = colaPendiente();
+        cola.push({
+          nombre: nombre, fecha: fecha, hora: hora, lugar: tituloLugar(lugar),
+          lat: lugar.lat, lon: lugar.lon, tz_name: lugar.tz_name,
+          inconscientes: calc.inconscientes, conscientes: calc.conscientes,
+          inconscientes_lineas: calc.inconscientes_lineas,
+          conscientes_lineas: calc.conscientes_lineas, visibilidad: vis
+        });
+        guardarCola(cola);
+        setMsg('#p-msg', 'Sin sesión: la persona quedó en cola y se sube al entrar a tu cuenta.', 'ok');
+      } else setMsg('#p-msg', e.message || 'No se pudo guardar.', 'err');
     } finally {
       btn.disabled = false;
     }
@@ -1757,15 +1823,10 @@ viewBox="78 -12 380 654">
 
     $('#g-persona').addEventListener('change', (ev) => {
       const n = ev.target.value;
-      if (n) cargarFicha(n);
+      if (n) { state.personaSel = n; renderPersonas(); cargarFicha(n); }
     });
-    $('#mis-personas').addEventListener('click', (ev) => {
-      const y = ev.target.closest('[data-yo]');
-      if (y) { marcarYo(y.dataset.yo); return; }
-      const b = ev.target.closest('[data-ver]');
-      if (!b) return;
-      cargarFicha(b.dataset.ver);
-      showTab('grafico');
+    $('#g-yo').addEventListener('click', () => {
+      if (state.personaSel) marcarYo(state.personaSel);
     });
 
     $('#yo-card').addEventListener('click', (ev) => {
@@ -1844,7 +1905,16 @@ viewBox="78 -12 380 654">
   async function init() {
     bind();
     moveSvg();
+    // Dentro del APK Alma la barra nativa ya navega: ocultar la barra web.
+    try {
+      const qs = new URLSearchParams(location.search || '');
+      const ua = navigator.userAgent || '';
+      if (qs.get('embed') === 'alma' || /; wv\)|Version\/4.*Chrome\/.*Mobile|AlmaVista/i.test(ua)) {
+        document.body.classList.add('embed-alma');
+      }
+    } catch (e) {}
     await cargarEstado();
+    if (state.cuenta) await subirPendientes();
     await cargarPersonas();
     // Sesión con cookie: el yo va directo a su gráfico (pantalla 2).
     if (state.cuenta && state.yo) {
