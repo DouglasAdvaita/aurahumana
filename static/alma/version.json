@@ -1,6 +1,6 @@
 {
-  "versionCode": 5,
-  "versionName": "1.4",
+  "versionCode": 6,
+  "versionName": "1.5",
   "apk": "/static/alma/Alma.apk",
-  "notas": "Buscar: lista de votados (X/=) con opcion de cambiar o quitar; Chatear solo en Chat; el que pasa a match sale de la lista."
+  "notas": "Recuperar contrasena y marcar 'Este soy yo' en la app; Chat con lista de conversaciones; fotos en Buscar y Chat; filtros plegados; violeta de marca."
 }

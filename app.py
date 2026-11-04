@@ -7235,7 +7235,8 @@ def api_buscar_matches():
             set_b = set(_hd_norm_canal(x) for x in fb['canales'])
             comunes = len([x for x in fo['canales'] if _hd_norm_canal(x) in set_b])
             ms.append({'cuenta_id': cid, 'nombre': su_nombre, 'mi_nombre': mi_nombre,
-                       'comunes': comunes, 'tipo': fo['tipo'], 'perfil': fo['perfil']})
+                       'comunes': comunes, 'tipo': fo['tipo'], 'perfil': fo['perfil'],
+                       'foto': fo['foto']})
         ms.sort(key=lambda x: (-x['comunes'], x['nombre']))
         vistos, unicos = set(), []
         for m in ms:
