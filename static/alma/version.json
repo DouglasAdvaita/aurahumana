@@ -1,6 +1,6 @@
 {
-  "versionCode": 7,
-  "versionName": "1.6",
+  "versionCode": 8,
+  "versionName": "1.7",
   "apk": "/static/alma/Alma.apk",
-  "notas": "Fichas de Buscar como antes (texto a todo el ancho) con la foto al lado del nombre."
+  "notas": "En Cuenta, 'yo soy' pasa a un combo: elegis tu persona de la lista y queda marcada."
 }
