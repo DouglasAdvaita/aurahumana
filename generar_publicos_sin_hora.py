@@ -6,7 +6,9 @@ mismo Tipo y Perfil y se queda con el periodo mas largo (el mas probable).
 La hora que se guarda es la version muestreada mas cercana al centro de ese
 periodo; si ninguna version cae dentro, se usa el centro del periodo.
 
-Salida: publicos_sin_hora.xlsx, hoja 'sin_hora', columnas nombre y hora.
+Salida: publicos_sin_hora.xlsx con la hoja 'sin_hora' (nombre y hora) y las
+cuatro hojas que exige la app para aceptarla como fuente (datos, vinculos,
+test y clan), vacias con su cabecera.
 
 Uso:  python generar_publicos_sin_hora.py
 """
@@ -24,6 +26,18 @@ import app as A
 BASE = Path(__file__).resolve().parent
 ENTRADA = BASE / 'personas_publicas.csv'
 SALIDA = BASE / 'publicos_sin_hora.xlsx'
+
+# Hojas que la app exige para aceptar un xlsx como fuente (vacias, con cabecera).
+HOJAS_VACIAS = [
+    ('datos', ['Nombre', 'Puerta', 'Linea', 'C/I']),
+    ('vinculos', ['fecha', 'hora', 'Edad', 'Lugar', 'Nombre',
+                  'vinculo con el referente', 'Referente', 'bio']),
+    ('test', ['nombre', 'fecha', 'hora', 'lugar', 'triada', 'modo', 'foco',
+              'sensorial', 'rutina', 'social', 'cuerpo', 'diges', 'sueno',
+              'busco', 'eneatipo', 'dosha_dom', 'vida', 'destino', 'solar',
+              'luna', 'asc', 'informe']),
+    ('clan', ['P1', 'rol', 'familiar']),
+]
 
 
 def _split_variante(nombre):
@@ -138,8 +152,14 @@ def calcular():
 
 def escribir(filas, path=SALIDA):
     wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = 'sin_hora'
+    wb.remove(wb.active)
+    for titulo, cabecera in HOJAS_VACIAS:
+        ws = wb.create_sheet(titulo)
+        ws.append(cabecera)
+        for c in ws[1]:
+            c.font = Font(bold=True)
+        ws.freeze_panes = 'A2'
+    ws = wb.create_sheet('sin_hora')
     ws.append(['nombre', 'hora'])
     for nombre, hora in filas:
         ws.append([nombre, hora])
