@@ -1,6 +1,6 @@
 {
-  "versionCode": 8,
-  "versionName": "1.7",
+  "versionCode": 9,
+  "versionName": "1.8",
   "apk": "/static/alma/Alma.apk",
-  "notas": "En Cuenta, 'yo soy' pasa a un combo: elegis tu persona de la lista y queda marcada."
+  "notas": "Arreglado: despues de prender y apagar las graficas 1 y 2, los botones E y L siguen funcionando."
 }
