@@ -1850,6 +1850,14 @@
                 if (valA && ![...selA.options].some(function(o){ return o.value === valA; })) {
                     selA.value = '';
                 }
+                // Preseleccionar persona desde ?persona= en la URL
+                try {
+                    var _qp = new URLSearchParams(location.search).get('persona');
+                    if (_qp) {
+                        var _opt = [...selA.options].find(function(o){ return o.value === _qp; });
+                        if (_opt) { selA.value = _qp; prog(); }
+                    }
+                } catch (e) {}
             }).catch(function(){});
         }
 
