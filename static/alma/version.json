@@ -1,6 +1,6 @@
 {
-  "versionCode": 9,
-  "versionName": "1.8",
+  "versionCode": 10,
+  "versionName": "1.9",
   "apk": "/static/alma/Alma.apk",
-  "notas": "Arreglado: despues de prender y apagar las graficas 1 y 2, los botones E y L siguen funcionando."
+  "notas": "Cuenta reordenada, comentarios por correo, grafico con subtitulo y leyenda alineados."
 }
