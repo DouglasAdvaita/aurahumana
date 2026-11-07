@@ -20,6 +20,8 @@ venv/
 *.aab
 # El APK de Alma se publica a propósito para actualizar por internet
 !/static/alma/*.apk
+# Los APK de AuraHumana también (hoja Actualizar)
+!/static/aurahumana/*.apk
 /.idea/
 /app - copia.py
 /* - copia.*
