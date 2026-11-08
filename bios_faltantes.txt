@@ -1,0 +1,101 @@
+nombre	detalle
+Alberto Cid	sin articulo que coincida con la fecha
+Alem Garcia	sin articulo que coincida con la fecha
+Alfonso Lerete	sin articulo que coincida con la fecha
+Alfredo Solari	sin articulo que coincida con la fecha
+Alvaro Delgado	sin articulo que coincida con la fecha
+Alvaro Garcia	sin articulo que coincida con la fecha
+Alvaro Perrone	sin articulo que coincida con la fecha
+Alvaro Ramos	sin articulo que coincida con la fecha
+Alvaro Villar	sin articulo que coincida con la fecha
+Amin Niffouri	sin articulo que coincida con la fecha
+Arendt	sin articulo que coincida con la fecha
+Arquimedes	sin articulo que coincida con la fecha
+Ataturk	sin articulo que coincida con la fecha
+Auronplay	sin articulo que coincida con la fecha
+Beethoven	sin articulo que coincida con la fecha
+Benjamin Irazabal	sin articulo que coincida con la fecha
+Berta Caceres	sin articulo que coincida con la fecha
+Bettiana Diaz	sin articulo que coincida con la fecha
+Brecht	sin articulo que coincida con la fecha
+Carlos Albisu	sin articulo que coincida con la fecha
+Carlos Enciso	sin articulo que coincida con la fecha
+Carlos Moreira	sin articulo que coincida con la fecha
+Chaikovski	sin articulo que coincida con la fecha
+Chopin	sin articulo que coincida con la fecha
+Christian Morel	sin articulo que coincida con la fecha
+Daddy Yankee	sin articulo que coincida con la fecha
+Daniel Garcia Pintos	sin articulo que coincida con la fecha
+Daniel Gerhard	sin articulo que coincida con la fecha
+Daniel Peña	sin articulo que coincida con la fecha
+Daniel Radio	sin articulo que coincida con la fecha
+Daniela Paisse	sin articulo que coincida con la fecha
+Doreen Ibarra	sin articulo que coincida con la fecha
+Dunant	sin articulo que coincida con la fecha
+Eduardo Elinger	sin articulo que coincida con la fecha
+Eduardo Rubio	sin articulo que coincida con la fecha
+Emerson	sin articulo que coincida con la fecha
+Euclides	sin articulo que coincida con la fecha
+Fernando Echeverria	sin articulo que coincida con la fecha
+Francisco Gallinal	sin articulo que coincida con la fecha
+Frost	sin articulo que coincida con la fecha
+Gabriel Gurendez	sin articulo que coincida con la fecha
+German Cardoso	sin articulo que coincida con la fecha
+Graciela Bianchi	sin articulo que coincida con la fecha
+Graciela Matiaude	sin articulo que coincida con la fecha
+Gustavo Leal	sin articulo que coincida con la fecha
+Gustavo Penades	sin articulo que coincida con la fecha
+Gutenberg	sin articulo que coincida con la fecha
+Harriet Tubman	sin articulo que coincida con la fecha
+Harvey	sin articulo que coincida con la fecha
+Ivan Posada	sin articulo que coincida con la fecha
+Javier Garcia	sin articulo que coincida con la fecha
+Javier de Haedo	sin articulo que coincida con la fecha
+Jesus Bentancur	sin articulo que coincida con la fecha
+Joan Crawford	sin articulo que coincida con la fecha
+Johann Sebastian Bach	sin articulo que coincida con la fecha
+Jose Diaz	sin articulo que coincida con la fecha
+Juan Andres Ramirez	sin articulo que coincida con la fecha
+Juan Dominguez	sin articulo que coincida con la fecha
+Kenyatta	sin articulo que coincida con la fecha
+Larry Page	sin articulo que coincida con la fecha
+Lech Walesa	sin articulo que coincida con la fecha
+Leonardo de Leon	sin articulo que coincida con la fecha
+Lindbergh	sin articulo que coincida con la fecha
+Luis Alberto Lacalle Herrera	sin articulo que coincida con la fecha
+Luis Gallo	sin articulo que coincida con la fecha
+Mario Garcia	sin articulo que coincida con la fecha
+Mario Silvera	sin articulo que coincida con la fecha
+Marne Osorio	sin articulo que coincida con la fecha
+Marquez	sin articulo que coincida con la fecha
+Martin Vallarino	sin articulo que coincida con la fecha
+Meloni	sin articulo que coincida con la fecha
+Miguel Abella	sin articulo que coincida con la fecha
+Miguel Angel Buonarroti	sin articulo que coincida con la fecha
+Mozart	sin articulo que coincida con la fecha
+Nicolas Olivera	sin articulo que coincida con la fecha
+Nilo Perez	sin articulo que coincida con la fecha
+Oersted	sin articulo que coincida con la fecha
+Ohm	sin articulo que coincida con la fecha
+Omar Lafluf	sin articulo que coincida con la fecha
+Oscar Andrade	sin articulo que coincida con la fecha
+Pablo Constenla	sin articulo que coincida con la fecha
+Pablo Ferreri	sin articulo que coincida con la fecha
+Papa Francisco	sin articulo que coincida con la fecha
+Rivers GG	sin articulo que coincida con la fecha
+Rockefeller	sin articulo que coincida con la fecha
+Rodrigo Blas	sin articulo que coincida con la fecha
+Rosa Luxemburg	sin articulo que coincida con la fecha
+Schonberg	sin articulo que coincida con la fecha
+Schumann	sin articulo que coincida con la fecha
+Sheinbaum	sin articulo que coincida con la fecha
+Silvana Perez	sin articulo que coincida con la fecha
+Snowden	sin articulo que coincida con la fecha
+Stevenson	sin articulo que coincida con la fecha
+Thich Quang Duc	sin articulo que coincida con la fecha
+Vitalik Buterin	sin articulo que coincida con la fecha
+Wagner	sin articulo que coincida con la fecha
+William Shakespeare	sin articulo que coincida con la fecha
+Yunus	sin articulo que coincida con la fecha
+Zach King	sin articulo que coincida con la fecha
+Zamenhof	sin articulo que coincida con la fecha

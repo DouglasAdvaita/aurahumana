@@ -40,7 +40,9 @@ try:
                     'GROQ_API_KEY', 'GROQ_MODEL',
                     'CEREBRAS_API_KEY', 'CEREBRAS_MODEL',
                     'OPENROUTER_API_KEY', 'OPENROUTER_MODEL',
-                    'OLLAMA_HOST', 'OLLAMA_MODEL'):
+                    'OLLAMA_HOST', 'OLLAMA_MODEL',
+                    'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'SMTP_FROM',
+                    'BREVO_API_KEY', 'BREVO_FROM', 'BREVO_FROM_NAME'):
                 os.environ[_k] = _v
 except Exception:
     pass
@@ -1009,6 +1011,7 @@ CENTROS_PATH = Path("centros.csv")
 CANALES_PATH = Path("canales.csv")
 PUERTAS_PATH = Path("puertas.csv")
 VINCULOS_PATH = Path("vinculos.csv")
+BIOS_LARGAS_PATH = Path("bios_publicas.csv")
 CONOCIDOS_PATH = Path("conocidos.csv")
 CLAN_PATH = Path("clan.csv")
 LINEAS_PATH = Path("lineas_popup.csv")
@@ -1903,6 +1906,8 @@ def cargar_vinculos():
                 c_vr = next((c for c in df.columns if ('referente' in c.lower() or 'vinculo' in c.lower()) and c != c_ref), None)
             c_vj = next((c for c in df.columns if 'jorge' in c.lower()), None)
             c_bio = next((c for c in df.columns if str(c).strip().lower() == 'bio'), None)
+            c_larga = next((c for c in df.columns
+                            if str(c).strip().lower() in ('bio_larga', 'biografia_larga')), None)
             out = []
             for _, row in df.iterrows():
                 nombre = _txt(row.get(c_nombre)) if c_nombre else ''
@@ -1918,12 +1923,32 @@ def cargar_vinculos():
                     'vinc_ref': _txt(row.get(c_vr)) if c_vr else '',
                     'vinc_jorge': _txt(row.get(c_vj)) if c_vj else '',
                     'bio': _txt(row.get(c_bio)) if c_bio else '',
+                    'bio_larga': _txt(row.get(c_larga)) if c_larga else '',
                 })
             return out
         except FileNotFoundError:
             return []
     _src, _key = _cache_arg(VINCULOS_PATH, 'vinculos')
     return _cache_get(_src, _load, key=_key)
+
+
+def cargar_bios_largas():
+    """Mapa nombre normalizado -> bio larga (bios_publicas.csv, de Wikipedia)."""
+    def _load():
+        out = {}
+        try:
+            df = _leer_csv_robusto(BIOS_LARGAS_PATH, sep=';', dtype=str,
+                                  keep_default_na=False)
+        except Exception:
+            return out
+        for _, row in df.iterrows():
+            n = str(row.get('nombre') or '').strip()
+            t = str(row.get('bio_larga') or '').strip()
+            if n and t:
+                out[_norm_lugar(n)] = t
+        return out
+    return _cache_get(BIOS_LARGAS_PATH, _load)
+
 
 @app.route('/api/vinculos')
 def api_vinculos():
@@ -2283,6 +2308,7 @@ def _ficha_basica_para_persona(nombre, _df=None, _vinc=None):
     # nacimiento (fecha/hora/lugar) desde vinculos.csv, si existe
     _nac=None
     _bio=''
+    _bio_larga=''
     try:
         _n_orig=str(nombre).strip().lower()
         for _v in (_vinc if _vinc is not None else cargar_vinculos()):
@@ -2291,10 +2317,17 @@ def _ficha_basica_para_persona(nombre, _df=None, _vinc=None):
                     _nac=_v
                 if not _bio and str(_v.get('bio') or '').strip():
                     _bio=str(_v.get('bio')).strip()
-                if _nac is not None and _bio:
+                if not _bio_larga and str(_v.get('bio_larga') or '').strip():
+                    _bio_larga=str(_v.get('bio_larga')).strip()
+                if _nac is not None and _bio and _bio_larga:
                     break
     except Exception:
         _nac=None
+    if not _bio_larga:
+        try:
+            _bio_larga=cargar_bios_largas().get(_norm_lugar(nombre), '')
+        except Exception:
+            _bio_larga=''
     # carta: Sol/Luna/Ascendente (solo si hay fecha) — se reusa la misma
     # función que el test de autoconocimiento (swisseph + lugar a coordenadas).
     _sol=_luna=_asc=None
@@ -2311,6 +2344,7 @@ def _ficha_basica_para_persona(nombre, _df=None, _vinc=None):
         'nombre': str(nombre),
         'foto': _foto_persona_para(nombre),
         'bio': _bio,
+        'bio_larga': _bio_larga,
         'informe': informes.get(str(nombre).strip().lower(), ''),
         'fecha': (_nac or {}).get('fecha','') or '',
         'hora': (_nac or {}).get('hora','') or '',
@@ -3037,8 +3071,9 @@ def _anexar_fila_vinculo(nombre, fecha='', hora='', lugar='', referente='', vinc
             w.writerow(fila)
     _cache_invalidate(VINCULOS_PATH)
 
-def _guardar_bio_csv(nombre, bio):
-    """Guarda la bio en la fila propia de la persona en vinculos.csv."""
+def _guardar_bio_csv(nombre, bio, campo='bio'):
+    """Guarda la bio (corta o larga) en la fila propia de la persona en vinculos.csv."""
+    campo = 'bio_larga' if str(campo or '').strip().lower() == 'bio_larga' else 'bio'
     sep = ';'
     filas = []
     if VINCULOS_PATH.exists():
@@ -3051,9 +3086,9 @@ def _guardar_bio_csv(nombre, bio):
     head = filas[0] if filas else ['fecha', 'hora', 'Edad', 'Lugar', 'Nombre',
                                    'vinculo con el referente', 'Referente', 'bio']
     low = [str(c).strip().lower() for c in head]
-    if 'bio' not in low:
-        head = head + ['bio']
-        low = low + ['bio']
+    if campo not in low:
+        head = head + [campo]
+        low = low + [campo]
         for r in filas[1:]:
             r.append('')
     if not filas:
@@ -3061,7 +3096,7 @@ def _guardar_bio_csv(nombre, bio):
     else:
         filas[0] = head
     pos_nom = low.index('nombre') if 'nombre' in low else None
-    pos_bio = low.index('bio')
+    pos_bio = low.index(campo)
     pos_ref = low.index('referente') if 'referente' in low else None
     if pos_nom is None:
         return False, 'vinculos.csv no tiene columna Nombre'
@@ -3090,8 +3125,9 @@ def _guardar_bio_csv(nombre, bio):
     return True, ''
 
 
-def _guardar_bio_xlsx(path, nombre, bio):
-    """Guarda la bio en la hoja 'vinculos' del xlsx de origen (modo A)."""
+def _guardar_bio_xlsx(path, nombre, bio, campo='bio'):
+    """Guarda la bio (corta o larga) en la hoja 'vinculos' del xlsx de origen (modo A)."""
+    campo = 'bio_larga' if str(campo or '').strip().lower() == 'bio_larga' else 'bio'
     try:
         from openpyxl import load_workbook
         wb = load_workbook(path)
@@ -3109,11 +3145,11 @@ def _guardar_bio_xlsx(path, nombre, bio):
         c_ref = head.index('referente') + 1 if 'referente' in head else None
         if c_nom is None:
             return False, 'hoja vinculos sin columna Nombre'
-        if 'bio' in head:
-            c_bio = head.index('bio') + 1
+        if campo in head:
+            c_bio = head.index(campo) + 1
         else:
             c_bio = ws.max_column + 1
-            ws.cell(row=1, column=c_bio, value='bio')
+            ws.cell(row=1, column=c_bio, value=campo)
         objetivo = None
         for r in range(2, ws.max_row + 1):
             val = str(ws.cell(row=r, column=c_nom).value or '').strip().lower()
@@ -3140,15 +3176,15 @@ def _guardar_bio_xlsx(path, nombre, bio):
     return True, ''
 
 
-def _guardar_bio(nombre, bio):
+def _guardar_bio(nombre, bio, campo='bio'):
     nombre = str(nombre or '').strip()
     if not nombre:
         return False, 'falta el nombre'
     bio = str(bio or '')
     p = _FUENTE['path']
     if p is not None:
-        return _guardar_bio_xlsx(p, nombre, bio)
-    return _guardar_bio_csv(nombre, bio)
+        return _guardar_bio_xlsx(p, nombre, bio, campo)
+    return _guardar_bio_csv(nombre, bio, campo)
 
 
 @app.route('/api/bio', methods=['POST'])
@@ -3161,7 +3197,7 @@ def api_bio():
     nombre = str(data.get('persona') or '').strip()
     if not nombre:
         return jsonify({'error': 'falta persona'}), 400
-    ok, err = _guardar_bio(nombre, data.get('bio') or '')
+    ok, err = _guardar_bio(nombre, data.get('bio') or '', data.get('campo') or 'bio')
     if not ok:
         return jsonify({'error': err}), 400
     return jsonify({'ok': True})
@@ -3928,6 +3964,7 @@ def cargar_publicas_canales():
     import openpyxl
     seen = set()
     out = []
+    bios_largas = cargar_bios_largas()
     for p in PUBLICAS_XLSX:
         path = Path(p)
         if not path.exists():
@@ -3983,6 +4020,7 @@ def cargar_publicas_canales():
             todas = sorted(set(pin) | set(pco))
             out.append({'nombre': nombre, 'canales': canales, 'tipo': tipo,
                         'perfil': perfil, 'foto': foto, 'bio': desc,
+                        'bio_larga': bios_largas.get(_norm_lugar(nombre), ''),
                         'puertas_incon': pin, 'puertas_con': pco,
                         'lineas_incon': lin, 'lineas_con': lco,
                         'todas_puertas': todas})
@@ -6407,6 +6445,201 @@ def pagina_alma():
     return render_template('alma_vista.html')
 
 
+# ---------- Panel admin secreto (solo URL larga, sin login) ----------
+# No figura en ningún menú ni enlaza desde otra página. Cabecera noindex.
+_ADMIN_PANEL_PATH = '/admin/dh-9f3a7c1e5b2d4f6a8c0e/panel'
+import os as _os_mod
+
+_ADMIN_DIR = _os_mod.path.dirname(_os_mod.path.abspath(__file__))
+_IPS_PROPIAS_FILE = _os_mod.path.join(_ADMIN_DIR, 'ips_propias.txt')
+_EMAILS_PROPIOS_FILE = _os_mod.path.join(_ADMIN_DIR, 'emails_propios.txt')
+
+def _leer_lista(path):
+    try:
+        with open(path, encoding='utf-8') as f:
+            return {x.strip() for x in f if x.strip()}
+    except FileNotFoundError:
+        return set()
+
+def _ips_propias():
+    s = _leer_lista(_IPS_PROPIAS_FILE)
+    env = _os_mod.environ.get('MIS_IPS', '')
+    if env:
+        s |= {x.strip() for x in env.split(',') if x.strip()}
+    return s
+
+def _emails_propios():
+    s = _leer_lista(_EMAILS_PROPIOS_FILE)
+    env = _os_mod.environ.get('MIS_EMAILS', '')
+    if env:
+        s |= {x.strip().lower() for x in env.split(',') if x.strip()}
+    s.add('jorgetuso@gmail.com')
+    return {e.lower() for e in s}
+
+def _marcar_ip(ip):
+    ip = (ip or '').strip()
+    if not ip:
+        return False
+    s = _leer_lista(_IPS_PROPIAS_FILE)
+    if ip in s:
+        return True
+    try:
+        with open(_IPS_PROPIAS_FILE, 'a', encoding='utf-8') as f:
+            f.write(ip + '\n')
+        return True
+    except Exception:
+        return False
+
+
+@app.route(_ADMIN_PANEL_PATH)
+def admin_panel():
+    """Dashboard de actividad de Alma: cuentas, matches, mensajes, bloqueos, reportes."""
+    def esc(v):
+        s = '' if v is None else str(v)
+        return (s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                .replace('"', '&quot;'))
+
+    def tabla(cols, filas):
+        if not filas:
+            return '<p class="vacio">Sin datos todavía.</p>'
+        h = ''.join(f'<th>{esc(c)}</th>' for c in cols)
+        cuerpo = ''.join('<tr>' + ''.join(f'<td>{esc(c)}</td>' for c in f) + '</tr>' for f in filas)
+        return f'<table><thead><tr>{h}</tr></thead><tbody>{cuerpo}</tbody></table>'
+
+    def num(cur, sql, args=()):
+        try:
+            cur.execute(sql, args)
+            r = cur.fetchone()
+            return r[0] if r and r[0] is not None else 0
+        except Exception:
+            return 0
+
+    try:
+        from nube_db import _conn as _c
+        _buscar_init()
+        c = _c()
+        try:
+            cur = c.cursor()
+            total_cuentas = num(cur, "SELECT count(*) FROM cuentas")
+            con_perfil = num(cur, "SELECT count(DISTINCT cuenta_id) FROM perfiles_cuenta")
+            publicos = num(cur, "SELECT count(*) FROM perfiles_cuenta WHERE visibilidad='publico'")
+            sesiones = num(cur, "SELECT count(*) FROM sesiones WHERE expira > now()")
+            n_mensajes = num(cur, "SELECT count(*) FROM buscar_mensajes")
+            no_leidos = num(cur, "SELECT count(*) FROM buscar_mensajes WHERE leido_at IS NULL")
+            n_votos = num(cur, "SELECT count(*) FROM buscar_votos")
+            n_matches = num(cur, "SELECT count(*) FROM buscar_votos v WHERE v.valor='=' AND EXISTS "
+                                 "(SELECT 1 FROM buscar_votos w WHERE w.de_cuenta=v.a_cuenta "
+                                 "AND w.de_nombre=v.a_nombre AND w.a_nombre=v.de_nombre AND w.valor='=')") // 2
+            n_bloqueos = num(cur, "SELECT count(*) FROM buscar_bloqueos")
+            n_reportes = num(cur, "SELECT count(*) FROM buscar_reportes")
+            msg_24h = num(cur, "SELECT count(*) FROM buscar_mensajes WHERE created_at > now() - interval '24 hours'")
+
+            cur.execute("SELECT id, email, created_at FROM cuentas ORDER BY id DESC LIMIT 25")
+            ult_cuentas = cur.fetchall()
+            ult_cuentas = [(r[0], ((r[1] or '') + ' (yo)') if ((r[1] or '').lower() in emails_propios) else r[1], r[2]) for r in (ult_cuentas or [])]
+            cur.execute("SELECT c.email, count(p.id) FROM cuentas c "
+                        "LEFT JOIN perfiles_cuenta p ON p.cuenta_id=c.id "
+                        "GROUP BY c.id, c.email ORDER BY count(p.id) DESC, c.id DESC LIMIT 15")
+            top_perfiles = cur.fetchall()
+            cur.execute("SELECT m.created_at, de.email, a.email, left(m.texto, 90), m.leido_at "
+                        "FROM buscar_mensajes m "
+                        "JOIN cuentas de ON de.id=m.de_cuenta JOIN cuentas a ON a.id=m.a_cuenta "
+                        "ORDER BY m.id DESC LIMIT 30")
+            ult_msgs = cur.fetchall()
+            cur.execute("SELECT r.created_at, de.email, a.email, left(r.motivo, 120) FROM buscar_reportes r "
+                        "JOIN cuentas de ON de.id=r.de_cuenta JOIN cuentas a ON a.id=r.a_cuenta "
+                        "ORDER BY r.id DESC LIMIT 20")
+            ult_rep = cur.fetchall()
+            cur.execute("SELECT b.created_at, de.email, a.email FROM buscar_bloqueos b "
+                        "JOIN cuentas de ON de.id=b.de_cuenta JOIN cuentas a ON a.id=b.a_cuenta "
+                        "ORDER BY b.created_at DESC LIMIT 20")
+            ult_bloq = cur.fetchall()
+        finally:
+            c.close()
+    except Exception as e:
+        return Response(f'<h1>Panel admin</h1><p>Error: {esc(e)[:300]}</p>',
+                        mimetype='text/html', headers={'X-Robots-Tag': 'noindex'})
+
+    tab = (request.args.get('tab') or 'actividad').strip().lower()
+    if tab not in ('actividad', 'visitas'):
+        tab = 'actividad'
+    ocultar_yo = (request.args.get('ocultar') == 'yo')
+    ips_propias = _ips_propias()
+    emails_propios = _emails_propios()
+
+    if request.args.get('marcar_ip') == '1':
+        _ip = (request.headers.get('X-Forwarded-For') or '').split(',')[0].strip() or (request.remote_addr or '')
+        _marcar_ip(_ip)
+        from flask import redirect as _redir
+        return _redir(_ADMIN_PANEL_PATH + '?tab=visitas')
+
+    # ---- Datos de visitas (entradas a la web en Render) ----
+    v_tarjetas, v_por_dia, v_paths, v_paises, v_ultimas = [], [], [], [], []
+    if tab == 'visitas':
+        _v_mostrar = [r for r in v_ultimas if not (ocultar_yo and (r[1] in ips_propias))] if ips_propias else v_ultimas
+        _toggle_url = _ADMIN_PANEL_PATH + '?tab=visitas' + ('' if ocultar_yo else '&ocultar=yo')
+        _toggle_txt = 'Mostrar todas' if ocultar_yo else 'Ocultar mis visitas'
+        cuerpo = (
+            f'<div class="tarjetas">{tarjetas_html(v_tarjetas)}</div>'
+            f'<p style="font-size:12px;margin:6px 0 14px;color:#666">IPs propias: {len(ips_propias)}  -  <a href="{_toggle_url}">{_toggle_txt}</a>  -  <a href="{_ADMIN_PANEL_PATH}?tab=visitas&marcar_ip=1">Marcar mi IP actual</a></p>'
+            f'<h2>Entradas por dia (ultimos 14)</h2>{barras(v_por_dia)}'
+            f'<h2>Paginas mas vistas (30 dias)</h2>{barras(v_paths)}'
+            f'<h2>Paises</h2>{tabla(["Pais", "Entradas"], v_paises)}'
+            f'<h2>Ultimas entradas</h2>'
+            f'{tabla_visitas(["Fecha", "IP", "Ruta", "Pais", "Duracion", "Origen", "Navegador"], _v_mostrar, ips_propias)}'
+        )
+    else:
+        cuerpo = (
+            f'<div class="tarjetas">{tarjetas_html(tarjetas)}</div>'
+            f'<h2>Últimas cuentas</h2>{tabla(["ID", "Correo", "Creada"], ult_cuentas)}'
+            f'<h2>Mensajes recientes</h2>{tabla(["Fecha", "De", "Para", "Texto", "Leído"], ult_msgs)}'
+            f'<h2>Usuarios con más perfiles</h2>{tabla(["Correo", "Perfiles"], top_perfiles)}'
+            f'<h2>Reportes</h2>{tabla(["Fecha", "Reporta", "Reportado", "Motivo"], ult_rep)}'
+            f'<h2>Bloqueos</h2>{tabla(["Fecha", "Bloquea", "Bloqueado"], ult_bloq)}'
+        )
+
+    html = f"""<!doctype html><html lang="es"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Alma · dashboard</title>
+<style>
+body{{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:0;background:#f7f6fc;color:#1c1b2a}}
+header{{background:#6c4cf1;color:#fff;padding:16px 20px}}
+header h1{{margin:0;font-size:20px}} header p{{margin:4px 0 0;font-size:12px;opacity:.85}}
+main{{padding:20px;max-width:1200px;margin:0 auto}}
+h2{{font-size:15px;margin:28px 0 10px;color:#4a2fd6}}
+.tabs{{background:#fff;display:flex;gap:4px;padding:8px 20px;border-bottom:1px solid #e6e2f7}}
+.tabs a{{padding:8px 14px;border-radius:8px;text-decoration:none;color:#4a2fd6;font-size:13px}}
+.tabs a.activo{{background:#6c4cf1;color:#fff;font-weight:600}}
+.tarjetas{{display:flex;flex-wrap:wrap;gap:10px}}
+.tarjeta{{background:#fff;border-radius:10px;padding:12px 16px;min-width:120px;box-shadow:0 1px 3px rgba(0,0,0,.08)}}
+.tarjeta b{{display:block;font-size:24px;line-height:1.2}}
+.tarjeta span{{font-size:11px;color:#666}}
+table{{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;
+box-shadow:0 1px 3px rgba(0,0,0,.08);font-size:12px}}
+th{{background:#eee9ff;text-align:left;padding:8px;font-weight:600}}
+td{{padding:7px 8px;border-top:1px solid #f0eefb;vertical-align:top;word-break:break-word}}
+tr.propia td{{background:#f3f0ff;color:#6b5a7e;font-style:italic}}
+.vacio{{color:#777;font-size:12px}}
+.barras{{background:#fff;border-radius:10px;padding:12px 16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}}
+.fila{{display:flex;align-items:center;gap:10px;margin:5px 0;font-size:12px}}
+.fila .etq{{width:120px;flex:0 0 120px;color:#444}}
+.fila .barra{{flex:1;background:#f0eefb;border-radius:6px;height:14px;overflow:hidden}}
+.fila .barra i{{display:block;height:100%;background:#6c4cf1;border-radius:6px}}
+.fila .val{{width:48px;text-align:right;font-weight:600;color:#4a2fd6}}
+</style>
+<header><h1>Alma · dashboard</h1><p>Datos en vivo de la base Neon · esta página no está enlazada en el sitio</p></header>
+<nav class="tabs">
+  <a class="{clase_act}" href="{_ADMIN_PANEL_PATH}?tab=actividad">Actividad</a>
+  <a class="{clase_vis}" href="{_ADMIN_PANEL_PATH}?tab=visitas">Visitas (Render)</a>
+</nav>
+<main>
+{cuerpo}
+</main></html>"""
+    return Response(html, mimetype='text/html',
+                    headers={'X-Robots-Tag': 'noindex, nofollow', 'Cache-Control': 'no-store'})
+
+
 @app.route('/api/cuenta/estado')
 def api_cuenta_estado():
     try:
@@ -7358,11 +7591,22 @@ def api_buscar_mensajes():
             if cur.fetchone():
                 return jsonify({'error': 'Conversación bloqueada'}), 403
             if request.method == 'GET':
-                cur.execute("SELECT de_cuenta, texto, created_at FROM buscar_mensajes "
+                # Tics reales: al abrir el chat se marcan como leídos los mensajes
+                # dirigidos a mí. El otro usuario ve leido=true en su próxima carga.
+                try:
+                    cur.execute(
+                        "UPDATE buscar_mensajes SET leido_at=now() "
+                        "WHERE a_cuenta=%s AND de_cuenta=%s AND leido_at IS NULL",
+                        (ct['id'], con))
+                    c.commit()
+                except Exception:
+                    c.rollback()
+                cur.execute("SELECT de_cuenta, texto, created_at, leido_at FROM buscar_mensajes "
                             "WHERE (de_cuenta=%s AND a_cuenta=%s) OR (de_cuenta=%s AND a_cuenta=%s) "
                             "ORDER BY id LIMIT 200", (ct['id'], con, con, ct['id']))
                 ms = [{'mio': r[0] == ct['id'], 'texto': r[1],
-                       'fecha': str(r[2])[:16] if r[2] else ''} for r in cur.fetchall()]
+                       'fecha': str(r[2])[:16] if r[2] else '',
+                       'leido': bool(r[3])} for r in cur.fetchall()]
                 return jsonify({'mensajes': ms})
             texto = str((request.get_json(force=True, silent=True) or {}).get('texto') or '').strip()[:2000]
             if not texto:

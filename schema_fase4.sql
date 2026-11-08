@@ -26,8 +26,11 @@ CREATE TABLE IF NOT EXISTS buscar_mensajes (
   de_cuenta INTEGER NOT NULL REFERENCES cuentas(id) ON DELETE CASCADE,
   a_cuenta INTEGER NOT NULL REFERENCES cuentas(id) ON DELETE CASCADE,
   texto TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now()
+  created_at TIMESTAMPTZ DEFAULT now(),
+  leido_at TIMESTAMPTZ
 );
+ALTER TABLE buscar_mensajes ADD COLUMN IF NOT EXISTS leido_at TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_buscar_msg_leido ON buscar_mensajes(a_cuenta, leido_at) WHERE leido_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_buscar_votos_a ON buscar_votos(a_cuenta);
 CREATE INDEX IF NOT EXISTS idx_buscar_msg_par ON buscar_mensajes(de_cuenta, a_cuenta);
 CREATE INDEX IF NOT EXISTS idx_perfiles_cuenta_vis ON perfiles_cuenta(visibilidad) WHERE visibilidad='publico';

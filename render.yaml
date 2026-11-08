@@ -10,3 +10,22 @@ services:
       # borra al sincronizar el Blueprint (no queda escrita en el repo).
       - key: DATABASE_URL
         sync: false
+      # Correo del código de recuperación (Gmail + contraseña de aplicación).
+      # Las claves se cargan a mano en el panel de Render.
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      # Brevo por API (remitente verificado). Tiene prioridad sobre SMTP.
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_FROM
+        sync: false
+      - key: BREVO_FROM_NAME
+        sync: false
