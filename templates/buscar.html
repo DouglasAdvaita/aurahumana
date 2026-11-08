@@ -81,7 +81,7 @@ button:hover{filter:brightness(.97)}
 <p class="mini" id="leyenda" style="margin:10px 0 0"></p></div>
 
 <div class="card"><h3>3. Matches (= mutuo) <span class="mini" id="estado-matches"></span></h3>
-<div id="matches" class="mini">Todavía sin matches.</div>
+<div id="matches" class="mini">Todavía no hay matches.</div>
 <div class="row" style="margin-top:8px"><button id="btn-refrescar" class="mini2">Actualizar</button></div></div>
 
 <div class="card"><h3>4. Chat</h3>
@@ -178,7 +178,7 @@ function celda(c,i){
  const ini=esc(String(c.nombre||'?').trim().charAt(0).toUpperCase());
  const meta=c.comunes>0
    ?(c.comunes+(c.comunes===1?' canal':' canales')+(c.tipo_match?' · mismo tipo':'')+(c.perfil_match?' · mismo perfil':''))
-   :'sin canales en común · afín por tipo';
+    :'mismo tipo, sin canales compartidos';
  const det=esc(c.nombre)+' · '+esc(meta)+' · '+esc(c.tipo||'sin tipo')+' '+esc(c.perfil||'');
  const foto=c.foto
   ?'<img class="pc-foto" src="'+esc(c.foto)+'" alt="'+esc(c.nombre)+'" referrerpolicy="no-referrer" loading="lazy" data-foto="'+i+'">'
@@ -194,8 +194,8 @@ function celda(c,i){
 }
 function pintar(){
  const box=$('lista');
- $('leyenda').innerHTML='Franja: <b style="color:#e53935">rojo</b> mismo tipo y perfil · <b style="color:#ff9800">naranja</b> mismo tipo · <b style="color:#c9a800">amarillo</b> mismo perfil · <b style="color:#9e9e9e">gris</b> sin canales en común.';
- box.innerHTML=cola.length?cola.map((c,i)=>celda(c,i)).join(''):'<span class="mini">Sin resultados.</span>';
+ $('leyenda').innerHTML='Franja: <b style="color:#e53935">rojo</b> mismo tipo y perfil · <b style="color:#ff9800">naranja</b> mismo tipo · <b style="color:#c9a800">amarillo</b> mismo perfil · <b style="color:#9e9e9e">gris</b> mismo tipo, sin canales compartidos.';
+ box.innerHTML=cola.length?cola.map((c,i)=>celda(c,i)).join(''):'<span class="mini">Sin resultados por ahora.</span>';
  box.querySelectorAll('[data-ver]').forEach(el=>{el.onclick=(ev)=>{
    if(ev.target.closest('button')) return;
    const c=cola[+el.dataset.ver]; if(c) abrirFicha(c);
@@ -321,11 +321,11 @@ async function cargarMatches(avisar){
    +'<span class="pill">'+(m.comunes?esc(m.comunes)+' canales':'sin canales')+'</span> '
    +'<span class="mini">'+esc(m.tipo||'')+' '+esc(m.perfil||'')+'</span>'
    +'<button class="mini2" data-chat="'+m.cuenta_id+'" style="margin-left:auto">Chatear</button></div>').join('')
-   :'Todavía sin matches.';
+   :'Todavía no hay matches.';
  const vistosC={};
  $('chat-con').innerHTML=ms.filter(m=>{if(vistosC[m.cuenta_id])return false;vistosC[m.cuenta_id]=1;return true;})
    .map(m=>'<option value="'+m.cuenta_id+'">'+esc(m.nombre)+'</option>').join('');
- $('estado-matches').textContent='· automático';
+ $('estado-matches').textContent='· automático (cada 60 s)';
  $('matches').querySelectorAll('[data-chat]').forEach(b=>{
    b.onclick=()=>{const m=ms.find(x=>String(x.cuenta_id)===b.dataset.chat); if(m) abrirChat(m);};
  });
@@ -376,8 +376,8 @@ $('ficha-x2').onclick=()=>{const c=fichaActual; if(!c)return; cerrarFicha(); vot
 document.addEventListener('keydown',e=>{if(e.key==='Escape') cerrarFicha();});
 
 // Aviso de matches y mensajes nuevos: solo con la pestaña visible.
-setInterval(()=>{ if(document.visibilityState==='visible') cargarMatches(true); },12000);
-setInterval(()=>{ if(document.visibilityState==='visible'&&abierta) cargarChat(true); },10000);
+setInterval(()=>{ if(document.visibilityState==='visible') cargarMatches(true); },60000);
+setInterval(()=>{ if(document.visibilityState==='visible'&&abierta) cargarChat(true); },30000);
 document.addEventListener('visibilitychange',()=>{
  if(document.visibilityState==='visible'){ cargarMatches(true); if(abierta) cargarChat(true); }
 });
