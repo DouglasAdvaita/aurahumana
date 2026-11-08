@@ -6516,6 +6516,18 @@ def google_verify():
     return Response("google-site-verification: google8178b2a4cdf89e2c.html",
                     mimetype='text/plain')
 
+_LAST_ERROR = {'msg': ''}
+
+@app.errorhandler(500)
+def _handle_500(e):
+    import traceback
+    _LAST_ERROR['msg'] = traceback.format_exc()[:1500]
+    return Response(f'<h1>500</h1><pre>{esc(_LAST_ERROR["msg"])}</pre>', mimetype='text/html'), 500
+
+@app.route('/debug-last-error')
+def debug_last_error():
+    return Response(_LAST_ERROR['msg'] or '(sin error)', mimetype='text/plain')
+
 @app.route('/robots.txt')
 def robots_txt():
     body = "User-agent: *\nAllow: /\nSitemap: https://aurahumana.onrender.com/sitemap.xml\n"
@@ -6532,6 +6544,8 @@ def sitemap_xml():
 
 @app.route(_ADMIN_PANEL_PATH)
 def admin_panel():
+    import sys as _dbg_sys
+    _dbg_sys.stderr.write("DEBUG: admin_panel entered\n"); _dbg_sys.stderr.flush()
     """Dashboard de actividad de Alma: cuentas, matches, mensajes, bloqueos, reportes."""
     def esc(v):
         s = '' if v is None else str(v)
@@ -6589,8 +6603,16 @@ def admin_panel():
     emails_propios = _emails_propios()
     ocultar_yo = (request.args.get('ocultar') == 'yo')
 
+    import sys as _dbg_sys2
+    _dbg_sys2.stderr.write("DEBUG: before try\n"); _dbg_sys2.stderr.flush()
     try:
+        _dbg_sys2.stderr.write("DEBUG: importing nube_db\n"); _dbg_sys2.stderr.flush()
         from nube_db import _conn as _c
+        _dbg_sys2.stderr.write("DEBUG: calling _buscar_init\n"); _dbg_sys2.stderr.flush()
+        _buscar_init()
+        _dbg_sys2.stderr.write("DEBUG: _buscar_init done\n"); _dbg_sys2.stderr.flush()
+        c = _c()
+        _dbg_sys2.stderr.write("DEBUG: _c() done\n"); _dbg_sys2.stderr.flush()
         _buscar_init()
         c = _c()
         try:
@@ -6634,6 +6656,15 @@ def admin_panel():
     except Exception as e:
         return Response(f'<h1>Panel admin</h1><p>Error: {esc(e)[:300]}</p>',
                         mimetype='text/html', headers={'X-Robots-Tag': 'noindex'})
+
+    tarjetas = [
+        ('Cuentas', total_cuentas), ('Con perfil', con_perfil),
+        ('Públicos', publicos), ('Sesiones activas', sesiones),
+        ('Mensajes', n_mensajes), ('No leídos', no_leidos),
+        ('Votos', n_votos), ('Matches', n_matches),
+        ('Bloqueos', n_bloqueos), ('Reportes', n_reportes),
+        ('Mensajes 24 h', msg_24h),
+    ]
 
     tab = (request.args.get('tab') or 'actividad').strip().lower()
     if tab not in ('actividad', 'visitas'):
@@ -6717,6 +6748,9 @@ def admin_panel():
         )
 
     try:
+        clase_act = 'activo' if tab == 'actividad' else ''
+        clase_vis = 'activo' if tab == 'visitas' else ''
+
         html = f"""<!doctype html><html lang="es"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
