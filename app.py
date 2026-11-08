@@ -6647,6 +6647,7 @@ def admin_panel():
 
     # ---- Datos de visitas (entradas a la web en Render) ----
     v_tarjetas, v_por_dia, v_paths, v_paises, v_ultimas = [], [], [], [], []
+    v_descargas_dia = []
     if tab == 'visitas':
         try:
             import visitas_db as _vis
