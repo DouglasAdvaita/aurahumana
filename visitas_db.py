@@ -1,4 +1,4 @@
-"""Fase 3 RAVE: log de visitas en Neon (IP completa para pais posterior)."""
+﻿"""Fase 3 RAVE: log de visitas en Neon (IP completa para pais posterior)."""
 from pathlib import Path
 from nube_db import _conn, disponible
 
@@ -194,4 +194,3 @@ def ultimas(limit=200):
         return [dict(zip(cols, r)) for r in cur.fetchall()]
     finally:
         c.close()
-PY
