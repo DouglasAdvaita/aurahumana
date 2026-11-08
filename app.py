@@ -6716,7 +6716,8 @@ def admin_panel():
             f'<h2>Bloqueos</h2>{tabla(["Fecha", "Bloquea", "Bloqueado"], ult_bloq)}'
         )
 
-    html = f"""<!doctype html><html lang="es"><meta charset="utf-8">
+    try:
+        html = f"""<!doctype html><html lang="es"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Alma · dashboard</title>
@@ -6754,8 +6755,11 @@ tr.propia td{{background:#f3f0ff;color:#6b5a7e;font-style:italic}}
 <main>
 {cuerpo}
 </main></html>"""
-    return Response(html, mimetype='text/html',
-                    headers={'X-Robots-Tag': 'noindex, nofollow', 'Cache-Control': 'no-store'})
+        return Response(html, mimetype='text/html',
+                        headers={'X-Robots-Tag': 'noindex, nofollow', 'Cache-Control': 'no-store'})
+    except Exception as e:
+        return Response(f'<h1>Panel admin</h1><p>Error render: {esc(e)[:500]}</p>', mimetype='text/html',
+                        headers={'X-Robots-Tag': 'noindex, nofollow', 'Cache-Control': 'no-store'})
 
 
 @app.route('/api/cuenta/estado')
