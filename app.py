@@ -6327,13 +6327,19 @@ def api_visita_inicio():
         _VIS_TASA[ip] = ahora
         if len(_VIS_TASA) > 2000:
             _VIS_TASA.clear()
+        _yo_token = _os_mod.environ.get('YO_TOKEN', 'alma-yo-secreto')
         data = request.get_json(force=True, silent=True) or {}
+        es_propia = (request.cookies.get('alma_yo') == _yo_token) or (request.args.get('yo') == _yo_token) or (str(data.get('yo') or '') == _yo_token)
         vid = _vis.registrar(
             ip,
             str(data.get('path') or request.referrer or '/')[:200],
             (request.headers.get('User-Agent') or '')[:300],
             (request.referrer or '')[:300],
+            es_propia=es_propia,
         )
+        resp = jsonify({'ok': True, 'id': vid})
+        if es_propia:
+            resp.set_cookie('alma_yo', _yo_token, max_age=60*60*24*365, samesite='Lax')
         # Limpieza ocasional (1 de cada ~50) para no llenar Neon.
         try:
             import random as _r
@@ -6341,7 +6347,7 @@ def api_visita_inicio():
                 _vis.limpiar(90)
         except Exception:
             pass
-        return jsonify({'ok': True, 'id': vid})
+        return resp
     except Exception as e:
         return jsonify({'ok': False, 'error': str(e)[:200]}), 500
 
@@ -6491,6 +6497,33 @@ def _marcar_ip(ip):
         return False
 
 
+@app.route('/descargar-alma')
+def descargar_alma():
+    """Cuenta la descarga del APK de Alma y redirige al archivo."""
+    try:
+        import visitas_db as _vis
+        _vis.registrar_descarga(_vis.ip_real(request), 'Alma.apk',
+                                (request.headers.get('User-Agent') or '')[:300])
+    except Exception:
+        pass
+    from flask import redirect as _redir
+    return _redir('https://aurahumana.onrender.com/static/alma/Alma.apk', code=302)
+
+
+@app.route('/robots.txt')
+def robots_txt():
+    body = "User-agent: *\nAllow: /\nSitemap: https://aurahumana.onrender.com/sitemap.xml\n"
+    return Response(body, mimetype='text/plain')
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    urls = ["https://aurahumana.onrender.com/"]
+    body = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+            ''.join(f'  <url><loc>{u}</loc></url>\n' for u in urls) +
+            '</urlset>\n')
+    return Response(body, mimetype='application/xml')
+
 @app.route(_ADMIN_PANEL_PATH)
 def admin_panel():
     """Dashboard de actividad de Alma: cuentas, matches, mensajes, bloqueos, reportes."""
@@ -6506,6 +6539,38 @@ def admin_panel():
         cuerpo = ''.join('<tr>' + ''.join(f'<td>{esc(c)}</td>' for c in f) + '</tr>' for f in filas)
         return f'<table><thead><tr>{h}</tr></thead><tbody>{cuerpo}</tbody></table>'
 
+    def barras(filas):
+        if not filas:
+            return '<p class="vacio">Sin datos todavia.</p>'
+        tope = max((f[1] or 0) for f in filas) or 1
+        out = []
+        for etiqueta, valor in filas:
+            pct = int(round((valor or 0) * 100 / tope))
+            out.append(f'<div class="fila"><span class="etq">{esc(etiqueta)}</span>'
+                       f'<span class="barra"><i style="width:{pct}%"></i></span>'
+                       f'<span class="val">{esc(valor)}</span></div>')
+        return '<div class="barras">' + ''.join(out) + '</div>'
+
+    def tarjetas_html(lista):
+        return ''.join(f'<div class="tarjeta"><b>{esc(v)}</b><span>{esc(t)}</span></div>' for t, v in lista)
+
+    def tabla_visitas(cols, filas, ips_prop):
+        if not filas:
+            return '<p class="vacio">Sin datos todavia.</p>'
+        h = ''.join(f'<th>{esc(c)}</th>' for c in cols)
+        cuerpo = ''
+        ncol = len(cols)
+        for f in filas:
+            ip = f[1] if len(f) > 1 else ''
+            es_propia = (ip in ips_prop) or (len(f) > 8 and bool(f[8]))
+            cls = 'propia' if es_propia else ''
+            atr = f' class="{cls}"' if cls else ''
+            celdas = list(f)[:ncol]
+            if es_propia and len(celdas) > 1:
+                celdas[1] = f"{ip} (yo)"
+            cuerpo += '<tr' + atr + '>' + ''.join(f'<td>{esc(c)}</td>' for c in celdas) + '</tr>'
+        return f'<table><thead><tr>{h}</tr></thead><tbody>{cuerpo}</tbody></table>'
+
     def num(cur, sql, args=()):
         try:
             cur.execute(sql, args)
@@ -6513,6 +6578,10 @@ def admin_panel():
             return r[0] if r and r[0] is not None else 0
         except Exception:
             return 0
+
+    ips_propias = _ips_propias()
+    emails_propios = _emails_propios()
+    ocultar_yo = (request.args.get('ocultar') == 'yo')
 
     try:
         from nube_db import _conn as _c
@@ -6563,9 +6632,6 @@ def admin_panel():
     tab = (request.args.get('tab') or 'actividad').strip().lower()
     if tab not in ('actividad', 'visitas'):
         tab = 'actividad'
-    ocultar_yo = (request.args.get('ocultar') == 'yo')
-    ips_propias = _ips_propias()
-    emails_propios = _emails_propios()
 
     if request.args.get('marcar_ip') == '1':
         _ip = (request.headers.get('X-Forwarded-For') or '').split(',')[0].strip() or (request.remote_addr or '')
@@ -6576,18 +6642,63 @@ def admin_panel():
     # ---- Datos de visitas (entradas a la web en Render) ----
     v_tarjetas, v_por_dia, v_paths, v_paises, v_ultimas = [], [], [], [], []
     if tab == 'visitas':
-        _v_mostrar = [r for r in v_ultimas if not (ocultar_yo and (r[1] in ips_propias))] if ips_propias else v_ultimas
+        try:
+            import visitas_db as _vis
+            try:
+                _vis.init_db()
+            except Exception:
+                pass
+            from nube_db import _conn as _c2
+            c2 = _c2()
+            try:
+                cur = c2.cursor()
+                _ips_list = sorted(ips_propias)
+                _ph = ",".join(["%s"] * len(_ips_list)) if _ips_list else ""
+                _excl = (" AND ip NOT IN (" + _ph + ")") if _ips_list else ""
+                _args = tuple(_ips_list)
+                v_hoy = num(cur, "SELECT count(*) FROM visitas WHERE created_at::date = CURRENT_DATE" + _excl, _args)
+                v_24 = num(cur, "SELECT count(*) FROM visitas WHERE created_at > now() - interval '24 hours'" + _excl, _args)
+                v_7 = num(cur, "SELECT count(*) FROM visitas WHERE created_at > now() - interval '7 days'" + _excl, _args)
+                v_30 = num(cur, "SELECT count(*) FROM visitas WHERE created_at > now() - interval '30 days'" + _excl, _args)
+                v_total = num(cur, "SELECT count(*) FROM visitas WHERE 1=1" + _excl, _args)
+                v_ips = num(cur, "SELECT count(DISTINCT ip) FROM visitas WHERE created_at > now() - interval '24 hours'" + _excl, _args)
+                v_propias = num(cur, "SELECT count(*) FROM visitas WHERE es_propia=TRUE OR ip IN (" + (_ph or "NULL") + ")", _args if _ips_list else ())
+                v_media = num(cur, "SELECT round(avg(duracion_seg)) FROM visitas WHERE duracion_seg IS NOT NULL AND duracion_seg > 0 AND created_at > now() - interval '30 days'")
+                v_descargas = _vis.descargas_totales()
+                v_tarjetas = [
+                    ('Hoy', v_hoy), ('Ultimas 24 h', v_24), ('7 dias', v_7), ('30 dias', v_30),
+                    ('Total historico', v_total), ('IPs distintas 24 h', v_ips),
+                    ('Duracion media', f'{int(v_media)} s'),
+                    ('Mias (propias)', v_propias),
+                    ('Descargas APK', v_descargas),
+                ]
+                cur.execute("SELECT created_at::date AS d, count(*) FROM visitas WHERE created_at > now() - interval '14 days' GROUP BY d ORDER BY d DESC LIMIT 14")
+                v_por_dia = [(r[0].strftime('%d/%m') if hasattr(r[0], 'strftime') else str(r[0])[:10], r[1]) for r in cur.fetchall()]
+                cur.execute("SELECT COALESCE(NULLIF(path,''),'/') AS p, count(*) c FROM visitas WHERE created_at > now() - interval '30 days' GROUP BY p ORDER BY c DESC LIMIT 12")
+                v_paths = cur.fetchall()
+                cur.execute("SELECT COALESCE(NULLIF(pais,''),'(sin pais)') AS p, count(*) c FROM visitas GROUP BY p ORDER BY c DESC LIMIT 8")
+                v_paises = cur.fetchall()
+                cur.execute("SELECT to_char(created_at,'DD/MM HH24:MI'), ip, path, COALESCE(pais,''), duracion_seg, left(COALESCE(referer,''), 40), left(COALESCE(user_agent,''), 45), es_propia FROM visitas ORDER BY id DESC LIMIT 40")
+                v_ultimas = cur.fetchall()
+                v_descargas_dia = _vis.descargas_por_dia(14)
+            finally:
+                c2.close()
+        except Exception as e:
+            v_tarjetas = [('Error', str(e)[:80])]
+
+        _v_mostrar = [r for r in v_ultimas if not (ocultar_yo and ((r[1] in ips_propias) or (len(r) > 8 and r[8])))] if ips_propias or True else v_ultimas
         _toggle_url = _ADMIN_PANEL_PATH + '?tab=visitas' + ('' if ocultar_yo else '&ocultar=yo')
         _toggle_txt = 'Mostrar todas' if ocultar_yo else 'Ocultar mis visitas'
         cuerpo = (
             f'<div class="tarjetas">{tarjetas_html(v_tarjetas)}</div>'
             f'<p style="font-size:12px;margin:6px 0 14px;color:#666">IPs propias: {len(ips_propias)}  -  <a href="{_toggle_url}">{_toggle_txt}</a>  -  <a href="{_ADMIN_PANEL_PATH}?tab=visitas&marcar_ip=1">Marcar mi IP actual</a></p>'
             f'<h2>Entradas por dia (ultimos 14)</h2>{barras(v_por_dia)}'
+            f'<h2>Descargas APK por dia (ultimos 14)</h2>{barras(v_descargas_dia)}'
             f'<h2>Paginas mas vistas (30 dias)</h2>{barras(v_paths)}'
             f'<h2>Paises</h2>{tabla(["Pais", "Entradas"], v_paises)}'
             f'<h2>Ultimas entradas</h2>'
             f'{tabla_visitas(["Fecha", "IP", "Ruta", "Pais", "Duracion", "Origen", "Navegador"], _v_mostrar, ips_propias)}'
-        )
+            )
     else:
         cuerpo = (
             f'<div class="tarjetas">{tarjetas_html(tarjetas)}</div>'
