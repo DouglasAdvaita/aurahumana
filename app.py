@@ -6510,11 +6510,10 @@ def descargar_alma():
     return _redir('https://aurahumana.onrender.com/static/alma/Alma.apk', code=302)
 
 
-@app.route('/google<token>.html')
-def google_verify(token):
-    # Verificacion Google Search Console por archivo HTML: sirve el contenido
-    # esperado para cualquier token, sin tener que subir el archivo a mano.
-    return Response(f"google-site-verification: google{token}.html",
+@app.route('/google8178b2a4cdf89e2c.html')
+def google_verify():
+    # Verificacion Google Search Console por archivo HTML (token especifico).
+    return Response("google-site-verification: google8178b2a4cdf89e2c.html",
                     mimetype='text/plain')
 
 @app.route('/robots.txt')
