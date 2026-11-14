@@ -1,6 +1,6 @@
 {
-  "versionCode": 10,
-  "versionName": "1.9",
+  "versionCode": 11,
+  "versionName": "1.9.1",
   "apk": "/static/alma/Alma.apk",
-  "notas": "Cuenta reordenada, comentarios por correo, grafico con subtitulo y leyenda alineados."
+  "notas": "Leyenda del gráfico alineada en cuadrícula 2x2 cuando se muestra una sola persona."
 }
