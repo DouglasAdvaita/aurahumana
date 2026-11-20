@@ -1,6 +1,6 @@
 {
-  "versionCode": 11,
-  "versionName": "1.9.1",
+  "versionCode": 12,
+  "versionName": "1.9.2",
   "apk": "/static/alma/Alma.apk",
-  "notas": "Leyenda del gráfico alineada en cuadrícula 2x2 cuando se muestra una sola persona."
+  "notas": "Ir a Buscar del Chat apunta a Buscar; personas quitadas de Me interesa/No vuelven a Nuevos; botones unificados."
 }
