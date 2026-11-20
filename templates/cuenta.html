@@ -30,11 +30,16 @@
   .codigo{font-family:ui-monospace,Consolas,monospace;background:#fff8e1;border:1px solid #ffe082;padding:10px 12px;border-radius:6px;word-break:break-all;max-width:360px;font-size:18px;letter-spacing:2px;user-select:all}
   .aviso{border:1px solid #e8c469;background:#fffdf4}
   .aviso h3{color:#8a6210}
+  #card-publico.destacar{box-shadow:0 0 0 2px #cfdcf0}
   .oculto{display:none}
   /* Pestañas acceso */
   .tabs{display:flex;gap:6px;margin-bottom:12px;background:#fff;border:1px solid var(--borde);border-radius:10px;padding:6px}
   .tabs button{flex:1;border:0;border-radius:7px;padding:10px;font-weight:600;color:var(--ayuda)}
   .tabs button[aria-selected="true"]{background:var(--azul-suave);color:var(--azul)}
+  /* Elección dentro de "No puedo entrar" */
+  .opciones{display:flex;gap:8px;flex-wrap:wrap}
+  .opciones button{flex:1 1 200px;text-align:left;padding:9px 12px;color:var(--ayuda)}
+  .opciones button[aria-checked="true"]{background:var(--azul-suave);border-color:var(--azul);color:var(--azul);font-weight:600}
   /* Clave con ojo dentro */
   .pw{position:relative;max-width:300px}
   .pw input{max-width:none;padding-right:40px}
@@ -83,8 +88,7 @@
     <div class="tabs" role="tablist">
       <button id="tab-entrar" role="tab" aria-selected="true" type="button">Entrar</button>
       <button id="tab-crear" role="tab" aria-selected="false" type="button">Crear cuenta</button>
-      <button id="tab-recuperar" role="tab" aria-selected="false" type="button">Recuperar</button>
-      <button id="tab-corregir" role="tab" aria-selected="false" type="button">Cambio de correo</button>
+      <button id="tab-ayuda" role="tab" aria-selected="false" type="button">No puedo entrar</button>
     </div>
     <form id="form-login" class="card">
       <h3>Entrar a tu cuenta</h3>
@@ -103,37 +107,45 @@
       <label for="r-pw">Contraseña</label>
       <div class="pw"><input id="r-pw" type="password" autocomplete="new-password" minlength="8" required><button type="button" data-ojo="r-pw" title="Mostrar contraseña">👁</button></div>
       <span class="ayuda">Mínimo 8 caracteres.</span>
+      <p class="mini" style="margin:10px 0 0">Al crear la cuenta aceptás la <a href="/privacidad" target="_blank" rel="noopener">política de privacidad</a>. El servicio es para mayores de 18 años.</p>
       <div class="acciones"><button class="prim" id="btn-registro" type="submit">Crear cuenta</button></div>
     </form>
-    <form id="form-recuperar" class="card oculto">
-      <h3>Recuperar acceso</h3>
-      <p class="sub">Necesitás el código que guardaste al crear la cuenta.</p>
-      <label for="f-email">Correo</label>
-      <input id="f-email" type="email" autocomplete="username">
-      <label for="f-codigo">Código de recuperación</label>
-      <input id="f-codigo" class="codigo-entrada" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off">
-      <span class="ayuda">Formato: 4 grupos separados por guiones.</span>
-      <label for="f-nueva">Contraseña nueva</label>
-      <div class="pw"><input id="f-nueva" type="password" autocomplete="new-password" minlength="8"><button type="button" data-ojo="f-nueva" title="Mostrar contraseña">👁</button></div>
-      <div class="acciones"><button id="btn-recuperar" type="submit">Cambiar contraseña</button></div>
-    <form id="form-corregir" class="card oculto">
-      <h3>Cambio de correo</h3>
-      <p class="sub">Para la cuenta creada con el correo con error. Necesitás su código de recuperación.</p>
-      <label for="c-email">Correo actual (el que quedó mal escrito)</label>
-      <input id="c-email" type="email" autocomplete="username">
-      <label for="c-codigo">Código de recuperación de esa cuenta</label>
-      <input id="c-codigo" class="codigo-entrada" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off">
-      <span class="ayuda">Formato: 4 grupos separados por guiones.</span>
-      <label for="c-nuevo">Correo nuevo (el correcto)</label>
-      <input id="c-nuevo" type="email" autocomplete="username" placeholder="tu@mail.com">
-      <div class="acciones"><button id="btn-corregir" type="submit">Corregir correo</button></div>
-    </form>
+    <div id="form-ayuda" class="card oculto">
+      <h3>No puedo entrar</h3>
+      <p class="sub">Elegí qué te pasó y te pedimos solo lo que hace falta.</p>
+      <div class="opciones" role="radiogroup" aria-label="Motivo">
+        <button type="button" role="radio" aria-checked="true" data-motivo="clave">Olvidé mi contraseña</button>
+        <button type="button" role="radio" aria-checked="false" data-motivo="correo">Me equivoqué al escribir el correo</button>
+      </div>
+      <form id="form-recuperar">
+        <p class="sub" style="margin-top:10px">Necesitás el código que guardaste al crear la cuenta.</p>
+        <label for="f-email">Correo</label>
+        <input id="f-email" type="email" autocomplete="username">
+        <label for="f-codigo">Código de recuperación</label>
+        <input id="f-codigo" class="codigo-entrada" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off">
+        <span class="ayuda">Formato: 4 grupos separados por guiones.</span>
+        <label for="f-nueva">Contraseña nueva</label>
+        <div class="pw"><input id="f-nueva" type="password" autocomplete="new-password" minlength="8"><button type="button" data-ojo="f-nueva" title="Mostrar contraseña">👁</button></div>
+        <div class="acciones"><button class="prim" id="btn-recuperar" type="submit">Cambiar contraseña</button></div>
+      </form>
+      <form id="form-corregir" class="oculto">
+        <p class="sub" style="margin-top:10px">Para la cuenta que se creó con el correo mal escrito: el correo actual y su código de recuperación.</p>
+        <label for="c-email">Correo actual (el que quedó mal escrito)</label>
+        <input id="c-email" type="email" autocomplete="username">
+        <label for="c-codigo">Código de recuperación de esa cuenta</label>
+        <input id="c-codigo" class="codigo-entrada" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off">
+        <span class="ayuda">Formato: 4 grupos separados por guiones.</span>
+        <label for="c-nuevo">Correo nuevo (el correcto)</label>
+        <input id="c-nuevo" type="email" autocomplete="username" placeholder="tu@mail.com">
+        <div class="acciones"><button class="prim" id="btn-corregir" type="submit">Corregir correo</button></div>
+      </form>
+    </div>
   </div>
 
   <div id="panel-cuenta" class="oculto">
     <div class="card">
       <h3>1 · Mis personas en la nube</h3>
-      <p class="sub">Puertas, líneas, fecha/hora/lugar y test. Todo privado salvo lo que marques público en el paso 3.</p>
+      <p class="sub">Puertas, líneas, fecha/hora/lugar y test. Todo privado salvo la persona que elijas como perfil público en el paso 3.</p>
       <div class="acciones">
         <button class="prim" id="btn-bajar" type="button">Mostrar en RAVE</button>
         <button id="btn-refrescar" class="sec" type="button">Actualizar lista</button>
@@ -156,24 +168,23 @@
       <input type="file" id="archivo" accept=".csv,text/csv">
       <div class="acciones"><button class="prim" id="btn-importar">Importar CSV</button></div>
     </div>
-    <div class="card">
-      <h3>3 · Visibilidad y bio</h3>
-      <p class="sub">En público se muestra nombre, foto pública, canales, tipo, perfil y tu bio. Sin fecha, hora ni lugar.</p>
-      <label for="s-nombre">Persona de la lista</label>
-      <select id="s-nombre" disabled><option value="">— Primero actualizá la lista —</option></select>
-      <span class="ayuda">Elegí de la lista, sin escribir a mano.</span>
-      <label for="s-vis">Visibilidad</label>
-      <select id="s-vis">
-        <option value="privado">privado (solo vos)</option>
-        <option value="publico">público (visible en Buscar)</option>
-      </select>
-      <label for="s-bio">Bio breve <span class="mini" id="bio-count">0/280</span></label>
-      <textarea id="s-bio" rows="3" maxlength="280" placeholder="Se muestra en Buscar"></textarea>
-      <div class="acciones"><button class="prim" id="btn-subir">Guardar</button></div>
+    <div class="card" id="card-publico">
+      <h3>3 · Mi perfil público</h3>
+      <p class="sub">Con una persona en público, otras personas te encuentran en Buscar y pueden escribirte si hay match. Se ve tu nombre, la bio y tu diseño (tipo, perfil, canales). Nunca fecha, hora, lugar ni fotos.</p>
+      <label for="p-nombre">Aparecer en Buscar como</label>
+      <select id="p-nombre"><option value="">— Ninguna: no aparecer en Buscar —</option></select>
+      <span class="ayuda">El resto de tus personas queda privado. Podés cambiarlo cuando quieras.</span>
+      <label for="p-bio">Bio breve <span class="mini" id="bio-count">0/280</span></label>
+      <textarea id="p-bio" rows="3" maxlength="280" placeholder="Se sugiere sola según tu diseño; podés cambiarla"></textarea>
+      <div class="acciones">
+        <button class="prim" id="btn-publico" type="button">Guardar</button>
+        <button class="sec" id="btn-sugerida" type="button">Usar la sugerida</button>
+      </div>
+      <p class="mini" id="p-aviso"></p>
     </div>
     <div class="card">
-      <h3>4 · Cambio de correo</h3>
-      <p class="sub">Con sesión iniciada ya sabemos tu correo actual: solo pedimos el código y el nuevo.</p>
+      <h3>4 · Cambiar el correo de esta cuenta</h3>
+      <p class="sub">Solo si el correo quedó mal escrito. Necesitás el código de recuperación de esta cuenta; el correo actual ya lo sabemos.</p>
       <label for="cc-codigo">Código de recuperación de esta cuenta</label>
       <input id="cc-codigo" class="codigo-entrada" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off">
       <label for="cc-nuevo">Correo nuevo (el correcto)</label>
@@ -181,6 +192,7 @@
       <div class="acciones"><button class="prim" id="btn-cambio-logueado" type="button">Cambiar mi correo</button></div>
     </div>
   </div>
+  <p class="mini" style="text-align:center;margin:4px 0 18px">Cómo tratamos tus datos: <a href="/privacidad">Privacidad</a></p>
 </main>
 <script>
 const $ = id => document.getElementById(id);
@@ -189,17 +201,22 @@ function msg(t, cls){ const m=$('msg'); m.className = cls||''; m.textContent = t
 async function api(url, opts){ const r = await fetch(url, opts||{}); let j={}; try{ j=await r.json(); }catch(e){} return {ok:r.ok, status:r.status, j}; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function verTab(cual){
-  const mapa = {entrar:['tab-entrar','form-login'], crear:['tab-crear','form-registro'], recuperar:['tab-recuperar','form-recuperar'], corregir:['tab-corregir','form-corregir']};
+  const mapa = {entrar:['tab-entrar','form-login'], crear:['tab-crear','form-registro'], ayuda:['tab-ayuda','form-ayuda']};
   for(const k of Object.keys(mapa)){
     const on = (k===cual);
     $(mapa[k][0]).setAttribute('aria-selected', on?'true':'false');
     $(mapa[k][1]).classList.toggle('oculto', !on);
   }
 }
+function verMotivo(motivo){
+  document.querySelectorAll('[data-motivo]').forEach(b=>b.setAttribute('aria-checked', b.dataset.motivo===motivo?'true':'false'));
+  $('form-recuperar').classList.toggle('oculto', motivo!=='clave');
+  $('form-corregir').classList.toggle('oculto', motivo!=='correo');
+}
 $('tab-entrar').onclick = ()=>verTab('entrar');
 $('tab-crear').onclick = ()=>verTab('crear');
-$('tab-recuperar').onclick = ()=>verTab('recuperar');
-$('tab-corregir').onclick = ()=>verTab('corregir');
+$('tab-ayuda').onclick = ()=>verTab('ayuda');
+document.querySelectorAll('[data-motivo]').forEach(b=>{ b.onclick = ()=>verMotivo(b.dataset.motivo); });
 document.querySelectorAll('[data-ojo]').forEach(b=>{
   b.onclick = ()=>{
     const inp = $(b.dataset.ojo);
@@ -210,13 +227,28 @@ document.querySelectorAll('[data-ojo]').forEach(b=>{
     inp.focus();
   };
 });
-$('s-bio').oninput = ()=>{ $('bio-count').textContent = ($('s-bio').value.length)+'/280'; };
-function llenarSelector(ps){
-  const sel = $('s-nombre');
-  const actual = sel.value;
-  sel.disabled = !ps.length;
-  sel.innerHTML = ps.length ? '<option value="">— Elegí una persona —</option>' + ps.map(p=>'<option value="'+esc(p.nombre)+'">'+esc(p.nombre)+'</option>').join('') : '<option value="">— Sin personas todavía —</option>';
-  if(ps.some(p=>p.nombre===actual)) sel.value = actual;
+$('p-bio').oninput = ()=>{ $('bio-count').textContent = ($('p-bio').value.length)+'/280'; };
+let SUGERIDAS = {};
+function llenarPublico(j){
+  const ps = (j && j.personas) || [];
+  const act = (j && j.publico) || '';
+  SUGERIDAS = {};
+  ps.forEach(p=>{ SUGERIDAS[p.nombre] = p.sugerida || ''; });
+  $('p-nombre').innerHTML = '<option value="">— Ninguna: no aparecer en Buscar —</option>'
+    + ps.map(p=>'<option value="'+esc(p.nombre)+'">'+esc(p.nombre)+'</option>').join('');
+  $('p-nombre').value = act;
+  $('p-bio').value = (j && j.bio) || (act ? (SUGERIDAS[act] || '') : '');
+  $('p-bio').oninput();
+  $('btn-publico').disabled = !ps.length;
+  $('card-publico').classList.toggle('destacar', !!ps.length && !act);
+  $('p-aviso').textContent = !ps.length
+    ? 'Todavía no tenés personas en la cuenta: importá un CSV o agregá una persona para poder publicarte.'
+    : (act ? ('Ahora apareces en Buscar como "'+act+'".')
+           : 'Si querés que te encuentren en Buscar, elegí con qué persona aparecer y guardá.');
+}
+async function cargarPublico(){
+  const r = await api('/api/cuenta/publico');
+  if(r.ok) llenarPublico(r.j||{});
 }
 async function pintar(){
   const e = await api('/api/cuenta/estado');
@@ -247,7 +279,7 @@ async function lista(){
   if(!r.ok){ tb.innerHTML = '<tr><td colspan="5" class="err">'+esc((r.j||{}).error||'Error')+'</td></tr>'; return; }
   const ps = (r.j||{}).perfiles||[];
   PERFILES = ps;
-  llenarSelector(ps);
+  cargarPublico();
   if(!ps.length){ tb.innerHTML = '<tr><td colspan="5" class="mini">Todavía no subiste ninguna persona.</td></tr>'; return; }
   tb.innerHTML = ps.map(p=>{
     const nac = [p.fecha,p.hora,p.lugar].filter(Boolean).join(' · ') || '—';
@@ -374,24 +406,27 @@ $('btn-importar').onclick = async ()=>{
   msg(t, (j.errores||[]).length ? 'err' : 'ok');
   await lista();
 };
-$('btn-subir').onclick = async ()=>{
-  const nombre = $('s-nombre').value.trim();
-  if(!nombre){ msg('Elegí una persona de la lista.', 'err'); return; }
-  msg('Guardando…');
-  const r = await api('/api/cuenta/subir',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({nombre:nombre, visibilidad:$('s-vis').value, bio:$('s-bio').value})});
-  msg(r.ok?('"'+nombre+'" guardada.'):((r.j||{}).error||'Error al guardar'), r.ok?'ok':'err');
-  if(r.ok) await lista();
+$('p-nombre').onchange = ()=>{
+  const n = $('p-nombre').value;
+  const sug = SUGERIDAS[n] || '';
+  const actual = $('p-bio').value.trim();
+  if(!actual || Object.keys(SUGERIDAS).some(k=>SUGERIDAS[k]===actual)) $('p-bio').value = sug;
+  $('p-bio').oninput();
 };
-$('s-nombre').onchange = ()=>{
-  const n = $('s-nombre').value.trim().toLowerCase();
-  const p = PERFILES.find(x => String(x.nombre||'').trim().toLowerCase() === n);
-  if(!p) return;
-  $('s-vis').value = p.visibilidad || 'privado';
-  let dj = p.datos_json;
-  if(typeof dj === 'string'){ try{ dj = JSON.parse(dj); }catch(e){ dj = {}; } }
-  $('s-bio').value = (dj && dj.bio) || '';
-  $('s-bio').oninput();
+$('btn-sugerida').onclick = ()=>{
+  const n = $('p-nombre').value;
+  if(!n){ msg('Elegí primero con qué persona querés aparecer.', 'err'); return; }
+  $('p-bio').value = SUGERIDAS[n] || '';
+  $('p-bio').oninput();
+};
+$('btn-publico').onclick = async ()=>{
+  const n = $('p-nombre').value;
+  msg('Guardando…');
+  const r = await api('/api/cuenta/publico',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({nombre:n, bio: n ? $('p-bio').value : ''})});
+  if(!r.ok){ msg((r.j||{}).error||'No se pudo guardar', 'err'); return; }
+  msg(n ? ('Listo: apareces en Buscar como "'+n+'".') : 'Listo: ya no apareces en Buscar.', 'ok');
+  await lista();
 };
 $('btn-bajar').onclick = async ()=>{
   msg('Consultando tus personas…');

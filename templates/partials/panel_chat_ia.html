@@ -1,0 +1,697 @@
+    <style>
+        #btn-ia-chat {
+            position: fixed; bottom: 18px; right: 18px; width: 56px; height: 56px;
+            border-radius: 50%; border: 2px solid var(--borde3); background: var(--marca);
+            color: #fff; font-size: 24px; cursor: pointer; z-index: 10002;
+            box-shadow: 0 4px 14px rgba(0,0,0,.25); line-height: 1;
+        }
+        #btn-ia-chat:hover { filter: brightness(1.1); }
+        #ia-chat-panel {
+            position: fixed; bottom: 84px; right: 18px; width: 380px; max-width: calc(100vw - 36px);
+            max-height: 70vh; display: none; flex-direction: column;
+            background: var(--card); border: 1px solid var(--borde3); border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.3); z-index: 10002; overflow: hidden;
+        }
+        #ia-chat-panel.abierto { display: flex; }
+        #ia-chat-head {
+            padding: 10px 12px; background: var(--marca); color: #fff;
+            font-size: 13px; font-weight: 800; display: flex; justify-content: space-between; align-items: center;
+        }
+        #ia-chat-head button { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; }
+        #ia-chat-estado { font-size: 11px; font-weight: 400; opacity: .9; }
+        #ia-chat-hist {
+            flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px;
+            font-size: 12.5px; line-height: 1.45; min-height: 180px; max-height: 46vh;
+        }
+        .ia-msg-user { align-self: flex-end; background: var(--panel3); border-radius: 10px 10px 2px 10px; padding: 6px 9px; max-width: 90%; white-space: pre-wrap; }
+        .ia-msg-ia { align-self: flex-start; background: var(--panel); border: 1px solid var(--borde); border-radius: 10px 10px 10px 2px; padding: 6px 9px; max-width: 95%; white-space: pre-wrap; }
+        .ia-msg-ia.err { border-color: #c62828; color: #c62828; }
+        #ia-chat-form { display: flex; gap: 6px; padding: 10px 12px; border-top: 1px solid var(--borde); }
+        #ia-chat-input {
+            flex: 1; padding: 8px 10px; font-size: 13px; border: 1px solid var(--borde3);
+            border-radius: 8px; outline: none; background: var(--card); color: var(--texto); resize: none;
+        }
+        #ia-chat-enviar {
+            padding: 8px 14px; background: var(--acento); color: #fff; border: none;
+            border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px;
+        }
+            #ia-chat-enviar:disabled { opacity: .5; cursor: wait; }
+            #ia-chat-prov {
+                flex: 1; padding: 4px 6px; font-size: 11px; border: 1px solid var(--borde3);
+                border-radius: 6px; background: var(--card); color: var(--texto);
+            }
+    </style>
+    <button id="btn-ia-chat" type="button" title="Preguntar a la IA (usa lo visible: P1, P2, tránsito)">✦</button>
+    <div id="ia-chat-panel" role="dialog" aria-label="Preguntas a la IA">
+        <div id="ia-chat-head"><span>Preguntas IA <span id="ia-chat-estado">…</span></span><button id="ia-chat-cerrar" type="button" title="Cerrar">✕</button></div>
+        <div style="padding:6px 12px;border-bottom:1px solid var(--borde);display:flex;gap:6px;align-items:center;font-size:11px;">
+            <label for="ia-chat-prov" style="color:var(--muted);font-weight:700;">IA</label>
+            <select id="ia-chat-prov" title="Proveedor (vacío = automático: el primero que responde)"></select>
+            <button id="ia-chat-probar" type="button" title="Probar IA con el mismo contexto del PDF (base_informe_ia.txt + ficha)">Probar IA</button>
+        </div>
+        <div id="ia-chat-ctx" style="padding:3px 12px;font-size:10px;color:var(--muted);border-bottom:1px solid var(--borde);"></div>
+        <div id="ia-chat-hist"><div class="ia-msg-ia">Hola 👋 Preguntame sobre lo visible (Persona 1, 2, tránsito). Ej: “¿Qué canales tienen en común?”</div></div>
+        <form id="ia-chat-form"><textarea id="ia-chat-input" rows="2" placeholder="Escribí tu pregunta… (Enter = enviar)"></textarea><button id="ia-chat-enviar" type="submit">➤</button></form>
+    </div>
+    <script>
+        (function initChatIA(){
+            const btn = document.getElementById('btn-ia-chat');
+            const panel = document.getElementById('ia-chat-panel');
+            const cerrar = document.getElementById('ia-chat-cerrar');
+            const form = document.getElementById('ia-chat-form');
+            const input = document.getElementById('ia-chat-input');
+            const enviar = document.getElementById('ia-chat-enviar');
+            const hist = document.getElementById('ia-chat-hist');
+            const estado = document.getElementById('ia-chat-estado');
+            if (!btn || !panel) return;
+            const historial = [];
+            function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+            function addMsg(texto, clase){
+                const d = document.createElement('div');
+                d.className = clase;
+                d.innerHTML = esc(texto);
+                hist.appendChild(d);
+                hist.scrollTop = hist.scrollHeight;
+                return d;
+            }
+            // Markdown-lite para respuestas IA (**negrita**, viñetas, saltos). Seguro: escapa primero.
+            function mdChat(s){
+                let e = esc(s);
+                e = e.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                e = e.split('\n').map(l => {
+                    const m = l.match(/^\s*[-*]\s+(.*)$/);
+                    return m ? '• ' + m[1] : l;
+                }).join('<br>');
+                return e;
+            }
+            function addHtml(html, clase){
+                const d = document.createElement('div');
+                d.className = clase;
+                d.innerHTML = html;
+                hist.appendChild(d);
+                hist.scrollTop = hist.scrollHeight;
+                return d;
+            }
+            btn.addEventListener('click', () => panel.classList.toggle('abierto'));
+            cerrar.addEventListener('click', () => panel.classList.remove('abierto'));
+            window._iaTimeoutS = 10;
+            const selProv = document.getElementById('ia-chat-prov');
+            function poblarProv(lista, autoId){
+                if (!selProv) return;
+                const guardado = (function(){ try { return localStorage.getItem('iaProveedor') || ''; } catch(e){ return ''; } })();
+                selProv.innerHTML = '';
+                const optAuto = document.createElement('option');
+                optAuto.value = '';
+                optAuto.textContent = 'Automático (el más rápido)';
+                selProv.appendChild(optAuto);
+                (lista || []).forEach(p => {
+                    const o = document.createElement('option');
+                    o.value = p.id;
+                    o.textContent = p.id + ' · ' + (p.model || '');
+                    selProv.appendChild(o);
+                });
+                selProv.value = (lista || []).some(p => p.id === guardado) ? guardado : '';
+                selProv.addEventListener('change', () => {
+                    try { localStorage.setItem('iaProveedor', selProv.value); } catch(e){}
+                    if (selProv.value) estado.textContent = '● ' + selProv.value + ' (manual)';
+                    else if (autoId) fetch('/api/ia_estado').then(r=>r.json()).then(d=>{
+                        estado.textContent = '● ' + (d.proveedor||'?') + ' · ' + (d.model||'');
+                    }).catch(()=>{});
+                });
+            }
+            fetch('/api/ia_estado').then(r=>r.json()).then(d=>{
+                window._iaTimeoutS = parseInt(d.timeout_s || '10', 10) || 10;
+                const prov = d.proveedor || 'ia';
+                estado.textContent = d.configurado ? ('● ' + prov + ' · ' + (d.model||'lista')) : ('○ sin key (' + prov + ')');
+                estado.title = d.configurado ? ('IA configurada: ' + prov + ' ' + (d.model||'')) : 'Definí la API key del proveedor en el servidor para activar';
+                poblarProv(d.proveedores_disponibles, prov);
+            }).catch(()=>{ estado.textContent = '○ estado desconocido'; });
+            input.addEventListener('keydown', (e)=>{
+                if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); form.requestSubmit(); }
+            });
+            form.addEventListener('submit', async (e)=>{
+                e.preventDefault();
+                const pregunta = (input.value||'').trim();
+                if (!pregunta || enviar.disabled) return;
+                addMsg(pregunta, 'ia-msg-user');
+                input.value = '';
+                enviar.disabled = true;
+                const pensando = addMsg('⏳ 0s…', 'ia-msg-ia');
+                const t0 = Date.now();
+                const tick = setInterval(() => {
+                    pensando.textContent = '⏳ ' + Math.floor((Date.now() - t0) / 1000) + 's… consultando IAs…';
+                }, 500);
+                const finEspera = () => { clearInterval(tick); try { clearTimeout(t); } catch(e){} pensando.remove(); };
+                let persona_a = '', persona_b = '';
+                try { persona_a = (typeof selectorA!=='undefined'&&selectorA)?selectorA.value:''; persona_b = (typeof selectorB!=='undefined'&&selectorB)?selectorB.value:''; } catch(err){}
+                let contexto = '';
+                try { if (typeof construirContextoChat === 'function') contexto = construirContextoChat().slice(0, 12000); } catch(err){}
+                if (!contexto) contexto = `P1: ${persona_a || 'no seleccionada'} · P2: ${persona_b || 'no seleccionada'} (detalle no disponible)`;
+                try {
+                    const rsl = window._ultimoCtxResumen;
+                    const elCtx = document.getElementById('ia-chat-ctx');
+                    if (elCtx && rsl) elCtx.textContent = `Contexto: P1${rsl.p1?'✓':'✗'} P2${rsl.p2?'✓':'✗'} compuesto${rsl.comp?'✓':'✗'} tránsito${rsl.transito?'✓':'✗'} (${rsl.n} car.)`;
+                    else if (elCtx) elCtx.textContent = 'Contexto: básico (falló el detalle)';
+                } catch(e){}
+                try {
+                    const provSel = (document.getElementById('ia-chat-prov') || {}).value || '';
+                    const r0 = await fetch('/api/pregunta_ia', {
+                        method:'POST', headers:{'Content-Type':'application/json'},
+                        body: JSON.stringify({pregunta, contexto, persona_a, persona_b, historial: historial.slice(-6), proveedor: provSel})
+                    });
+                    const j0 = await r0.json();
+                    if (!r0.ok){ finEspera(); addMsg(j0.error||'Error de IA', 'ia-msg-ia err'); }
+                    else {
+                        const jobId = j0.job_id;
+                        const provs = (j0.proveedores || []).join(', ') || 'IAs';
+                        if (j0.timeout_s) window._iaTimeoutS = parseInt(j0.timeout_s, 10) || window._iaTimeoutS;
+                        // Polling cada 2s: el trabajo corre en el servidor, sin timeouts HTTP.
+                        let d = null;
+                        for (;;) {
+                            await new Promise(res => setTimeout(res, 2000));
+                            if (!document.getElementById('ia-chat-panel').classList.contains('abierto')) {
+                                try { await fetch('/api/pregunta_cancelar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({job_id: jobId})}); } catch(e){}
+                                finEspera(); return;
+                            }
+                            let rp;
+                            try { rp = await fetch('/api/pregunta_resultado?id=' + encodeURIComponent(jobId)); }
+                            catch(e){ continue; }
+                            d = await rp.json();
+                            if (d.timeout_s) window._iaTimeoutS = parseInt(d.timeout_s, 10) || window._iaTimeoutS;
+                            if (d.estado === 'ok' || d.estado === 'error') break;
+                            pensando.textContent = '⏳ ' + (d.espera_s != null ? d.espera_s : Math.floor((Date.now() - t0) / 1000)) + 's… consultando ' + provs + '…';
+                            if ((d.espera_s || 0) > 300) { d = {estado:'error', error:'Demasiada espera (>5 min), probá de nuevo.'}; break; }
+                        }
+                        finEspera();
+                        if (d.estado !== 'ok'){ addMsg(d.error||'Error de IA', 'ia-msg-ia err'); }
+                        else {
+                            addHtml((d.aviso ? (esc(d.aviso) + '<br><br>') : '') + mdChat(d.respuesta||'(vacío)'), 'ia-msg-ia');
+                            if (d.model) estado.textContent = '● ' + (d.proveedor ? (d.proveedor + ' · ') : '') + d.model;
+                            historial.push({rol:'user', texto:pregunta});
+                            historial.push({rol:'ia', texto:d.respuesta||''});
+                        }
+                    }
+                } catch(err){
+                    finEspera();
+                    addMsg('Error de red con el servidor: ' + err, 'ia-msg-ia err');
+                }
+                finally { enviar.disabled = false; input.focus(); }
+            });
+            const btnProbar = document.getElementById('ia-chat-probar');
+            if (btnProbar) btnProbar.addEventListener('click', async () => {
+                let persona_a = '';
+                try { persona_a = (typeof selectorA!=='undefined'&&selectorA)?selectorA.value:''; } catch(err){}
+                const pre = ((input.value||'').trim() || 'Genera la introducción personalizada del informe en prosa clara para esta persona');
+                addMsg('▶ Probar IA' + (persona_a ? (' (' + persona_a + ')') : ''), 'ia-msg-user');
+                const pensando = addMsg('⏳ probando IA (mismo contexto del PDF)…', 'ia-msg-ia');
+                try {
+                    const r = await fetch('/api/ia_probar', {method:'POST', headers:{'Content-Type':'application/json'},
+                        body: JSON.stringify({persona: persona_a, texto: pre})});
+                    const d = await r.json();
+                    pensando.remove();
+                    if (!r.ok) addMsg('IA falló tal cual: ' + (d.error || 'error sin detalle'), 'ia-msg-ia err');
+                    else addHtml((d.aviso ? (esc(d.aviso) + '<br><br>') : '') + '[' + esc((d.proveedor||'?') + '/' + (d.model||'?')) + ']<br><br>' + mdChat(d.respuesta||'(vacío)'), 'ia-msg-ia');
+                } catch(err){ pensando.remove(); addMsg('Error de red probando IA: ' + err, 'ia-msg-ia err'); }
+            });
+        })();
+
+        // ---------- Autotest Ser / No-Ser P1 (dinámico: Tipo + centros abiertos + perfil) ----------
+        (function initSerNoSer(){
+            try { window._fichaCache = window._fichaCache || {}; } catch (e) {}
+            var SN_PALABRA = {3: 'Siempre', 2: 'A veces', 1: 'Raro', 0: 'Nunca'};
+            var SN_NUM = {'Siempre': '3', 'A veces': '2', 'Raro': '1', 'Nunca': '0', '3': '3', '2': '2', '1': '1', '0': '0'};
+            var TIPO_Q = {
+                'Generador': {eje:'Frustración vs Satisfacción', q:'¿Con qué frecuencia sientes la insatisfacción de estar atascado o empujando proyectos sin haber sentido antes la respuesta corporal (ajá / nh-nh)?'},
+                'Generador Manifestante': {eje:'Frustración vs Satisfacción', q:'¿Con qué frecuencia sientes la insatisfacción de estar atascado o empujando proyectos sin haber sentido antes la respuesta corporal (ajá / nh-nh)?'},
+                'Manifestador': {eje:'Ira/Rabia vs Paz', q:'¿Con qué frecuencia sientes la molestia interna de tener que pedir permiso o la rabia de que otros te pongan resistencias al actuar?'},
+                'Proyector': {eje:'Amargura vs Éxito/Reconocimiento', q:'¿Con qué frecuencia experimentas el trago amargo de no sentirte reconocido o de haber ofrecido guía que nadie te pidió?'},
+                'Reflector': {eje:'Desilusión vs Sorpresa/Asombro', q:'¿Con qué frecuencia te sientes desubicado o desilusionado por haber decidido precipitado, sin esperar a ver cómo cambian tus sensaciones?' }
+            };
+            var CENTRO_Q = {
+                'Ego': {q:'¿Sientes la necesidad constante de hacer promesas o sobre-esforzarte para demostrar lo que vales?', trampa:'Probar la propia valía'},
+                'Plexo': {q:'¿Sueles guardar silencio o poner falsas sonrisas por miedo a mover la barca o generar conflicto?', trampa:'Evitar confrontación y verdad'},
+                'Bazo': {q:'¿Te aferras a relaciones, trabajos o hábitos insanos por miedo a la inseguridad o la soledad?', trampa:'Aferrarse a lo insano por seguridad'},
+                'Sacro': {q:'¿Te cuesta poner límites en el trabajo o la actividad y terminas exhausto por no saber cuándo es suficiente?', trampa:'No saber cuándo parar'},
+                'Raiz': {q:'¿Vives corriendo o haciendo tareas a toda prisa con la ilusión de quedar libre y sacarte el estrés?', trampa:'Apurarse para liberarse de presión'},
+                'Raíz': {q:'¿Vives corriendo o haciendo tareas a toda prisa con la ilusión de quedar libre y sacarte el estrés?', trampa:'Apurarse para liberarse de presión'},
+                'Garganta': {q:'¿Sientes el impulso automático de hablar o iniciar conversaciones para llamar la atención o llenar silencios?', trampa:'Hablar para atraer atención'},
+                'G': {q:'¿Te obsesiona buscar tu dirección o tu propósito definitivo, o cambiar de identidad según con quién estás?', trampa:'Buscar dirección y amor'},
+                'Cabeza': {q:'¿Inviertes energía mental en resolver dudas o dilemas sin relevancia práctica en tu vida?', trampa:'Preocuparse por lo que no importa'},
+                'Corona': {q:'¿Inviertes energía mental en resolver dudas o dilemas sin relevancia práctica en tu vida?', trampa:'Preocuparse por lo que no importa'},
+                'Ajna': {q:'¿Defiendes opiniones fijas con rigidez por miedo a parecer inconsistente o a que piensen que no sabes?', trampa:'Pretender certeza conceptual'}
+            };
+            var PERFIL_Q = {
+                '3': {q:'¿Te castigas o te sientes culpable cuando un intento falla, en lugar de verlo como aprendizaje práctico?', trampa:'Culpa en el intento (línea 3)'},
+                '4': {q:'¿Intentas influir o vender tus ideas a desconocidos en lugar de apoyarte en tu red de confianza?', trampa:'Forzar red (línea 4)'},
+                '5': {q:'¿Sufres por intentar cumplir las falsas expectativas que los demás proyectan sobre ti?', trampa:'Cargar proyecciones (línea 5)'}
+            };
+            var NUEVE = ['Corona','Ajna','Garganta','G','Ego','Plexo','Sacro','Bazo','Raiz'];
+            try { window._snMas = window._snMas || {1:false, 2:false, 3:false}; } catch (e) {}
+            try { window._snOn = document.getElementById('chk-emoji-sns') ? document.getElementById('chk-emoji-sns').checked : !!window._snOn; } catch (e) {}
+            try { window._snResp = window._snResp || {}; } catch (e) {}
+            try {
+                window._snPuertas = window._snPuertas || null;
+                if (!window._snPuertas) fetch('/api/sernoser_puertas', {cache:'no-store'})
+                    .then(function(r){ return r.ok ? r.json() : null; })
+                    .then(function(j){ if (j && !j.error) { window._snPuertas = j; window._sernoserFirma = null; } })
+                    .catch(function(){});
+                window._snEmo = window._snEmo || null;
+                if (!window._snEmo) fetch('/api/sernoser_emojis', {cache:'no-store'})
+                    .then(function(r){ return r.ok ? r.json() : null; })
+                    .then(function(j){ if (j && !j.error) { window._snEmo = j; try { if (window.aplicarEmojisSN) window.aplicarEmojisSN(); } catch (e2) {} } })
+                    .catch(function(){});
+                window._snCentro = window._snCentro || null;
+                if (!window._snCentro) fetch('/api/puerta_centro', {cache:'no-store'})
+                    .then(function(r){ return r.ok ? r.json() : null; })
+                    .then(function(j){ if (j) { window._snCentro = j; window._sernoserFirma = null; } })
+                    .catch(function(){});
+            } catch (e) {}
+            // Estado S/NS de una puerta respondida: v 3=Siempre(NoSer) 2=A veces(Normal) 1=Raro(Maestría) 0=Nunca(Maestría+brillo).
+            // Sin responder = Normal (no cambia).
+            window.snEstadoPuerta = function(g){
+                try {
+                    if (!window._snOn) return null;
+                    var ps = window._sernoserPreguntas || [];
+                    for (var i = 0; i < ps.length; i++) {
+                        if (ps[i].clave === 'D:' + g) {
+                            if (!window._snResp[g]) return null;
+                            var el = document.querySelector('input[name="snq' + i + '"]:checked');
+                            if (!el) return null;
+                            var v = parseInt(el.value, 10);
+                            var emo = (window._snEmo || {})[g] || (window._snEmo || {})[String(g)] || {};
+                            if (v === 3) return {emo: emo.emoji_noser || null, estado: emo.estado_noser || 'Sombra', brillo: false, concepto: emo.concepto || '', v: v};
+                            if (v === 2) return {emo: emo.emoji_normal || null, estado: emo.estado_normal || 'Normal', brillo: false, concepto: emo.concepto || '', v: v};
+                            return {emo: emo.emoji_maestria || null, estado: emo.estado_maestria || 'Maestría', brillo: (v === 0), concepto: emo.concepto || '', v: v};
+                        }
+                    }
+                } catch (e) {}
+                return null;
+            };
+            // Reescribe emojis del gráfico P1 según respuestas; solo puertas respondidas.
+            // Con S/NS revela también las inactivas respondidas (condicionamiento NS).
+            // Apagado: restaura emojis y titles originales.
+            window.aplicarEmojisSN = function(){
+                try {
+                    var svg = document.querySelector('#svg-persona-a svg');
+                    var capa = svg && svg.querySelector('[id="capa_emojis"]');
+                    if (!capa) return;
+                    var showE = true;
+                    try { var ce = document.getElementById('chk-emojis'); showE = !ce || ce.checked; } catch (e2) {}
+                    if (!window._snOn) {
+                        capa.querySelectorAll('text[data-emo0]').forEach(function(t){
+                            for (var k = 0; k < t.childNodes.length; k++) {
+                                var n = t.childNodes[k];
+                                if (n.nodeType === 3 && (n.nodeValue || '').trim()) { n.nodeValue = t.getAttribute('data-emo0'); break; }
+                            }
+                            var tt = t.querySelector('title');
+                            if (tt && t.hasAttribute('data-tit0')) tt.textContent = t.getAttribute('data-tit0');
+                            t.style.filter = '';
+                            t.removeAttribute('data-sn');
+                            t.removeAttribute('data-emo0');
+                            t.removeAttribute('data-tit0');
+                        });
+                        return;
+                    }
+                    capa.querySelectorAll('text').forEach(function(t){
+                        var gate = null;
+                        var title = t.querySelector('title');
+                        if (title) { var m = title.textContent.trim().match(/^(\d+)\b/); if (m) gate = parseInt(m[1], 10); }
+                        if (gate == null && t.id) { var m2 = t.id.match(/emoji[_-](\d+)/); if (m2) gate = parseInt(m2[1], 10); }
+                        if (gate == null) return;
+                        var st = window.snEstadoPuerta(gate);
+                        if (!st || !st.emo) return;
+                        if (!t.hasAttribute('data-emo0')) {
+                            for (var j = 0; j < t.childNodes.length; j++) {
+                                var o = t.childNodes[j];
+                                if (o.nodeType === 3 && (o.nodeValue || '').trim()) { t.setAttribute('data-emo0', o.nodeValue); break; }
+                            }
+                            if (title) t.setAttribute('data-tit0', title.textContent);
+                        }
+                        for (var k = 0; k < t.childNodes.length; k++) {
+                            var n = t.childNodes[k];
+                            if (n.nodeType === 3 && (n.nodeValue || '').trim()) { n.nodeValue = st.emo; break; }
+                        }
+                        var base = (st.concepto ? (gate + ' · ' + st.concepto) : ('Puerta ' + gate)) + ' — ' + st.estado + ' (S/NS)';
+                        if (title) title.textContent = base; else t.setAttribute('title', base);
+                        var esSombra = (st.v === 3);
+                        t.setAttribute('data-sn', st.brillo ? 'maestria-brillo' : (esSombra ? 'sombra' : 'normal-sn'));
+                        t.style.display = showE ? '' : 'none';
+                        if (st.brillo) t.style.filter = 'drop-shadow(0 0 3px gold) drop-shadow(0 0 6px gold)';
+                        else if (esSombra) t.style.filter = 'drop-shadow(0 0 2px rgba(180,40,40,0.55)) drop-shadow(0 0 5px rgba(180,40,40,0.35))';
+                        else t.style.filter = '';
+                    });
+                } catch (e) {}
+            };
+            // Reaplicar tras cada actualización de capas (los filtros ocultan inactivas).
+            try {
+                if (!window._capasWrapped && window.actualizarCapasLineasEmojis) {
+                    window._capasWrapped = 1;
+                    var _oCapas = window.actualizarCapasLineasEmojis;
+                    window.actualizarCapasLineasEmojis = function(){ _oCapas(); try { if (window.aplicarEmojisSN) window.aplicarEmojisSN(); } catch (e) {} };
+                }
+            } catch (e) {}
+            document.addEventListener('change', function(e){
+                var t = e.target;
+                if (t && t.matches && t.matches('#sernoser-box input[type="radio"]')) {
+                    try {
+                        var mn = (t.name || '').match(/^snq(\d+)$/);
+                        var pp = (mn && (window._sernoserPreguntas || [])[parseInt(mn[1], 10)]) || null;
+                        window._snTmp = window._snTmp || {};
+                        if (pp) window._snTmp[pp.clave] = t.value;
+                    } catch (e2) {}
+                }
+                if (t && t.matches && t.matches('#sernoser-box input[data-sndoor]')) {
+                    try { window._snResp[t.getAttribute('data-sndoor')] = 1; } catch (e2) {}
+                    try { if (window.aplicarEmojisSN) window.aplicarEmojisSN(); } catch (e2) {}
+                    try { if (typeof renderListaFiltrada === 'function') renderListaFiltrada(); } catch (e2) {}
+                }
+            });
+            function fichaP1(){
+                try {
+                    var p = (window._bioP1 || document.getElementById('selector-persona-a') || {}).value || window._bioP1 || '';
+                    if (window._fichaCache && p && window._fichaCache[p]) return window._fichaCache[p];
+                } catch (e) {}
+                return null;
+            }
+            function preguntasDe(f){
+                var out = [];
+                var t = String(f.tipo || '');
+                var tq = TIPO_Q[t] || TIPO_Q['Generador'];
+                out.push({capa:'Tipo · ' + (t || '—'), eje:tq.eje, q:tq.q, clave:'TIPO'});
+                var defs = {};
+                try { (f.centros_definidos || []).forEach(function(c){ defs[String(c)] = 1; }); } catch (e) {}
+                NUEVE.forEach(function(c){
+                    if (defs[c]) return;
+                    var key = CENTRO_Q[c] ? c : (c === 'Raiz' && CENTRO_Q['Raíz'] ? 'Raíz' : c);
+                    var cq = CENTRO_Q[c] || CENTRO_Q[key];
+                    if (!cq) return;
+                    var nombre = (c === 'Raiz') ? 'Raíz' : (c === 'Corona' ? 'Cabeza/Corona' : (c === 'G' ? 'Centro G' : (c === 'Ego' ? 'Ego/Corazón' : (c === 'Plexo' ? 'Plexo Solar' : c))));
+                    out.push({capa:'Centro abierto · ' + nombre, eje:cq.trampa, q:cq.q, clave:'C:' + c});
+                });
+                var perf = String(f.perfil || '');
+                var ls = (perf.match(/(\d)\s*\/\s*(\d)/) || []).slice(1);
+                ls.forEach(function(L){
+                    var pq = PERFIL_Q[L];
+                    if (pq) out.push({capa:'Perfil ' + perf + ' · línea ' + L, eje:pq.trampa, q:pq.q, clave:'P:' + L});
+                });
+                // Puertas de P1 en 4 grupos (definida = existe/activa):
+                // base = inactivas de centros abiertos (siempre);
+                // 1 = activas de centros abiertos, 2 = inactivas de centros definidos,
+                // 3 = activas de centros definidos (botones Mas preg).
+                // Activas solo si son conscientes (las otras P1 no las conoce).
+                try {
+                    var det = f.puertas_detalle || [];
+                    var cInd = {};
+                    try { (f.centros_indefinidos || []).forEach(function(c){ cInd[String(c)] = 1; }); } catch (e2) {}
+                    var activas = {};
+                    try { (f.puertas || []).forEach(function(g){ activas[parseInt(g, 10)] = 1; }); } catch (e2) {}
+                    var consc = {};
+                    det.forEach(function(d){
+                        var g = parseInt(d.puerta, 10);
+                        if (isNaN(g)) return;
+                        var est = String(d.estado || '');
+                        if (est === 'consciente' || est === 'mixto') consc[g] = 1;
+                    });
+                    var cmap = window._snCentro || {};
+                    var grupos = {0:[], 1:[], 2:[], 3:[]};
+                    for (var g = 1; g <= 64; g++) {
+                        var act = !!activas[g];
+                        if (act && !consc[g]) continue;
+                        var ce = cmap[g] || cmap[String(g)] || '';
+                        var ci = !!cInd[String(ce)];
+                        var gr = (!act && ci) ? 0 : ((act && ci) ? 1 : ((!act && !ci) ? 2 : 3));
+                        grupos[gr].push({g:g, act:act});
+                    }
+                    var mas = window._snMas || {};
+                    var orden = [0].concat(mas[1] ? [1] : []).concat(mas[2] ? [2] : []).concat(mas[3] ? [3] : []);
+                    var pq2 = window._snPuertas || {};
+                    var tagGr = {0:'base · inactiva', 1:'+1 · activa', 2:'+2 · inactiva', 3:'+3 · activa'};
+                    orden.forEach(function(gr){
+                        grupos[gr].sort(function(a, b){ return a.g - b.g; }).forEach(function(o){
+                            var g = o.g;
+                            var t = pq2[g] || pq2[String(g)] || ('Puerta ' + g + ': ¿sientes la sombra de esta puerta en tu vida?');
+                            out.push({capa:'Puerta ' + g + ' ' + (tagGr[gr] || ''), eje:'Sombra puerta ' + g, q:t, clave:'D:' + g});
+                        });
+                    });
+                } catch (e2) {}
+                return out;
+            }
+            function render(){
+                var box = document.getElementById('sernoser-box');
+                var sub = document.getElementById('sernoser-sub');
+                var inf = document.getElementById('sernoser-informe');
+                var est = document.getElementById('sernoser-estado');
+                if (!box) return;
+                var f = fichaP1();
+                if (!f) { box.textContent = 'Elegí Persona 1 para armar el test.'; if (inf) inf.innerHTML = ''; return; }
+                // Foto de lo ya respondido (por clave) para no perderlo al agregar secciones con 1/2/3.
+                try {
+                    var _nom = '';
+                    try { _nom = String(window._bioP1 || ((document.getElementById('selector-persona-a') || {}).value) || ''); } catch (e3) {}
+                    if (window._snNom !== _nom) { window._snNom = _nom; window._snTmp = {}; window._snResp = {}; }
+                    window._snTmp = window._snTmp || {};
+                    var prev = window._sernoserPreguntas || [];
+                    prev.forEach(function(pp, i){
+                        var el = document.querySelector('input[name="snq' + i + '"]:checked');
+                        if (el) window._snTmp[pp.clave] = el.value;
+                    });
+                } catch (e2) {}
+                var ps = preguntasDe(f);
+                try { window._sernoserPreguntas = ps; } catch (e) {}
+                if (sub) sub.style.display = 'none';
+                var h = '<div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))">';
+                ps.forEach(function(p, i){
+                    var dg = (/^D:(\d+)$/.exec(p.clave || '') || [])[1] || '';
+                    var qtxt = p.q + (dg ? ' (' + dg + ')' : '');
+                    h += '<div style="border:1px solid var(--borde);border-radius:6px;padding:6px 8px;background:var(--panel2);break-inside:avoid">'
+                        + '<div style="font-size:12px;margin:2px 0 4px">' + qtxt + '</div>'
+                        + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
+                        + [['3', 'Siempre'], ['2', 'A veces'], ['1', 'Raro'], ['0', 'Nunca']].map(function(par){
+                            var v = par[0], t = par[1];
+                            return '<label style="font-size:11px;display:inline-block;border:1px solid var(--borde3);border-radius:10px;padding:1px 8px;cursor:pointer" data-snlab="1"><input type="radio" name="snq' + i + '" value="' + v + '" style="display:none"' + (dg ? ' data-sndoor="' + dg + '"' : '') + '><span>' + t + '</span></label>';
+                        }).join('')
+                        + '</div></div>';
+                });
+                h += '</div><style>#sernoser-box label[data-snlab]:has(input:checked){background:var(--indigo);color:#fff;border-color:var(--indigo);font-weight:700}</style>';
+                box.innerHTML = h;
+                // Restaurar lo respondido (las secciones se suman, no se pierden).
+                try {
+                    var tmp = window._snTmp || {};
+                    ps.forEach(function(pp, i){
+                        var tv = tmp[pp.clave];
+                        if (tv === '0' || tv === '1' || tv === '2' || tv === '3') {
+                            var el = document.querySelector('input[name="snq' + i + '"][value="' + tv + '"]');
+                            if (el) {
+                                el.checked = true;
+                                if (el.getAttribute('data-sndoor')) { window._snResp = window._snResp || {}; window._snResp[el.getAttribute('data-sndoor')] = 1; }
+                            }
+                        }
+                    });
+                } catch (e2) {}
+                if (inf) inf.innerHTML = '';
+                if (est) est.textContent = ps.length + ' preguntas listas.';
+                try { window._sernoserVals = null; } catch (e) {}
+                // Traer guardado previo (misma fila del otro test) y pre-marcar radios.
+                try {
+                    var nom = (window._bioP1 || '');
+                    if (nom) fetch('/api/test?persona=' + encodeURIComponent(nom), {cache:'no-store'})
+                        .then(function(r){ return r.ok ? r.json() : null; })
+                        .then(function(t){
+                            if (!t) return;
+                            try {
+                                var mapa = {};
+                                String(t.sernoser_resp || '').split('|').forEach(function(p){
+                                    var kv = p.trim().split('=');
+                                    if (kv.length === 2) mapa[kv[0].trim()] = kv[1].trim();
+                                });
+                                ps.forEach(function(p, i){
+                                    if (window._snTmp && window._snTmp[p.clave] != null) return;
+                                    var v = SN_NUM[String(mapa[p.clave] || '').trim()];
+                                    if (v === '0' || v === '1' || v === '2' || v === '3') {
+                                        var el = document.querySelector('input[name="snq' + i + '"][value="' + v + '"]');
+                                        if (el) {
+                                            el.checked = true;
+                                            try { window._snTmp = window._snTmp || {}; window._snTmp[p.clave] = v; } catch (e2) {}
+                                            try { if (el.getAttribute('data-sndoor')) window._snResp[el.getAttribute('data-sndoor')] = 1; } catch (e2) {}
+                                        }
+                                    }
+                                });
+                            } catch (e) {}
+                            mostrarGuardado(t);
+                        }).catch(function(){});
+                } catch (e) {}
+            }
+            function calcular(){
+                var est = document.getElementById('sernoser-estado');
+                var inf = document.getElementById('sernoser-informe');
+                var ps = window._sernoserPreguntas || [];
+                if (!ps.length) { if (est) est.textContent = 'Primero elegí Persona 1.'; return; }
+                var vals = ps.map(function(_, i){
+                    var el = document.querySelector('input[name="snq' + i + '"]:checked');
+                    return el ? parseInt(el.value, 10) : null;
+                });
+                // Solo cuentan las respondidas (las sin responder no suman ni al máximo).
+                var tmp = window._snTmp || {};
+                var nResp = 0, suma = 0, max = 0;
+                ps.forEach(function(p, i){
+                    if (tmp[p.clave] == null || vals[i] == null) return;
+                    nResp++; suma += vals[i]; max += 3;
+                });
+                var alin = max ? Math.round((1 - suma / max) * 100) : 100;
+                try { window._sernoserVals = vals; window._sernoserAlin = alin; } catch (e) {}
+                var orden = ps.map(function(p, i){ return {p:p, v:vals[i], i:i}; })
+                    .filter(function(x){ return x.v != null && x.v > 0; })
+                    .sort(function(a, b){ return b.v - a.v; }).slice(0, 3);
+                var col = alin >= 75 ? '#2e7d32' : (alin >= 45 ? '#ef6c00' : '#c62828');
+                var emoji = alin >= 75 ? '🌟' : (alin >= 45 ? '🌊' : '🌧️');
+                var h = '<div style="text-align:center;padding:10px 8px;border-radius:12px;background:linear-gradient(135deg,#e8eaf6,#f3e5f5);border:1px solid var(--borde3)">'
+                    + '<div style="font-size:13px;font-weight:700;color:var(--indigo)">Índice Global de Alineación ' + emoji + '</div>'
+                    + '<div style="font-size:44px;font-weight:900;color:' + col + ';line-height:1.1">' + alin + '<span style="font-size:20px">%</span></div>'
+                    + '<div style="height:12px;border-radius:7px;background:#e0e0e0;overflow:hidden;margin:6px 4px 2px"><div style="height:100%;width:' + alin + '%;border-radius:7px;background:linear-gradient(90deg,#c62828,#ef6c00,#2e7d32);transition:width .6s"></div></div>'
+                    + '<div style="font-size:11px;color:var(--muted)">Ser ' + alin + '% · No-Ser ' + (100 - alin) + '% (' + suma + '/' + max + ' puntos · ' + nResp + '/' + ps.length + ' respondidas)</div></div>';
+                if (orden.length) {
+                    var med = ['🥇', '🥈', '🥉'];
+                    h += '<div style="display:grid;gap:6px;margin-top:8px">';
+                    orden.forEach(function(x, k){
+                        var bg = k === 0 ? 'linear-gradient(135deg,#fff3e0,#ffe0b2)' : 'var(--panel2)';
+                        h += '<div style="border:1px solid var(--borde3);border-radius:8px;padding:6px 10px;background:' + bg + '">'
+                            + '<div style="font-size:12px">' + med[k] + ' <b>' + x.p.capa + '</b> <span style="display:inline-block;background:#c62828;color:#fff;border-radius:10px;font-size:11px;font-weight:800;padding:0 8px;margin-left:4px">' + x.v + '/3</span></div>'
+                            + '<div style="font-size:11px;color:var(--muted)">' + x.p.eje + '</div></div>';
+                    });
+                    h += '</div>';
+                } else {
+                    h += '<div style="margin-top:8px;text-align:center;font-size:13px">🌟 Alineación total, sin puntos de fuga.</div>';
+                }
+                if (inf) inf.innerHTML = h;
+                // Autoguardado: calcular la alineación ya deja el resultado en bases (test.csv).
+                if (nResp > 0) {
+                    if (est) est.textContent = 'Calculado.';
+                    try { guardarSerNoSer(true); } catch (e3) {}
+                } else if (est) {
+                    est.textContent = 'Respondé al menos una pregunta para guardar.';
+                }
+            }
+            document.addEventListener('click', function(e){
+                if (e.target && e.target.id === 'btn-sernoser') calcular();
+                var mb = e.target && e.target.closest ? e.target.closest('#sernoser-mas button[data-snmas]') : null;
+                if (mb) {
+                    var k = mb.getAttribute('data-snmas');
+                    try {
+                        window._snMas = window._snMas || {1:false, 2:false, 3:false};
+                        window._snMas[k] = !window._snMas[k];
+                        mb.classList.toggle('on', !!window._snMas[k]);
+                        try { localStorage.setItem('dhSnMas', JSON.stringify(window._snMas)); } catch (e2) {}
+                        window._sernoserFirma = null;
+                        render();
+                    } catch (e2) {}
+                }
+            });
+            try {
+                var _m = localStorage.getItem('dhSnMas');
+                if (_m) { var _o = JSON.parse(_m); window._snMas = {1:!!_o[1] || !!_o['1'], 2:!!_o[2] || !!_o['2'], 3:!!_o[3] || !!_o['3']}; }
+                document.querySelectorAll('#sernoser-mas button[data-snmas]').forEach(function(b){
+                    b.classList.toggle('on', !!(window._snMas && window._snMas[b.getAttribute('data-snmas')]));
+                });
+            } catch (e) {}
+            function guardarSerNoSer(desdeCalcular){
+                var est = document.getElementById('sernoser-estado');
+                var ps = window._sernoserPreguntas || [];
+                var vals = window._sernoserVals;
+                if (!ps.length) { if (est) est.textContent = 'Primero elegí Persona 1.'; return; }
+                if (!vals) {
+                    if (desdeCalcular) return;
+                    calcular();
+                    return;
+                }
+                var alin = window._sernoserAlin || 0;
+                var nom = '';
+                try { nom = (window._bioP1 || (document.getElementById('selector-persona-a') || {}).value || '').trim(); } catch (e) {}
+                if (!nom) { if (est) est.textContent = 'Elegí Persona 1.'; return; }
+                var fugas = ps.map(function(p, i){ if (vals[i] == null) return null; return p.clave + '=' + (SN_PALABRA[vals[i]] || vals[i]); }).filter(function(x){ return x; }).join(' | ');
+                var top = ps.map(function(p, i){ return {p:p, v:vals[i]}; }).filter(function(x){ return x.v != null && x.v > 0; }).sort(function(a, b){ return b.v - a.v; }).slice(0, 3).map(function(x){ return x.p.capa + ' (' + (SN_PALABRA[x.v] || x.v) + ')'; }).join('; ');
+                if (est) est.textContent = 'Guardando…';
+                fetch('/api/sernoser', {method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({nombre: nom, alin: alin, fugas: top, resp: fugas})})
+                    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+                    .then(function(x){
+                        if (est) { est.textContent = x.ok ? 'Guardado en test.csv + xlsx (' + alin + '%)' : ('No se guardó: ' + ((x.j && x.j.error) || '?')); est.style.color = x.ok ? '#2e7d32' : '#c62828'; }
+                        if (x.ok) {
+                            try { if (dataPersonaA) dataPersonaA.tiene_sns = true; } catch (e2) {}
+                            try { actualizarBotonSNS(nom, true); } catch (e2) {}
+                        }
+                    })
+                    .catch(function(){ if (est) { est.textContent = 'Error de red'; est.style.color = '#c62828'; } });
+            }
+            function mostrarGuardado(f){
+                try {
+                    var a = parseInt(String(f.sernoser_alin || ''), 10);
+                    if (isNaN(a)) return;
+                    var est = document.getElementById('sernoser-estado');
+                    var inf = document.getElementById('sernoser-informe');
+                    if (est) est.textContent = 'Guardado previo: ' + a + '% (' + (f.sernoser_fecha || 's/f') + ')';
+                    if (inf && !window._sernoserVals && f.sernoser_fugas) {
+                        inf.innerHTML = '<div style="text-align:center;padding:8px;border-radius:10px;border:1px dashed var(--borde3);font-size:12px">📦 <b>Guardado: ' + a + '%</b> <span style="color:var(--muted)">(' + String(f.sernoser_fecha || '') + ')</span><br><span style="font-size:11px">' + String(f.sernoser_fugas || '').replace(/</g, '&lt;') + '</span></div>' + inf.innerHTML;
+                    }
+                } catch (e) {}
+            }
+            setInterval(function(){
+                if (document.hidden) return; // pestaña en segundo plano: no sondear
+                var box = document.getElementById('sernoser-box');
+                if (!box) return;
+                var f = fichaP1();
+                var n = f ? preguntasDe(f).map(function(p){ return p.clave; }).join('|') : '';
+                var m = '';
+                try { m = JSON.stringify(window._snMas || {}); } catch (e) {}
+                if (n !== window._sernoserFirma || m !== window._snMasFirma) { window._sernoserFirma = n; window._snMasFirma = m; render(); }
+            }, 1200);
+            render();
+        })();
+
+        // ---------- Briefing diario: AYER / HOY / MAÑANA (sin IA) ----------
+        (function initBriefing(){
+            const btn = document.getElementById('btn-briefing');
+            const est = document.getElementById('briefing-estado');
+            const txt = document.getElementById('briefing-txt');
+            if (!btn || !est || !txt) return;
+            let corriendo = false, tProg = null;
+            function escB(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+            function mdLite(s){
+                let e = escB(s);
+                e = e.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                return e.replace(/\n/g, '<br>');
+            }
+            async function actualizar(){
+                if (corriendo) return;
+                const selA = document.getElementById('selector-persona-a');
+                const nom = (selA && selA.value) ? selA.value : '';
+                if (!nom) { est.textContent = 'Elegí Persona 1.'; txt.textContent = '-'; return; }
+                corriendo = true; btn.disabled = true;
+                est.textContent = 'Calculando…';
+                try {
+                    const r = await fetch('/api/briefing?persona=' + encodeURIComponent(nom));
+                    const j = await r.json();
+                    if (!r.ok || !j.ok) throw new Error(j.error || 'Error del briefing');
+                    const cab = `<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">${escB(j.fecha)} · ${escB(j.hora)} · ${escB(j.persona)}</div>`;
+                    const cuerpo = (j.lineas || []).map(l =>
+                        `<div style="font-size:12.5px;line-height:1.55;margin-top:4px;"><strong>${escB(l.etiqueta)}:</strong> ${mdLite(l.texto)}</div>`
+                    ).join('');
+                    txt.innerHTML = cab + cuerpo;
+                    est.textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-UY', {hour:'2-digit', minute:'2-digit'});
+                } catch (err) {
+                    const msg = (err && err.message) ? err.message : String(err);
+                    txt.textContent = 'Error: ' + msg;
+                    est.textContent = 'Falló — probá Actualizar.';
+                } finally {
+                    corriendo = false; btn.disabled = false;
+                }
+            }
+            function prog(){ clearTimeout(tProg); tProg = setTimeout(actualizar, 500); }
+            try {
+                const selA = document.getElementById('selector-persona-a');
+                if (selA) selA.addEventListener('change', prog);
+            } catch (e) {}
+            btn.addEventListener('click', actualizar);
+            setTimeout(() => { try { const selA = document.getElementById('selector-persona-a'); if (selA && selA.value) actualizar(); } catch (e) {} }, 1200);
+            setTimeout(() => { try { const selA = document.getElementById('selector-persona-a'); if (selA && selA.value) actualizar(); } catch (e) {} }, 3000);
+        })();
+    </script>

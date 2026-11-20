@@ -49,13 +49,52 @@ except Exception:
 
 app = Flask(__name__)
 
+# Render termina TLS: confiar en X-Forwarded-Proto para cookies Secure.
+try:
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+except Exception:
+    pass
+
+# Rate limit simple en memoria (por IP) para rutas sensibles.
+import time as _rl_time
+import threading as _rl_threading
+_RL_BUCKETS = {}
+_RL_LOCK = _rl_threading.Lock()
+
+def _rate_limit(clave, limite, ventana_seg):
+    ahora = _rl_time.time()
+    ip = (request.headers.get('X-Forwarded-For') or '').split(',')[0].strip() or (request.remote_addr or 'unknown')
+    key = f"{ip}:{clave}"
+    with _RL_LOCK:
+        bucket = _RL_BUCKETS.get(key)
+        if bucket is None or ahora - bucket[0] >= ventana_seg:
+            _RL_BUCKETS[key] = [ahora, 1]
+            return True
+        if bucket[1] >= limite:
+            return False
+        bucket[1] += 1
+        return True
+
+@app.before_request
+def _rate_limit_guard():
+    ruta = request.path or ''
+    if ruta in ('/api/cuenta/login', '/api/cuenta/registro'):
+        if not _rate_limit('auth', 10, 60):
+            return Response('Demasiados intentos. Probá más tarde.', mimetype='text/plain'), 429
+    elif ruta == '/api/pregunta_ia':
+        if not _rate_limit('ia', 30, 60):
+            return Response('Demasiadas consultas. Probá más tarde.', mimetype='text/plain'), 429
+
 @app.after_request
 def _gzip_response(resp):
     try:
         if resp.mimetype == 'text/html':
             # Sin esto el navegador puede quedarse con el HTML viejo tras un
             # despliegue (el botón de foto parecía no responder).
-            resp.headers['Cache-Control'] = 'no-cache, must-revalidate'
+            resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            resp.headers['Pragma'] = 'no-cache'
+            resp.headers['Expires'] = '0'
         if resp.status_code < 200 or resp.status_code >= 300:
             return resp
         if 'gzip' not in (request.headers.get('Accept-Encoding') or '').lower():
@@ -83,6 +122,15 @@ def _gzip_response(resp):
         resp.headers['Vary'] = (v + ', Accept-Encoding' if v else 'Accept-Encoding')
     except Exception:
         pass
+    return resp
+
+
+@app.after_request
+def _security_headers(resp):
+    resp.headers.setdefault('X-Frame-Options', 'DENY')
+    resp.headers.setdefault('X-Content-Type-Options', 'nosniff')
+    resp.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
+    resp.headers.setdefault('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:;")
     return resp
 
 try:
@@ -1052,7 +1100,7 @@ def _upsert_test(fila):
     """Guarda (o reemplaza por nombre) el resultado del test corto en test.csv.
 
     Con sesión iniciada lo guarda dentro del perfil de la cuenta (Neon)."""
-    perfiles = _perfiles_cuenta_actual()
+    perfiles = _perfiles_datos_cuenta()
     if perfiles is not None:
         return _upsert_test_cuenta(perfiles, fila)
     try:
@@ -1211,7 +1259,7 @@ def _leer_ia(nombre):
     """Devuelve el texto IA guardado en ia.csv para el nombre (dict) o None.
 
     Con sesión iniciada no lee el ia.csv local (es de otra persona)."""
-    if _perfiles_cuenta_actual() is not None:
+    if _perfiles_datos_cuenta() is not None:
         return None
     try:
         if not IA_CSV_PATH.exists():
@@ -1234,7 +1282,7 @@ def _leer_ia(nombre):
 
 def _guardar_ia(nombre, texto, proveedor=''):
     """Con sesión iniciada no escribe en ia.csv (archivo compartido del dueño)."""
-    if _perfiles_cuenta_actual() is not None:
+    if _perfiles_datos_cuenta() is not None:
         return False
     """Guarda (o reemplaza por nombre) la descripción IA en ia.csv."""
     try:
@@ -1849,7 +1897,7 @@ def cargar_informes():
     """Lee informe.csv (sep=';', utf-8). Columnas nombre;informe. Cacheado por mtime.
 
     Con sesión iniciada no expone informes del archivo local (son de otra persona)."""
-    if _perfiles_cuenta_actual() is not None:
+    if _perfiles_datos_cuenta() is not None:
         return {}
     def _load():
         try:
@@ -1886,7 +1934,7 @@ def cargar_vinculos():
     """Lee vinculos.csv (sep automático ';' o tab). Cacheado por mtime.
 
     Con sesión iniciada devuelve solo nacimiento de las personas de esa cuenta."""
-    _perfiles = _perfiles_cuenta_actual()
+    _perfiles = _perfiles_datos_cuenta()
     if _perfiles is not None:
         return [{'nombre': str(p.get('nombre') or ''), 'fecha': p.get('fecha') or '',
                  'hora': p.get('hora') or '', 'edad': None, 'lugar': p.get('lugar') or '',
@@ -2123,7 +2171,7 @@ def _foto_persona_para(nombre):
     except Exception:
         pass
     try:
-        for _p in (_perfiles_cuenta_actual() or []):
+        for _p in (_perfiles_datos_cuenta() or []):
             if str(_p.get('nombre') or '').strip().lower() == nombre.lower():
                 candidatas.append(str(_p.get('foto') or '').strip())
                 candidatas.append(str(_dj(_p).get('foto') or '').strip())
@@ -3313,7 +3361,7 @@ def _guardar_dinamica(p1, p2, texto):
 @app.route('/api/dinamica_compuesta', methods=['GET', 'POST'])
 def api_dinamica_compuesta():
     """Texto manual editable por pareja P1/P2, guardado en dinamica_compuesta.csv. Sin IA."""
-    if _perfiles_cuenta_actual() is not None:
+    if _perfiles_datos_cuenta() is not None:
         # Cuentas: todavía no se guarda por cuenta (no mezclar con el archivo local).
         if request.method == 'GET':
             return jsonify({'p1': (request.args.get('p1') or ''), 'p2': (request.args.get('p2') or ''), 'texto': ''})
@@ -3428,9 +3476,15 @@ def _linea_o_nan(v):
 
 
 def _perfiles_cuenta_actual():
-    """Perfiles de la cuenta logueada (Neon), memoizados por request. None si no hay cuenta."""
+    """Perfiles de la cuenta logueada (Neon), memoizados por request. None si no hay cuenta.
+
+    En el render inicial de '/' se ignora la cuenta para no bloquear la
+    página esperando a Neon: se usan los datos locales (datos.csv) y el
+    frontend actualiza después vía /api/personas."""
     try:
         if not has_request_context():
+            return None
+        if getattr(g, '_render_inicial', False):
             return None
         ct = _cuenta_actual()
         if not ct:
@@ -3440,6 +3494,17 @@ def _perfiles_cuenta_actual():
         return g.perfiles_cuenta
     except Exception:
         return None
+
+
+def _perfiles_datos_cuenta():
+    """Perfiles de la cuenta SOLO si los datos de la app salen de Neon.
+
+    En Render con sesión, los datos son los de la cuenta. En local la app
+    trabaja siempre sobre datos.csv: la sesión sirve solo para búsqueda,
+    chat y Mi cuenta (que consultan Neon por su cuenta)."""
+    if not _es_render():
+        return None
+    return _perfiles_cuenta_actual()
 
 
 def _dj(p):
@@ -3480,7 +3545,7 @@ def cargar_datos():
     """Cacheado por mtime (una sola lectura de datos.csv por versión del archivo).
 
     Con sesión iniciada devuelve SOLO las personas de esa cuenta (Neon)."""
-    _perfiles = _perfiles_cuenta_actual()
+    _perfiles = _perfiles_datos_cuenta()
     if _perfiles is not None:
         return _df_de_cuenta(_perfiles)
     def _load():
@@ -3630,6 +3695,7 @@ def _elegir_xlsx_dialogo():
     Devuelve la ruta elegida o '' si se cancela."""
     import subprocess
     import sys
+    import os
     codigo = (
         "import tkinter as tk\n"
         "from tkinter import filedialog\n"
@@ -3640,9 +3706,11 @@ def _elegir_xlsx_dialogo():
         "    filetypes=[('Excel', '*.xlsx')], initialdir='.')\n"
         "print(p)\n"
     )
+    if sys.platform != 'win32' or os.environ.get('RENDER'):
+        return ''
     try:
         res = subprocess.run([sys.executable, '-c', codigo],
-                             capture_output=True, text=True, timeout=600)
+                             capture_output=True, text=True, timeout=60)
     except Exception:
         return ''
     salida = (res.stdout or '').strip()
@@ -3675,7 +3743,7 @@ def api_persona_foto():
     err_foto = _error_foto(foto)
     if err_foto:
         return jsonify({'error': err_foto}), 413
-    ct = _cuenta_actual()
+    ct = _cuenta_actual() if _es_render() else None
     if foto:
         es_url = bool(_re.match(r'^(?:https?:|data:|/)', foto, _re.I))
         if not es_url and not Path(foto).expanduser().is_file():
@@ -3688,7 +3756,7 @@ def api_persona_foto():
         _borrar_foto_persona(nombre)
     if ct:
         try:
-            previo = next((p for p in (_perfiles_cuenta_actual() or [])
+            previo = next((p for p in (_perfiles_datos_cuenta() or [])
                            if str(p.get('nombre') or '').strip().lower() == nombre.lower()), None)
             if previo is not None:
                 perfil = dict(previo)
@@ -3724,8 +3792,8 @@ def _fuente_json():
             'tipo': 'xlsx' if p else 'csv',
             'entorno': 'render' if _es_render() else 'local',
             'datos_csv_propio': _datos_csv_utilizables(),
-            'xlsx': sorted(x.name for x in Path('.').glob('*.xlsx')
-                           if not x.name.startswith('~$'))}
+            'xlsx': ['datos.csv'] + sorted(x.name for x in Path('.').glob('*.xlsx')
+                           if not x.name.startswith('~$') and _validar_xlsx(x) == '')}
 
 
 @app.route('/api/fuente')
@@ -3741,7 +3809,7 @@ def api_fuente_post():
     except Exception:
         data = {}
     path = (data.get('path') or '').strip()
-    if not path:
+    if not path or path.lower() == 'datos.csv' or path.lower().endswith('.csv'):
         set_fuente(None)
         return jsonify(_fuente_json())
     p = Path(path)
@@ -3858,6 +3926,8 @@ def _cuenta_persona_put(ct, nombre_viejo, data):
 
 @app.route('/')
 def index():
+    # Render inicial: no esperar a Neon; usar datos locales (datos.csv).
+    g._render_inicial = True
     svg_content = cargar_svg()
     # Etapa 1: una sola lectura de datos.csv para personas + default (antes eran 2 lecturas)
     df = cargar_datos()
@@ -3873,6 +3943,8 @@ def index():
     centros = cargar_centros()
     canales = cargar_canales()
     puertas = cargar_puertas()
+    xlsx_list = ['datos.csv'] + sorted(x.name for x in Path('.').glob('*.xlsx')
+                       if not x.name.startswith('~$') and _validar_xlsx(x) == '')
     return render_template('index.html', 
                          svg_content=svg_content,
                          personas=personas,
@@ -3880,7 +3952,8 @@ def index():
                          vinculos=cargar_vinculos(),
                          centros=centros,
                          canales=canales,
-                         puertas=puertas)
+                         puertas=puertas,
+                         xlsx_list=xlsx_list)
 
 @app.route('/lab')
 def lab():
@@ -3916,7 +3989,7 @@ def cargar_publicas():
                     out.append(int(x))
             return out
         filas = []
-        for _, r in df.iterrows():
+        for r in df.to_dict(orient='records'):
             g = lambda k: str(r.get(k, '') or '').strip()
             pin = _ints(g('puertas_incon'), ',')
             pco = _ints(g('puertas_con'), ',')
@@ -4136,7 +4209,7 @@ def _validar_lineas(valores, campo):
 def api_agregar_persona():
     data = request.get_json(force=True, silent=True) or {}
     _ct = _cuenta_actual()
-    if _ct:
+    if _ct and _es_render():
         return _cuenta_persona_post(_ct, data)
     if _es_render():
         return jsonify({'error': 'Entrá a tu cuenta para guardar: en Render los datos se guardan en Neon.'}), 401
@@ -4260,7 +4333,7 @@ def api_modificar_persona(nombre):
         return jsonify({'error': 'Falta el nombre'}), 400
     data = request.get_json(force=True, silent=True) or {}
     _ct = _cuenta_actual()
-    if _ct:
+    if _ct and _es_render():
         return _cuenta_persona_put(_ct, nombre, data)
     nuevo = str(data.get('nombre', '') or '').strip() or viejo
     personas = get_personas()
@@ -4446,7 +4519,7 @@ def api_eliminar_persona(nombre):
     if not viejo:
         return jsonify({'error': 'Falta el nombre'}), 400
     _ct = _cuenta_actual()
-    if _ct:
+    if _ct and _es_render():
         n = _auth.borrar_perfil(_ct['id'], viejo)
         if not n:
             return jsonify({'error': f'"{viejo}" no existe'}), 404
@@ -4527,7 +4600,7 @@ def api_eliminar_persona(nombre):
 
 def _test_de(nombre):
     """Test de autoconocimiento: de Neon si hay cuenta, si no de test.csv."""
-    perfiles = _perfiles_cuenta_actual()
+    perfiles = _perfiles_datos_cuenta()
     if perfiles is not None:
         clave = str(nombre or '').strip().lower()
         for p in perfiles:
@@ -4665,7 +4738,7 @@ def get_persona_completa(nombre):
     foto = ''
     _ct = _cuenta_actual()
     if _ct:
-        for _p in (_perfiles_cuenta_actual() or []):
+        for _p in (_perfiles_datos_cuenta() or []):
             if str(_p.get('nombre') or '').strip().lower() == nombre.lower():
                 foto = str(_p.get('foto') or '').strip() or str(_dj(_p).get('foto') or '').strip()
                 break
@@ -5592,6 +5665,7 @@ def api_guardar_sernoser():
 @app.route('/api/autoconocimiento', methods=['POST'])
 def api_autoconocimiento():
     data = request.get_json(force=True, silent=True) or {}
+    preview = bool(data.get('preview'))
     triada = str(data.get('triada') or '').strip().lower()
     modo = str(data.get('modo') or '').strip().lower()
     enea = _ENEA.get((triada, modo))
@@ -5658,6 +5732,9 @@ def api_autoconocimiento():
     hay_neuro = any(str(data.get(k) or '') for k in ('foco', 'sensorial', 'rutina', 'social'))
     hay_num = bool(str(data.get('fecha') or '').strip() or str(data.get('nombre_num') or data.get('nombre') or '').strip())
     hay_natal = bool(str(data.get('fecha') or '').strip())
+    _maslow = [x for x in (data.get('maslow') or [])
+               if isinstance(x, dict) and str(x.get('v') or '').isdigit() and int(str(x.get('v'))) > 0]
+    hay_maslow = bool(_maslow)
     partes = []
     if hay_enea:
         partes.append(f"Tu eneatipo es el {enea} {e.get('titulo', '')}. Esto significa que {e.get('detalle', '')}")
@@ -5669,6 +5746,12 @@ def api_autoconocimiento():
                           'no son un diagnóstico: ' + ', '.join(neuro) + '.')
         else:
             partes.append('En tus respuestas no aparecen rasgos marcados para explorar.')
+    if hay_maslow:
+        con = [x for x in _maslow if int(str(x.get('v'))) > 0]
+        if con:
+            bajo = min(con, key=lambda x: int(str(x.get('v'))))
+            partes.append('Maslow: ' + ' · '.join(f"{x.get('nivel')} {int(str(x.get('v')))}" for x in con))
+            partes.append('Más urgente: ' + str(bajo.get('etiqueta','')) + f" ({int(str(bajo.get('v')))}/5)")
     if hay_num:
         partes.append(f"Tu numerología es vida {vida or '?'} y destino {destino or '?'}. "
                       f"El número de vida sale de tu fecha de nacimiento y marca {nv.get('detalle', '')} "
@@ -5756,7 +5839,7 @@ def _borrar_clan(p1):
 
 @app.route('/api/clan')
 def api_clan_get():
-    if _perfiles_cuenta_actual() is not None:
+    if _perfiles_datos_cuenta() is not None:
         return jsonify({'m': {}, 'mayores': [], 'menores': [], 'parejas': [], 'hijos': [],
                         'solo_local': True})
     p1 = (request.args.get('p1') or '').strip()
@@ -5792,7 +5875,7 @@ def api_clan_get():
 @app.route('/api/clan', methods=['POST'])
 def api_clan_post():
     import csv as _csv
-    if _perfiles_cuenta_actual() is not None:
+    if _perfiles_datos_cuenta() is not None:
         return jsonify({'ok': True, 'solo_local': True})
     try:
         data = request.get_json(force=True) or {}
@@ -6212,7 +6295,7 @@ def _leer_conocidos(p1=''):
 
 @app.route('/api/conocidos')
 def api_conocidos_get():
-    if _perfiles_cuenta_actual() is not None:
+    if _perfiles_datos_cuenta() is not None:
         return jsonify({})
     p1 = (request.args.get('p1') or '').strip()
     return jsonify(_leer_conocidos(p1))
@@ -6221,7 +6304,7 @@ def api_conocidos_get():
 @app.route('/api/conocidos', methods=['POST'])
 def api_conocidos_post():
     import csv as _csv
-    if _perfiles_cuenta_actual() is not None:
+    if _perfiles_datos_cuenta() is not None:
         return jsonify({'ok': True, 'solo_local': True})
     try:
         data = request.get_json(force=True) or {}
@@ -6435,14 +6518,45 @@ def _cuenta_actual():
 
 
 def _poner_cookie(resp, token):
+    secure = bool(request.is_secure or os.environ.get('RENDER') or os.environ.get('RENDER_EXTERNAL_URL'))
     resp.set_cookie(_COOKIE, token, max_age=_COOKIE_DIAS * 86400, httponly=True,
-                    samesite='Lax', secure=bool(request.is_secure))
+                    samesite='Lax', secure=secure)
     return resp
 
 
 @app.route('/cuenta')
 def pagina_cuenta():
     return render_template('cuenta.html')
+
+
+@app.route('/privacidad')
+def pagina_privacidad():
+    """Declaración de privacidad (borrador para revisión legal)."""
+    return render_template('privacidad.html')
+
+
+@app.route('/api/contacto', methods=['POST'])
+def api_contacto():
+    """Formulario de contacto: manda el mensaje al correo del sitio."""
+    data = request.get_json(force=True, silent=True) or {}
+    if str(data.get('web') or '').strip():   # trampa para bots
+        return jsonify({'ok': True})
+    if not _rate_limit('contacto', 4, 3600):
+        return jsonify({'error': 'Demasiados mensajes. Probá más tarde.'}), 429
+    mensaje = str(data.get('mensaje') or '').strip()
+    if len(mensaje) < 10:
+        return jsonify({'error': 'Escribí un mensaje un poco más largo.'}), 400
+    nombre = str(data.get('nombre') or '').strip()[:80]
+    email = str(data.get('email') or '').strip()[:120]
+    try:
+        import mail_cuenta
+        if not mail_cuenta.disponible():
+            return jsonify({'error': 'El correo del sitio no está configurado.'}), 503
+        if not mail_cuenta.enviar_contacto(nombre, email, mensaje[:4000]):
+            return jsonify({'error': 'No se pudo enviar. Probá de nuevo.'}), 502
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)[:200]}), 500
 
 
 @app.route('/alma')
@@ -6522,11 +6636,11 @@ _LAST_ERROR = {'msg': ''}
 def _handle_500(e):
     import traceback
     _LAST_ERROR['msg'] = traceback.format_exc()[:1500]
-    return Response(f'<h1>500</h1><pre>{esc(_LAST_ERROR["msg"])}</pre>', mimetype='text/html'), 500
+    return Response('<h1>500</h1><p>Error interno del servidor.</p>', mimetype='text/html'), 500
 
 @app.route('/debug-last-error')
 def debug_last_error():
-    return Response(_LAST_ERROR['msg'] or '(sin error)', mimetype='text/plain')
+    return Response('No disponible.', mimetype='text/plain'), 404
 
 @app.route('/robots.txt')
 def robots_txt():
@@ -6544,6 +6658,8 @@ def sitemap_xml():
 
 @app.route(_ADMIN_PANEL_PATH)
 def admin_panel():
+    if os.environ.get('ADMIN_PANEL') != '1':
+        return Response('No disponible.', mimetype='text/plain'), 404
     import sys as _dbg_sys
     _dbg_sys.stderr.write("DEBUG: admin_panel entered\n"); _dbg_sys.stderr.flush()
     """Dashboard de actividad de Alma: cuentas, matches, mensajes, bloqueos, reportes."""
@@ -6804,7 +6920,8 @@ def api_cuenta_estado():
         conf = False
     ct = _cuenta_actual() if conf else None
     return jsonify({'configurado': conf, 'logueado': bool(ct),
-                    'email': (ct or {}).get('email', '')})
+                    'email': (ct or {}).get('email', ''),
+                    'entorno': 'render' if _es_render() else 'local'})
 
 
 @app.route('/api/cuenta/registro', methods=['POST'])
@@ -6921,48 +7038,104 @@ def api_cuenta_yo():
         if not previo:
             return jsonify({'error': f'"{nombre}" no está en tu cuenta. Usá Agregar para crearla.'}), 404
         _auth.set_yo(ct['id'], previo.get('nombre') or nombre)
-        perfil = dict(previo)
-        perfil['visibilidad'] = 'publico'
-        _auth.subir_perfil(ct['id'], perfil)
-        g.perfiles_cuenta = None
+        _cuenta_fijar_publico(ct, previo.get('nombre') or nombre)
         return jsonify({'ok': True, 'yo': previo.get('nombre') or nombre})
+    except Exception as e:
+        return jsonify({'error': str(e)[:300]}), 500
+
+
+def _bio_sugerida(perfil):
+    """Bio por defecto según el diseño: 'Me llamo Ana. Mi diseño es Generador
+    Emocional, perfil 3/5.' El usuario puede editarla."""
+    nombre = str(perfil.get('nombre') or '').strip()
+    tipo = per = aut = ''
+    try:
+        f = _buscar_ficha(_dj(perfil))
+        tipo, per, canales = f['tipo'], f['perfil'], f['canales']
+        if tipo:
+            aut = _hd_tipo_autoridad(_hd_centros_definidos(canales), canales)[1] or ''
+    except Exception:
+        pass
+    dis = ' '.join(x for x in (tipo, aut) if x)
+    partes = []
+    if nombre:
+        partes.append(f'Me llamo {nombre}.')
+    if dis:
+        partes.append(f'Mi diseño es {dis}' + (f', perfil {per}.' if per else '.'))
+    elif per:
+        partes.append(f'Mi perfil es {per}.')
+    return ' '.join(partes)[:280]
+
+
+def _cuenta_fijar_publico(ct, nombre, bio=None):
+    """Deja UNA sola persona pública en la cuenta (o ninguna con nombre vacío).
+
+    La persona pública es la identidad que se ve en Buscar; el resto queda
+    privado. Devuelve el nombre publicado, o None si no está en la cuenta."""
+    nombre = str(nombre or '').strip()
+    perfiles = _auth.perfiles_de(ct['id'])
+    if nombre and not any(str(p.get('nombre') or '').strip().lower() == nombre.lower()
+                          for p in perfiles):
+        return None
+    for p in perfiles:
+        es = bool(nombre) and str(p.get('nombre') or '').strip().lower() == nombre.lower()
+        vis = 'publico' if es else 'privado'
+        dj = dict(_dj(p))
+        if es and bio is not None:
+            dj['bio'] = str(bio or '').strip()[:280]
+        if (p.get('visibilidad') or '') == vis and not (es and bio is not None):
+            continue
+        perfil = dict(p)
+        perfil['visibilidad'] = vis
+        perfil['datos_json'] = dj
+        _auth.subir_perfil(ct['id'], perfil)
+    g.perfiles_cuenta = None
+    return nombre
+
+
+@app.route('/api/cuenta/publico', methods=['GET', 'POST'])
+def api_cuenta_publico():
+    """Mi perfil público: una sola persona visible en Buscar (o ninguna)."""
+    ct = _cuenta_actual()
+    if not ct:
+        return jsonify({'error': 'No logueado'}), 401
+    try:
+        if request.method == 'GET':
+            perfiles = _auth.perfiles_de(ct['id'])
+            pubs = [p for p in perfiles if (p.get('visibilidad') or '') == 'publico']
+            act = pubs[0] if pubs else None
+            return jsonify({'publico': str(act.get('nombre') or '') if act else '',
+                            'bio': str(_dj(act).get('bio') or '') if act else '',
+                            'personas': [{'nombre': str(p.get('nombre') or ''),
+                                          'sugerida': _bio_sugerida(p)} for p in perfiles]})
+        data = request.get_json(force=True, silent=True) or {}
+        nombre = str(data.get('nombre') or '').strip()
+        if nombre and _cuenta_fijar_publico(ct, nombre, data.get('bio')) is None:
+            return jsonify({'error': f'"{nombre}" no está en tu cuenta. Usá Agregar para crearla.'}), 404
+        if not nombre:
+            _cuenta_fijar_publico(ct, '', None)
+        return jsonify({'ok': True, 'publico': nombre})
     except Exception as e:
         return jsonify({'error': str(e)[:300]}), 500
 
 
 @app.route('/api/cuenta/subir', methods=['POST'])
 def api_cuenta_subir():
-    """Fija visibilidad de una persona. Con fase 3 el alta/edición ya guarda en Neon."""
+    """Compatibilidad: fija el perfil público (uno solo) y su bio."""
     ct = _cuenta_actual()
     if not ct:
         return jsonify({'error': 'No logueado'}), 401
     data = request.get_json(force=True, silent=True) or {}
     nombre = str(data.get('nombre') or data.get('persona') or '').strip()
-    if not nombre:
-        return jsonify({'error': 'Falta nombre'}), 400
+    if str(data.get('visibilidad') or 'publico').strip().lower() != 'publico':
+        nombre = ''
     try:
-        perfiles = _auth.perfiles_de(ct['id'])
-        previo = next((p for p in perfiles
-                       if str(p.get('nombre') or '').strip().lower() == nombre.lower()), None)
-        if not previo:
+        if nombre and _cuenta_fijar_publico(ct, nombre, data.get('bio')) is None:
             return jsonify({'error': f'"{nombre}" no está en tu cuenta. Usá Agregar para crearla.'}), 404
-        perfil = dict(previo)
-        perfil['visibilidad'] = str(data.get('visibilidad') or previo.get('visibilidad') or 'privado')
-        if 'bio' in data:
-            dj = perfil.get('datos_json')
-            if isinstance(dj, str):
-                import json as _jb
-                try:
-                    dj = _jb.loads(dj)
-                except Exception:
-                    dj = {}
-            if not isinstance(dj, dict):
-                dj = {}
-            dj['bio'] = str(data.get('bio') or '').strip()[:280]
-            perfil['datos_json'] = dj
-        _auth.subir_perfil(ct['id'], perfil)
-        g.perfiles_cuenta = None
-        return jsonify({'ok': True, 'nombre': nombre, 'visibilidad': perfil['visibilidad']})
+        if not nombre:
+            _cuenta_fijar_publico(ct, '', None)
+        return jsonify({'ok': True, 'nombre': nombre,
+                        'visibilidad': 'publico' if nombre else 'privado'})
     except Exception as e:
         return jsonify({'error': str(e)[:300]}), 500
 
@@ -7246,7 +7419,7 @@ def _buscar_ficha(dj):
         (dj.get('conscientes_lineas') or [None])[0] if dj.get('conscientes_lineas') else None,
         (dj.get('inconscientes_lineas') or [None])[0] if dj.get('inconscientes_lineas') else None) or ''
     return {'canales': canales, 'tipo': tipo or '', 'perfil': perfil or '',
-            'foto': _buscar_foto_ok(dj.get('foto'))}
+            'foto': ''}  # público sin foto: solo nombre, bio y diseño
 
 
 @app.route('/buscar')
@@ -7322,7 +7495,7 @@ def api_buscar_ficha():
             c.close()
         f = _buscar_ficha(dj or {})
         dd = dj or {}
-        return jsonify({'nombre': nombre, 'foto': f['foto'], 'tipo': f['tipo'],
+        return jsonify({'nombre': nombre, 'foto': '', 'tipo': f['tipo'],
                         'perfil': f['perfil'], 'canales': f['canales'],
                         'centros': sorted(_hd_centros_definidos(f['canales'])),
                         'bio': str((dd or {}).get('bio') or '').strip()[:280],
@@ -7347,7 +7520,6 @@ def api_buscar_candidatos():
         return jsonify({'error': 'No logueado'}), 401
     base = (request.args.get('base') or '').strip()
     solo_nuevos = (request.args.get('solo_nuevos') or '1') == '1'
-    por_nombre = (request.args.get('q') or '').strip()[:80]
     try:
         _buscar_init()
         from nube_db import _conn as _c
@@ -7362,14 +7534,9 @@ def api_buscar_candidatos():
         c = _c()
         try:
             cur = c.cursor()
-            if por_nombre:
-                cur.execute("SELECT cuenta_id, nombre, datos_json FROM perfiles_cuenta "
-                            "WHERE visibilidad='publico' AND cuenta_id<>%s AND nombre ILIKE %s "
-                            "ORDER BY nombre LIMIT 60", (ct['id'], '%' + por_nombre + '%'))
-            else:
-                cur.execute("SELECT cuenta_id, nombre, datos_json FROM perfiles_cuenta "
-                            "WHERE visibilidad='publico' AND cuenta_id<>%s",
-                            (ct['id'],))
+            cur.execute("SELECT cuenta_id, nombre, datos_json FROM perfiles_cuenta "
+                        "WHERE visibilidad='publico' AND cuenta_id<>%s",
+                        (ct['id'],))
             filas = cur.fetchall()
             cur.execute("SELECT a_cuenta, a_nombre FROM buscar_votos WHERE de_cuenta=%s AND de_nombre=%s",
                         (ct['id'], b.get('nombre')))
@@ -7407,8 +7574,7 @@ def api_buscar_candidatos():
                              and _buscar_familia_tipo(f['tipo']) == _buscar_familia_tipo(fb['tipo']))
             # Sin canales en común solo entra si comparte familia de tipo:
             # así el resultado sigue siendo afinidad, no una lista al azar.
-            # En la búsqueda por nombre se muestran todos los que coinciden.
-            if not por_nombre and not comunes and not fam_match:
+            if not comunes and not fam_match:
                 continue
             prio = (3 if (tipo_match and perfil_match) else
                     2 if tipo_match else 1 if perfil_match else 0)
@@ -7416,7 +7582,7 @@ def api_buscar_candidatos():
             frio = (len(set(chs)) == len(set_b)) and (len(comunes) == len(set_b))
             item = {'cuenta_id': cid, 'nombre': nom, 'canales': chs,
                     'comunes': len(comunes), 'tipo': f['tipo'], 'perfil': f['perfil'],
-                    'foto': f['foto'], 'tipo_match': tipo_match,
+                    'foto': '', 'tipo_match': tipo_match,
                     'centros': sorted(_hd_centros_definidos(f['canales'])),
                     'bio': str((dj or {}).get('bio') or '').strip()[:280],
                     'perfil_match': perfil_match, 'fam_match': fam_match,
@@ -7448,12 +7614,6 @@ def api_buscar_candidatos():
 
         con_canales = _sin_repetidos(con_canales)
         solo_afines = _sin_repetidos(solo_afines)
-        if por_nombre:
-            todos = con_canales + solo_afines
-            todos.sort(key=lambda x: (0 if x['personal'] else 1, -x['comunes'], x['nombre']))
-            return jsonify({'candidatos': todos[:60], 'afinidad': [],
-                            'total': len(todos), 'base': b.get('nombre'),
-                            'por_nombre': por_nombre})
         # Una sola lista: personas de cuentas personales primero y, dentro de
         # cada grupo, los que más canales comparten. Así una persona real no
         # queda enterrada por un catálogo de fichas.
@@ -7777,13 +7937,19 @@ def api_buscar_mensajes():
         return jsonify({'error': str(e)[:300]}), 500
 
 
+
+# ---------- Fase 5: foro pblico modularizado en Blueprint ----------
+from routes.foro import foro_bp
+app.register_blueprint(foro_bp)
+
+
 if __name__ == '__main__':
     puerto = int(os.environ.get('PORT', 5000))
-    # Producción: waitress con 8 hilos (Windows), fallback a Flask debug
+    # Produccion: waitress con 8 hilos (Windows), fallback a Flask dev
     try:
         from waitress import serve
         print(f'Sirviendo con waitress en http://0.0.0.0:{puerto} (8 hilos, gzip, cache)')
         serve(app, host='0.0.0.0', port=puerto, threads=8, channel_timeout=120, cleanup_interval=30)
     except ImportError:
-        print('waitress no instalado, usando Flask dev (pip install waitress para producción)')
+        print('waitress no instalado, usando Flask dev (pip install waitress para produccion)')
         app.run(host='0.0.0.0', port=puerto, debug=False, use_reloader=False, threaded=True)

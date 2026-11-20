@@ -32,22 +32,33 @@ def init_db():
         c.close()
 
 
+_ITER_SCRYPT = 2 ** 14
+
 def hash_pass(pw: str) -> str:
     salt = secrets.token_bytes(16)
-    dk = hashlib.pbkdf2_hmac("sha256", pw.encode("utf-8"), salt, _ITER)
-    return f"pbkdf2${_ITER}${salt.hex()}${dk.hex()}"
+    dk = hashlib.scrypt(pw.encode("utf-8"), salt=salt, n=_ITER_SCRYPT, r=8, p=1)
+    return f"scrypt${_ITER_SCRYPT}$8$1${salt.hex()}${dk.hex()}"
 
 
 def check_pass(pw: str, stored: str) -> bool:
+    stored = stored or ""
     try:
-        algo, it, salt_hex, hash_hex = (stored or "").split("$")
-        if algo != "pbkdf2":
-            return False
-        dk = hashlib.pbkdf2_hmac("sha256", pw.encode("utf-8"),
-                                 bytes.fromhex(salt_hex), int(it))
-        return hmac.compare_digest(dk.hex(), hash_hex)
+        if stored.startswith("scrypt$"):
+            parts = stored.split("$")
+            n = int(parts[1]); r = int(parts[2]); p = int(parts[3])
+            salt = bytes.fromhex(parts[4]); h = parts[5]
+            dk = hashlib.scrypt(pw.encode("utf-8"), salt=salt, n=n, r=r, p=p)
+            return hmac.compare_digest(dk.hex(), h)
+        if stored.startswith("pbkdf2$"):
+            algo, it, salt_hex, hash_hex = stored.split("$")
+            if algo != "pbkdf2":
+                return False
+            dk = hashlib.pbkdf2_hmac("sha256", pw.encode("utf-8"),
+                                      bytes.fromhex(salt_hex), int(it))
+            return hmac.compare_digest(dk.hex(), hash_hex)
     except Exception:
         return False
+    return False
 
 
 def _norm_email(email: str) -> str:
@@ -188,6 +199,14 @@ def cerrar_sesion(token: str):
 
 # ---------- perfiles de la cuenta ----------
 def subir_perfil(cuenta_id: int, perfil: dict):
+    # Fotos: no se guardan en la nube, solo en la copia local del proyecto.
+    perfil = dict(perfil)
+    perfil.pop("foto", None)
+    dj = perfil.get("datos_json")
+    if isinstance(dj, dict) and dj.get("foto"):
+        dj = dict(dj)
+        dj.pop("foto", None)
+        perfil["datos_json"] = dj
     vis = perfil.get("visibilidad") or "privado"
     if vis not in ("privado", "publico"):
         vis = "privado"

@@ -27,8 +27,9 @@ button:hover{filter:brightness(.97)}
 .pc-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block}
 .pc-nofoto{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;color:#7b8798}
 .pc-acciones{position:absolute;top:6px;right:6px;display:flex;gap:6px}
-.pc-btn{width:30px;height:30px;padding:0;border-radius:50%;border:1px solid rgba(0,0,0,.12);background:rgba(255,255,255,.94);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer}
-.pc-btn.eq{background:var(--azul);color:#fff;border-color:var(--azul)}
+.pc-btn{height:26px;padding:0 9px;border-radius:13px;border:1px solid rgba(0,0,0,.12);background:rgba(255,255,255,.94);font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer}
+.pc-btn.si{background:#2e7d32;color:#fff;border-color:#1b5e20}
+.pc-btn.no{background:#c62828;color:#fff;border-color:#8e1b1b}
 .pc-info{padding:8px 9px 10px}
 .pc-nom{font-size:12.5px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pc-meta{font-size:10.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -64,23 +65,23 @@ button:hover{filter:brightness(.97)}
 #aviso .aviso-ok{background:#2e7d32;border-color:#2e7d32;color:#fff;font-weight:600}
 </style></head>
 <body>
-<header><b>Buscar personas</b><a href="/cuenta" style="font-size:13px">Mi cuenta</a><a href="/" style="margin-left:auto;font-size:13px">Volver a RAVE</a></header>
+<header><b>Buscar personas</b><a href="/cuenta" style="font-size:13px">Mi cuenta</a><a href="/privacidad" style="font-size:13px">Privacidad</a><a href="/" style="margin-left:auto;font-size:13px">Volver a RAVE</a></header>
 <main>
 <div id="aviso"></div>
 <div id="msg"></div>
 
 <div class="card"><h3>1. Tu persona visible</h3>
-<p class="mini">Solo participan personas en público: nombre, foto, canales, tipo y perfil. Sin fecha, hora ni lugar.</p>
+<p class="mini">Solo participan personas en público: nombre, bio, canales, tipo y perfil. Sin fecha, hora, lugar ni fotos.</p>
 <div class="row"><select id="base"></select><button class="prim" id="btn-ver">Buscar parecidos</button>
 <label class="mini"><input type="checkbox" id="solo-nuevos" checked> ocultar ya votados</label></div>
 </div>
 
 <div class="card"><h3>2. Resultados</h3>
 <p class="mini" id="detalle">Cargando tu sesión…</p>
-<div id="lista"></div>
-<p class="mini" id="leyenda" style="margin:10px 0 0"></p></div>
+<div id="lista"></div></div>
 
 <div class="card"><h3>3. Matches (= mutuo) <span class="mini" id="estado-matches"></span></h3>
+<p class="mini">Si hay match, pueden escribir acá o seguir por donde prefieran.</p>
 <div id="matches" class="mini">Todavía no hay matches.</div>
 <div class="row" style="margin-top:8px"><button id="btn-refrescar" class="mini2">Actualizar</button></div></div>
 
@@ -103,8 +104,8 @@ button:hover{filter:brightness(.97)}
       <p class="ficha-bio" id="ficha-bio" style="display:none"></p>
       <div id="ficha-canales" style="margin-top:6px"></div>
       <div class="row" style="margin-top:12px">
-       <button class="prim" id="ficha-eq">= Me gusta</button>
-       <button id="ficha-x2">✕ Descartar</button>
+       <button class="prim" id="ficha-eq" style="background:#2e7d32;border-color:#1b5e20">Sí</button>
+       <button id="ficha-x2" style="background:#c62828;color:#fff;border-color:#8e1b1b">No</button>
       </div>
      </div>
     </div>
@@ -124,6 +125,7 @@ const CLAVE_VISTOS='buscar_ya_vistos';
 let vistos=new Set();
 try{vistos=new Set(JSON.parse(localStorage.getItem(CLAVE_VISTOS)||'[]'));}catch(e){}
 let pendientes=[];
+let sesionMuerta=false; // 401: sin sesión (p.ej. pestaña abierta tras desloguear) → frenar refrescos
 const claveMatch=m=>(m.mi_nombre||'')+'|'+m.cuenta_id+'|'+(m.nombre||'');
 function guardarVistos(){try{localStorage.setItem(CLAVE_VISTOS,JSON.stringify([...vistos]));}catch(e){}}
 function pintarAviso(){
@@ -154,7 +156,7 @@ function abrirChat(m){
 }
 function msg(t,c){const m=$('msg');m.className=c||'';m.textContent=t||'';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-async function api(u,o){const r=await fetch(u,o||{});let j={};try{j=await r.json();}catch(e){}return{ok:r.ok,j};}
+async function api(u,o){const r=await fetch(u,o||{});let j={};try{j=await r.json();}catch(e){}return{ok:r.ok,j,st:r.status};}
 
 async function init(){
  const m=await api('/api/buscar/mis');
@@ -186,15 +188,14 @@ function celda(c,i){
  return '<div class="pc-cell" style="box-shadow:inset 0 3px 0 '+col+'" title="'+det+'">'
   +'<div class="pc-foto-wrap" data-ver="'+i+'" style="cursor:pointer">'+foto
   +'<div class="pc-acciones">'
-  +'<button class="pc-btn" data-x="'+i+'" title="Descartar (X)">✕</button>'
-  +'<button class="pc-btn eq" data-eq="'+i+'" title="Me gusta (=)">=</button>'
+  +'<button class="pc-btn no" data-x="'+i+'" title="No">No</button>'
+  +'<button class="pc-btn si" data-eq="'+i+'" title="Sí">Sí</button>'
   +'</div></div>'
   +'<div class="pc-info"><div class="pc-nom">'+esc(c.nombre)+'</div>'
   +'<div class="pc-meta">'+esc(meta)+'</div></div></div>';
 }
 function pintar(){
  const box=$('lista');
- $('leyenda').innerHTML='Franja: <b style="color:#e53935">rojo</b> mismo tipo y perfil · <b style="color:#ff9800">naranja</b> mismo tipo · <b style="color:#c9a800">amarillo</b> mismo perfil · <b style="color:#9e9e9e">gris</b> mismo tipo, sin canales compartidos.';
  box.innerHTML=cola.length?cola.map((c,i)=>celda(c,i)).join(''):'<span class="mini">Sin resultados por ahora.</span>';
  box.querySelectorAll('[data-ver]').forEach(el=>{el.onclick=(ev)=>{
    if(ev.target.closest('button')) return;
@@ -307,7 +308,8 @@ async function votar(cand,v){
 }
 
 async function cargarMatches(avisar){
- const r=await api('/api/buscar/matches'); if(!r.ok)return;
+ const r=await api('/api/buscar/matches');
+ if(!r.ok){ if(r.st===401) sesionMuerta=true; return; }
  const ms=r.j.matches||[];
  const antes=pendientes.length;
  pendientes=ms.filter(m=>!vistos.has(claveMatch(m)));
@@ -376,10 +378,10 @@ $('ficha-x2').onclick=()=>{const c=fichaActual; if(!c)return; cerrarFicha(); vot
 document.addEventListener('keydown',e=>{if(e.key==='Escape') cerrarFicha();});
 
 // Aviso de matches y mensajes nuevos: solo con la pestaña visible.
-setInterval(()=>{ if(document.visibilityState==='visible') cargarMatches(true); },60000);
-setInterval(()=>{ if(document.visibilityState==='visible'&&abierta) cargarChat(true); },30000);
+setInterval(()=>{ if(!sesionMuerta&&document.visibilityState==='visible') cargarMatches(true); },60000);
+setInterval(()=>{ if(!sesionMuerta&&document.visibilityState==='visible'&&abierta) cargarChat(true); },30000);
 document.addEventListener('visibilitychange',()=>{
- if(document.visibilityState==='visible'){ cargarMatches(true); if(abierta) cargarChat(true); }
+ if(!sesionMuerta&&document.visibilityState==='visible'){ cargarMatches(true); if(abierta) cargarChat(true); }
 });
 init();
 </script></body></html>

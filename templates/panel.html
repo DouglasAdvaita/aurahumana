@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel — RAVE</title>
+<style>
+body{font-family:system-ui,Arial,sans-serif;margin:0;background:#eef1f5;color:#222;font-size:14px}
+header{background:#fff;border-bottom:1px solid #d7dde5;padding:10px 14px;display:flex;gap:10px;align-items:center}
+header b{color:#1a3d6d;font-size:16px}
+.tabs{display:flex;gap:6px;padding:10px 14px;background:#fff;border-bottom:1px solid #d7dde5}
+.tab{padding:8px 14px;border:1px solid #d7dde5;border-radius:8px;background:#fff;cursor:pointer;font-size:14px}
+.tab.active{background:#1a3d6d;color:#fff;border-color:#1a3d6d}
+main{padding:14px;max-width:900px;margin:0 auto}
+.frame{width:100%;height:75vh;border:0;border-radius:12px;background:#fff}
+.card{background:#fff;border:1px solid #d7dde5;border-radius:12px;padding:14px;margin-bottom:12px}
+input,textarea{width:100%;padding:8px;border:1px solid #d7dde5;border-radius:6px;font-size:14px;box-sizing:border-box}
+button{padding:8px 14px;border:1px solid #d7dde5;background:#fff;border-radius:8px;cursor:pointer}
+button.prim{background:#1a3d6d;color:#fff;border-color:#1a3d6d}
+.post{border-bottom:1px solid #eef0f4;padding:10px 0}
+.post b{color:#1a3d6d}
+.post .mini{color:#6b7684;font-size:12px}
+.comentario{margin:6px 0 6px 12px;padding:6px 10px;background:#f7f9fc;border-radius:8px;font-size:13px}
+.msg{min-height:18px;font-size:13px;margin:8px 0}
+</style></head>
+<body>
+<header><b>Panel central</b><a href="/" style="margin-left:auto;font-size:13px">RAVE</a></header>
+<div class="tabs">
+  <button class="tab active" data-tab="buscar">Búsqueda</button>
+  <button class="tab" data-tab="chat">Chat</button>
+  <button class="tab" data-tab="posts">Posts</button>
+</div>
+<main>
+  <section id="tab-buscar"><iframe class="frame" src="/buscar"></iframe></section>
+  <section id="tab-chat" style="display:none"><iframe class="frame" src="/buscar"></iframe></section>
+  <section id="tab-posts" style="display:none">
+    <div class="card">
+      <h3>Nuevo post</h3>
+      <textarea id="post-texto" rows="3" placeholder="Escribí algo (1 por día)…"></textarea>
+      <div style="margin-top:8px"><button class="prim" id="btn-post">Publicar</button></div>
+      <div id="post-msg" class="msg"></div>
+    </div>
+    <div id="posts-lista"></div>
+  </section>
+</main>
+<script>
+function $(id){return document.getElementById(id);}
+const tabs=document.querySelectorAll('.tab');
+tabs.forEach(t=>t.onclick=()=>{
+  tabs.forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  ['buscar','chat','posts'].forEach(n=>{
+    const el=document.getElementById('tab-'+n);
+    if(el) el.style.display = (n===t.dataset.tab)?'block':'none';
+  });
+});
+async function api(u,o){const r=await fetch(u,o||{});let j={};try{j=await r.json();}catch(e){}return{ok:r.ok,j};}
+async function cargarPosts(){
+  const r=await api('/api/foro/posts');
+  if(!r.ok){$('posts-lista').innerHTML='<div class="msg">Entrá a tu cuenta.</div>';return;}
+  const posts=r.j.posts||[];
+  $('posts-lista').innerHTML=posts.length?posts.map(p=>`
+    <div class="card">
+      <div><b>${p.autor}</b> <span class="mini">${p.fecha.slice(0,16).replace('T',' ')}</span></div>
+      <div style="margin:6px 0">${p.texto}</div>
+      <div class="mini">${p.comentarios} comentarios</div>
+      <div id="com-${p.id}"></div>
+      <div style="margin-top:6px;display:flex;gap:6px">
+        <input id="inp-${p.id}" placeholder="Comentar…" style="flex:1">
+        <button data-c="${p.id}">Comentar</button>
+      </div>
+    </div>`).join(''):'<div class="msg">Sin posts por ahora.</div>';
+  posts.forEach(p=>cargarComentarios(p.id));
+  $('posts-lista').querySelectorAll('button[data-c]').forEach(b=>{
+    b.onclick=async()=>{
+      const pid=b.dataset.c;
+      const txt=$('inp-'+pid).value.trim();
+      if(!txt) return;
+      const r=await api('/api/foro/comentarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({post_id:pid,texto:txt})});
+      if(r.ok){$('inp-'+pid).value='';cargarComentarios(pid);}
+      else alert(r.j.error||'Error');
+    };
+  });
+}
+async function cargarComentarios(pid){
+  const r=await api('/api/foro/comentarios?post_id='+pid);
+  if(!r.ok) return;
+  const cs=r.j.comentarios||[];
+  const box=$('com-'+pid);
+  if(box) box.innerHTML=cs.map(c=>`<div class="comentario"><b>${c.autor}</b>: ${c.texto}</div>`).join('');
+}
+$('btn-post').onclick=async()=>{
+  const t=$('post-texto').value.trim();
+  if(!t) return;
+  const r=await api('/api/foro/posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto:t})});
+  if(r.ok){$('post-texto').value='';$('post-msg').textContent='Publicado.';cargarPosts();}
+  else $('post-msg').textContent=r.j.error||'Error';
+};
+cargarPosts();
+setInterval(cargarPosts,60000);
+</script>
+</body></html>

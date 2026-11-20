@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacidad — AuraHumana</title>
+<style>
+  :root{--azul:#1a3d6d;--borde:#d7dde5;--texto:#222;--ayuda:#5f6b7a}
+  body{font-family:system-ui,Arial,sans-serif;margin:0;background:#eef1f5;color:var(--texto);font-size:15px;line-height:1.6}
+  header{background:#fff;border-bottom:1px solid var(--borde);padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  header b{color:var(--azul);font-size:16px}
+  header a{font-size:13px;color:var(--azul);text-decoration:none}
+  main{padding:16px;max-width:700px;margin:0 auto}
+  .card{background:#fff;border:1px solid var(--borde);border-radius:10px;padding:18px 20px}
+  h1{margin:0 0 4px;color:var(--azul);font-size:20px}
+  h2{margin:18px 0 4px;color:var(--azul);font-size:15px}
+  p{margin:6px 0}
+  ul{margin:6px 0 6px 20px;padding:0}
+  li{margin:3px 0}
+  .mini{color:var(--ayuda);font-size:12.5px}
+  a{color:var(--azul)}
+  label{display:block;margin:10px 0 0;font-size:13.5px;font-weight:600}
+  input,textarea{display:block;width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid var(--borde);border-radius:6px;font:inherit;font-size:14px;margin-top:4px;background:#fff}
+  button{padding:9px 14px;border:1px solid var(--azul);background:var(--azul);color:#fff;border-radius:6px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+</style></head>
+<body>
+<header><b>Privacidad</b><a href="/">Volver a AuraHumana</a><a href="/cuenta" style="margin-left:auto">Mi cuenta</a></header>
+<main>
+<div class="card">
+  <h1>Privacidad</h1>
+  <p class="mini">Versión 1.0 · noviembre de 2026</p>
+
+  <h2>Responsable</h2>
+  <p><b>AuraHumana — proyecto independiente</b>, Uruguay. Contacto: el formulario de esta página.</p>
+
+  <h2>Qué guardamos</h2>
+  <ul>
+    <li><b>Tu cuenta:</b> correo y contraseña cifrada.</li>
+    <li><b>Tus personas:</b> fecha, hora y lugar de nacimiento, y los resultados que el sitio calcula.</li>
+    <li><b>Si te publicás:</b> el nombre que elegís, una bio breve, y tu tipo, perfil, canales y centros.</li>
+    <li><b>Si usás el chat:</b> los mensajes de la conversación.</li>
+  </ul>
+
+  <h2>Qué no se publica nunca</h2>
+  <p>Fecha, hora ni lugar de nacimiento, correo, mensajes ni fotos.</p>
+
+  <h2>Fotos</h2>
+  <p>Las fotos no se suben a la nube: quedan solo en tu copia local del proyecto.</p>
+
+  <h2>Para qué</h2>
+  <p>Para darte el servicio: calcular y guardar tus diseños, mostrarte tu cuenta y, si lo pedís, aparecer en Buscar y chatear. Publicarte es opcional y podés deshacerlo cuando quieras desde Mi cuenta.</p>
+
+  <h2>Dónde</h2>
+  <p>En una base PostgreSQL alojada en Neon y un servidor de Render, ambos fuera de Uruguay. Las conexiones van cifradas (HTTPS).</p>
+
+  <h2>Cuánto tiempo</h2>
+  <p>Mientras exista tu cuenta. Podés borrar personas desde Mi cuenta; para borrar la cuenta entera escribinos y la eliminamos.</p>
+
+  <h2>Tus derechos</h2>
+  <p>Acceder, corregir y suprimir tus datos escribiendo por el formulario de esta página. También podés reclamar ante la Unidad Reguladora y de Control de Datos Personales (URCDP).</p>
+
+  <h2>Otros</h2>
+  <p>Servicio para mayores de 18 años. No es un servicio médico ni psicológico: el Diseño Humano es un sistema de estudio, no un diagnóstico. Usamos una sola cookie técnica de sesión; no hay publicidad ni seguimiento de terceros.</p>
+
+  <h2>Cambios</h2>
+  <p>Si cambia este texto, se publica la nueva versión con su fecha.</p>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <h2 style="margin-top:0">Contacto</h2>
+  <p class="mini">Para consultas, para ejercer tus derechos o para pedir que borremos tu cuenta.</p>
+  <form id="form-contacto">
+    <label for="c-nombre">Tu nombre (opcional)</label>
+    <input id="c-nombre" maxlength="80" autocomplete="name">
+    <label for="c-email">Tu correo (opcional, para que te respondamos)</label>
+    <input id="c-email" type="email" maxlength="120" autocomplete="email">
+    <label for="c-mensaje">Mensaje</label>
+    <textarea id="c-mensaje" rows="4" maxlength="4000" required></textarea>
+    <input id="c-web" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+    <div style="margin-top:10px"><button type="submit">Enviar</button> <span id="c-msg" class="mini"></span></div>
+  </form>
+</div>
+<script>
+document.getElementById('form-contacto').onsubmit = async (ev)=>{
+  ev.preventDefault();
+  const el = document.getElementById('c-msg');
+  const body = {nombre: document.getElementById('c-nombre').value,
+                email: document.getElementById('c-email').value,
+                mensaje: document.getElementById('c-mensaje').value,
+                web: document.getElementById('c-web').value};
+  el.textContent = 'Enviando…';
+  try{
+    const r = await fetch('/api/contacto', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    let j = {}; try{ j = await r.json(); }catch(e){}
+    if(r.ok){ el.textContent = 'Gracias, llegó el mensaje.'; document.getElementById('form-contacto').reset(); }
+    else el.textContent = (j && j.error) || 'No se pudo enviar.';
+  }catch(e){ el.textContent = 'No se pudo enviar. Revisá la conexión.'; }
+};
+</script>
+</main>
+</body></html>

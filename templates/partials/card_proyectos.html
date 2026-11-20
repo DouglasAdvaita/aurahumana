@@ -1,0 +1,406 @@
+            <div class="panel-compuesto-controles" id="card-proyectos-compartidos" data-caja="Proyectos-Compartidos">
+                <h4 class="desplegable" title="Clic para plegar/desplegar">Proyectos compartidos</h4>
+                <div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.4;">
+                    Selección de personas de los datos cargados para proyectos compartidos, según <b>Proyectos conjuntos</b>: combina <b>Tipo</b>, <b>Perfil/línea</b> y <b>Canales</b>. En cada persona se listan sus canales con el <b>tema y la utilidad práctica de la Parte 1</b>.
+                </div>
+
+                <div style="border:1px solid var(--borde);border-radius:6px;padding:8px 10px;background:var(--panel);margin-bottom:10px;">
+                    <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;">Filtros de selección</div>
+
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:6px;">
+                        <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px;">
+                            Área A–E
+                            <select id="proy-area" style="font-size:11px;padding:3px 6px;border:1px solid var(--borde3);border-radius:6px;background:var(--panel);color:var(--texto);min-width:150px;">
+                                <option value="">Todas las áreas</option>
+                            </select>
+                        </label>
+                        <span id="proy-sub-wrap" style="display:none;">
+                        <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px;">
+                            Competencia
+                            <select id="proy-canal-sub" style="font-size:11px;padding:3px 6px;border:1px solid var(--borde3);border-radius:6px;background:var(--panel);color:var(--texto);min-width:220px;">
+                                <option value="">Todas las competencias del área</option>
+                            </select>
+                        </label>
+                        </span>
+                        <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px;">
+                            Tipo
+                            <select id="proy-tipo" style="font-size:11px;padding:3px 6px;border:1px solid var(--borde3);border-radius:6px;background:var(--panel);color:var(--texto);min-width:150px;">
+                                <option value="">Todos los tipos</option>
+                            </select>
+                        </label>
+                        <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px;">
+                            Perfil / Línea
+                            <select id="proy-linea" style="font-size:11px;padding:3px 6px;border:1px solid var(--borde3);border-radius:6px;background:var(--panel);color:var(--texto);min-width:170px;">
+                                <option value="">Todas las líneas</option>
+                            </select>
+                        </label>
+                        <button type="button" id="proy-limpiar-filtros" style="font-size:11px;padding:5px 10px;border:1px solid var(--borde3);border-radius:6px;background:var(--panel);color:var(--texto);cursor:pointer">Limpiar filtros</button>
+                        <span id="proy-filtros-activos" style="font-size:10px;color:var(--muted);margin-left:auto;align-self:center;"></span>
+                    </div>
+                    <div style="font-size:10px;color:var(--muted);">Se filtra por el área/competencia elegida (una persona coincide si tiene ese canal); Tipo y Perfil/Línea se combinan.</div>
+                </div>
+
+                <div id="proy-conteo" style="font-size:11px;color:var(--muted);margin-bottom:6px;"></div>
+                <div id="proy-listado" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+                <div id="proy-vacio" style="font-size:11px;color:var(--muted);padding:10px;text-align:center;display:none;">No hay personas que coincidan con los filtros.</div>
+                <div id="proy-popup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+                    <div style="background:var(--panel);border:1px solid var(--borde);border-radius:8px;max-width:520px;width:90%;max-height:80vh;overflow:auto;padding:12px 14px;box-shadow:0 10px 28px rgba(0,0,0,.25);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <b id="proy-popup-titulo" style="color:var(--titulo);font-size:13px;"></b>
+                            <button type="button" id="proy-popup-cerrar" style="border:none;background:transparent;font-size:18px;cursor:pointer;color:var(--muted);">✕</button>
+                        </div>
+                        <div id="proy-popup-cuerpo" style="font-size:11.5px;line-height:1.45;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            (function(){
+                // Mapa Parte 1 de "Proyectos conjuntos": canal -> {tema, utilidad práctica}
+                var CANALES_P1 = {
+                    '1-8': {tema:'Inspiración', util:'Modelo creativo de rol: Para liderar mediante el ejemplo práctico y dar expresión pública a la creatividad original.'},
+                    '2-14': {tema:'El Compás', util:'Guía de dirección y recursos: Para asignar capital o energía con tino y orientar el rumbo de proyectos.'},
+                    '3-60': {tema:'Mutación', util:'Iniciador de cambios duraderos: Para romper estancamientos, reestructurar sistemas y traer innovación.'},
+                    '4-63': {tema:'Lógica', util:'Evaluador de hipótesis: Para poner a prueba teorías, filtrar dudas y verificar la solidez de un patrón.'},
+                    '5-15': {tema:'Ritmo', util:'Sincronizador de flujos: Para establecer pautas, rutinas sanas y ritmos de trabajo sostenibles.'},
+                    '6-59': {tema:'Apareamiento e Intimidad', util:'Integrador de alianzas: Para romper barreras relacionales, formar parejas y gestar proyectos fértiles.'},
+                    '7-31': {tema:'El Alpha', util:'Líder estratégico: Para señalar el camino futuro y dirigir a grupos de forma representativa.'},
+                    '9-52': {tema:'Concentración', util:'Especialista en foco: Para ejecutar trabajos minuciosos de alta precisión sostenida sin distracción.'},
+                    '10-20': {tema:'Despertar', util:'Modelo de autenticidad: Para comunicar verdades en el presente y recordar principios de orden superior.'},
+                    '10-34': {tema:'Exploración', util:'Autónomo con convicción: Para ejecutar tareas con independencia total y seguir la propia conducta sin interferencias.'},
+                    '10-57': {tema:'Forma Perfeccionada', util:'Diseñador y perfeccionador: Para embellecer formas, estructurar entornos seguros y optimizar la estética o el comportamiento.'},
+                    '11-56': {tema:'Curiosidad', util:'Storyteller y divulgador: Para sintetizar lecciones pasadas, motivar equipos y enseñar mediante historias.'},
+                    '12-22': {tema:'Apertura', util:'Comunicador e impactador social: Para conmover, transmitir emociones con gracia y captar atención en el momento adecuado.'},
+                    '13-33': {tema:'El Pródigo / El Testigo', util:'Archivista de lecciones: Para escuchar confidencias, recopilar memorias y extraer aprendizajes de las experiencias del grupo.'},
+                    '16-48': {tema:'La Longitud de Onda / Talento', util:'Maestro de habilidades: Para perfeccionar técnicas mediante la práctica y aportar soluciones de profunda maestría.'},
+                    '17-62': {tema:'Aceptación', util:'Organizador de detalles: Para estructurar datos complejos en esquemas claros y planes operativos.'},
+                    '18-58': {tema:'Juicio', util:'Auditor de calidad: Para detectar fallas o errores inmediatamente y exigir la corrección de lo defectuoso.'},
+                    '19-49': {tema:'Síntesis / Cortejo', util:'Negociador de necesidades: Para fijar acuerdos de convivencia, velar por la lealtad y garantizar el sustento del grupo.'},
+                    '20-34': {tema:'Carisma', util:'Implementador ultradinámico: Para ejecutar acción directa en el momento presente y mantener la productividad activa.'},
+                    '20-57': {tema:'La Chispa Cerebral', util:'Solucionador intuitivo instantáneo: Para detectar riesgos u oportunidades en el acto e improvisar respuestas certeras.'},
+                    '21-45': {tema:'Materialismo / Línea del Dinero', util:'Administrador financiero y de control: Para gestionar presupuestos, liderar recursos materiales y controlar la operativa.'},
+                    '23-43': {tema:'Estructurar', util:'Optimizador de eficiencia: Para simplificar conceptos complejos y reestructurar procesos de forma innovadora.'},
+                    '25-51': {tema:'Conciencia', util:'Pensador y conceptualizador: Para profundizar en misterios o dilemas y aportar revelaciones o enfoques únicos.'},
+                    '26-44': {tema:'Iniciación', util:'Pionero y catalizador: Para abrir caminos desconocidos, asumir riesgos competitivos e iniciar a otros en nuevos retos.'},
+                    '27-50': {tema:'Preservación', util:'Gestor de custodia y bienestar: Para cuidar al equipo, nutrir valores y velar por la seguridad colectiva.'},
+                    '28-38': {tema:'Lucha', util:'Defensor de causas con propósito: Para superar obstáculos difíciles y mantenerse firme defendiendo lo que tiene valor real.'},
+                    '29-46': {tema:'El Descubrimiento', util:'Ejecutor comprometido: Para sumergirse de lleno en experiencias largas y triunfar donde otros abandonan.'},
+                    '30-41': {tema:'Reconocimiento', util:'Catalizador de visiones: Para encender el deseo de progreso y movilizar hacia nuevas metas e innovaciones.'},
+                    '32-54': {tema:'Transformación', util:'Ejecutor de proyecto eficiente: Para impulsar la ambición material, evaluar viabilidad económica y escalar jerarquías.'},
+                    '34-57': {tema:'Poder / Arquetipo', util:'Protector de supervivencia: Para reaccionar instantáneamente por instinto y garantizar la seguridad física o biológica.'},
+                    '35-36': {tema:'Transitoriedad', util:'Gestor de cambios y crisis: Para liderar la transición a nuevas experiencias, aportar vivencias y narrar la aventura.'},
+                    '37-40': {tema:'Comunidad', util:'Creador de pactos y cohesión: Para negociar tratos equitativos del hogar/empresa y fortalecer el apoyo mutuo.'},
+                    '39-55': {tema:'Liberar Emociones', util:'Provocador de espíritu creativo: Para desbloquear estados de ánimo, inyectar pasión y liberar potencial artístico.'},
+                    '42-53': {tema:'Maduración', util:'Cerrador de ciclos: Para llevar experiencias a su término, madurar procesos y garantizar que se completen las etapas.'},
+                    '47-64': {tema:'Abstracción', util:'Analista e intérprete de experiencias: Para revisar la historia pasada, procesar experiencias confusas y darles sentido coherente'}
+                };
+
+                // Canales del filtro (Parte 2, sección 3): se refieren por FUNCIÓN, no por número de canal.
+                // Agrupados en áreas A–E. Cada ítem puede apuntar a varios códigos (min-max).
+                var CANALES_GRUPOS = [
+                    {grupo:'A. Dirección, Control Material y Liderazgo', items:[
+                        {fn:'Dirección General (CEO/COO), control presupuestario', cod:['21-45']},
+                        {fn:'Liderazgo democrático o institucional', cod:['7-31']},
+                        {fn:'Gestión de riesgos y seguridad operativa', cod:['10-57','20-57','34-57']}
+                    ]},
+                    {grupo:'B. Ventas, Marketing y Negociación Comercial', items:[
+                        {fn:'Dirección de Marketing, publicidad, estrategia comercial', cod:['26-44']},
+                        {fn:'Negociador de contratos y alianzas', cod:['37-40']},
+                        {fn:'Gestión de lealtad y acuerdos de provisión', cod:['19-49']}
+                    ]},
+                    {grupo:'C. Análisis, Organización y Auditoría de Datos', items:[
+                        {fn:'Consultoría de eficiencia y simplificación', cod:['23-43']},
+                        {fn:'Organización de datos y planificación detallada', cod:['17-62']},
+                        {fn:'Auditoría de calidad y mejora continua', cod:['18-58']},
+                        {fn:'Análisis de casos históricos y benchmarking', cod:['47-64']}
+                    ]},
+                    {grupo:'D. Ejecución, Foco y Producción', items:[
+                        {fn:'Evaluación de inversiones y escalamiento de proyectos', cod:['32-54']},
+                        {fn:'Implementación intensiva de tareas', cod:['20-34']},
+                        {fn:'Trabajo minucioso de alta precisión', cod:['9-52']},
+                        {fn:'Proyectos de largo aliento', cod:['29-46']}
+                    ]},
+                    {grupo:'E. Innovación, Creatividad y Comunicación', items:[
+                        {fn:'Dirección creativa e imagen de marca', cod:['1-8']},
+                        {fn:'Maestría técnica y especialización', cod:['16-48']},
+                        {fn:'Gestión del cambio e innovación disruptiva', cod:['3-60']},
+                        {fn:'Storytelling, redacción y comunicación institucional', cod:['11-56']},
+                        {fn:'Gestión de crisis y entornos cambiantes', cod:['35-36']}
+                    ]}
+                ];
+
+                // Tipos (Parte 2, sección 1): se refieren por FUNCIÓN, no por nombre de tipo.
+                var TIPOS_FUNCION = [
+                    {id:'gen', nom:'Generador / Generador Manifiesto', fn:'Ejecución y desarrollo continuo de proyectos', tipos:['Generador','Generador Manifestante']},
+                    {id:'proy', nom:'Proyector', fn:'Dirección, consultoría estratégica y optimización de recursos', tipos:['Proyector']},
+                    {id:'man', nom:'Manifestador', fn:'Iniciadores, apertura de proyectos y emprendimiento', tipos:['Manifestador']},
+                    {id:'ref', nom:'Reflector', fn:'Auditoría de clima organizacional y control de calidad global', tipos:['Reflector']}
+                ];
+
+                // Líneas / Perfil (Parte 2, sección 2): se refieren por FUNCIÓN, no por número de línea.
+                var LINEAS_FUNCION = [
+                    {id:'l1', num:'1', nom:'Línea 1 · Investigador', fn:'Investigación y Desarrollo (R&D), análisis técnico'},
+                    {id:'l2', num:'2', nom:'Línea 2 · Ermitaño / Don Natural', fn:'Especialista autónomo'},
+                    {id:'l3', num:'3', nom:'Línea 3 · Mártir / Ensayo y Error', fn:'Control de calidad (QA), gestión de fallas y pruebas'},
+                    {id:'l4', num:'4', nom:'Línea 4 · Oportunista / Redes', fn:'Recursos Humanos, ventas relacionales, networking'},
+                    {id:'l5', num:'5', nom:'Línea 5 · Hereje / General', fn:'Gestión de crisis y consultoría de soluciones prácticas'},
+                    {id:'l6', num:'6', nom:'Línea 6 · Modelo de Rol', fn:'Supervisión ejecutiva, mentoría y visión estratégica a largo plazo'}
+                ];
+
+                var panel = document.getElementById('card-proyectos-compartidos');
+                if(!panel) return;
+                var listado = document.getElementById('proy-listado');
+                var conteoEl = document.getElementById('proy-conteo');
+                var vacioEl = document.getElementById('proy-vacio');
+                var btnLimpiar = document.getElementById('proy-limpiar-filtros');
+                var activosEl = document.getElementById('proy-filtros-activos');
+                var canalesGrupo = document.getElementById('proy-canales-grupo');
+                var tiposGrupo = document.getElementById('proy-tipos-grupo');
+                var lineasGrupo = document.getElementById('proy-lineas-grupo');
+                var personasCache = [];
+                var estado = {canales:new Set(), tipos:new Set(), lineas:new Set()};
+
+                function escHtml(t){var s=t==null?'':String(t);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+                // Plegable con memoria (igual que los demás paneles centrales)
+                (function(){
+                    var h = panel.querySelector('h4.desplegable');
+                    if(!h) return;
+                    try { var guardado = localStorage.getItem('dhPanel_proyectos-compartidos'); } catch(e){ guardado = null; }
+                    if(guardado === '0') panel.classList.add('colapsada'); else panel.classList.remove('colapsada');
+                    h.addEventListener('click', function(){
+                        panel.classList.toggle('colapsada');
+                        try { localStorage.setItem('dhPanel_proyectos-compartidos', panel.classList.contains('colapsada') ? '0' : '1'); } catch(e){}
+                    });
+                })();
+
+                function normCanal(c){
+                    c = String(c||'').trim();
+                    var m = c.match(/^(\d+)\s*[-/]\s*(\d+)$/);
+                    if(!m) return c;
+                    var a = parseInt(m[1],10), b = parseInt(m[2],10);
+                    return a < b ? (a + '-' + b) : (b + '-' + a);
+                }
+
+                function findById(arr, id){
+                    for(var i = 0; i < arr.length; i++) if(arr[i].id === id) return arr[i];
+                    return null;
+                }
+
+                var areaSel = document.getElementById('proy-area');
+                var subSel = document.getElementById('proy-canal-sub');
+                var tipoSel = document.getElementById('proy-tipo');
+                var lineaSel = document.getElementById('proy-linea');
+                var popupProy = document.getElementById('proy-popup');
+                var subWrap = document.getElementById('proy-sub-wrap');
+
+                function findGrupo(areaVal){
+                    for(var i=0;i<CANALES_GRUPOS.length;i++) if(CANALES_GRUPOS[i].grupo === areaVal) return CANALES_GRUPOS[i];
+                    return null;
+                }
+
+                function poblarSubcanales(areaVal){
+                    subSel.innerHTML = '';
+                    if(!areaVal){
+                        var o = document.createElement('option'); o.value=''; o.textContent='Elegí un área'; subSel.appendChild(o);
+                        return;
+                    }
+                    var g = findGrupo(areaVal);
+                    var o0 = document.createElement('option'); o0.value=''; o0.textContent='Todas las competencias del área'; subSel.appendChild(o0);
+                    if(g) g.items.forEach(function(it){
+                        var o = document.createElement('option');
+                        o.value = it.cod.join('|');
+                        o.textContent = it.fn + ' (' + it.cod.join(', ') + ')';
+                        subSel.appendChild(o);
+                    });
+                }
+
+                function syncCanales(){
+                    estado.canales.clear();
+                    if(!estado.area) return;
+                    var g = findGrupo(estado.area);
+                    if(!g) return;
+                    if(!estado.canal || estado.canal === '__all__'){
+                        g.items.forEach(function(it){ it.cod.forEach(function(c){ estado.canales.add(c); }); });
+                    } else {
+                        String(estado.canal).split('|').forEach(function(c){ estado.canales.add(c); });
+                    }
+                }
+
+                function buildFiltros(){
+                    areaSel.innerHTML = '<option value="">Todas las áreas</option>';
+                    CANALES_GRUPOS.forEach(function(g){
+                        var o = document.createElement('option'); o.value = g.grupo; o.textContent = g.grupo; areaSel.appendChild(o);
+                    });
+                    poblarSubcanales('');
+
+                    tipoSel.innerHTML = '<option value="">Todos los tipos</option>';
+                    TIPOS_FUNCION.forEach(function(t){
+                        var o = document.createElement('option'); o.value = t.id; o.textContent = t.fn + ' — ' + t.nom; tipoSel.appendChild(o);
+                    });
+
+                    lineaSel.innerHTML = '<option value="">Todas las líneas</option>';
+                    LINEAS_FUNCION.forEach(function(l){
+                        var o = document.createElement('option'); o.value = l.num; o.textContent = l.fn + ' — ' + l.nom; lineaSel.appendChild(o);
+                    });
+                }
+
+                function actualizarActivos(){
+                    var n = (estado.area ? 1 : 0) + (estado.tipos.size ? 1 : 0) + (estado.lineas.size ? 1 : 0);
+                    activosEl.textContent = n ? ('Filtros activos: '+n) : '';
+                }
+
+                function coincide(p){
+                    if(estado.canales.size){
+                        var ok = false;
+                        for(var id of estado.canales){
+                            var cods = String(id).split('|');
+                            for(var k = 0; k < cods.length; k++){
+                                if(p.canales.indexOf(cods[k]) >= 0){ ok = true; break; }
+                            }
+                            if(ok) break;
+                        }
+                        if(!ok) return false;
+                    }
+                    if(estado.tipos.size){
+                        var t = String(p.tipo||'');
+                        var ok = false;
+                        for(var id of estado.tipos){
+                            var info = findById(TIPOS_FUNCION, id);
+                            if(info && info.tipos.indexOf(t) >= 0){ ok = true; break; }
+                        }
+                        if(!ok) return false;
+                    }
+                    if(estado.lineas.size){
+                        var nums = String(p.perfil||'').match(/\d/g) || [];
+                        var ok = false;
+                        for(var l of estado.lineas) if(nums.indexOf(l) >= 0){ ok = true; break; }
+                        if(!ok) return false;
+                    }
+                    return true;
+                }
+
+                function abrirPopupPersona(nombre){
+                    var p = null;
+                    for(var i=0;i<personasCache.length;i++) if(personasCache[i].nombre === nombre){ p = personasCache[i]; break; }
+                    if(!p) return;
+                    document.getElementById('proy-popup-titulo').textContent = p.nombre;
+                    var html = '';
+                    html += '<div><b>Tipo:</b> ' + escHtml(p.tipo) + '</div>';
+                    html += '<div><b>Perfil:</b> ' + escHtml(p.perfil) + '</div>';
+                    if(p.definicion && p.definicion !== '-') html += '<div><b>Definición:</b> ' + escHtml(p.definicion) + '</div>';
+                    html += '<div style="margin-top:8px;font-weight:700;color:var(--suave);">Canales ('+p.canales.length+')</div>';
+                    if(p.canales.length){
+                        p.canales.forEach(function(c){
+                            var d = CANALES_P1[c];
+                            if(!d){ html += '<div style="margin-bottom:3px;"><b>'+escHtml(c)+'</b> — sin ficha Parte 1</div>'; return; }
+                            html += '<div style="margin-bottom:4px;"><b style="color:var(--titulo)">'+escHtml(c)+' '+escHtml(d.tema)+'</b><br><span style="font-size:10px;color:var(--suave);white-space:pre-line">'+escHtml(d.util)+'</span></div>';
+                        });
+                    } else {
+                        html += '<div style="font-style:italic;color:var(--muted);">Sin canales definidos.</div>';
+                    }
+                    document.getElementById('proy-popup-cuerpo').innerHTML = html;
+                    popupProy.style.display = 'flex';
+                }
+                function cerrarPopupPersona(){ popupProy.style.display = 'none'; }
+                document.getElementById('proy-popup-cerrar').addEventListener('click', cerrarPopupPersona);
+                popupProy.addEventListener('click', function(e){ if(e.target === popupProy) cerrarPopupPersona(); });
+
+                function render(){
+                    var sel = personasCache.filter(coincide);
+                    conteoEl.textContent = sel.length + ' persona' + (sel.length !== 1 ? 's' : '') + ' de ' + personasCache.length;
+                    if(!sel.length){ listado.innerHTML = ''; vacioEl.style.display = 'block'; return; }
+                    vacioEl.style.display = 'none';
+                    var html = '';
+                    for(var i = 0; i < sel.length; i++){
+                        var p = sel[i];
+                        html += '<button type="button" class="proy-persona-btn" data-nombre="'+escHtml(p.nombre)+'">'+escHtml(p.nombre)+'</button>';
+                    }
+                    listado.innerHTML = html;
+                }
+
+                listado.addEventListener('click', function(e){
+                    var btn = e.target && e.target.closest ? e.target.closest('.proy-persona-btn') : null;
+                    if(!btn) return;
+                    abrirPopupPersona(btn.getAttribute('data-nombre'));
+                });
+
+                function cargar(){
+                    listado.innerHTML = '';
+                    conteoEl.textContent = '';
+                    vacioEl.style.display = 'none';
+                    fetch('/api/personas', {cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
+                        var nombres = (j && j.personas) || [];
+                        if(!nombres.length){ vacioEl.style.display = 'block'; return; }
+                        var peticiones = nombres.map(function(n){
+                            return fetch('/api/ficha_basica?persona=' + encodeURIComponent(n), {cache:'no-store'})
+                                .then(function(r){ return r.ok ? r.json() : null; })
+                                .catch(function(){ return null; });
+                        });
+                        Promise.all(peticiones).then(function(fichas){
+                            personasCache = [];
+                            for(var i = 0; i < nombres.length; i++){
+                                var f = fichas[i];
+                                if(!f || f.error) continue;
+                                var canales = (f.canales || []).map(normCanal);
+                                personasCache.push({nombre: nombres[i], tipo: f.tipo || '-', perfil: f.perfil || '-', definicion: f.definicion || '-', canales: canales});
+                            }
+                            render();
+                            actualizarActivos();
+                        });
+                    });
+                }
+
+                areaSel.addEventListener('change', function(){
+                    estado.area = areaSel.value;
+                    estado.canal = '';
+                    poblarSubcanales(estado.area);
+                    subSel.value = '';
+                    if(estado.area){ subWrap.style.display = ''; } else { subWrap.style.display = 'none'; }
+                    syncCanales();
+                    render();
+                    actualizarActivos();
+                });
+                subSel.addEventListener('change', function(){
+                    estado.canal = subSel.value;
+                    syncCanales();
+                    render();
+                    actualizarActivos();
+                });
+                tipoSel.addEventListener('change', function(){
+                    estado.tipos.clear();
+                    if(tipoSel.value) estado.tipos.add(tipoSel.value);
+                    render();
+                    actualizarActivos();
+                });
+                lineaSel.addEventListener('change', function(){
+                    estado.lineas.clear();
+                    if(lineaSel.value) estado.lineas.add(lineaSel.value);
+                    render();
+                    actualizarActivos();
+                });
+
+                btnLimpiar.addEventListener('click', function(){
+                    areaSel.value = '';
+                    estado.area = '';
+                    poblarSubcanales('');
+                    subSel.value = '';
+                    estado.canal = '';
+                    subWrap.style.display = 'none';
+                    estado.canales.clear();
+                    tipoSel.value = '';
+                    estado.tipos.clear();
+                    lineaSel.value = '';
+                    estado.lineas.clear();
+                    render();
+                    actualizarActivos();
+                });
+
+                estado = {canales:new Set(), tipos:new Set(), lineas:new Set(), area:'', canal:''};
+
+                buildFiltros();
+                actualizarActivos();
+                cargar();
+            })();
+            </script>
+

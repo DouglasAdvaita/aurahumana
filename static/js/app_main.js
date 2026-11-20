@@ -1,0 +1,8571 @@
+        const gateToCircleMap = {
+            1: 'puerta_1_circulo', 2: 'puerta_2_circulo', 3: 'puerta_3_circulo', 4: 'puerta_58_circulo_8',
+            5: 'puerta_5_circulo', 6: 'puerta_6_circulo', 7: 'puerta_7_circulo', 8: 'puerta_8_circulo',
+            9: 'puerta_9_circulo', 10: 'puerta_10_circulo', 11: 'puerta_11_circulo', 12: 'puerta_12_circulo',
+            13: 'puerta_13_circulo', 14: 'puerta_14_circulo', 15: 'puerta_15_circulo', 16: 'puerta_16_circulo',
+            17: 'puerta_17_circulo', 18: 'puerta_58_circulo_0', 19: 'puerta_19_circulo', 20: 'puerta_20_circulo',
+            21: 'puerta_21_circulo', 22: 'puerta_58_circulo_7', 23: 'puerta_23_circulo', 24: 'puerta_24_circulo',
+            25: 'puerta_25_circulo', 26: 'puerta_26_circulo', 27: 'puerta_27_circulo', 28: 'puerta_28_circulo',
+            29: 'puerta_58_circulo_1', 30: 'puerta_58_circulo_5', 31: 'puerta_31_circulo', 32: 'puerta_32_circulo',
+            33: 'puerta_33_circulo', 34: 'puerta_34_circulo', 35: 'puerta_35_circulo', 36: 'puerta_58_circulo_6',
+            37: 'puerta_37_circulo', 38: 'puerta_38_circulo', 39: 'puerta_39_circulo', 40: 'puerta_40_circulo',
+            41: 'puerta_41_circulo', 42: 'puerta_42_circulo', 43: 'puerta_43_circulo', 44: 'puerta_44_circulo',
+            45: 'puerta_45_circulo', 46: 'puerta_46_circulo', 47: 'puerta_47_circulo', 48: 'puerta_48_circulo',
+            49: 'puerta_58_circulo_3', 50: 'puerta_50_circulo', 51: 'puerta_51_circulo', 52: 'puerta_52_circulo',
+            53: 'puerta_53_circulo', 54: 'puerta_54_circulo', 55: 'puerta_58_circulo_4', 56: 'puerta_56_circulo',
+            57: 'puerta_57_circulo', 58: 'puerta_58_circulo', 59: 'puerta_58_circulo_2', 60: 'puerta_60_circulo',
+            61: 'puerta_61_circulo', 62: 'puerta_62_circulo', 63: 'puerta_63_circulo', 64: 'puerta_64_circulo'
+        };
+        const PLANETAS_ORDEN = ['Sol','Tierra','Luna','NodoN','NodoS','Mercurio','Venus','Marte','Jupiter','Saturno','Urano','Neptuno','Pluton'];
+        const PLANETA_COLOR = {Sol:'#FF7F00',Tierra:'#006400',Luna:'#87CEEB',NodoN:'#CC7722',NodoS:'#795548',Mercurio:'#FFEB00',Venus:'#F8BBD0',Marte:'#FF0000',Jupiter:'#0033FF',Saturno:'#808080',Urano:'#BFFF00',Neptuno:'#CE93D8',Pluton:'#000000'};
+        const PLANETA_SIMBOLO = {Sol:'☉',Tierra:'⊕',Luna:'☽',NodoN:'☊',NodoS:'☋',Mercurio:'☿',Venus:'♀',Marte:'♂',Jupiter:'♃',Saturno:'♄',Urano:'♅',Neptuno:'♆',Pluton:'♇'};
+        // Emojis para el mapa de tránsitos (al lado del número de puerta).
+        const PLANETA_EMOJI = {Sol:'☀️',Tierra:'🌍',Luna:'🌙',NodoN:'☊',NodoS:'☋',Mercurio:'☿',Venus:'♀️',Marte:'♂️',Jupiter:'♃',Saturno:'♄',Urano:'♅',Neptuno:'♆',Pluton:'♇'};
+        // Colores de centro tomados del mapa.svg (misma paleta que los gráficos).
+        const CENTRO_COLOR = {Corona:'#DED676',Ajna:'#7BC03A',Garganta:'#C0A062',G:'#DED676',Ego:'#D93946',Bazo:'#C0A062',Plexo:'#C0A062',Sacro:'#B7673C',Raiz:'#C0A062'};
+        const CENTRO_EMOJI = {Corona:'👑',Ajna:'👁️',Garganta:'🗣️',G:'🧭',Ego:'💪',Bazo:'🛡️',Plexo:'🌊',Sacro:'🔥',Raiz:'🌱'};
+        const STROKE_INCON = '#D32F2F';
+        const STROKE_CONSC = '#000000';
+        const STROKE_TRANSITO = '#607D8B';
+        // Codificación visual de líneas (reemplaza al número): forma + relleno + borde.
+        // Relleno: color de la línea · Borde: gris oscuro=yin(impares), gris claro=yang(pares).
+        // Trazo: continuo=trigrama inferior (1-3), punteado=trigrama superior (4-6).
+        const LINEA_COLOR = {1:'#00C853', 2:'#FFEB3B', 3:'#FF1744', 4:'#4FC3F7', 5:'#000000', 6:'#BA68C8'};
+        const BORDE_YIN = '#424242';
+        const BORDE_YANG = '#BDBDBD';
+        function ensureCapaLineas(svg){
+            let g = svg.querySelector('[id="capa_lineas_puertas"]');
+            if(!g){
+                g = document.createElementNS('http://www.w3.org/2000/svg','g');
+                g.setAttribute('id','capa_lineas_puertas');
+                svg.appendChild(g);
+            }
+            return g;
+        }
+        // Posición original de cualquier texto (emoji o mini corazón), guardada
+        // antes del primer desplazamiento para que el corrimiento no se acumule.
+        function coordsOrigDe(el){
+            let ox=parseFloat(el.dataset.posOx), oy=parseFloat(el.dataset.posOy);
+            if(!isNaN(ox) && !isNaN(oy)) return {x:ox, y:oy};
+            let x=parseFloat(el.getAttribute('x')), y=parseFloat(el.getAttribute('y'));
+            if(isNaN(x) || isNaN(y)) return null;
+            el.dataset.posOx=String(x);
+            el.dataset.posOy=String(y);
+            return {x:x, y:y};
+        }
+        function emojiCoordsForGate(svg, gate){
+            let el = svg.querySelector('[id="emoji-'+gate+'"]') || svg.querySelector('[id="emoji_'+gate+'"]');
+            if(!el){
+                let capa = svg.querySelector('[id="capa_emojis"]');
+                if(capa) for(let t of capa.querySelectorAll('text')){
+                    let title = t.querySelector('title');
+                    if(!title) continue;
+                    let m = title.textContent.trim().match(/^(\d+)\b/);
+                    if(m && parseInt(m[1],10)===gate){ el = t; break; }
+                }
+            }
+            if(!el) return null;
+            return coordsOrigDe(el);
+        }
+        // Ancla: centro del número dibujado de la puerta; si no está, su círculo.
+        function numeroCoordsForGate(svg, gate){
+            const textos = svg.querySelectorAll('[id="puerta_'+gate+'_texto"], [id="pueta_'+gate+'_texto"]');
+            let x0=Infinity, y0=Infinity, x1=-Infinity, y1=-Infinity, hallado=false;
+            textos.forEach(t=>{
+                try{
+                    const b=t.getBBox();
+                    if(!b || !isFinite(b.x)) return;
+                    x0=Math.min(x0,b.x); y0=Math.min(y0,b.y);
+                    x1=Math.max(x1,b.x+b.width); y1=Math.max(y1,b.y+b.height);
+                    hallado=true;
+                }catch(e){}
+            });
+            if(hallado) return {x:(x0+x1)/2, y:(y0+y1)/2};
+            const circ = svg.querySelector('[id="puerta_'+gate+'_circulo"]');
+            if(circ){
+                const cx=parseFloat(circ.getAttribute('cx')), cy=parseFloat(circ.getAttribute('cy'));
+                if(!isNaN(cx) && !isNaN(cy)) return {x:cx, y:cy};
+            }
+            return null;
+        }
+        // Emojis: mitad del trecho hacia el número de puerta.
+        function desplazarEmojis(svg){
+            const capa = svg.querySelector('[id="capa_emojis"]');
+            if(!capa) return;
+            capa.querySelectorAll('text').forEach(t=>{
+                let gate=null;
+                const title=t.querySelector('title');
+                if(title){ const m=title.textContent.trim().match(/^(\d+)\b/); if(m) gate=parseInt(m[1],10); }
+                if(gate==null && t.id){ const m=t.id.match(/emoji[-_](\d+)/); if(m) gate=parseInt(m[1],10); }
+                if(gate==null) gate=getHeartGate(svg, t);
+                if(gate==null) return;
+                const pos=coordsOrigDe(t);
+                const emo=emojiCoordsForGate(svg, gate);
+                if(!pos || !emo) return;
+                const num=numeroCoordsForGate(svg, gate);
+                // El mismo vector mueve el emoji y sus mini corazones.
+                const dx = num ? 0.5*(num.x-emo.x) : 0;
+                const dy = num ? 0.5*(num.y-emo.y) : 0;
+                t.setAttribute('x', String(pos.x+dx));
+                t.setAttribute('y', String(pos.y+dy));
+            });
+        }
+        function getHeartGate(svg, heartEl){
+            if(heartEl._assignedGate!=null) return heartEl._assignedGate;
+            const hp = coordsOrigDe(heartEl);
+            if(!hp){ heartEl._assignedGate=null; return null; }
+            let hx=hp.x, hy=hp.y;
+            let capa = svg.querySelector('[id="capa_emojis"]');
+            if(!capa){ heartEl._assignedGate=null; return null; }
+            let best=null, bestD=Infinity;
+            for(let t of capa.querySelectorAll('text')){
+                let title=t.querySelector('title');
+                if(!title) continue;
+                let m=title.textContent.trim().match(/^(\d+)\b/);
+                if(!m) continue;
+                let gate=parseInt(m[1],10);
+                const c = coordsOrigDe(t);
+                if(!c) continue;
+                let x=c.x, y=c.y;
+                let d=(hx-x)*(hx-x)+(hy-y)*(hy-y);
+                if(d<bestD){bestD=d; best=gate;}
+            }
+            heartEl._assignedGate=best;
+            return best;
+        }
+        function buildGateEntries(data){
+            let map={};
+            if(!data) return map;
+            for(let i=0;i<PLANETAS_ORDEN.length;i++){
+                let planeta=PLANETAS_ORDEN[i];
+                let fill=PLANETA_COLOR[planeta]||'#000000';
+                if(i < (data.puertas_inconscientes||[]).length){
+                    let puerta=data.puertas_inconscientes[i];
+                    let linea=(data.inconscientes_lineas||[])[i];
+                    if(puerta!=null && linea!=null){
+                        if(!map[puerta]) map[puerta]=[];
+                        map[puerta].push({linea:String(linea), planeta, fill, stroke:STROKE_INCON, order:i, transito:false});
+                    }
+                }
+                if(i < (data.puertas_conscientes||[]).length){
+                    let puerta=data.puertas_conscientes[i];
+                    let linea=(data.conscientes_lineas||[])[i];
+                    if(puerta!=null && linea!=null){
+                        if(!map[puerta]) map[puerta]=[];
+                        map[puerta].push({linea:String(linea), planeta, fill, stroke:STROKE_CONSC, order:i+0.5, transito:false});
+                    }
+                }
+            }
+            return map;
+        }
+        function mergeMaps(mapA, mapB){
+            let res={};
+            let gates=new Set([...Object.keys(mapA).map(k=>parseInt(k,10)), ...Object.keys(mapB).map(k=>parseInt(k,10))]);
+            for(let g of gates){
+                res[g]=[];
+                if(mapA[g]) res[g].push(...mapA[g]);
+                if(mapB[g]) res[g].push(...mapB[g]);
+            }
+            return res;
+        }
+        function buildTransitoEntries(transito){
+            let map={};
+            if(!transito || !transito.detalle || !Array.isArray(transito.detalle)) return map;
+            for(let d of transito.detalle){
+                let puerta=d.puerta;
+                let linea=d.linea;
+                let planeta=d.planeta;
+                if(puerta==null || linea==null) continue;
+                let fill=PLANETA_COLOR[planeta]||'#000000';
+                let titulo=planeta + ' tránsito';
+                if(!map[puerta]) map[puerta]=[];
+                map[puerta].push({linea:String(linea), planeta, titulo, fill, stroke:STROKE_TRANSITO, order:100, transito:true});
+            }
+            return map;
+        }
+        function getTransitoMapYSet(){
+            try{
+                if(overlayTransitoOn && TRANSITO_ACTUAL){
+                    let map=buildTransitoEntries(TRANSITO_ACTUAL);
+                    let set=new Set();
+                    if(Array.isArray(TRANSITO_ACTUAL.conscientes)) TRANSITO_ACTUAL.conscientes.forEach(g=> set.add(g));
+                    Object.keys(map).forEach(k=> set.add(parseInt(k,10)));
+                    return {map, set};
+                }
+            }catch(e){}
+            return {map:{}, set:new Set()};
+        }
+        function etiquetaLinea(linea, x, y){
+            // Número de línea con relleno = color de línea y borde = yin/yang + trigrama.
+            const n = parseInt(linea,10);
+            const fill = LINEA_COLOR[n] || '#000000';
+            const impar = (n % 2 === 1);
+            const borde = impar ? BORDE_YIN : BORDE_YANG;
+            const superior = n >= 4;
+            const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+            t.setAttribute('x', x);
+            t.setAttribute('y', y);
+            t.setAttribute('text-anchor', 'middle');
+            t.setAttribute('dominant-baseline', 'central');
+            t.setAttribute('font-size', '13');
+            t.setAttribute('font-weight', '800');
+            t.setAttribute('font-family', 'Arial, sans-serif');
+            t.setAttribute('paint-order', 'stroke');
+            t.setAttribute('stroke-linejoin', 'round');
+            t.setAttribute('fill', fill);
+            t.setAttribute('stroke', borde);
+            t.setAttribute('stroke-width', '1.2');
+            if(superior) t.setAttribute('stroke-dasharray', '3 2');
+            t.textContent = String(n);
+            return t;
+        }
+        function renderLineasEnSvg(svgScope, gateMap, activeSet, show){
+            let svg = svgScope.querySelector('svg') || svgScope;
+            if(!svg) return;
+            let capa=ensureCapaLineas(svg);
+            capa.innerHTML='';
+            if(!show || !activeSet || activeSet.size===0) return;
+            const step = 12;
+            for(let gate of activeSet){
+                let entries=gateMap[gate];
+                if(!entries || entries.length===0) continue;
+                let coords=emojiCoordsForGate(svg, gate);
+                if(!coords || coords.x==null) continue;
+                let x = parseFloat(coords.x), y = parseFloat(coords.y);
+                if(isNaN(x)||isNaN(y)) continue;
+                // Cifras de línea: mitad del trecho en dirección opuesta al número.
+                const num = numeroCoordsForGate(svg, gate);
+                if(num){ x -= 0.5*(num.x-coords.x); y -= 0.5*(num.y-coords.y); }
+                const n = entries.length;
+                entries.forEach((e, i) => {
+                    const offX = (i - (n-1)/2) * step;
+                    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+                    g.setAttribute('data-linea-gate', gate);
+                    g.setAttribute('data-linea', e.linea);
+                    const etiqueta = etiquetaLinea(e.linea, x + offX, y);
+                    const titleEl = document.createElementNS('http://www.w3.org/2000/svg','title');
+                    titleEl.textContent = `${e.titulo || e.planeta} · línea ${e.linea}`;
+                    g.appendChild(titleEl);
+                    g.appendChild(etiqueta);
+                    capa.appendChild(g);
+                });
+            }
+        }
+        function setPanelText(el, txt, title){
+            try{
+                for(const n of el.childNodes){ if(n.nodeType===3){ n.nodeValue = txt; break; } }
+                const t = el.querySelector('title');
+                if(t) t.textContent = title;
+            }catch(e){}
+        }
+        // Panel de planetas del SVG (Capa_panel_planetas): diseño | planeta | personalidad | tránsito.
+        // data = {puertas_inconscientes[13], inconscientes_lineas[13], puertas_conscientes[13], conscientes_lineas[13]}
+        // en orden PLANETAS_ORDEN. Tránsito desde TRANSITO_ACTUAL.detalle (mismo orden).
+        // Sin tránsito: oculta la columna gris y achica el fondo (106 -> 76).
+        function updatePanelPlanetas(svgScope, data){
+            let svg = null;
+            try{ svg = (svgScope && svgScope.querySelector) ? (svgScope.querySelector('svg') || svgScope) : null; }catch(e){ return; }
+            if(!svg || !svg.querySelector) return;
+            if(!svg.querySelector('#panel_fondo')) return;
+            let showT = false, detT = null;
+            try{
+                showT = (typeof overlayTransitoOn !== 'undefined' && overlayTransitoOn) &&
+                    (typeof TRANSITO_ACTUAL !== 'undefined' && TRANSITO_ACTUAL && Array.isArray(TRANSITO_ACTUAL.detalle) && TRANSITO_ACTUAL.detalle.length >= 13);
+                if(showT) detT = TRANSITO_ACTUAL.detalle;
+            }catch(e){ showT = false; }
+            const NOMBRES = ['Sol','Tierra','Luna','NodoN','NodoS','Mercurio','Venus','Marte','Jupiter','Saturno','Urano','Neptuno','Pluton'];
+            const fmt = (p,l)=> (p==null || l==null || p==='' || l==='') ? '–' : (p + '.' + l);
+            for(let i=0;i<13;i++){
+                const nom = NOMBRES[i];
+                const pd = (data && data.puertas_inconscientes) ? data.puertas_inconscientes[i] : null;
+                const ld = (data && data.inconscientes_lineas) ? data.inconscientes_lineas[i] : null;
+                const pc = (data && data.puertas_conscientes) ? data.puertas_conscientes[i] : null;
+                const lc = (data && data.conscientes_lineas) ? data.conscientes_lineas[i] : null;
+                const tD = fmt(pd,ld), tC = fmt(pc,lc);
+                let tT = '–';
+                if(detT && detT[i] && detT[i].puerta != null && detT[i].linea != null) tT = detT[i].puerta + '.' + detT[i].linea;
+                const elD = svg.querySelector('#panel-d-'+i), elC = svg.querySelector('#panel-c-'+i), elT = svg.querySelector('#panel-t-'+i);
+                if(elD) setPanelText(elD, tD, nom + ' diseño ' + tD);
+                if(elC) setPanelText(elC, tC, nom + ' personalidad ' + tC);
+                if(elT){
+                    setPanelText(elT, showT ? tT : '12.3', nom + ' tránsito ' + (showT ? tT : '12.3'));
+                    elT.style.display = showT ? '' : 'none';
+                }
+            }
+            const fondo = svg.querySelector('#panel_fondo');
+            if(fondo) fondo.setAttribute('width', showT ? '106' : '76');
+        }
+        function setEmojisVisibility(svgScope, activeSet, show){
+            let svg = svgScope.querySelector('svg') || svgScope;
+            if(!svg) return;
+            try{ desplazarEmojis(svg); }catch(e){}
+            let capa=svg.querySelector('[id="capa_emojis"]');
+            if(!capa) return;
+            for(let t of capa.querySelectorAll('text')){
+                let title=t.querySelector('title');
+                let gate=null;
+                if(title){
+                    let m=title.textContent.trim().match(/^(\d+)\b/);
+                    if(m) gate=parseInt(m[1],10);
+                    if(gate==null && t.id && (t.id.startsWith('emoji-') || t.id.startsWith('emoji_'))){
+                        let n=parseInt(t.id.replace('emoji-','').replace('emoji_',''),10);
+                        if(!isNaN(n)) gate=n;
+                    }
+                } else {
+                    if(t.id && (t.id.startsWith('emoji-') || t.id.startsWith('emoji_'))){
+                        gate=parseInt(t.id.split('-')[1] || t.id.split('_')[1],10);
+                    } else {
+                        gate=getHeartGate(svg, t);
+                    }
+                }
+                if(gate==null){
+                    t.style.display = show ? '' : 'none';
+                    continue;
+                }
+                let visible = show && activeSet.has(gate);
+                if(visible){ t.style.display = ''; t.removeAttribute('display'); } else { t.style.display = 'none'; }
+            }
+        }
+        function actualizarCapasLineasEmojis(){
+            let showLineas = document.getElementById('chk-lineas')?.checked;
+            let showEmojis = document.getElementById('chk-emojis')?.checked;
+            let tr = getTransitoMapYSet();
+            let mapT = tr.map;
+            let setT = tr.set;
+            if(svgContainerA){
+                // Filtros + estudio también en A (setEmojisBase está junto a los filtros).
+                let activeA = (typeof setEmojisBase === 'function') ? setEmojisBase(dataPersonaA)
+                    : (dataPersonaA ? new Set(dataPersonaA.todas_puertas) : new Set());
+                let mapA = buildGateEntries(dataPersonaA);
+                let activeUnion = new Set([...activeA, ...setT]);
+                let mapUnion = mergeMaps(mapA, mapT);
+                renderLineasEnSvg(svgContainerA, mapUnion, activeUnion, !!showLineas);
+                setEmojisVisibility(svgContainerA, activeUnion, !!showEmojis);
+                try{ updatePanelPlanetas(svgContainerA, dataPersonaA); }catch(e){}
+            }
+            if(svgContainerB){
+                let activeB = (typeof setEmojisBase === 'function') ? setEmojisBase(dataPersonaB)
+                    : (dataPersonaB ? new Set(dataPersonaB.todas_puertas) : new Set());
+                let mapB = buildGateEntries(dataPersonaB);
+                let activeUnion = new Set([...activeB, ...setT]);
+                let mapUnion = mergeMaps(mapB, mapT);
+                renderLineasEnSvg(svgContainerB, mapUnion, activeUnion, !!showLineas);
+                setEmojisVisibility(svgContainerB, activeUnion, !!showEmojis);
+                try{ updatePanelPlanetas(svgContainerB, dataPersonaB); }catch(e){}
+            }
+            if(svgContainerComp){
+                let activeA = (typeof setEmojisBase === 'function') ? setEmojisBase(dataPersonaA)
+                    : (dataPersonaA ? new Set(dataPersonaA.todas_puertas) : new Set());
+                let activeB = (typeof setEmojisBase === 'function') ? setEmojisBase(dataPersonaB)
+                    : (dataPersonaB ? new Set(dataPersonaB.todas_puertas) : new Set());
+                let unionConTransito = new Set([...activeA, ...activeB, ...setT]);
+                let mapA = buildGateEntries(dataPersonaA);
+                let mapB = buildGateEntries(dataPersonaB);
+                let mapComp = mergeMaps(mergeMaps(mapA, mapB), mapT);
+                renderLineasEnSvg(svgContainerComp, mapComp, unionConTransito, !!showLineas);
+                setEmojisVisibility(svgContainerComp, unionConTransito, !!showEmojis);
+                try{ updatePanelPlanetas(svgContainerComp, dataPersonaA || dataPersonaB); }catch(e){}
+            }
+            // mini graficas adicionales + clan (dato por caja, sin depender del orden)
+            try{
+                const cont = document.getElementById('adicionales-contenedor');
+                if(cont){
+                    cont.querySelectorAll('.mini-grafico-card .svg-box').forEach((box, idx)=>{
+                        let dataX = null;
+                        try { dataX = (typeof datosExtraBox === 'function') ? datosExtraBox(box) : null; } catch(e){}
+                        if (!dataX) { const it0 = (typeof personasAdicionales!=='undefined') ? personasAdicionales[idx] : null; dataX = it0 && it0.data; }
+                        if(!dataX) return;
+                        let active = (typeof setEmojisBase === 'function') ? setEmojisBase(dataX) : new Set(dataX.todas_puertas||[]);
+                        let map = buildGateEntries(dataX);
+                        let activeUnion = new Set([...active, ...setT]);
+                        let mapUnion = mergeMaps(map, mapT);
+                        renderLineasEnSvg(box, mapUnion, activeUnion, !!showLineas);
+                        setEmojisVisibility(box, activeUnion, !!showEmojis);
+                        try{ if(box.querySelector('#Capa_panel_planetas')) updatePanelPlanetas(box, dataX); }catch(e){}
+                    });
+                }
+                document.querySelectorAll('.clan-card .svg-box').forEach((box)=>{
+                    let dataX = null;
+                    try { dataX = (typeof datosExtraBox === 'function') ? datosExtraBox(box) : null; } catch(e){}
+                    if(!dataX) return;
+                    let active = (typeof setEmojisBase === 'function') ? setEmojisBase(dataX) : new Set(dataX.todas_puertas||[]);
+                    let map = buildGateEntries(dataX);
+                    let activeUnion = new Set([...active, ...setT]);
+                    let mapUnion = mergeMaps(map, mapT);
+                    renderLineasEnSvg(box, mapUnion, activeUnion, !!showLineas);
+                    setEmojisVisibility(box, activeUnion, !!showEmojis);
+                    try{ if(box.querySelector('#Capa_panel_planetas')) updatePanelPlanetas(box, dataX); }catch(e){}
+                });
+            }catch(e){}
+            try { pintarCirculosPlaneta(); }catch(e) {}
+            try { aplicarVisibilidadCanales(); }catch(e) {}
+            try { aplicarSimpl(); }catch(e) {}
+        }
+
+        const selectorA = document.getElementById('selector-persona-a');
+        const selectorB = document.getElementById('selector-persona-b');
+        const svgContainerA = document.getElementById('svg-persona-a');
+        const svgContainerB = document.getElementById('svg-persona-b');
+        const svgContainerComp = document.getElementById('svg-compuesto');
+        const checkAnimaciones = document.getElementById('check-animaciones');
+        // Etapa Gráficos: clonar SVG en vez de triplicar HTML (ahorra ~260KB y parsing)
+        (function cloneSVG(){
+            const src = svgContainerA && svgContainerA.querySelector('svg');
+            if (!src) return;
+            if (svgContainerB && !svgContainerB.querySelector('svg')) {
+                const clonB = src.cloneNode(true);
+                try { quitarDescripcionesP1(clonB); } catch (e) {}
+                try { quitarFotoPublica(clonB); } catch (e) {}
+                svgContainerB.appendChild(clonB);
+            }
+            if (svgContainerComp && !svgContainerComp.querySelector('svg')) {
+                const clonC = src.cloneNode(true);
+                try { quitarDescripcionesP1(clonC); } catch (e) {}
+                try { quitarFotoPublica(clonC); } catch (e) {}
+                // La tabla de planetas (diseño | planeta | personalidad | tránsito) ya está en P1: no se repite en el compuesto.
+                try { clonC.querySelectorAll('#Capa_panel_planetas').forEach(el => el.remove()); } catch (e) {}
+                svgContainerComp.appendChild(clonC);
+            }
+        })();
+        // --- Miedos / Roles / Amor: titles + parpadeo + agrandar x1.5 (Ficha y referencias + Datos Puerta) ---
+        const MIEDOS_TITLES = {
+            "4": "Ansiedad por el Caos — Miedo a que no exista un orden y todo sea en vano",
+            "6": "Nerviosismo por la Intimidad — Miedo sano a intimar con quien no corresponde",
+            "11": "Ansiedad por la Oscuridad — Miedo a que no haya esperanza en el camino humano",
+            "17": "Ansiedad por el Desafío — Miedo a que sus opiniones sean cuestionadas",
+            "18": "Miedo a la Autoridad — Temor a que se impongan patrones insanos",
+            "22": "Nerviosismo por el Silencio — Miedo al estancamiento sin nada hermoso que escuchar",
+            "24": "Ansiedad por la Ignorancia — Miedo a la ignorancia propia/ajena",
+            "28": "Miedo a Vida sin Propósito — Temor a que la vida carezca de valor",
+            "30": "Nerviosismo por el Destino — Nerviosismo sobre lo que el destino deparará",
+            "32": "Miedo al Fracaso — Temor a no conseguir recursos para la tribu",
+            "36": "Nerviosismo por ser Inadecuado — Miedo a no manejar la nueva experiencia",
+            "37": "Nerviosismo por la Tradición — Temor a la traición/deslealtad",
+            "43": "Ansiedad por el Rechazo — Miedo a ser marginado por rareza",
+            "44": "Miedo al Pasado — Temor a que se repitan errores del pasado",
+            "47": "Ansiedad por la Futilidad — Miedo a no encontrar significado",
+            "48": "Miedo a lo Inadecuado — Temor a carecer de profundidad/habilidad",
+            "49": "Nerviosismo por la Naturaleza — Miedo al Dios castigador / imprevisible",
+            "50": "Miedo a la Responsabilidad — Miedo a descuidar valores y caer en corrupción",
+            "55": "Nerviosismo por el Vacío — Miedo a que no quede amor y vacío de la ola",
+            "57": "Miedo al Futuro — Temor constante al mañana y a no estar a salvo"
+        };
+        const ROLES_TITLES = {
+            "1": "Rol — Individual 5 Aguante: sostiene su diferencia frente al rechazo",
+            "7": "Rol — Colectivo El Autoritario: impone normas y busca control",
+            "10": "Rol — Individual 3 El Hereje: rompe esquemas y prueba nuevas vías",
+            "13": "Rol — Colectivo 6 El Optimista: inspira esperanza colectiva",
+            "27": "Rol — Tribal 3 El Motivador: inspira energía dentro de la tribu",
+            "59": "Rol — Tribal 5 El Seductor: atrae y asegura recursos para la tribu"
+        };
+        const AMORES_TITLES = {
+            "10": "Amor a la Propia Experiencia / Amor al Ser",
+            "15": "Amor Transpersonal — Amor por la Humanidad (a todos los ritmos)",
+            "25": "Amor Transpersonal — Amor a la Totalidad / Inocencia (universal)",
+            "28": "Amor — El Amor es Vida (propósito)",
+            "40": "Amor — El Amor es Trabajo (entrega familiar)",
+            "41": "Amor — El Amor es Deseo (sexo y amor fusionados)",
+            "44": "Amor — Amor al Talento (memoria del pasado)",
+            "46": "Amor Transpersonal — Amor al Cuerpo (templo físico)",
+            "55": "Amor — El Amor es Amar (romanticismo)",
+            "58": "Amor — El Amor es Perfección (vitalidad y mejora)"
+        };
+        const AMORES_TIPO = {
+            "10": "Transpersonal", "15": "Transpersonal", "25": "Transpersonal", "46": "Transpersonal",
+            "28": "Personal", "40": "Personal", "41": "Personal", "44": "Personal", "55": "Personal", "58": "Personal"
+        };
+        let _resaltadosAplicados = false;
+        function aplicarResaltadosPuertas(){
+            const todosSvg = [];
+            [svgContainerA, svgContainerB, svgContainerComp].forEach(c=>{ if(c){ const s=c.querySelector('svg'); if(s) todosSvg.push(s); }});
+            document.querySelectorAll('.mini-grafico-card .svg-box svg, .clan-card .svg-box svg').forEach(s=> todosSvg.push(s));
+            document.querySelectorAll('#tl-svg-contenedor svg').forEach(s=> todosSvg.push(s));
+            if(todosSvg.length===0) return;
+            const puertasInvolucradas = new Set([...Object.keys(MIEDOS_TITLES), ...Object.keys(ROLES_TITLES), ...Object.keys(AMORES_TITLES)]);
+            let cambios=0;
+            todosSvg.forEach(svg=>{
+                puertasInvolucradas.forEach(g=>{
+                    const circId = gateToCircleMap[g];
+                    if(!circId) return;
+                    const circ = svg.querySelector('#'+CSS.escape(circId));
+                    if(!circ) return;
+                    const quiereAmor = !!AMORES_TITLES[g];
+                    const quiereRol = !quiereAmor && !!ROLES_TITLES[g];
+                    const agrandar = quiereAmor || quiereRol;
+                    if(agrandar){
+                        if(!circ.dataset.origR){
+                            const r0 = parseFloat(circ.getAttribute('r')||'6.2558');
+                            circ.dataset.origR = String(r0);
+                            circ.setAttribute('r', String(r0*1.5));
+                            cambios++;
+                        }
+                    } else if(circ.dataset.origR){
+                        circ.setAttribute('r', circ.dataset.origR);
+                        delete circ.dataset.origR;
+                        cambios++;
+                    }
+                    if(!circ.classList.contains('puerta-con-title')){ circ.classList.add('puerta-con-title'); cambios++; }
+                    const partes=[];
+                    if(MIEDOS_TITLES[g]) partes.push(MIEDOS_TITLES[g]);
+                    if(ROLES_TITLES[g]) partes.push(ROLES_TITLES[g]);
+                    if(AMORES_TITLES[g]) partes.push(AMORES_TITLES[g]);
+                    const titulo = partes.join(' | ');
+                    let t = circ.querySelector('title');
+                    if(!t){ t=document.createElementNS('http://www.w3.org/2000/svg','title'); circ.appendChild(t); t.textContent=titulo; cambios++; }
+                    else if(t.textContent!==titulo){ t.textContent=titulo; cambios++; }
+                    const tieneAmor = circ.classList.contains('puerta-amor') || circ.classList.contains('puerta-amor-impersonal');
+                    const tieneRol = circ.classList.contains('puerta-rol');
+                    if(quiereAmor){
+                        const cls = AMORES_TIPO[g]==='Transpersonal' ? 'puerta-amor-impersonal' : 'puerta-amor';
+                        if(!circ.classList.contains(cls)){
+                            circ.classList.remove('puerta-rol','puerta-amor','puerta-amor-impersonal');
+                            circ.classList.add(cls); cambios++;
+                        }
+                    } else if(quiereRol){
+                        if(!tieneRol){ circ.classList.remove('puerta-amor','puerta-amor-impersonal'); circ.classList.add('puerta-rol'); cambios++; }
+                    } else {
+                        if(tieneAmor||tieneRol){ circ.classList.remove('puerta-rol','puerta-amor','puerta-amor-impersonal'); cambios++; }
+                    }
+                });
+            });
+            if(cambios>0) _resaltadosAplicados=true;
+        }
+        // aplicar ahora y tras clonar (sin observer global para no congelar)
+        try{ aplicarResaltadosPuertas(); }catch(e){}
+        document.addEventListener('DOMContentLoaded', ()=>{ try{ aplicarResaltadosPuertas(); }catch(e){} });
+        // re-aplicar solo cuando se crean mini-gráficos/timeline (observadores acotados + debounce)
+        let _resaltadosTimer=null;
+        function _scheduleResaltados(){
+            if(_resaltadosTimer) return;
+            _resaltadosTimer=setTimeout(()=>{ _resaltadosTimer=null; try{ aplicarResaltadosPuertas(); }catch(e){} }, 300);
+        }
+        try{
+            const obsTargets = [document.getElementById('tl-svg-contenedor'), document.querySelector('.adicionales-scroll'), document.getElementById('svg-persona-b'), document.getElementById('svg-compuesto')].filter(Boolean);
+            obsTargets.forEach(el=>{
+                new MutationObserver(_scheduleResaltados).observe(el, {childList:true, subtree:true});
+            });
+        }catch(e){}
+        // fallback: cuando se dispara actualización de capas
+        const _origActualizar = window.actualizarCapasLineasEmojis;
+        // exponer para debug
+        window.aplicarResaltadosPuertas = aplicarResaltadosPuertas;
+        window._scheduleResaltados = _scheduleResaltados;
+
+        let dataPersonaA = null;
+        let dataPersonaB = null;
+        let genPersonaA = 0, genPersonaB = 0; // generación: descarta fetch viejos al cambiar rápido
+        let descrOn = false;
+        // Listeners independientes lineas / emojis / canales (cada botón solo controla su capa)
+        (function(){
+            let chkL=document.getElementById('chk-lineas');
+            let chkE=document.getElementById('chk-emojis');
+            let chkC=document.getElementById('chk-canales');
+            if(chkL) chkL.addEventListener('change', ()=>{ try{ actualizarCapasLineasEmojis(); }catch(err){} });
+            if(chkE) chkE.addEventListener('change', ()=>{ try{ actualizarCapasLineasEmojis(); }catch(err){} });
+            if(chkC) chkC.addEventListener('change', ()=>{ try{ if (typeof repintarTodo==='function') repintarTodo(); else actualizarCapasLineasEmojis(); }catch(err){} });
+            let chkS=document.getElementById('chk-simpl');
+            if(chkS) chkS.addEventListener('change', ()=>{ try{ if (typeof repintarTodo==='function') repintarTodo(); else actualizarCapasLineasEmojis(); }catch(err){} });
+            let btnDescr=document.getElementById('chk-descr');
+            if(btnDescr) btnDescr.addEventListener('change', ()=>{
+                descrOn = !!btnDescr.checked;
+                try{ renderDescripcionesP1(); }catch(err){ console.error('Descr:', err); }
+            });
+            let chkI=document.getElementById('chk-influ');
+            if(chkI) chkI.addEventListener('change', ()=>{ try{ if (typeof aplicarInflu==='function') aplicarInflu(); }catch(err){} });
+            setTimeout(()=>{ try{ actualizarCapasLineasEmojis(); }catch(e){} }, 0);
+            if(document.readyState !== 'loading'){
+                try{ actualizarCapasLineasEmojis(); }catch(e){}
+            } else {
+                document.addEventListener('DOMContentLoaded', ()=>{ try{ actualizarCapasLineasEmojis(); }catch(e){} });
+            }
+        })();
+
+        // Descripciones servidas por app.py (centros.csv, canales.csv, puertas.csv).
+        const vincMap = {};
+        VINCULOS_DATA.forEach(v => { vincMap[String(v.nombre).trim().toLowerCase()] = v; });
+        let filtroEdad = 0; // 0 = todos, 5 / 10 = ±años respecto a Persona 1
+        let filtroVinculo = ''; // '' = todos, familiar / amigo / conocido
+        const RX_FAM = /padr|madr|herman|prim|tia|tio|abuel|hij|niet|espos|marid|mujer|cunad|suegr|yern|nuer|sobrin|patern|matern|familiar/i;
+        function tipoDe(v) {
+            if (!v) return 'otro';
+            const t = `${v.vinc_jorge || ''} ${v.vinc_ref || ''}`;
+            if (/nada/i.test(t)) return 'nada';
+            if (RX_FAM.test(t)) return 'familiar';
+            if (/amig/i.test(t)) return 'amigo';
+            if (/conoc/i.test(t)) return 'conocido';
+            return 'otro';
+        }
+        function pasaFiltroVinculo(nombre) {
+            if (!filtroVinculo) return true;
+            return tipoDe(vincMap[String(nombre).trim().toLowerCase()]) === filtroVinculo;
+        }
+        let CONOCIDOS_MAP = {}; // lower -> estado; lo no listado = activo
+        let verOcultos = false;
+        function estadoConocido(nombre) {
+            const e = CONOCIDOS_MAP[String(nombre || '').trim().toLowerCase()];
+            if (!e) return 'activo';
+            if (typeof e === 'string') return e;
+            if (e.estado) return String(e.estado).toLowerCase();
+            return 'activo';
+        }
+        function pasaFiltroConocido(nombre) {
+            return estadoConocido(nombre) === 'activo';
+        }
+        async function recargarConocidos() {
+            try {
+                const p1 = (typeof selectorA !== 'undefined' && selectorA) ? selectorA.value : '';
+                const r = await fetch('/api/conocidos?p1=' + encodeURIComponent(p1 || ''));
+                if (r.ok) CONOCIDOS_MAP = await r.json();
+            } catch (e) {}
+        }
+        async function marcarConocido(nombre, estado) {
+            try {
+                const p1 = (typeof selectorA !== 'undefined' && selectorA) ? selectorA.value : '';
+                await fetch('/api/conocidos', {method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({p1, nombre, estado})});
+                await recargarConocidos();
+            } catch (e) {}
+        }
+
+        const centroDescMap = {};
+        CENTROS_DATA.forEach(c => {
+            const k = `${(c.centro || '').trim().toLowerCase()}|${(c.estado || '').trim().toLowerCase()}`;
+            centroDescMap[k] = c.descripcion;
+        });
+        function normCanalKey(s) {
+            const parts = String(s).split('-');
+            if (parts.length !== 2) return String(s).trim();
+            const a = parseInt(parts[0], 10), b = parseInt(parts[1], 10);
+            if (isNaN(a) || isNaN(b)) return String(s).trim();
+            return [a, b].sort((x, y) => x - y).join('-');
+        }
+        const canalDescMap = {};
+        CANALES_DATA.forEach(c => { canalDescMap[normCanalKey(c.elemento)] = c.descripcion; });
+        const puertaDescMap = {};
+        PUERTAS_DATA.forEach(p => { puertaDescMap[String(p.elemento).trim()] = p.descripcion; });
+
+        const ORDEN_CENTROS = ['Corona', 'Ajna', 'Garganta', 'G', 'Ego', 'Bazo', 'Plexo', 'Sacro', 'Raiz'];
+
+        function escHtml(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function mostrarCentrosDetalle(side, definidosSet) {
+            const cont = document.getElementById(`centros-detalle-${side}`);
+            if (!cont) return;
+            cont.innerHTML = '';
+            ORDEN_CENTROS.forEach(nombre => {
+                const definido = definidosSet.has(nombre);
+                const estado = definido ? 'Definido' : 'Indefinido';
+                const desc = centroDescMap[`${nombre.toLowerCase()}|${estado.toLowerCase()}`] || 'Sin descripción.';
+                const item = document.createElement('div');
+                item.className = 'info-item';
+                item.innerHTML = `<div class="info-head"><span class="info-num">${escHtml(nombre)}</span>` +
+                    `<span class="estado-badge ${definido ? 'definido' : 'indefinido'}">${estado}</span></div>` +
+                    `<div class="info-desc">${escHtml(desc)}</div>`;
+                cont.appendChild(item);
+            });
+        }
+
+        let audioCanal = null;
+        let btnCanalActivo = null;
+
+        function reproducirCanal(k, btn) {
+            if (audioCanal && btnCanalActivo === btn) {
+                if (audioCanal.paused) {
+                    audioCanal.play();
+                    btn.classList.add('reproduciendo');
+                    btn.textContent = '❚❚ Pausar';
+                } else {
+                    audioCanal.pause();
+                    btn.classList.remove('reproduciendo');
+                    btn.textContent = '▶ Escuchar';
+                }
+                return;
+            }
+            if (audioCanal) audioCanal.pause();
+            if (btnCanalActivo) {
+                btnCanalActivo.classList.remove('reproduciendo');
+                btnCanalActivo.textContent = '▶ Escuchar';
+            }
+            if (!audioCanal) {
+                audioCanal = new Audio();
+                audioCanal.addEventListener('ended', () => {
+                    if (btnCanalActivo) {
+                        btnCanalActivo.classList.remove('reproduciendo');
+                        btnCanalActivo.textContent = '▶ Escuchar';
+                    }
+                    btnCanalActivo = null;
+                });
+                audioCanal.addEventListener('error', () => {
+                    if (btnCanalActivo) {
+                        btnCanalActivo.classList.remove('reproduciendo');
+                        btnCanalActivo.textContent = '▶ Escuchar';
+                    }
+                    btnCanalActivo = null;
+                    alert('El audio de este canal todavía no está disponible.');
+                });
+            }
+            audioCanal.src = `/static/canales_audio/${encodeURIComponent(k)}.mp3`;
+            btnCanalActivo = btn;
+            audioCanal.play().then(() => {
+                btn.classList.add('reproduciendo');
+                btn.textContent = '❚❚ Pausar';
+            }).catch(() => {
+                btnCanalActivo = null;
+                alert('No se pudo reproducir el audio de este canal.');
+            });
+        }
+
+        function mostrarCanalesDetalle(side, canalesCompletos) {
+            const cont = document.getElementById(`canales-detalle-${side}`);
+            if (!cont) return;
+            cont.innerHTML = '';
+            const uniq = [...new Set(canalesCompletos.map(normCanalKey))]
+                .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+            if (!uniq.length) { cont.textContent = '-'; return; }
+            uniq.forEach(k => {
+                const desc = canalDescMap[k] || 'Sin descripción en canales.csv.';
+                const item = document.createElement('div');
+                item.className = 'info-item';
+                const btnAudio = side === 'a'
+                    ? `<button type="button" class="audio-btn" onclick="reproducirCanal('${escHtml(k)}', this)">▶ Escuchar</button>`
+                    : '';
+                item.innerHTML = `<div class="info-head"><span class="info-num">${escHtml(k)}</span>${btnAudio}</div>` +
+                    `<div class="info-desc">${escHtml(desc)}</div>`;
+                cont.appendChild(item);
+            });
+        }
+
+        // Contacto de una puerta de B con A: C = compromiso/compañía, E = electromagnético, '' = ninguno.
+        function contactoPuertaB(g) {
+            if (!dataPersonaA || !dataPersonaB || !paresPuerta) return '';
+            const setA = new Set(dataPersonaA.todas_puertas);
+            const setB = new Set(dataPersonaB.todas_puertas);
+            let best = '';
+            for (const h of (paresPuerta[g] || [])) {
+                if (!setA.has(h)) continue;
+                best = (setB.has(g) && setB.has(h)) ? 'C' : (best || 'E');
+                if (best === 'C') break;
+            }
+            return best;
+        }
+
+        function descPuertaLinea(g, l) {
+            try {
+                if (l != null && l !== '' && !isNaN(l) && typeof lineaInfoMap !== 'undefined') {
+                    const info = lineaInfoMap[`${g}.${l}`] || {};
+                    let t = '';
+                    if (info.arquetipo) t += info.arquetipo;
+                    if (info.rasgo) t += (t ? ' — ' : '') + info.rasgo;
+                    if (t) return t;
+                }
+            } catch (e) {}
+            return 'Sin información de línea.';
+        }
+        function mostrarPuertasDetalle(side, data) {
+            const cont = document.getElementById(`puertas-detalle-${side}`);
+            if (!cont) return;
+            cont.innerHTML = '';
+            if (!paresPuerta) construirParesPuerta();
+            const soloC = side === 'b' && dataPersonaA &&
+                document.getElementById('chk-contacto-b').checked;
+            // Una fila por activación Puerta.Línea (conscientes + inconscientes),
+            // ordenadas por puerta; sin clave C/I: las I van en púrpura (fl-incon).
+            const entradas = [];
+            (data.puertas_conscientes || []).forEach((p, i) => {
+                entradas.push({ g: p, l: (data.conscientes_lineas || [])[i], incon: false, planeta: (typeof PLANETAS_ORDEN !== 'undefined' && PLANETAS_ORDEN[i]) || '' });
+            });
+            (data.puertas_inconscientes || []).forEach((p, i) => {
+                entradas.push({ g: p, l: (data.inconscientes_lineas || [])[i], incon: true, planeta: (typeof PLANETAS_ORDEN !== 'undefined' && PLANETAS_ORDEN[i]) || '' });
+            });
+            entradas.sort((a, b) => (a.g - b.g) || ((a.incon ? 1 : 0) - (b.incon ? 1 : 0)));
+            if (!entradas.length) { cont.textContent = '-'; return; }
+            let mostradas = 0;
+            entradas.forEach(e => {
+                const g = e.g;
+                const tagContacto = side === 'b' ? contactoPuertaB(g) : '';
+                if (soloC && !tagContacto) return;
+                mostradas++;
+                const linTxt = (e.l != null && e.l !== '') ? String(e.l) : '';
+                const desc = descPuertaLinea(g, e.l);
+                const item = document.createElement('div');
+                item.className = 'info-item';
+                item.innerHTML = `<div class="info-head"><span class="info-num ${e.incon ? 'fl-incon' : 'fl-consc'}">Puerta ${escHtml(g)}${linTxt ? `.${escHtml(linTxt)}` : ''}${e.planeta ? ` <span style="font-weight:400">(${escHtml(e.planeta)})</span>` : ''}</span>` +
+                    (tagContacto ? `<span class="tag-ci ${tagContacto === 'C' ? 'tag-c' : 'tag-e'}" title="${tagContacto === 'C' ? 'Compromiso o compañía con Persona 1' : 'Electromagnético con Persona 1'}">${tagContacto}</span>` : '') +
+                    `</div><div class="info-desc ${e.incon ? 'fl-desc-incon' : 'fl-desc-consc'}">${escHtml(desc)}</div>`;
+                cont.appendChild(item);
+            });
+            if (soloC && !mostradas) cont.innerHTML = '<div class="exp-vacio">Sin puertas en contacto con Persona 1.</div>';
+        }
+
+        let gateInfoMap = {};
+        async function loadGateInfo() {
+            try {
+                const resp = await fetch('/api/gate_info');
+                const data = await resp.json();
+                gateInfoMap = data;
+            } catch (e) { console.error('Error loading gate info:', e); }
+        }
+
+        let lineaInfoMap = {};
+        async function loadLineasInfo() {
+            try {
+                const resp = await fetch('/api/lineas_info');
+                const data = await resp.json();
+                lineaInfoMap = data;
+                try { if (typeof dataPersonaA !== 'undefined' && dataPersonaA) mostrarPuertasDetalle('a', dataPersonaA); } catch (e) {}
+                try { if (typeof dataPersonaB !== 'undefined' && dataPersonaB) mostrarPuertasDetalle('b', dataPersonaB); } catch (e) {}
+                try { if (typeof renderListaFiltrada === 'function') renderListaFiltrada(); } catch (e) {}
+            } catch (e) { console.error('Error loading lineas info:', e); }
+        }
+
+        (function initPopup() {
+            const popup = document.createElement('div');
+            popup.id = 'popup-hd';
+            popup.innerHTML = `
+                <div class="popup-header">
+                    <span class="popup-title" id="popup-title">Información</span>
+                </div>
+                <div class="popup-content" id="popup-content"></div>
+            `;
+            document.body.appendChild(popup);
+            const titleEl = document.getElementById('popup-title');
+            const contentEl = document.getElementById('popup-content');
+            function showPopup(title, content, x, y, opts) {
+                titleEl.textContent = title || 'Información';
+                contentEl.innerHTML = content || '';
+                window.popupManager.expActivo = !!(opts && opts.exp);
+                let left = x + 16;
+                let top = y + 16;
+                const popupWidth = 260;
+                const popupHeight = 150;
+                const winW = window.innerWidth;
+                const winH = window.innerHeight;
+                if (left + popupWidth > winW - 10) left = winW - popupWidth - 10;
+                if (top + popupHeight > winH - 10) top = winH - popupHeight - 10;
+                if (left < 10) left = 10;
+                if (top < 10) top = 10;
+                popup.style.left = left + 'px';
+                popup.style.top = top + 'px';
+                popup.style.display = 'block';
+            }
+            function hidePopup() {
+                popup.style.display = 'none';
+                window.popupManager.expActivo = false;
+            }
+            window.popupManager = {
+                show: showPopup,
+                hide: hidePopup,
+                isPinned: () => false,
+                expActivo: false
+            };
+        })();
+
+        // Mapa inverso círculo SVG -> puerta (corrige ids como puerta_58_circulo_8 = puerta 4).
+        const circleToGateMap = {};
+        Object.entries(gateToCircleMap).forEach(([g, id]) => { circleToGateMap[id] = parseInt(g, 10); });
+
+        function descToHtml(t) {
+            return escHtml(t).replace(/\r?\n/g, '<br>');
+        }
+
+        function primeraOracion(txt) {
+            if (!txt) return '';
+            let s = String(txt).trim();
+            if (!s) return '';
+            const para = s.split(/\r?\n\s*\r?\n/)[0] || s.split(/\r?\n/)[0] || s;
+            let linea = para.split(/\r?\n/).map(l => l.trim()).find(l => l) || para;
+            linea = linea.trim();
+            const m = linea.match(/^[^.!?]+[.!?]/);
+            if (m) return m[0].trim();
+            const m2 = para.match(/^[^.!?]+[.!?]/);
+            if (m2) return m2[0].trim();
+            return linea;
+        }
+
+        // ---------- Duración del tránsito en el popup (puerta entera vs línea) ----------
+        function _transitoRefMs() {
+            try { if (typeof TRANSITO_ACTUAL !== 'undefined' && TRANSITO_ACTUAL && TRANSITO_ACTUAL.t_ms) return TRANSITO_ACTUAL.t_ms; } catch (e) {}
+            return Date.now();
+        }
+        function _fmtFechaMVD(ms) {
+            try {
+                return new Date(ms).toLocaleString('es-UY', { timeZone: 'America/Montevideo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+            } catch (e) {
+                const d = new Date(ms);
+                const p2 = (x) => String(x).padStart(2, '0');
+                return `${p2(d.getDate())}/${p2(d.getMonth() + 1)} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+            }
+        }
+        function _fmtRel(refMs, tgtMs) {
+            const a = Math.abs(Math.round((tgtMs - refMs) / 60000)); // minutos
+            const past = tgtMs <= refMs;
+            let u;
+            if (a < 60) u = `${a} min`;
+            else if (a < 48 * 60) u = `${Math.round(a / 60)} hs`;
+            else if (a < 60 * 24 * 60) u = `${Math.round(a / 1440)} días`;
+            else if (a < 365 * 24 * 60) u = `${Math.round(a / 43200)} meses`;
+            else u = `${(a / 525600).toFixed(1)} años`;
+            return past ? `hace ${u}` : `dentro de ${u}`;
+        }
+        function _fmtRangoTransito(refMs, iniMs, finMs) {
+            // Solo para innerHTML del popup (los title usan _tipRangoGT en texto plano).
+            const iniTxt = (iniMs == null) ? 'hace más de 6 años'
+                : `<b>${_fmtRel(refMs, iniMs)}</b> (${_fmtFechaMVD(iniMs)})`;
+            const finTxt = (finMs == null) ? 'más de 6 años'
+                : `<b>${_fmtRel(refMs, finMs)}</b> (${_fmtFechaMVD(finMs)})`;
+            return `desde ${iniTxt} hasta ${finTxt}`;
+        }
+        function _transitoEnPuerta(gateNum) {
+            try {
+                if (typeof overlayTransitoOn === 'undefined' || !overlayTransitoOn) return [];
+                if (typeof TRANSITO_ACTUAL === 'undefined' || !TRANSITO_ACTUAL || !Array.isArray(TRANSITO_ACTUAL.detalle)) return [];
+                const g = parseInt(gateNum, 10);
+                return TRANSITO_ACTUAL.detalle.filter(d => d.puerta === g);
+            } catch (e) { return []; }
+        }
+
+        function _puertaEnPersonas(gateNum) {
+            try {
+                const g = parseInt(gateNum, 10);
+                if (typeof dataPersonaA !== 'undefined' && dataPersonaA && Array.isArray(dataPersonaA.todas_puertas) && dataPersonaA.todas_puertas.includes(g)) return true;
+                if (typeof dataPersonaB !== 'undefined' && dataPersonaB && Array.isArray(dataPersonaB.todas_puertas) && dataPersonaB.todas_puertas.includes(g)) return true;
+            } catch (e) {}
+            return false;
+        }
+        function _fmtDuracion(ms) {
+            if (ms == null || ms < 0) return '?';
+            const m = Math.round(ms / 60000);
+            if (m < 60) return `${m} min`;
+            if (m < 48 * 60) { const h = Math.round(m / 60); return h === 1 ? '1 hora' : `${h} horas`; }
+            if (m < 60 * 24 * 60) { const d = Math.round(m / 1440); return d === 1 ? '1 día' : `${d} días`; }
+            if (m < 365 * 24 * 60) { const mo = Math.round(m / 43200); return mo === 1 ? '1 mes' : `${mo} meses`; }
+            const a = (m / 525600).toFixed(1); return a === '1.0' ? '1 año' : `${a} años`;
+        }
+        function _fechaTransitoStr() {
+            try { return (document.getElementById('fecha-transito') || {}).value || ''; } catch (e) { return ''; }
+        }
+        const PROX_PUERTA_CACHE = {};
+        function _proxBlockHtml(gateNum) {
+            const n = String(gateNum).trim();
+            const f = _fechaTransitoStr();
+            const key = `${n}|${f || ('ahora:' + Math.floor(Date.now() / 600000))}`;
+            const c = PROX_PUERTA_CACHE[key];
+            const ref = _transitoRefMs();
+            if (c && c !== 'pendiente') {
+                if (c.actual) return { html: `<br><br>🪐 En tránsito ahora (${(c.ocupantes || []).map(escHtml).join(', ')}).`, pide: null };
+                if (!c || !c.entrada_ms) return { html: `<br><br>🔭 Sin ingreso en los próximos 40 días.`, pide: null };
+                const dur = (c.entrada_ms && c.salida_ms) ? _fmtDuracion(c.salida_ms - c.entrada_ms) : '?';
+                return { html: `<br><br>🔭 Próximo tránsito puerta ${escHtml(n)}: ${escHtml(c.planeta)} entra <b>${_fmtRel(ref, c.entrada_ms)}</b> (${_fmtFechaMVD(c.entrada_ms)}) (dura <b>${dur}</b>).`, pide: null };
+            }
+            return { html: `<br><br>🔭 buscando próximo tránsito…`, pide: parseInt(n, 10) };
+        }
+        function pedirProximoPuerta(gateNum) {
+            try {
+                const n = parseInt(gateNum, 10);
+                if (!n || n < 1 || n > 64) return;
+                const f = _fechaTransitoStr();
+                const key = `${n}|${f || ('ahora:' + Math.floor(Date.now() / 600000))}`;
+                if (PROX_PUERTA_CACHE[key]) return;
+                PROX_PUERTA_CACHE[key] = 'pendiente';
+                window._proxGatePend = n;
+                fetch(`/api/proximo_puerta?puerta=${n}&fecha=${encodeURIComponent(f)}`)
+                    .then(r => r.json()).then(d => {
+                        PROX_PUERTA_CACHE[key] = (d && (d.entrada_ms || d.actual)) ? d : null;
+                        try {
+                            const cont = document.getElementById('popup-content');
+                            const titleEl = document.getElementById('popup-title');
+                            if (window._proxGatePend === n && cont && typeof popupTargetActual !== 'undefined' && popupTargetActual) {
+                                const tip = gatePopupContentCorto(n);
+                                if (tip && !tip.pideProximo) { titleEl.textContent = tip.title; cont.innerHTML = tip.content; }
+                            }
+                        } catch (e) {}
+                    }).catch(() => { PROX_PUERTA_CACHE[key] = null; });
+            } catch (e) {}
+        }
+
+        function gatePopupContentCorto(gateNum) {
+            const n = String(gateNum).trim();
+            const desc = puertaDescMap[n];
+            const corta = primeraOracion(desc);
+            let content = corta ? escHtml(corta) : 'Sin información adicional.';
+            const entradas = _transitoEnPuerta(n);
+            if (entradas.length) {
+                const ref = _transitoRefMs();
+                const lineas = entradas.map(d =>
+                    `• ${escHtml(d.planeta)}: ${_fmtRangoTransito(ref, d.inicio_puerta_ms, d.fin_puerta_ms)}`);
+                content += `<br><br>🪐 Tránsito puerta ${escHtml(n)} entera:<br>` + lineas.join('<br>');
+            } else if (!_puertaEnPersonas(n)) {
+                const b = _proxBlockHtml(n);
+                content += b.html;
+                if (b.pide) return { title: `Puerta ${n}`, content, pideProximo: b.pide };
+            }
+            return { title: `Puerta ${n}`, content };
+        }
+
+        function lineaPopupContent(puertaNum, lineaNum) {
+            const p = String(puertaNum).trim(), l = String(lineaNum).trim();
+            const info = lineaInfoMap[`${p}.${l}`] || {};
+            let content = '';
+            if (info.arquetipo) content += `<b>${escHtml(info.arquetipo)}</b>`;
+            if (info.rasgo) content += `${content ? '<br>' : ''}${escHtml(info.rasgo)}`;
+            const entradas = _transitoEnPuerta(p).filter(d => String(d.linea) === l);
+            if (entradas.length) {
+                const ref = _transitoRefMs();
+                const lineas = entradas.map(d =>
+                    `• ${escHtml(d.planeta)} línea ${escHtml(l)}: ${_fmtRangoTransito(ref, d.inicio_linea_ms, d.fin_linea_ms)}`);
+                content += `${content ? '<br><br>' : ''}🪐 Tránsito esta línea:<br>` + lineas.join('<br>');
+            }
+            return { title: `Puerta ${p} línea ${l}`, content: content || 'Sin información de línea.' };
+        }
+        function simplStubPopup(el) {
+            const g = String(el.dataset.simplGate || '').trim();
+            const l = String(el.dataset.simplLinea || '').trim();
+            const pl = String(el.dataset.simplPlaneta || '').trim();
+            if (!g || !l) return null;
+            const base = (typeof lineaPopupContent === 'function') ? lineaPopupContent(g, l) : null;
+            return { title: `Puerta ${g}.${l}` + (pl ? ` — ${pl}` : ''), content: (base && base.content) ? base.content : 'Sin información de línea.' };
+        }
+
+        function gatePopupContent(gateNum) {
+            const n = String(gateNum).trim();
+            const desc = puertaDescMap[n];
+            const extra = gateInfoMap[n] || gateInfoMap[parseInt(n, 10)] || {};
+            let info = '';
+            if (desc) {
+                info += descToHtml(desc);
+            }
+            if (extra.nombre) info += `<br><b>Nombre:</b> ${escHtml(extra.nombre)}`;
+            if (extra.concepto) info += `<br><b>Concepto:</b> ${escHtml(extra.concepto)}`;
+            if (extra.centro) info += `<br><b>Centro:</b> ${escHtml(extra.centro)}`;
+            if (extra.circuito) info += `<br><b>Circuito:</b> ${escHtml(extra.circuito)}`;
+            if (extra.miedos) info += `<br><b>Miedos:</b> ${escHtml(extra.miedos)}`;
+            if (extra.dinamica_amor) info += `<br><b>Dinámica del Amor:</b> ${escHtml(extra.dinamica_amor)}`;
+            return { title: `Puerta ${n}`, content: info || 'Sin información adicional.' };
+        }
+
+        function buildTooltipContent(element) {
+            // Modo Experiencias: puertas de Persona 1 muestran contactos candidatas a Persona 2.
+            if (modoExperiencias) {
+                const g = numeroPuertaDe(element);
+                if (g != null && esPuertaDePersonaA(element)) {
+                    const tip = experienciasPopupContent(g);
+                    if (tip) return tip;
+                }
+            }
+            // Canales de los cuadros de contacto.
+            if (element.dataset && element.dataset.canal) {
+                const k = normCanalKey(element.dataset.canal);
+                const desc = canalDescMap[k];
+                return { title: `Canal ${k}`, content: desc ? descToHtml(adaptarContactoLos(desc)) : 'Sin descripción en canales.csv.' };
+            }
+            // Muñones simplificados: popup de puerta.línea (+ duración de tránsito).
+            if (element.dataset && element.dataset.simplGate) {
+                const tip = simplStubPopup(element);
+                if (tip) return tip;
+            }
+            // Badges de puertas en los paneles laterales.
+            if (element.dataset && element.dataset.gate) {
+                return gatePopupContent(element.dataset.gate);
+            }
+            // Figuras de línea de la capa Líneas (g[data-linea-gate][data-linea]).
+            if (element.dataset && element.dataset.linea && element.dataset.lineaGate) {
+                return lineaPopupContent(element.dataset.lineaGate, element.dataset.linea);
+            }
+            // Números de puerta del gráfico (incluye indefinidas en gris).
+            if (element.id && /(?:puerta|pueta)_(\d+)_texto$/.test(element.id)) {
+                return gatePopupContentCorto(element.id.match(/(?:puerta|pueta)_(\d+)_texto$/)[1]);
+            }
+            // Tramos del gráfico (tramoN = puerta N).
+            if (element.id && element.id.startsWith('tramo')) {
+                return gatePopupContentCorto(element.id.replace('tramo', ''));
+            }
+            // Círculos de puertas del gráfico.
+            if (element.id && circleToGateMap[element.id] != null) {
+                return gatePopupContentCorto(circleToGateMap[element.id]);
+            }
+            // Canales del gráfico (id cA-B, orden puede diferir del CSV).
+            if (element.id && /^c\d+-\d+$/.test(element.id)) {
+                const k = normCanalKey(element.id.substring(1));
+                const desc = canalDescMap[k];
+                const corta = primeraOracion(desc);
+                return { title: `Canal ${k}`, content: corta ? escHtml(corta) : 'Sin descripción en canales.csv.' };
+            }
+            // Centros del gráfico (estado según el SVG donde se encuentra).
+            if (element.id && ORDEN_CENTROS.includes(element.id)) {
+                let scope = null;
+                for (const s of [svgContainerA, svgContainerB, svgContainerComp]) {
+                    if (s && s.contains(element)) { scope = s; break; }
+                }
+                const defs = (scope && scope._centrosDefinidos) || new Set();
+                const estado = defs.has(element.id) ? 'Definido' : 'Indefinido';
+                const desc = centroDescMap[`${element.id.toLowerCase()}|${estado.toLowerCase()}`];
+                const corta = primeraOracion(desc);
+                return { title: `Centro ${element.id} — ${estado}`, content: corta ? escHtml(corta) : 'Sin descripción.' };
+            }
+            return null;
+        }
+
+        const POPUP_SELECTOR = '[data-gate], [data-canal], [id^="tramo"], circle[id*="puerta"], [id^="c"], [id$="_texto"], ' +
+            '[data-linea], ' +
+            ORDEN_CENTROS.map(c => `[id="${c}"]`).join(', ');
+
+        let popupTargetActual = null;
+        document.addEventListener('mousemove', (e) => {
+            // Dentro del popup: no programar ocultado (se lee y escrolea tranquilo;
+            // al salir del popup, su propio mouseleave lo oculta).
+            if (e.target.closest('#popup-hd')) return;
+            const target = e.target.closest(POPUP_SELECTOR);
+            if (target && !window.popupManager.isPinned()) {
+                const tip = buildTooltipContent(target);
+                if (!tip) {
+                    popupTargetActual = null;
+                    window.popupManager.hide();
+                    return;
+                }
+                if (tip.exp) {
+                    popupTargetActual = target;
+                    window.popupManager.show(tip.title, tip.content, e.clientX, e.clientY, { exp: true });
+                    return;
+                }
+                // Popup de experiencias visible: no reemplazarlo al rozar otros elementos.
+                if (window.popupManager.expActivo) return;
+                // Mismo elemento: no reposicionar, para poder viajar hasta el popup.
+                if (target === popupTargetActual) return;
+                popupTargetActual = target;
+                window.popupManager.show(tip.title, tip.content, e.clientX, e.clientY);
+                window._proxGatePend = tip.pideProximo || null;
+                if (tip.pideProximo) pedirProximoPuerta(tip.pideProximo);
+                return;
+            }
+            popupTargetActual = null;
+            window._proxGatePend = null;
+            if (!window.popupManager.isPinned()) window.popupManager.hide();
+        });
+
+        document.addEventListener('mouseleave', () => {
+            window.popupManager.hide();
+        });
+
+        const COLORES_FIJOS = { incon: '#FF0000', consc: '#000000', mixto: '#00AA00' };
+
+        // ---------- Filtros de estudio de los gráficos ----------
+        // 3 circuitos excluyentes (64 puertas). Fuente base: razgos.xlsx
+        // (columna "Circuito / Grupo"); las 4 de Integración (10, 20, 34, 57)
+        // quedan dentro de Individual. Colectivo agrupa Lógico + Abstracción.
+        const CIRCUITO_PUERTA = {
+            1: 'indiv', 2: 'indiv', 3: 'indiv', 8: 'indiv', 10: 'indiv', 12: 'indiv',
+            14: 'indiv', 20: 'indiv', 22: 'indiv', 23: 'indiv', 24: 'indiv', 25: 'indiv',
+            28: 'indiv', 34: 'indiv', 38: 'indiv', 39: 'indiv', 43: 'indiv', 51: 'indiv',
+            55: 'indiv', 57: 'indiv', 60: 'indiv', 61: 'indiv',
+            6: 'tribal', 19: 'tribal', 21: 'tribal', 26: 'tribal', 27: 'tribal', 32: 'tribal',
+            37: 'tribal', 40: 'tribal', 44: 'tribal', 45: 'tribal', 49: 'tribal', 50: 'tribal',
+            54: 'tribal', 59: 'tribal',
+            4: 'colec', 5: 'colec', 7: 'colec', 9: 'colec', 11: 'colec', 13: 'colec',
+            15: 'colec', 16: 'colec', 17: 'colec', 18: 'colec', 29: 'colec', 30: 'colec',
+            31: 'colec', 33: 'colec', 35: 'colec', 36: 'colec', 41: 'colec', 42: 'colec',
+            46: 'colec', 47: 'colec', 48: 'colec', 52: 'colec', 53: 'colec', 56: 'colec',
+            58: 'colec', 62: 'colec', 63: 'colec', 64: 'colec'
+        };
+        function leerFiltrosA() {
+            const val = (id) => {
+                const el = document.getElementById(id);
+                return !el || el.checked;
+            };
+            let lin = null;
+            for (let n = 1; n <= 6; n++) {
+                const el = document.getElementById('flt-lin-' + n);
+                if (el && el.checked) { lin = n; break; }
+            }
+            return {
+                rojas: val('flt-a-rojas'),
+                negras: val('flt-a-negras'),
+                indiv: val('flt-c-indiv'),
+                tribal: val('flt-c-tribal'),
+                colec: val('flt-c-colec'),
+                linea: lin
+            };
+        }
+        function circuitoPuertaVisible(g, f) {
+            const c = CIRCUITO_PUERTA[g];
+            if (c === 'indiv') return f.indiv;
+            if (c === 'tribal') return f.tribal;
+            return f.colec; // 'colec' o puerta sin mapa: rige Colectivo
+        }
+        // Puerta visible en los gráficos: pasa el color (roja=incon, negra=consc;
+        // mixta visible si al menos un color sigue ON) Y su circuito está ON.
+        function puertaAVisible(g, esIncon, esConsc, f) {
+            const ff = f || leerFiltrosA();
+            const colorOk = (esIncon && ff.rojas) || (esConsc && ff.negras);
+            return !!colorOk && circuitoPuertaVisible(g, ff);
+        }
+        function filtrosAActivos() {
+            const f = leerFiltrosA();
+            return !(f.rojas && f.negras && f.indiv && f.tribal && f.colec && f.linea == null);
+        }
+        // Modo estudio: exactamente un circuito ON -> se muestra el circuito
+        // completo (todos sus canales al 50% + emojis de sus puertas).
+        function circuitoEstudioActivo() {
+            const f = leerFiltrosA();
+            const n = (f.indiv ? 1 : 0) + (f.tribal ? 1 : 0) + (f.colec ? 1 : 0);
+            if (n !== 1) return null;
+            return f.indiv ? 'indiv' : (f.tribal ? 'tribal' : 'colec');
+        }
+        function estudioDeCanal(claveNorm) {
+            try {
+                if (typeof COLOR_CANAL === 'undefined' || typeof CIRCUITO_COLOR === 'undefined') return null;
+                const circ = CIRCUITO_COLOR[COLOR_CANAL[claveNorm]];
+                if (!circ) return null;
+                if (circ === 'Tribal') return 'tribal';
+                if (circ.indexOf('Colectivo') === 0) return 'colec';
+                return 'indiv';
+            } catch (e) { return null; }
+        }
+        function actualizarNotaFiltrosA(nVisibles, nTotales, side) {
+            const nota = document.getElementById('filtros-a-nota');
+            if (!nota) return;
+            try {
+                if (side === 'a') window._notaA = [nVisibles, nTotales];
+                else window._notaB = [nVisibles, nTotales];
+                const est = circuitoEstudioActivo();
+                if (!filtrosAActivos() && !est) { nota.textContent = ''; return; }
+                const nom = est ? (est === 'indiv' ? 'Individual' : (est === 'tribal' ? 'Tribal' : 'Colectivo')) : null;
+                const partes = [];
+                if (window._notaA) partes.push(`A ${window._notaA[0]}/${window._notaA[1]}`);
+                if (window._notaB) partes.push(`B ${window._notaB[0]}/${window._notaB[1]}`);
+                nota.textContent = 'mostrando ' + partes.join(' · ') +
+                    (nom ? ` + circuito ${nom} completo al 50% (estudio)` : ' (paneles completos)');
+            } catch (e) {}
+        }
+        function olvidarNotaFiltros(side) {
+            try {
+                if (side === 'a') window._notaA = null;
+                else window._notaB = null;
+                const otra = side === 'a' ? window._notaB : window._notaA;
+                if (otra) actualizarNotaFiltrosA(otra[0], otra[1], side === 'a' ? 'b' : 'a');
+                else {
+                    const nota = document.getElementById('filtros-a-nota');
+                    if (nota) nota.textContent = '';
+                }
+            } catch (e) {}
+        }
+        // Conjuntos de puertas visibles según los filtros (color + circuito + línea).
+        // Se aplica a los tres gráficos; paneles y análisis usan datos completos.
+        // Líneas (1-6): mapa puerta -> Set de líneas activadas por índice de los
+        // arrays {*}*puertas y {*}_lineas; si un data no trae líneas (ej. tránsito),
+        // no se filtra nada por línea.
+        function mapaLineasDe(data) {
+            const m = new Map();
+            if (!data) return m;
+            [[data.puertas_inconscientes || [], data.inconscientes_lineas || []],
+             [data.puertas_conscientes || [], data.conscientes_lineas || []]]
+            .forEach(([ps, ls]) => ps.forEach((p, i) => {
+                if (p == null) return;
+                const l = ls[i];
+                if (l == null) return;
+                let s = m.get(p);
+                if (!s) { s = new Set(); m.set(p, s); }
+                s.add(Number(l));
+            }));
+            return m;
+        }
+        function puertaLineaOk(mapaL, g, f) {
+            if (f.linea == null) return true;
+            const s = mapaL.get(g);
+            return !s || s.size === 0 || s.has(f.linea);
+        }
+        function filtrarPuertas(data) {
+            const vacio = { incon: new Set(), consc: new Set(), vis: new Set(), filtrado: false };
+            if (!data) return vacio;
+            const sI = new Set(data.puertas_inconscientes || []);
+            const sC = new Set(data.puertas_conscientes || []);
+            if (!filtrosAActivos()) {
+                return { incon: sI, consc: sC, vis: new Set(data.todas_puertas || []), filtrado: false };
+            }
+            const f = leerFiltrosA();
+            const mapaL = mapaLineasDe(data);
+            const iV = new Set(), cV = new Set();
+            sI.forEach(g => { if (f.rojas && circuitoPuertaVisible(g, f) && puertaLineaOk(mapaL, g, f)) iV.add(g); });
+            sC.forEach(g => { if (f.negras && circuitoPuertaVisible(g, f) && puertaLineaOk(mapaL, g, f)) cV.add(g); });
+            return { incon: iV, consc: cV, vis: new Set([...iV, ...cV]), filtrado: true };
+        }
+        // Puertas para la capa de emojis: visibles por filtro + circuito de estudio.
+        function setEmojisBase(data) {
+            // Sin Persona 1 y con los circuitos visibles: vista genérica de
+            // estudio, se muestran TODOS los emojis si el botón Emojis está ON.
+            if ((!selectorA || !selectorA.value) && (typeof canalesOn !== 'function' || canalesOn())) {
+                return new Set(Array.from({length:64}, (_, i) => i + 1));
+            }
+            const fp = (typeof filtrarPuertas === 'function') ? filtrarPuertas(data) : null;
+            let s = fp ? new Set(fp.vis) : new Set(data ? data.todas_puertas : []);
+            try {
+                if (data && typeof circuitoEstudioActivo === 'function') {
+                    const est = circuitoEstudioActivo();
+                    if (est) Object.keys(CIRCUITO_PUERTA).forEach(k => {
+                        if (CIRCUITO_PUERTA[k] === est) s.add(parseInt(k, 10));
+                    });
+                }
+            } catch (e) {}
+            return s;
+        }
+        // ---------- Lista de puertas.línea filtradas (descripciones de lineas_popup.csv) ----------
+        // Números y descripciones con mismo estilo: púrpura/rojo = inconscientes,
+        // negro = conscientes; negrita = Individual, cursiva = Tribal, normal = Colectivo.
+        // Ordenadas por circuito y puerta, conscientes primero y luego inconscientes.
+        const FL_CIRCUITO_ORDEN = { indiv: 0, tribal: 1, colec: 2 };
+        const FL_CIRCUITO_NOMBRE = { indiv: 'Individual', tribal: 'Tribal', colec: 'Colectivo' };
+        function entradasFiltradas(data) {
+            const out = [];
+            if (!data) return out;
+            const f = leerFiltrosA();
+            const mapaL = mapaLineasDe(data);
+            (data.puertas_inconscientes || []).forEach((p, i) => {
+                if (!f.rojas || !circuitoPuertaVisible(p, f) || !puertaLineaOk(mapaL, p, f)) return;
+                out.push({ g: p, l: (data.inconscientes_lineas || [])[i], incon: true, planeta: (typeof PLANETAS_ORDEN !== 'undefined' && PLANETAS_ORDEN[i]) || '' });
+            });
+            (data.puertas_conscientes || []).forEach((p, i) => {
+                if (!f.negras || !circuitoPuertaVisible(p, f) || !puertaLineaOk(mapaL, p, f)) return;
+                out.push({ g: p, l: (data.conscientes_lineas || [])[i], incon: false, planeta: (typeof PLANETAS_ORDEN !== 'undefined' && PLANETAS_ORDEN[i]) || '' });
+            });
+            out.sort((x, y) =>
+                ((FL_CIRCUITO_ORDEN[CIRCUITO_PUERTA[x.g]] ?? 2) - (FL_CIRCUITO_ORDEN[CIRCUITO_PUERTA[y.g]] ?? 2)) ||
+                (x.g - y.g) || ((x.incon ? 1 : 0) - (y.incon ? 1 : 0)));
+            return out;
+        }
+        function descLineaFiltrada(g, l) {
+            try {
+                if (l != null && !isNaN(l) && typeof lineaInfoMap !== 'undefined') {
+                    const info = lineaInfoMap[`${g}.${l}`] || {};
+                    let t = '';
+                    if (info.arquetipo) t += info.arquetipo;
+                    if (info.rasgo) t += (t ? ' — ' : '') + info.rasgo;
+                    if (t) return t;
+                }
+                if (typeof puertaDescMap !== 'undefined' && puertaDescMap[String(g)]) return puertaDescMap[String(g)];
+            } catch (e) {}
+            return 'Sin información de línea.';
+        }
+        // Mapa puerta -> emoji leído del SVG (capa_emojis, primer nodo de texto).
+        let emojiPorPuerta = null;
+        function mapaEmojis() {
+            if (emojiPorPuerta) return emojiPorPuerta;
+            emojiPorPuerta = {};
+            try {
+                const svg = (typeof svgContainerA !== 'undefined' && svgContainerA.querySelector('svg')) ||
+                    document.querySelector('#svg-persona-a svg');
+                const capa = svg && svg.querySelector('[id="capa_emojis"]');
+                if (capa) capa.querySelectorAll('text').forEach(t => {
+                    let gate = null;
+                    const title = t.querySelector('title');
+                    if (title) {
+                        const m = title.textContent.trim().match(/^(\d+)\b/);
+                        if (m) gate = parseInt(m[1], 10);
+                    }
+                    if (gate == null && t.id) {
+                        const m2 = t.id.match(/emoji[_-](\d+)/);
+                        if (m2) gate = parseInt(m2[1], 10);
+                    }
+                    if (gate == null) return;
+                    let emo = '';
+                    t.childNodes.forEach(n => { if (n.nodeType === 3) emo += n.nodeValue; });
+                    emo = emo.trim();
+                    if (emo) emojiPorPuerta[gate] = emo;
+                });
+            } catch (e) {}
+            return emojiPorPuerta;
+        }
+        function renderSeccionLista(cont, data, titulo) {
+            if (!cont) return;
+            cont.innerHTML = '';
+            if (!data) { cont.style.display = 'none'; return; }
+            cont.style.display = '';
+            const entradas = entradasFiltradas(data);
+            const th = document.createElement('div');
+            th.className = 'exp-sec-titulo';
+            th.textContent = `${titulo} (${entradas.length}) Negro=Conscientes Rojo=Inconscientes`;
+            cont.appendChild(th);
+            if (!entradas.length) {
+                const v = document.createElement('div');
+                v.className = 'exp-vacio';
+                v.textContent = 'Sin puertas con estos filtros.';
+                cont.appendChild(v);
+                return;
+            }
+            let circAct = null;
+            entradas.forEach(e => {
+                const c = CIRCUITO_PUERTA[e.g] || 'colec';
+                if (c !== circAct) {
+                    circAct = c;
+                    const n = entradas.filter(x => (CIRCUITO_PUERTA[x.g] || 'colec') === c).length;
+                    const s = document.createElement('div');
+                    s.className = 'fl-sub';
+                    s.textContent = `${FL_CIRCUITO_NOMBRE[c]} (${n})`;
+                    cont.appendChild(s);
+                }
+                const item = document.createElement('div');
+                item.className = 'fl-fila';
+                const num = (e.l != null && !isNaN(e.l)) ? `${e.g}.${e.l}` : `${e.g}`;
+                const sp = document.createElement('span');
+                sp.className = 'fl-num ' + (e.incon ? 'fl-incon' : 'fl-consc') +
+                    (c === 'indiv' ? ' fl-indiv' : (c === 'tribal' ? ' fl-tribal' : ''));
+                sp.textContent = num;
+                sp.title = `${e.incon ? 'Inconsciente' : 'Consciente'} · Circuito ${FL_CIRCUITO_NOMBRE[c]}`;
+                item.appendChild(sp);
+                // Emoji de la puerta al inicio de la descripción (S/NS en lista P1 si está activo y respondida).
+                try {
+                    const emo = mapaEmojis()[e.g];
+                    if (emo) {
+                        const se = document.createElement('span');
+                        se.className = 'fl-emo';
+                        let tit = '';
+                        try {
+                            if (cont && cont.id === 'filtros-lista-a' && window.snEstadoPuerta) {
+                                const st = window.snEstadoPuerta(e.g);
+                                if (st && st.emo) {
+                                    se.textContent = st.emo;
+                                    tit = (st.concepto ? (e.g + ' · ' + st.concepto) : ('Puerta ' + e.g)) + ' — ' + st.estado + ' (S/NS)' + (st.brillo ? ' ✨' : '');
+                                    if (st.brillo) se.style.filter = 'drop-shadow(0 0 3px gold)';
+                                }
+                            }
+                        } catch (err2) {}
+                        if (!se.textContent) se.textContent = emo;
+                        if (tit) se.title = tit;
+                        // Pegado al número (no en una columna aparte).
+                        se.style.marginLeft = '2px';
+                        sp.appendChild(se);
+                    }
+                } catch (err) {}
+                const dd = document.createElement('span');
+                dd.className = 'fl-desc ' + (e.incon ? 'fl-desc-incon' : 'fl-desc-consc') +
+                    (c === 'indiv' ? ' fl-indiv' : (c === 'tribal' ? ' fl-tribal' : ''));
+                dd.textContent = descLineaFiltrada(e.g, e.l);
+                if (e.planeta && typeof PLANETA_COLOR !== 'undefined') {
+                    const sq = document.createElement('span');
+                    sq.className = 'fl-planeta-cuadro';
+                    sq.style.backgroundColor = PLANETA_COLOR[e.planeta] || '#000000';
+                    sq.textContent = (typeof PLANETA_SIMBOLO !== 'undefined' && PLANETA_SIMBOLO[e.planeta]) || '';
+                    sq.title = e.planeta;
+                    dd.appendChild(sq);
+                }
+                item.appendChild(dd);
+                cont.appendChild(item);
+            });
+        }
+        function renderListaFiltrada() {
+            try {
+                const nombreA = (typeof selectorA !== 'undefined' && selectorA.value) ? selectorA.value : 'Persona 1';
+                const nombreB = (typeof selectorB !== 'undefined' && selectorB.value) ? selectorB.value : 'Persona 2';
+                renderSeccionLista(document.getElementById('filtros-lista-a'), dataPersonaA, nombreA);
+                renderSeccionLista(document.getElementById('filtros-lista-b'), dataPersonaB, nombreB);
+                try { renderSeccionTransito(document.getElementById('filtros-lista-t')); } catch (err) { console.error('renderSeccionTransito:', err); }
+                // Dos columnas (A | B) cuando hay segunda persona; una sola si no.
+                // El tránsito (#filtros-lista-t) ocupa todo el ancho vía CSS grid-column.
+                const cuerpo = document.querySelector('#filtros-lista-wrap .fl-cuerpo');
+                if (cuerpo) cuerpo.classList.toggle('dos-col', !!(dataPersonaA && dataPersonaB));
+            } catch (e) { console.error('renderListaFiltrada:', e); }
+            try { renderDescripcionesP1(); } catch (e) { console.error('renderDescripcionesP1:', e); }
+        }
+        // ---------- Descripciones sobre el gráfico P1 (botón Descr) ----------
+        // Usa las puertas.línea que pasan los filtros actuales y las escribe en
+        // los márgenes del SVG de Persona 1. Ordena por lado y altura, y une
+        // cada puerta con su descripción con una línea gris muy fina.
+        function quitarDescripcionesP1(svg) {
+            try {
+                if (!svg || !svg.querySelectorAll) return;
+                svg.querySelectorAll('[data-capa-descripciones]').forEach(el => el.remove());
+                const vb = svg.getAttribute('data-desc-viewbox');
+                if (vb) { svg.setAttribute('viewBox', vb); svg.removeAttribute('data-desc-viewbox'); }
+            } catch (e) {}
+        }
+        function envolverTexto(txt, maxChars) {
+            const palabras = String(txt || '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+            const lineas = [];
+            let actual = '';
+            palabras.forEach(p => {
+                const prueba = actual ? actual + ' ' + p : p;
+                if (prueba.length > maxChars && actual) { lineas.push(actual); actual = p; }
+                else actual = prueba;
+            });
+            if (actual) lineas.push(actual);
+            return lineas;
+        }
+        function renderDescripcionesP1() {
+            const cont = (typeof svgContainerA !== 'undefined') ? svgContainerA : document.getElementById('svg-persona-a');
+            const svg = cont && cont.querySelector ? cont.querySelector('svg') : null;
+            if (!svg) return;
+            quitarDescripcionesP1(svg);
+            if (!descrOn || !dataPersonaA) return;
+            const VB = { x: -82, y: -102, w: 700, h: 774 };
+            svg.setAttribute('data-desc-viewbox', svg.getAttribute('viewBox') || '78 -102 380 774');
+            svg.setAttribute('viewBox', `${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
+            const NS = 'http://www.w3.org/2000/svg';
+            const capa = document.createElementNS(NS, 'g');
+            capa.setAttribute('data-capa-descripciones', '1');
+            capa.setAttribute('pointer-events', 'none');
+            capa.setAttribute('font-family', 'Arial, Helvetica, sans-serif');
+            const centroX = 268;
+            const lados = { izq: [], der: [] };
+            const vistos = new Set();
+            entradasFiltradas(dataPersonaA).forEach(e => {
+                const circ = svg.querySelector('#' + (gateToCircleMap[e.g] || ''));
+                if (!circ) return;
+                const cx = parseFloat(circ.getAttribute('cx'));
+                const cy = parseFloat(circ.getAttribute('cy'));
+                if (isNaN(cx) || isNaN(cy)) return;
+                const clave = `${e.g}.${e.l}`;
+                if (vistos.has(clave)) return;
+                vistos.add(clave);
+                const completo = descLineaFiltrada(e.g, e.l);
+                const partes = completo.split(' — ');
+                const arq = (partes.length > 1) ? partes[0] : '';
+                const rasgo = (partes.length > 1) ? partes.slice(1).join(' — ') : completo;
+                const num = (e.l != null && !isNaN(e.l)) ? `${e.g}.${e.l}` : String(e.g);
+                (cx < centroX ? lados.izq : lados.der).push({
+                    g: e.g, incon: !!e.incon, cx, cy,
+                    num, titulo: num + (arq ? ' ' + arq : ''), rasgo
+                });
+            });
+            const TOPE = -94, FONDO = 666, SEP = 6;
+            const TIT_FS = 11, DSC_FS = 10.5, TIT_LH = 12.5, DSC_LH = 11.5;
+            const medir = (it) => {
+                let tl = envolverTexto(it.titulo, 24);
+                if (tl.length > 2) { tl = tl.slice(0, 2); tl[1] = tl[1].replace(/\s+\S*$/, '') + '…'; }
+                let dl = envolverTexto(it.rasgo, 24);
+                if (dl.length > 3) { dl = dl.slice(0, 3); dl[2] = dl[2].replace(/\s+\S*$/, '') + '…'; }
+                it.tituloLineas = tl;
+                it.rasgoLineas = dl;
+                it.alto = tl.length * TIT_LH + dl.length * DSC_LH + 4;
+            };
+            const ubicar = (lista) => {
+                lista.forEach(medir);
+                lista.sort((a, b) => (a.cy - b.cy) || (a.g - b.g));
+                let fin = -Infinity;
+                lista.forEach(it => {
+                    let y = it.cy - it.alto / 2;
+                    if (y < TOPE) y = TOPE;
+                    if (y < fin + SEP) y = fin + SEP;
+                    it.y = y;
+                    fin = y + it.alto;
+                });
+                const sobra = fin - FONDO;
+                if (sobra > 0) {
+                    lista.forEach(it => { it.y -= sobra; });
+                    let prev = -Infinity;
+                    lista.forEach(it => {
+                        if (it.y < TOPE) it.y = TOPE;
+                        if (it.y < prev + SEP) it.y = prev + SEP;
+                        prev = it.y + it.alto;
+                    });
+                }
+            };
+            // Reequilibrio: si una columna no entra en el alto del gráfico, pasa al
+            // lado opuesto sus puertas más cercanas al centro (1-2 típicamente),
+            // mientras el lado receptor tenga lugar. Si ninguna col cabe, queda
+            // el aplastado de ubicar() de antes (comportamiento viejo).
+            const DISP = FONDO - TOPE;
+            const pesoCol = (lado) => lado.reduce((a, it) => a + it.alto, 0) + SEP * Math.max(0, lado.length - 1);
+            const reequilibrar = (lleno, vacio) => {
+                let guard = 8;
+                while (pesoCol(lleno) > DISP && guard-- > 0) {
+                    lleno.sort((a, b) => Math.abs(a.cx - centroX) - Math.abs(b.cx - centroX));
+                    let idx = null;
+                    for (let k = 0; k < lleno.length; k++) {
+                        if (pesoCol(vacio) + lleno[k].alto + SEP <= DISP) { idx = k; break; }
+                    }
+                    if (idx == null) break;
+                    vacio.push(lleno.splice(idx, 1)[0]);
+                }
+            };
+            lados.izq.forEach(medir);
+            lados.der.forEach(medir);
+            if (pesoCol(lados.der) > DISP) reequilibrar(lados.der, lados.izq);
+            if (pesoCol(lados.izq) > DISP) reequilibrar(lados.izq, lados.der);
+            ubicar(lados.izq);
+            ubicar(lados.der);
+            const texto = (x, y, anclaje, txt, fs, fill, peso) => {
+                const t = document.createElementNS(NS, 'text');
+                t.setAttribute('x', x);
+                t.setAttribute('y', y);
+                t.setAttribute('text-anchor', anclaje);
+                t.setAttribute('font-size', fs);
+                t.setAttribute('fill', fill);
+                if (peso) t.setAttribute('font-weight', peso);
+                t.textContent = txt;
+                return t;
+            };
+            const dibujar = (lista, esIzq) => {
+                const xTexto = esIzq ? 62 : 474;
+                const anclaje = esIzq ? 'end' : 'start';
+                const xLinea = esIzq ? 66 : 470;
+                lista.forEach(it => {
+                    const circ = svg.querySelector('#' + (gateToCircleMap[it.g] || ''));
+                    const r = circ ? (parseFloat(circ.getAttribute('r')) || 6.25) : 6.25;
+                    const linea = document.createElementNS(NS, 'line');
+                    linea.setAttribute('x1', (esIzq ? it.cx - r - 0.4 : it.cx + r + 0.4).toFixed(2));
+                    linea.setAttribute('y1', it.cy.toFixed(2));
+                    linea.setAttribute('x2', xLinea);
+                    linea.setAttribute('y2', (it.y + 8).toFixed(2));
+                    linea.setAttribute('stroke', '#9e9e9e');
+                    linea.setAttribute('stroke-width', '0.55');
+                    linea.setAttribute('stroke-opacity', '0.8');
+                    capa.appendChild(linea);
+                    let y = it.y + 9;
+                    it.tituloLineas.forEach(ln => {
+                        const t = document.createElementNS(NS, 'text');
+                        t.setAttribute('x', xTexto);
+                        t.setAttribute('y', y.toFixed(2));
+                        t.setAttribute('text-anchor', anclaje);
+                        t.setAttribute('font-size', TIT_FS);
+                        t.setAttribute('font-weight', '700');
+                        t.setAttribute('fill', '#37474f');
+                        if (ln.indexOf(it.num) === 0) {
+                            const sn = document.createElementNS(NS, 'tspan');
+                            sn.setAttribute('font-weight', '800');
+                            sn.setAttribute('fill', it.incon ? '#c62828' : '#111111');
+                            sn.textContent = it.num;
+                            t.appendChild(sn);
+                            const resto = ln.slice(it.num.length);
+                            if (resto) {
+                                const sr = document.createElementNS(NS, 'tspan');
+                                sr.textContent = resto;
+                                t.appendChild(sr);
+                            }
+                        } else {
+                            t.textContent = ln;
+                        }
+                        capa.appendChild(t);
+                        y += TIT_LH;
+                    });
+                    y += 1;
+                    it.rasgoLineas.forEach(ln => {
+                        capa.appendChild(texto(xTexto, y.toFixed(2), anclaje, ln, DSC_FS, '#546e7a', '400'));
+                        y += DSC_LH;
+                    });
+                });
+            };
+            dibujar(lados.izq, true);
+            dibujar(lados.der, false);
+            svg.appendChild(capa);
+        }
+        // ---------- Tránsito en la lista filtrada ----------
+        // Usa TRANSITO_ACTUAL.detalle (13 planetas con puerta/línea) y respeta
+        // solo los filtros de circuito (Individual/Tribal/Colectivo). No aplica
+        // Rojas/Negras porque el cielo no es consciente ni inconsciente.
+        function entradasTransitoFiltradas() {
+            const out = [];
+            try {
+                if (typeof TRANSITO_ACTUAL === 'undefined' || !TRANSITO_ACTUAL) return out;
+                const det = TRANSITO_ACTUAL.detalle;
+                if (!Array.isArray(det) || !det.length) return out;
+                const f = leerFiltrosA();
+                det.forEach(d => {
+                    const g = parseInt(d.puerta, 10);
+                    if (!g || g < 1 || g > 64) return;
+                    if (!circuitoPuertaVisible(g, f)) return;
+                    const l = (d.linea != null && !isNaN(parseInt(d.linea, 10))) ? parseInt(d.linea, 10) : null;
+                    out.push({ g, l, planeta: d.planeta || '?', ini_l: d.inicio_linea_ms, fin_l: d.fin_linea_ms, ini_p: d.inicio_puerta_ms, fin_p: d.fin_puerta_ms });
+                });
+            } catch (e) {}
+            out.sort((x, y) =>
+                ((FL_CIRCUITO_ORDEN[CIRCUITO_PUERTA[x.g]] ?? 2) - (FL_CIRCUITO_ORDEN[CIRCUITO_PUERTA[y.g]] ?? 2)) ||
+                (x.g - y.g) || ((x.l || 0) - (y.l || 0)) ||
+                String(x.planeta).localeCompare(String(y.planeta)));
+            return out;
+        }
+        function nombreTransitoActual() {
+            try {
+                if (typeof TRANSITO_ACTUAL !== 'undefined' && TRANSITO_ACTUAL && TRANSITO_ACTUAL.nombre) return TRANSITO_ACTUAL.nombre;
+            } catch (e) {}
+            try { return 'Tránsito ' + ((document.getElementById('fecha-transito') || {}).value || 'actual'); }
+            catch (e) { return 'Tránsito'; }
+        }
+        let _transitoListaPidiendo = false;
+        function pedirTransitoParaLista(cont) {
+            if (_transitoListaPidiendo) return;
+            _transitoListaPidiendo = true;
+            let fecha = '';
+            try { fecha = (document.getElementById('fecha-transito') || {}).value || ''; } catch (e) {}
+            const pedir = (typeof obtenerTransito === 'function') ? obtenerTransito(fecha) : Promise.resolve(null);
+            Promise.resolve(pedir).then(d => {
+                _transitoListaPidiendo = false;
+                try {
+                    if (d && Array.isArray(d.detalle) && d.detalle.length) {
+                        if (typeof TRANSITO_ACTUAL === 'undefined' || !TRANSITO_ACTUAL) TRANSITO_ACTUAL = d;
+                        renderSeccionTransito(cont);
+                    }
+                } catch (e) {}
+            }).catch(() => { _transitoListaPidiendo = false; });
+        }
+        function renderSeccionTransito(cont) {
+            if (!cont) return;
+            cont.innerHTML = '';
+            let hayDato = false;
+            try { hayDato = (typeof TRANSITO_ACTUAL !== 'undefined') && !!(TRANSITO_ACTUAL && Array.isArray(TRANSITO_ACTUAL.detalle) && TRANSITO_ACTUAL.detalle.length); } catch (e) {}
+            if (!hayDato) {
+                // El tránsito se muestra siempre, aunque el overlay esté apagado.
+                cont.style.display = 'none';
+                pedirTransitoParaLista(cont);
+                return;
+            }
+            cont.style.display = '';
+            const entradas = entradasTransitoFiltradas();
+            const th = document.createElement('div');
+            th.className = 'exp-sec-titulo';
+            th.textContent = nombreTransitoActual();
+            cont.appendChild(th);
+            if (!entradas.length) {
+                const v = document.createElement('div');
+                v.className = 'exp-vacio';
+                v.textContent = 'Sin puertas del tránsito con estos filtros de circuito.';
+                cont.appendChild(v);
+                return;
+            }
+            let circAct = null;
+            entradas.forEach(e => {
+                const c = CIRCUITO_PUERTA[e.g] || 'colec';
+                if (c !== circAct) {
+                    circAct = c;
+                    const n = entradas.filter(x => (CIRCUITO_PUERTA[x.g] || 'colec') === c).length;
+                    const s = document.createElement('div');
+                    s.className = 'fl-sub';
+                    s.textContent = `${FL_CIRCUITO_NOMBRE[c]} (${n})`;
+                    cont.appendChild(s);
+                }
+                const item = document.createElement('div');
+                item.className = 'fl-fila';
+                const num = (e.l != null) ? `${e.g}.${e.l}` : `${e.g}`;
+                const sp = document.createElement('span');
+                sp.className = 'fl-num fl-trans' +
+                    (c === 'indiv' ? ' fl-indiv' : (c === 'tribal' ? ' fl-tribal' : ''));
+                sp.textContent = num;
+                sp.title = `Tránsito · Circuito ${FL_CIRCUITO_NOMBRE[c]}`;
+                item.appendChild(sp);
+                try {
+                    const emo = mapaEmojis()[e.g];
+                    if (emo) {
+                        const se = document.createElement('span');
+                        se.className = 'fl-emo';
+                        se.textContent = emo;
+                        se.style.marginLeft = '2px';
+                        sp.appendChild(se);
+                    }
+                } catch (err) {}
+                const pl = document.createElement('span');
+                pl.className = 'fl-planeta fl-trans';
+                pl.textContent = e.planeta;
+                item.appendChild(pl);
+                const dd = document.createElement('span');
+                dd.className = 'fl-desc fl-desc-trans' +
+                    (c === 'indiv' ? ' fl-indiv' : (c === 'tribal' ? ' fl-tribal' : ''));
+                dd.textContent = descLineaFiltrada(e.g, e.l);
+                // Duración del tránsito en esa línea (fallback a puerta): (por **X**).
+                try {
+                    let ini = (e.ini_l != null) ? e.ini_l : e.ini_p;
+                    let fin = (e.fin_l != null) ? e.fin_l : e.fin_p;
+                    if (ini != null && fin != null && fin > ini && typeof _fmtDuracion === 'function') {
+                        dd.appendChild(document.createTextNode(' (por '));
+                        const b = document.createElement('b');
+                        b.textContent = _fmtDuracion(fin - ini);
+                        dd.appendChild(b);
+                        dd.appendChild(document.createTextNode(')'));
+                    }
+                } catch (err) {}
+                if (e.planeta && typeof PLANETA_COLOR !== 'undefined') {
+                    const sq = document.createElement('span');
+                    sq.className = 'fl-planeta-cuadro';
+                    sq.style.backgroundColor = PLANETA_COLOR[e.planeta] || '#000000';
+                    sq.textContent = (typeof PLANETA_SIMBOLO !== 'undefined' && PLANETA_SIMBOLO[e.planeta]) || '';
+                    sq.title = e.planeta;
+                    dd.appendChild(sq);
+                }
+                item.appendChild(dd);
+                cont.appendChild(item);
+            });
+        }
+        function pintarBotonFiltro(chkId, lblId, claseOn) {
+            const chk = document.getElementById(chkId);
+            const lbl = document.getElementById(lblId);
+            if (!chk || !lbl) return;
+            lbl.classList.toggle(claseOn || 'on', chk.checked);
+        }
+        function pintarBotonesFiltrosA() {
+            pintarBotonFiltro('flt-a-rojas', 'lbl-flt-a-rojas', 'on-roja');
+            pintarBotonFiltro('flt-a-negras', 'lbl-flt-a-negras', 'on-negra');
+            pintarBotonFiltro('flt-c-indiv', 'lbl-flt-c-indiv');
+            pintarBotonFiltro('flt-c-tribal', 'lbl-flt-c-tribal');
+            pintarBotonFiltro('flt-c-colec', 'lbl-flt-c-colec');
+            pintarBotonFiltro('chk-emoji-sns', 'lbl-emoji-sns');
+            for (let n = 1; n <= 6; n++) pintarBotonFiltro('flt-lin-' + n, 'lbl-flt-lin-' + n);
+        }
+        function repintarGraficoAConFiltros() {
+            pintarBotonesFiltrosA();
+            if (typeof repintarTodo === 'function') repintarTodo();
+        }
+
+        function getColors() {
+            return {
+                aIncon: document.getElementById('color-a-incon').value,
+                aConsc: document.getElementById('color-a-consc').value,
+                aMixto: document.getElementById('color-a-mixto').value,
+                bIncon: document.getElementById('color-b-incon').value,
+                bConsc: document.getElementById('color-b-consc').value,
+                bMixto: document.getElementById('color-b-mixto').value
+            };
+        }
+
+        document.querySelectorAll('input[type="color"]').forEach(inp => {
+            inp.addEventListener('input', () => actualizarCompuesto());
+        });
+        checkAnimaciones.addEventListener('change', () => actualizarCompuesto());
+        // Controles de tránsito: color, opacidad y punteado -> repintar los 3 gráficos si el overlay está activo
+        ['color-transito','opac-transito','chk-transito-punteado'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener(el.type === 'checkbox' ? 'change' : 'input', () => {
+                if (typeof overlayTransitoOn !== 'undefined' && overlayTransitoOn) {
+                    if (typeof repintarTodo === 'function') repintarTodo();
+                }
+            });
+        });
+        // Filtros de los gráficos: repintan todo (individuales + compuesto);
+        // los paneles laterales y los análisis siguen con datos completos.
+        ['flt-a-rojas','flt-a-negras','flt-c-indiv','flt-c-tribal','flt-c-colec'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', () => repintarGraficoAConFiltros());
+        });
+        // Botones 1-6 de líneas: comportamiento tipo radio — solo uno prendido;
+        // tocar el prendido lo apaga (todas visibles otra vez); tocar otro
+        // apaga el anterior y prende el nuevo. Repinta los tres gráficos.
+        for (let n = 1; n <= 6; n++) {
+            (function (num) {
+                const el = document.getElementById('flt-lin-' + num);
+                if (!el) return;
+                el.addEventListener('change', () => {
+                    if (el.checked) {
+                        for (let m = 1; m <= 6; m++) {
+                            if (m === num) continue;
+                            const o = document.getElementById('flt-lin-' + m);
+                            if (o && o.checked) o.checked = false;
+                        }
+                    }
+                    repintarGraficoAConFiltros();
+                });
+            })(n);
+        }
+        const chkSns = document.getElementById('chk-emoji-sns');
+        if (chkSns) {
+            try { chkSns.checked = localStorage.getItem('dhEmojiSNS') === '1'; } catch (e) {}
+            try { window._snOn = chkSns.checked; } catch (e) {}
+            chkSns.addEventListener('change', () => {
+                try { localStorage.setItem('dhEmojiSNS', chkSns.checked ? '1' : '0'); } catch (e) {}
+                try { window._snOn = chkSns.checked; } catch (e) {}
+                pintarBotonFiltro('chk-emoji-sns', 'lbl-emoji-sns');
+                if (chkSns.checked) { try { if (window.aplicarEmojisSN) window.aplicarEmojisSN(); } catch (e) {} try { if (typeof renderListaFiltrada === 'function') renderListaFiltrada(); } catch (e) {} }
+                else { repintarGraficoAConFiltros(); try { if (window.aplicarEmojisSN) window.aplicarEmojisSN(); } catch (e) {} try { if (typeof renderListaFiltrada === 'function') renderListaFiltrada(); } catch (e) {} }
+            });
+        }
+        pintarBotonesFiltrosA();
+
+        // S/NS (Ser / No-Ser) solo tiene sentido si P1 respondió el cuestionario.
+        // El dato viene en /api/persona (tiene_sns): sin datos, el botón no se muestra
+        // y el modo queda apagado.
+        function actualizarBotonSNS(persona, tieneSns) {
+            const lbl = document.getElementById('lbl-emoji-sns');
+            if (!lbl) return;
+            const mostrar = !!persona && !!tieneSns;
+            lbl.style.display = mostrar ? '' : 'none';
+            if (mostrar) return;
+            const chk = document.getElementById('chk-emoji-sns');
+            if (chk && chk.checked) {
+                chk.checked = false;
+                try { localStorage.setItem('dhEmojiSNS', '0'); } catch (e) {}
+                try { window._snOn = false; } catch (e) {}
+                pintarBotonFiltro('chk-emoji-sns', 'lbl-emoji-sns');
+                try { repintarGraficoAConFiltros(); } catch (e) {}
+                try { if (window.aplicarEmojisSN) window.aplicarEmojisSN(); } catch (e) {}
+            }
+        }
+
+        function parsePuertasTexto(s) {
+            // Conserva decimales "41.1" (puerta.línea); el backend los separa.
+            return String(s || '').split(/[,;\s]+/).filter(x => x.length);
+        }
+        function fmtPuertaLinea(p, l) {
+            return (l != null && !isNaN(l)) ? `${p}.${l}` : `${p}`;
+        }
+        let masterPersonas = [];
+
+        function refrescarSelectores(personas, nueva) {
+            masterPersonas = personas.slice();
+            const actualA = selectorA.value;
+            const actualB = selectorB.value;
+            const selAd = document.getElementById('selector-persona-adicional');
+            const actualAd = selAd ? selAd.value : '';
+            selectorA.innerHTML = `<option value="">-- Elegir Persona 1 --</option>` +
+                personas.map(p => `<option value="${escHtml(p)}">${escHtml(p)}</option>`).join('');
+            selectorB.innerHTML = `<option value="">-- Elegir Persona 2 --</option>` +
+                personas.map(p => `<option value="${escHtml(p)}">${escHtml(p)}</option>`).join('');
+            if (selAd) {
+                selAd.innerHTML = `<option value="">-- Agregar persona --</option>` +
+                    personas.map(p => `<option value="${escHtml(p)}">${escHtml(p)}</option>`).join('');
+                if (actualAd && [...selAd.options].some(o => o.value === actualAd)) selAd.value = actualAd;
+            }
+            poblarVinculoRef();
+            if ([...selectorA.options].some(o => o.value === actualA)) selectorA.value = actualA;
+            if ([...selectorB.options].some(o => o.value === actualB)) selectorB.value = actualB;
+            if (nueva && [...selectorA.options].some(o => o.value === nueva)) {
+                selectorA.value = nueva;
+                selectorA.dispatchEvent(new Event('change'));
+            } else if (dataPersonaA) {
+                mostrarCompatibilidades(dataPersonaA);
+            }
+            // Rearmar la lista dejó los desplegables vacíos: reponer lo guardado.
+            try { if (typeof window._reponerPersonasGuardadas === 'function') window._reponerPersonasGuardadas(); } catch (e) {}
+        }
+
+        function poblarVinculoRef(mantener) {
+            const sel = document.getElementById('nuevo-vinculo-ref');
+            if (!sel) return;
+            const actual = mantener || sel.value;
+            const lista = (masterPersonas.length ? masterPersonas :
+                [...selectorA.options].map(o => o.value).filter(Boolean));
+            sel.innerHTML = `<option value="">— —</option>` +
+                lista.map(p => `<option value="${escHtml(p)}">${escHtml(p)}</option>`).join('');
+            if (actual && lista.includes(actual)) sel.value = actual;
+        }
+
+        async function poblarTiposVinculo(mantener) {
+            const sel = document.getElementById('nuevo-vinculo-tipo');
+            if (!sel) return;
+            let tipos = [...new Set(VINCULOS_DATA.flatMap(v => [v.vinc_ref, v.vinc_jorge]).filter(Boolean))];
+            try {
+                const r = await fetch('/api/tipos_vinculo');
+                if (r.ok) tipos = await r.json();
+            } catch (e) {}
+            const actual = mantener || sel.value;
+            sel.innerHTML = `<option value="">— sin vínculo —</option>` +
+                tipos.map(t => `<option value="${escHtml(t)}">${escHtml(t)}</option>`).join('');
+            if (actual && tipos.includes(actual)) sel.value = actual;
+        }
+
+        document.getElementById('chk-contacto-b').addEventListener('change', () => {
+            if (dataPersonaB) mostrarPuertasDetalle('b', dataPersonaB);
+        });
+
+        async function calcularPreview() {
+            if (window._calcularPrevEnCurso) return;
+            const fTmp = document.getElementById('nuevo-fecha').value.trim();
+            const hTmp = document.getElementById('nuevo-hora').value.trim();
+            if (!fTmp || !hTmp) return;
+            const inpLugar = document.getElementById('nuevo-lugar');
+            const coordsElT = document.getElementById('nuevo-coords');
+            const libre = inpLugar && (inpLugar.value.trim() || (inpLugar.dataset.lat && inpLugar.dataset.lon));
+            const manual = coordsElT && document.getElementById('wrap-coords').style.display !== 'none' && coordsElT.value.trim();
+            if (!libre && !manual) return;
+            window._calcularPrevEnCurso = true;
+            const msg = document.getElementById('add-persona-msg');
+            msg.className = '';
+            msg.textContent = 'Calculando...';
+            const payload = {
+                fecha: fTmp,
+                hora: hTmp
+            };
+            const coordsManual = document.getElementById('wrap-coords').style.display !== 'none'
+                && document.getElementById('nuevo-coords').value.trim();
+            if (inpLugar.dataset.lat && inpLugar.dataset.lon) {
+                // Candidato elegido del autocompletado: coords + zona IANA (offset exacto por fecha).
+                payload.lat = inpLugar.dataset.lat;
+                payload.lon = inpLugar.dataset.lon;
+                if (inpLugar.dataset.tzname) payload.tz_name = inpLugar.dataset.tzname;
+                payload.lugar = inpLugar.value.trim();
+            } else if (coordsManual) {
+                const partes = document.getElementById('nuevo-coords').value.split(',');
+                payload.lat = partes[0] !== undefined ? partes[0].trim() : '';
+                payload.lon = partes[1] !== undefined ? partes[1].trim() : '';
+                payload.tz = partes[2] !== undefined ? partes[2].trim() : '';
+                payload.lugar = inpLugar.value.trim();
+            } else {
+                // Texto libre: el backend resuelve alias conocidos o "lat, lon, tz".
+                payload.lugar = inpLugar.value.trim();
+            }
+            try {
+                const r = await fetch('/api/calcular', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const d = await r.json();
+                if (!r.ok) { msg.className = 'err'; msg.textContent = d.error || 'Error al calcular'; return; }
+                document.getElementById('nuevo-incon').value =
+                    d.inconscientes.map((p, i) => fmtPuertaLinea(p, (d.inconscientes_lineas || [])[i])).join(', ');
+                document.getElementById('nuevo-consc').value =
+                    d.conscientes.map((p, i) => fmtPuertaLinea(p, (d.conscientes_lineas || [])[i])).join(', ');
+                mostrarFilaPuertas();
+                const fmt = (det) => det.map(x => `${x.planeta} ${x.puerta}.${x.linea}`).join(' · ');
+                msg.className = 'ok';
+                msg.textContent = `Diseño: ${fmt(d.detalle_diseno)}. Personalidad: ${fmt(d.detalle_personalidad)}.` +
+                    (d.perfil ? ` Perfil ${d.perfil}.` : '') +
+                    `${d.warnings && d.warnings.length ? ' (' + d.warnings.join('; ') + ')' : ''} Revisar y guardar.`;
+                // Vista previa en el gráfico 1 (con líneas y perfil) sin guardar.
+                const setPI = new Set(d.inconscientes), setPC = new Set(d.conscientes);
+                dataPersonaA = {
+                    puertas_inconscientes: d.inconscientes,
+                    puertas_conscientes: d.conscientes,
+                    inconscientes_lineas: d.inconscientes_lineas || [],
+                    conscientes_lineas: d.conscientes_lineas || [],
+                    perfil: d.perfil || null,
+                    puertas_mixtas: [...setPI].filter(x => setPC.has(x)).sort((a, b) => a - b),
+                    todas_puertas: [...new Set([...d.inconscientes, ...d.conscientes])].sort((a, b) => a - b)
+                };
+                const nomPrev = document.getElementById('nuevo-nombre').value.trim();
+                // Sin selección de Persona 1: el gráfico y sus datos son la vista
+                // previa, sin contradicción con el selector.
+                selectorA.value = '';
+                document.getElementById('titulo-grafico-a').textContent =
+                    `Vista previa: ${nomPrev || 'nueva persona'}`;
+                mostrarPuertas(dataPersonaA, 'a');
+                actualizarSVGIndividual(svgContainerA, dataPersonaA, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto);
+                actualizarCompuesto();
+                try { renderListaFiltrada(); } catch (err) {}
+                actualizarTransitos();
+                msg.textContent += ' Vista previa en gráfico 1 (no guardada).';
+            } catch (e) { msg.className = 'err'; msg.textContent = 'Error de red'; }
+            finally { window._calcularPrevEnCurso = false; }
+            try { actualizarPanelDia(); } catch (e) {}
+        }
+        let _timerPrev = null;
+        ['nuevo-fecha', 'nuevo-hora', 'nuevo-lugar', 'nuevo-coords'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', () => { clearTimeout(_timerPrev); _timerPrev = setTimeout(calcularPreview, 900); });
+        });
+
+        // ---------- Panel del día: Tipo y Perfil hora por hora (00-23) ----------
+        function armarPayloadDia() {
+            const payload = { fecha: document.getElementById('nuevo-fecha').value.trim() };
+            const inpLugar = document.getElementById('nuevo-lugar');
+            const coordsManual = document.getElementById('wrap-coords').style.display !== 'none'
+                && document.getElementById('nuevo-coords').value.trim();
+            if (inpLugar.dataset.lat && inpLugar.dataset.lon) {
+                payload.lat = inpLugar.dataset.lat;
+                payload.lon = inpLugar.dataset.lon;
+                if (inpLugar.dataset.tzname) payload.tz_name = inpLugar.dataset.tzname;
+                payload.lugar = inpLugar.value.trim();
+            } else if (coordsManual) {
+                const partes = document.getElementById('nuevo-coords').value.split(',');
+                payload.lat = partes[0] !== undefined ? partes[0].trim() : '';
+                payload.lon = partes[1] !== undefined ? partes[1].trim() : '';
+                payload.tz = partes[2] !== undefined ? partes[2].trim() : '';
+                payload.lugar = inpLugar.value.trim();
+            } else {
+                payload.lugar = inpLugar.value.trim();
+            }
+            return payload;
+        }
+        function cortaTipo(t) {
+            const m = {'Generador Manifestante': 'GM', 'Generador': 'G', 'Manifestador': 'M', 'Proyector': 'P', 'Reflector': 'R'};
+            return m[t] || t || '-';
+        }
+        async function actualizarPanelDia() {
+            const box = document.getElementById('panel-dia');
+            const tabla = document.getElementById('panel-dia-tabla');
+            const estado = document.getElementById('panel-dia-estado');
+            const payload = armarPayloadDia();
+            if (!payload.fecha || !payload.lugar) { box.style.display = 'none'; return; }
+            estado.textContent = 'cargando...';
+            box.style.display = '';
+            try {
+                const r = await fetch('/api/dia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const d = await r.json();
+                if (!r.ok) { estado.textContent = d.error || 'sin datos'; tabla.innerHTML = ''; return; }
+                estado.textContent = d.etiqueta ? `(${d.etiqueta})` : '';
+                const hs = d.horas || [];
+                const esc = s => String(s == null ? '-' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+                let html = '<tr><th style="text-align:left;padding:2px 6px">Hora</th>' + hs.map(h => `<th style="padding:2px 4px">${esc(h.hora.slice(0, 2))}</th>`).join('') + '</tr>';
+                const horaTxt = document.getElementById('nuevo-hora').value.trim();
+                const horaNum = parseInt(horaTxt, 10);
+                const horaRef = isNaN(horaNum) ? '' : String(horaNum).padStart(2, '0');
+                const idxHora = horaRef ? hs.findIndex(h => String(h.hora || '').slice(0, 2) === horaRef) : -1;
+                const fila = (titulo, get) => {
+                    let t = `<tr><td style="font-weight:700;padding:2px 6px;white-space:nowrap">${titulo}</td>`;
+                    hs.forEach((h, i) => {
+                        const v = get(h);
+                        const cambia = i > 0 && get(hs[i - 1]) !== v;
+                        let borde = cambia ? ';border-left:3px solid #c62828' : ';border-left:1px solid #e0e0e0';
+                        let fondo = '';
+                        if (i === idxHora) { borde = ';border-left:3px solid #f9a825'; fondo = ';background:#fff8e1'; }
+                        t += `<td title="${esc(v)} — ${esc(h.hora)}" style="text-align:center;padding:2px 4px;white-space:nowrap${borde}${fondo}">${esc(titulo === 'Tipo' ? cortaTipo(v) : v)}</td>`;
+                    });
+                    return t + '</tr>';
+                };
+                html += fila('Tipo', h => h.tipo) + fila('Perfil', h => h.perfil);
+                tabla.innerHTML = html;
+            } catch (e) { estado.textContent = 'error de red'; }
+        }
+        let _timerDia = null;
+        ['nuevo-fecha', 'nuevo-hora', 'nuevo-lugar', 'nuevo-coords'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', () => { clearTimeout(_timerDia); _timerDia = setTimeout(actualizarPanelDia, 700); });
+        });
+
+        // La fila de botones del panel de entrada queda siempre visible.
+        function mostrarFilaPuertas() {
+            const el = document.getElementById('fila-puertas-nuevas');
+            if (el) el.style.display = '';
+        }
+        function ocultarFilaPuertas() {
+            // La fila de botones queda siempre visible.
+        }
+        // La foto pública se pinta en los gráficos de Persona 1 y Persona 2.
+        // Se marca con data-foto-publica para poder quitarla de cualquier clon
+        // (compuesto, personas adicionales, clan, crisol).
+        function quitarFotoPublica(svg){
+            try{
+                if(!svg || !svg.querySelectorAll) return;
+                svg.querySelectorAll('[data-foto-publica]').forEach(el => el.remove());
+                // compatibilidad con versiones anteriores
+                const viejo=svg.querySelector('#foto-publica-a'); if(viejo) viejo.remove();
+                const clipViejo=svg.querySelector('#clip-foto-a'); if(clipViejo) clipViejo.remove();
+            }catch(e){}
+        }
+        function pintarFotoPublicaEn(contenedor, url, sufijo){
+            try{
+                const svg=(contenedor && contenedor.querySelector) ? contenedor.querySelector('svg') : null;
+                if(!svg) return;
+                const ID='rave-foto-publica-'+sufijo, CID='rave-foto-clip-'+sufijo;
+                let img=svg.querySelector('#'+ID);
+                if(!url){ quitarFotoPublica(svg); return; }
+                let defs=svg.querySelector('defs');
+                if(!defs){ defs=document.createElementNS('http://www.w3.org/2000/svg','defs'); svg.insertBefore(defs, svg.firstChild); }
+                let clip=svg.querySelector('#'+CID);
+                if(!clip){
+                    clip=document.createElementNS('http://www.w3.org/2000/svg','clipPath');
+                    clip.setAttribute('id',CID);
+                    clip.setAttribute('data-foto-publica','clip');
+                    const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+                    rect.setAttribute('x','95'); rect.setAttribute('y','-81');
+                    rect.setAttribute('width','125'); rect.setAttribute('height','207');
+                    rect.setAttribute('rx','4');
+                    clip.appendChild(rect); defs.appendChild(clip);
+                }
+                if(!img){
+                    img=document.createElementNS('http://www.w3.org/2000/svg','image');
+                    img.setAttribute('id',ID);
+                    img.setAttribute('data-foto-publica','img');
+                    img.setAttribute('preserveAspectRatio','xMidYMid slice');
+                    img.setAttribute('pointer-events','none');
+                    img.setAttribute('clip-path',`url(#${CID})`);
+                    svg.appendChild(img);
+                }
+                img.setAttribute('x','95'); img.setAttribute('y','-81');
+                img.setAttribute('width','125'); img.setAttribute('height','207');
+                // URL absoluta: así la foto también sale en el PNG/PDF del informe.
+                let abs=url;
+                try{ abs=new URL(url, location.href).href; }catch(e){}
+                img.setAttribute('href',abs);
+                img.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',abs);
+            }catch(e){ console.error('foto publica:',e); }
+        }
+        function pintarFotoPublicaA(url){
+            pintarFotoPublicaEn(document.getElementById('svg-persona-a'), url, 'a');
+        }
+        function pintarFotoPublicaB(url){
+            pintarFotoPublicaEn(document.getElementById('svg-persona-b'), url, 'b');
+        }
+        // Foto pública de Persona 2 (misma ficha_basica que P1). Si cambia rápido
+        // de persona, la generación descarta respuestas viejas.
+        async function actualizarFotoPublicaB(persona, gen){
+            try{
+                if(!persona){ pintarFotoPublicaB(''); return; }
+                const r=await fetch(`/api/ficha_basica?persona=${encodeURIComponent(persona)}`);
+                if(typeof gen==='number' && gen!==genPersonaB) return;
+                if(!r.ok){ pintarFotoPublicaB(''); return; }
+                const f=await r.json();
+                if(!f || f.error){ pintarFotoPublicaB(''); return; }
+                pintarFotoPublicaB(f.foto||'');
+            }catch(e){ try{ pintarFotoPublicaB(''); }catch(e2){} }
+        }
+
+        async function actualizarDatosBasicosA(persona){
+            const box=document.getElementById('datos-basicos-a');
+            if(!box) return;
+            window._bioP1=persona||'';
+            const _bt=document.getElementById('bio-p1'), _bm=document.getElementById('bio-msg');
+            if(_bm){ _bm.textContent=''; _bm.style.color=''; }
+            if(!persona){ box.textContent='Elegí Persona 1'; if(_bt) _bt.value=''; pintarFotoPublicaA(''); return; }
+            box.textContent='Cargando...';
+            try{
+                const r=await fetch(`/api/ficha_basica?persona=${encodeURIComponent(persona)}`);
+                const f=await r.json();
+                if(!r.ok || f.error){ box.textContent=f.error||'Sin datos'; pintarFotoPublicaA(''); return; }
+                pintarFotoPublicaA(f.foto||'');
+                const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+                const perf=f.perfil? `${esc(f.perfil)}${f.perfil_detalle&&f.perfil_detalle.nombre?' — '+esc(f.perfil_detalle.nombre):''}`:'-';
+                let html=`<div style="display:grid;gap:8px">`;
+                const SIGNO_SIMB={'Aries':'♈','Tauro':'♉','Geminis':'♊','Cancer':'♋','Leo':'♌','Virgo':'♍','Libra':'♎','Escorpio':'♏','Sagitario':'♐','Capricornio':'♑','Acuario':'♒','Piscis':'♓'};
+                const nacParts=[];
+                if(f.fecha) nacParts.push(esc(f.fecha));
+                if(f.hora) nacParts.push(esc(f.hora));
+                if(f.lugar) nacParts.push(esc(f.lugar));
+                // 3 cuadraditos con el símbolo del signo (Sol, Luna, Asc) en la misma línea, sin texto
+                const cartDef=[['sol','Sol','#FF7F00','#ffffff'],['luna','Luna','#87CEEB','#111111'],['asc','Asc','#ffffff','#111111']];
+                let cartSqs='';
+                for(const [ck,cl,cc,cs] of cartDef){
+                    const st=f[ck];
+                    if(!st) continue;
+                    const g=SIGNO_SIMB[st]||'';
+                    const borde=(ck==='asc')?';border:1px solid #bdbdbd':'';
+                    const sombra=(cs==='#ffffff')?';text-shadow:0 0 2px #000,0 0 1px #000':'';
+                    cartSqs+=`<span style="display:inline-block;width:11px;height:11px;line-height:11px;text-align:center;border-radius:2px;background:${cc}${borde}${sombra};color:${cs};font-size:10px;vertical-align:middle;margin-left:5px" title="${cl}: ${esc(st)}">${g}</span>`;
+                }
+                if(nacParts.length || cartSqs){
+                    html+=`<div style="font-size:10px;color:#808080;display:flex;align-items:center;flex-wrap:wrap">${nacParts.length?('Nacimiento: '+nacParts.join(' · ')):''}${cartSqs}</div>`;
+                }
+                html+=`<div><b>Tipo:</b> ${esc(f.tipo||'-')}<br><span style="font-size:11px;color:#555">${esc(f.tipo_descripcion||'')}</span></div>`;
+                html+=`<div><b>Autoridad:</b> ${esc(f.autoridad||'-')}<br><span style="font-size:11px;color:#555">${esc(f.autoridad_descripcion||'')}</span></div>`;
+                html+=`<div><b>Perfil:</b> ${perf}<br><span style="font-size:11px;color:#555">${esc(f.perfil_detalle&&f.perfil_detalle.descripcion||'')}</span></div>`;
+                html+=`<div><b>Definición:</b> ${esc(f.definicion||'-')}<br><span style="font-size:11px;color:#555">${esc(f.definicion_descripcion||'')}</span></div>`;
+                if(f.cruz && f.cruz_descripcion){
+                    html+=`<div><b>Cruz:</b> ${esc(f.cruz)}<br><span style="font-size:11px;color:#555">${esc(f.cruz_descripcion)}</span></div>`;
+                }
+                html+=`</div>`;
+                box.innerHTML=html;
+                if(_bt) _bt.value=(f.bio||'');
+                // El briefing (prompt IA) reutiliza esta ficha: Tipo, Autoridad, Centros, Puertas.
+                try{ window._fichaCache = window._fichaCache || {}; window._fichaCache[persona] = f; }catch(e){}
+                fetch(`/api/ia_descripcion?persona=${encodeURIComponent(persona)}`).catch(()=>{});
+            }catch(e){ box.textContent='Error'; if(_bt) _bt.value=''; pintarFotoPublicaA(''); }
+        }
+
+        (function(){
+            const btn=document.getElementById('btn-bio-guardar');
+            if(!btn) return;
+            btn.addEventListener('click', async function(){
+                const ta=document.getElementById('bio-p1'), msg=document.getElementById('bio-msg');
+                const persona=(window._bioP1||'').trim();
+                if(!persona){ if(msg){msg.textContent='Elegí Persona 1'; msg.style.color='#c62828';} return; }
+                const t=btn.textContent; btn.disabled=true; btn.textContent='Guardando…';
+                if(msg){ msg.textContent=''; msg.style.color=''; }
+                try{
+                    const r=await fetch('/api/bio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({persona:persona,bio:ta?ta.value:''})});
+                    const j=await r.json();
+                    if(r.ok&&j&&j.ok){ if(msg){msg.textContent='Guardado'; msg.style.color='#2e7d32';} }
+                    else { if(msg){msg.textContent=(j&&j.error)||'No se pudo guardar'; msg.style.color='#c62828';} }
+                }catch(e){ if(msg){msg.textContent='Error de red'; msg.style.color='#c62828';} }
+                btn.disabled=false; btn.textContent=t;
+            });
+        })();
+
+        async function guardarPersona(editar) {
+            // En Render (o sin datos propios) guardar requiere cuenta.
+            try {
+                const fu = await (await fetch('/api/fuente', {cache:'no-store'})).json();
+                const est = await (await fetch('/api/cuenta/estado', {cache:'no-store'})).json();
+                const enRender = !!(fu && fu.entorno === 'render');
+                const sinPropio = !(fu && fu.datos_csv_propio);
+                if ((enRender || sinPropio) && (!est || !est.logueado)) {
+                    window.location = '/cuenta';
+                    return;
+                }
+            } catch (e) {}
+            const msg = document.getElementById('add-persona-msg');
+            msg.className = '';
+            msg.textContent = 'Enviando...';
+            const inpLugar2 = document.getElementById('nuevo-lugar');
+            const payload = {
+                nombre: document.getElementById('nuevo-nombre').value.trim(),
+                inconscientes: parsePuertasTexto(document.getElementById('nuevo-incon').value),
+                conscientes: parsePuertasTexto(document.getElementById('nuevo-consc').value),
+                vinculo_tipo: document.getElementById('nuevo-vinculo-tipo').value,
+                vinculo_referente: document.getElementById('nuevo-vinculo-ref').value,
+                fecha: document.getElementById('nuevo-fecha').value.trim(),
+                hora: document.getElementById('nuevo-hora').value.trim(),
+                lugar: inpLugar2 ? inpLugar2.value.trim() : '',
+                foto: (document.getElementById('nuevo-foto') || {}).value || ''
+            };
+            const editarA = editar ? (window._editandoP1 || '') : '';
+            if (editar && !editarA) {
+                msg.className = 'err';
+                msg.textContent = 'Pulsá Cargar P1 antes de modificar.';
+                return;
+            }
+            try {
+                const r = await fetch(editar ? '/api/persona/' + encodeURIComponent(editarA) : '/api/persona', {
+                    method: editar ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const d = await r.json();
+                if (!r.ok) { msg.className = 'err'; msg.textContent = d.error || (editar ? 'Error al modificar' : 'Error al agregar'); return; }
+                try { if (typeof window._testGuardar === 'function') await window._testGuardar(d.nombre); } catch (e) {}
+                msg.className = 'ok';
+                msg.textContent = editar ? `"${d.nombre}" modificada (13+13).` + (d.perfil ? ` Perfil ${d.perfil}.` : '')
+                    : `"${d.nombre}" agregada (13+13).` + (d.perfil ? ` Perfil ${d.perfil}.` : '') +
+                    (payload.vinculo_tipo && payload.vinculo_referente ? ` Vínculo ${payload.vinculo_tipo} con ${payload.vinculo_referente} guardado.` : '');
+                if (!editar && payload.vinculo_tipo && payload.vinculo_referente) {
+                    VINCULOS_DATA.push({ nombre: d.nombre, referente: payload.vinculo_referente,
+                        vinc_ref: payload.vinculo_tipo, vinc_jorge: '',
+                        fecha: payload.fecha, hora: payload.hora, lugar: payload.lugar, edad: null });
+                    const k = d.nombre.trim().toLowerCase();
+                    vincMap[k] = VINCULOS_DATA[VINCULOS_DATA.length - 1];
+                    poblarTiposVinculo(payload.vinculo_tipo);
+                }
+                if (editar) {
+                    try {
+                        const kOld = String(editarA).trim().toLowerCase();
+                        const kNew = String(d.nombre).trim().toLowerCase();
+                        const v = vincMap[kOld];
+                        if (v) {
+                            v.nombre = d.nombre; v.fecha = payload.fecha; v.hora = payload.hora; v.lugar = payload.lugar;
+                            if (payload.vinculo_tipo) v.vinc_ref = payload.vinculo_tipo;
+                            if (payload.vinculo_referente) v.referente = payload.vinculo_referente;
+                            if (kNew !== kOld) { delete vincMap[kOld]; vincMap[kNew] = v; }
+                        }
+                        if (kNew !== kOld) {
+                            VINCULOS_DATA.forEach(x => {
+                                if (String(x.referente || '').trim().toLowerCase() === kOld) x.referente = d.nombre;
+                            });
+                        }
+                    } catch (e) {}
+                }
+                try { if (typeof window._limpiarEditor === 'function') window._limpiarEditor(true); } catch (e) {}
+                await recargarPuertasPersonas();
+                refrescarSelectores(d.personas, d.nombre);
+                if (editar) { try { if (window._clanOlvidar) window._clanOlvidar([editarA, d.nombre], d.nombre); } catch (e) {} }
+                try { if (window._salirModoModificar) window._salirModoModificar(); } catch (e) {}
+            } catch (e) { msg.className = 'err'; msg.textContent = 'Error de red'; }
+        }
+        document.getElementById('btn-agregar').addEventListener('click', () => guardarPersona(false));
+        document.getElementById('btn-modificar').addEventListener('click', () => guardarPersona(true));
+
+        selectorA.addEventListener('change', async (e) => {
+            const persona = e.target.value;
+            const gen = ++genPersonaA; // ignora respuestas viejas si se cambia rápido de persona
+            document.getElementById('titulo-grafico-a').textContent = persona || 'Persona 1';
+            if (!persona) {
+                dataPersonaA = null;
+                limpiarPanel('a');
+                limpiarSVG(svgContainerA);
+                try { olvidarNotaFiltros('a'); } catch (e) {}
+                try{ actualizarDatosBasicosA(''); }catch(e){}
+                actualizarCompuesto();
+                document.getElementById('transitos-tabla').innerHTML = '-';
+                try { actualizarBotonSNS('', false); } catch (e) {}
+                try { const _pb=document.getElementById('publicos-canales-box'); if(_pb) _pb.innerHTML=''; } catch(e){}
+                return;
+            }
+            let resp;
+            try {
+                resp = await fetch(`/api/persona/${encodeURIComponent(persona)}`, {cache: 'no-store'});
+                if (gen !== genPersonaA) return; // llegó otra selección después: descartar
+                dataPersonaA = await resp.json();
+            } catch (err) { console.error("Error al cargar persona A:", err); alert("Error al cargar persona A: " + (err && err.message ? err.message : err)); return; }
+            if (!dataPersonaA || dataPersonaA.error) {
+                alert('No se pudo cargar la persona: ' + ((dataPersonaA && dataPersonaA.error) || 'sin datos'));
+                dataPersonaA = null;
+                limpiarPanel('a');
+                limpiarSVG(svgContainerA);
+                try { olvidarNotaFiltros('a'); } catch (e) {}
+                try{ actualizarDatosBasicosA(''); }catch(e){}
+                actualizarCompuesto();
+                try { actualizarBotonSNS('', false); } catch (e) {}
+                try { const _pb=document.getElementById('publicos-canales-box'); if(_pb) _pb.innerHTML=''; } catch(e){}
+                return;
+            }
+            // Cada paso protegido: el gráfico siempre se pinta aunque falle un detalle.
+            try { mostrarPuertas(dataPersonaA, 'a'); } catch (err) { console.error('mostrarPuertas A:', err); }
+            try { actualizarSVGIndividual(svgContainerA, dataPersonaA, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto); } catch (err) { console.error('actualizarSVGIndividual A:', err); }
+            try { actualizarCompuesto(); } catch (err) { console.error('actualizarCompuesto A:', err); }
+            try { if (typeof aplicarSimpl === 'function') aplicarSimpl(); } catch (err) {}
+            try { renderListaFiltrada(); } catch (err) { console.error('renderListaFiltrada A:', err); }
+            try { actualizarTransitos(); } catch (err) { console.error('actualizarTransitos A:', err); }
+            // "Tránsitos en el tiempo" depende solo de Persona 1: carga su
+            // propio rango sin encender el overlay gris de los gráficos.
+            try {
+                if (typeof window._transitoCargarDatos === 'function') {
+                    window._transitoCargarDatos()
+                        .then(() => renderMapaTransitos())
+                        .catch(err => console.error('renderMapaTransitos A:', err));
+                } else {
+                    renderMapaTransitos();
+                }
+            } catch (err) { console.error('renderMapaTransitos A:', err); }
+            try { actualizarVisibilidad(); } catch (err) {}
+            try { actualizarDatosBasicosA(persona); } catch (err) { console.error('actualizarDatosBasicosA:', err); }
+            try { if (window._clanSetP1) window._clanSetP1(persona); } catch (err) {}
+            try { actualizarBotonSNS(persona, dataPersonaA && dataPersonaA.tiene_sns); } catch (err) {}
+            try { mostrarPublicosCanales(dataPersonaA); } catch (err) { console.error('mostrarPublicosCanales:', err); }
+        });
+
+        selectorB.addEventListener('change', async (e) => {
+            const persona = e.target.value;
+            const gen = ++genPersonaB; // ignora respuestas viejas si se cambia rápido de persona
+            document.getElementById('titulo-grafico-b').textContent = persona || 'Persona 2';
+            if (!persona) {
+                dataPersonaB = null;
+                limpiarPanel('b');
+                limpiarSVG(svgContainerB);
+                try { pintarFotoPublicaB(''); } catch (e) {}
+                try { olvidarNotaFiltros('b'); } catch (e) {}
+                actualizarCompuesto();
+                try { if (dataPersonaA) mostrarCompatibilidades(dataPersonaA); } catch (e) {}
+                return;
+            }
+            let resp;
+            try {
+                resp = await fetch(`/api/persona/${encodeURIComponent(persona)}`, {cache: 'no-store'});
+                if (gen !== genPersonaB) return; // llegó otra selección después: descartar
+                dataPersonaB = await resp.json();
+            } catch (err) { console.error("Error al cargar persona B:", err); return; }
+            if (!dataPersonaB || dataPersonaB.error) {
+                dataPersonaB = null;
+                limpiarPanel('b');
+                limpiarSVG(svgContainerB);
+                try { pintarFotoPublicaB(''); } catch (e) {}
+                try { olvidarNotaFiltros('b'); } catch (e) {}
+                actualizarCompuesto();
+                return;
+            }
+            try { mostrarPuertas(dataPersonaB, 'b'); } catch (err) { console.error('mostrarPuertas B:', err); }
+            try { actualizarSVGIndividual(svgContainerB, dataPersonaB, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto); } catch (err) { console.error('actualizarSVGIndividual B:', err); }
+            try { actualizarFotoPublicaB(persona, gen); } catch (err) { console.error('foto publica B:', err); }
+            try { actualizarCompuesto(); } catch (err) { console.error('actualizarCompuesto B:', err); }
+            try { if (typeof aplicarSimpl === 'function') aplicarSimpl(); } catch (err) {}
+            try { renderListaFiltrada(); } catch (err) { console.error('renderListaFiltrada B:', err); }
+            try { actualizarVisibilidad(); } catch (err) {}
+            try { if (dataPersonaA) mostrarCompatibilidades(dataPersonaA); } catch (err) {}
+        });
+
+        // TAB salta directo de Persona 1 a Persona 2 (y Shift+TAB vuelve):
+        // escribís el nombre en P1, TAB, escribís el nombre en P2.
+        selectorA.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                e.preventDefault();
+                selectorB.focus();
+            }
+        });
+        selectorB.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab' && e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                e.preventDefault();
+                selectorA.focus();
+            }
+        });
+
+        // ---------- Toggle bajo Persona 1: "Agregar persona" + memoria auto de P1 ----------
+        // P1 se guarda sola en localStorage (dhP1Inicio) como P2, sin botón ON/OFF.
+        (function initTogglesP1() {
+            const KEY_INICIO = 'dhP1Inicio';
+            const panelAdd = document.querySelector('details.add-persona');
+            function refrescar() { /* botón editor eliminado */ }
+            // Panel "Agregar persona" queda visible por defecto (sin botón toggle).
+            // Memoria auto P1: guardar cada cambio (igual que P2 con dhP2Inicio).
+            if (selectorA) selectorA.addEventListener('change', () => {
+                try {
+                    const v = selectorA.value || '';
+                    if (v) localStorage.setItem(KEY_INICIO, v);
+                    else localStorage.removeItem(KEY_INICIO);
+                } catch (e) {}
+                refrescar();
+            });
+            // Si se reconstruyen los selectores (ej. al agregar persona), re-sincronizar
+            // el botón y reponer la P1 guardada.
+            try {
+                const obs = new MutationObserver(() => {
+                    refrescar();
+                    try { if (typeof window._reponerPersonasGuardadas === 'function') window._reponerPersonasGuardadas(); } catch (e) {}
+                });
+                if (selectorA) obs.observe(selectorA, { childList: true });
+            } catch (e) {}
+            // Auto-carga: la ejecuta el init principal AL FINAL (tras limpiarPanel/limpiarSVG),
+            // no con timer propio (el timer pisaba con la limpieza y dejaba P1 sin gráfico).
+            window._cargarP1Inicio = function () {
+                let guardada = '';
+                try { guardada = localStorage.getItem(KEY_INICIO) || ''; } catch (e) {}
+                refrescar();
+                if (guardada && selectorA && [...selectorA.options].some(o => o.value === guardada)) {
+                    if (selectorA.value !== guardada) {
+                        selectorA.value = guardada;
+                        selectorA.dispatchEvent(new Event('change', { bubbles: true }));
+                    } else {
+                        selectorA.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    refrescar();
+                    return true;
+                }
+                return false;
+            };
+            window._initP1Lista = true;
+            refrescar();
+        })();
+
+        // ---------- Panel de entrada: Cargar P1 / Calcular / Agregar / Modificar / Eliminar / Limpiar ----------
+        (function initPanelPersona() {
+            window._editandoP1 = null;
+            const summarySel = 'details.add-persona > summary';
+            const $ = id => document.getElementById(id);
+
+            function setModo(nombre) {
+                window._editandoP1 = nombre || null;
+                const s = document.querySelector(summarySel);
+                if (s) s.textContent = nombre ? ('Modificar a ' + nombre) : 'Agregar nueva persona';
+                const md = $('modo-edicion');
+                if (md) md.textContent = nombre ? ('Editando a ' + nombre) : 'Nueva persona';
+                const bm = $('btn-modificar');
+                if (bm) bm.disabled = !nombre;
+                const ba = $('btn-agregar');
+                if (ba) ba.disabled = !!nombre;
+                const be = $('btn-eliminar');
+                if (be) be.style.display = nombre ? '' : 'none';
+            }
+
+            function limpiarEditor(keepMsg) {
+                ['nuevo-nombre', 'nuevo-fecha', 'nuevo-hora', 'nuevo-lugar', 'nuevo-coords',
+                 'nuevo-incon', 'nuevo-consc', 'nuevo-vinculo-tipo', 'nuevo-vinculo-ref',
+                 'nuevo-foto'].forEach(id => {
+                    const el = $(id); if (el) el.value = '';
+                });
+                const inp = $('nuevo-lugar');
+                if (inp) { delete inp.dataset.lat; delete inp.dataset.lon; delete inp.dataset.tzname; }
+                const le = $('lugar-elegido'); if (le) le.textContent = '';
+                const wc = $('wrap-coords'); if (wc) wc.style.display = 'none';
+                const pd = $('panel-dia'); if (pd) pd.style.display = 'none';
+                const img = $('nuevo-foto-preview'); if (img) { img.style.display = 'none'; img.src = ''; }
+                try { if (typeof window._testLimpiar === 'function') window._testLimpiar(); } catch (e) {}
+                if (!keepMsg) { const msg = $('add-persona-msg'); if (msg) { msg.className = ''; msg.textContent = ''; } }
+                setModo(null);
+                actualizarBotonLimpiar();
+            }
+
+            async function cargarP1() {
+                const p1 = (selectorA && selectorA.value) ? selectorA.value : '';
+                const msg = $('add-persona-msg');
+                if (!p1) { if (msg) { msg.className = 'err'; msg.textContent = 'Elegí Persona 1 para cargar.'; } return; }
+                const lleno = ['nuevo-nombre', 'nuevo-fecha', 'nuevo-hora', 'nuevo-lugar', 'nuevo-incon', 'nuevo-consc']
+                    .some(id => { const el = $(id); return el && el.value.trim(); });
+                if (lleno && window._editandoP1 !== p1) {
+                    if (!confirm('El panel tiene datos. ¿Reemplazarlos por los de "' + p1 + '"?')) return;
+                }
+                if (msg) { msg.className = ''; msg.textContent = 'Cargando ' + p1 + '...'; }
+                try {
+                    const r = await fetch('/api/persona_completa/' + encodeURIComponent(p1), { cache: 'no-store' });
+                    const d = await r.json();
+                    if (!r.ok) { if (msg) { msg.className = 'err'; msg.textContent = d.error || 'No se pudo cargar'; } return; }
+                    $('nuevo-nombre').value = p1;
+                    $('nuevo-fecha').value = d.fecha || '';
+                    $('nuevo-hora').value = d.hora || '';
+                    const inpL = $('nuevo-lugar');
+                    if (inpL) { inpL.value = d.lugar || ''; delete inpL.dataset.lat; delete inpL.dataset.lon; delete inpL.dataset.tzname; }
+                    const inpF = $('nuevo-foto');
+                    if (inpF) { inpF.value = d.foto || ''; }
+                    try { actualizarPreviewFoto(); } catch (e) {}
+                    const fmt = (arr, lin) => (arr || []).map((p, i) => fmtPuertaLinea(p, (lin || [])[i])).join(', ');
+                    $('nuevo-incon').value = fmt(d.puertas_inconscientes, d.inconscientes_lineas);
+                    $('nuevo-consc').value = fmt(d.puertas_conscientes, d.conscientes_lineas);
+                    const st = $('nuevo-vinculo-tipo');
+                    const sr = $('nuevo-vinculo-ref');
+                    if (st) {
+                        if (d.vinculo_tipo && ![...st.options].some(o => o.value === d.vinculo_tipo)) {
+                            const op = document.createElement('option'); op.value = d.vinculo_tipo; op.textContent = d.vinculo_tipo; st.appendChild(op);
+                        }
+                        st.value = d.vinculo_tipo || '';
+                    }
+                    if (sr) {
+                        if (d.vinculo_referente && ![...sr.options].some(o => o.value === d.vinculo_referente)) {
+                            const op = document.createElement('option'); op.value = d.vinculo_referente; op.textContent = d.vinculo_referente; sr.appendChild(op);
+                        }
+                        sr.value = d.vinculo_referente || '';
+                    }
+                    try { if (typeof window._testSet === 'function') window._testSet(d.test || {}); } catch (e) {}
+                    const panelAdd = document.querySelector('details.add-persona');
+                    if (panelAdd) {
+                        panelAdd.style.display = '';
+                        if (!panelAdd.open) panelAdd.open = true;
+                        try { localStorage.setItem('dhAddPersona', '1'); } catch (e) {}
+                    }
+                    setModo(p1);
+                    actualizarBotonLimpiar();
+                    if (msg) { msg.className = ''; msg.textContent = ''; }
+                } catch (e) { if (msg) { msg.className = 'err'; msg.textContent = 'Error de red'; } }
+            }
+
+            window._setModoPersona = setModo;
+            window._limpiarEditor = limpiarEditor;
+            window._salirModoModificar = function () { setModo(null); };
+
+            const btnCargar = $('btn-cargar-p1');
+            if (btnCargar) btnCargar.addEventListener('click', cargarP1);
+            const btnCalc = $('btn-calcular');
+            if (btnCalc) btnCalc.addEventListener('click', () => {
+                const f = $('nuevo-fecha').value.trim();
+                const h = $('nuevo-hora').value.trim();
+                const l = $('nuevo-lugar').value.trim();
+                const c = $('nuevo-coords');
+                const manual = c && $('wrap-coords').style.display !== 'none' && c.value.trim();
+                const msg = $('add-persona-msg');
+                if (!f || !h) { if (msg) { msg.className = 'err'; msg.textContent = 'Completá fecha y hora para calcular.'; } return; }
+                if (!l && !manual) { if (msg) { msg.className = 'err'; msg.textContent = 'Completá el lugar para calcular.'; } return; }
+                try { calcularPreview(); } catch (e) {}
+                actualizarBotonLimpiar();
+            });
+            const btnLimpiar = $('btn-limpiar');
+            if (btnLimpiar) btnLimpiar.addEventListener('click', () => limpiarEditor(false));
+            const btnDel = document.getElementById('btn-eliminar');
+            if (btnDel) btnDel.addEventListener('click', async () => {
+                const p1 = window._editandoP1 || '';
+                const msg = document.getElementById('add-persona-msg');
+                if (!p1) return;
+                if (!confirm('Eliminar a "' + p1 + '" de datos y vínculos? No se puede deshacer.')) return;
+                if (msg) { msg.className = ''; msg.textContent = 'Eliminando...'; }
+                try {
+                    const r = await fetch('/api/persona/' + encodeURIComponent(p1), { method: 'DELETE' });
+                    const d = await r.json();
+                    if (!r.ok) { if (msg) { msg.className = 'err'; msg.textContent = d.error || 'No se pudo eliminar'; } return; }
+                    try {
+                        for (let i = VINCULOS_DATA.length - 1; i >= 0; i--) {
+                            if (String(VINCULOS_DATA[i].nombre || '').trim().toLowerCase() === String(p1).trim().toLowerCase()) VINCULOS_DATA.splice(i, 1);
+                        }
+                        delete vincMap[String(p1).trim().toLowerCase()];
+                        try { if (localStorage.getItem('dhP1Inicio') === p1) localStorage.removeItem('dhP1Inicio'); } catch (e) {}
+                    } catch (e) {}
+                    limpiarEditor(true);
+                    await recargarPuertasPersonas();
+                    refrescarSelectores(d.personas, null);
+                    if (selectorA) { selectorA.value = ''; selectorA.dispatchEvent(new Event('change', { bubbles: true })); }
+                    if (msg) {
+                        msg.className = 'ok';
+                        msg.textContent = '"' + p1 + '" eliminada (' + (d.filas_datos || 0) + ' filas de datos, ' +
+                            (d.filas_vinculos || 0) + ' de vínculos' +
+                            (d.referencias_limpiadas ? ', ' + d.referencias_limpiadas + ' referencias limpiadas' : '') + ').';
+                    }
+                } catch (e) { if (msg) { msg.className = 'err'; msg.textContent = 'Error de red'; } }
+            });
+            // Si se cambia P1 en medio de una edición de otra persona, se limpia el editor.
+            if (typeof selectorA !== 'undefined' && selectorA) {
+                selectorA.addEventListener('change', () => {
+                    try {
+                        if (window._editandoP1 && selectorA.value !== window._editandoP1) limpiarEditor(false);
+                    } catch (e) {}
+                });
+            }
+            function actualizarPreviewFoto(){
+                const el = $('nuevo-foto');
+                const img = $('nuevo-foto-preview');
+                if (!el || !img) return;
+                const valor = el.value.trim();
+                if (!valor) { img.style.display = 'none'; img.src = ''; return; }
+                let src = valor;
+                if (!/^(https?:|data:|\/)/i.test(valor)) {
+                    src = '/api/foto_local?ruta=' + encodeURIComponent(valor);
+                }
+                img.src = src;
+                img.style.display = '';
+                img.onerror = function(){ img.style.display = 'none'; };
+            }
+            function hayDatosPanel(){
+                const campos = ['nuevo-nombre','nuevo-fecha','nuevo-hora','nuevo-lugar','nuevo-coords',
+                    'nuevo-foto','nuevo-incon','nuevo-consc','ac-nombre-num',
+                    'nuevo-vinculo-tipo','nuevo-vinculo-ref'];
+                for (const id of campos) {
+                    const el = $(id);
+                    if (el && String(el.value || '').trim()) return true;
+                }
+                const sel = ['ac-triada','ac-modo','ac-foco','ac-sensorial','ac-rutina','ac-social','ac-cuerpo','ac-diges','ac-sueno'];
+                for (const id of sel) {
+                    const el = $(id);
+                    if (el && String(el.value || '').trim()) return true;
+                }
+                return false;
+            }
+            function actualizarBotonLimpiar(){
+                const btn = $('btn-limpiar');
+                if (btn) btn.disabled = !hayDatosPanel();
+            }
+            // Convierte un archivo de imagen en data: URL reducida, para que la
+            // foto viaje en el guardado y quede en la base (funciona también en
+            // Render, donde no hay explorador del servidor).
+            window.DHFotoDataUrl = function(file, cb){
+                if (!file || !String(file.type || '').startsWith('image/')) { cb(''); return; }
+                const fr = new FileReader();
+                fr.onerror = function(){ cb(''); };
+                fr.onload = function(){
+                    const img = new Image();
+                    img.onerror = function(){ cb(''); };
+                    img.onload = function(){
+                        try {
+                            const max = 480;
+                            const w = img.naturalWidth || img.width || max;
+                            const h = img.naturalHeight || img.height || max;
+                            const esc = Math.min(1, max / Math.max(w, h));
+                            const cw = Math.max(1, Math.round(w * esc));
+                            const ch = Math.max(1, Math.round(h * esc));
+                            const cv = document.createElement('canvas');
+                            cv.width = cw; cv.height = ch;
+                            const cx = cv.getContext('2d');
+                            cx.fillStyle = '#fff'; cx.fillRect(0, 0, cw, ch);
+                            cx.drawImage(img, 0, 0, cw, ch);
+                            cb(cv.toDataURL('image/jpeg', 0.82));
+                        } catch (e) { cb(String(fr.result || '')); }
+                    };
+                    img.src = String(fr.result || '');
+                };
+                fr.readAsDataURL(file);
+            };
+            const inpFoto = $('nuevo-foto');
+            if (inpFoto) inpFoto.addEventListener('input', actualizarPreviewFoto);
+            const fileFoto = $('nuevo-foto-file');
+            const btnElegirFoto = $('btn-elegir-foto');
+            // El botón es un <label for> : abre el selector del sistema sin JS
+            // (funciona en escritorio, Android y iPhone). El teclado usa click().
+            if (btnElegirFoto && fileFoto) {
+                btnElegirFoto.addEventListener('keydown', function(ev){
+                    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); fileFoto.click(); }
+                });
+                const ua = navigator.userAgent || '';
+                if (/FBAN|FBAV|Instagram|WhatsApp|; wv\)|Line\//i.test(ua)) {
+                    const aviso = document.createElement('span');
+                    aviso.style.cssText = 'font-size:11px;color:#b26a00;flex-basis:100%';
+                    aviso.textContent = 'Si el selector no se abre, abrí esta página en Chrome o Safari.';
+                    if (btnElegirFoto.parentNode) btnElegirFoto.parentNode.appendChild(aviso);
+                }
+            }
+            if (fileFoto) fileFoto.addEventListener('change', function(){
+                const f = fileFoto.files && fileFoto.files[0];
+                fileFoto.value = '';
+                if (!f) return;
+                const msg = $('add-persona-msg');
+                if (msg) { msg.className = ''; msg.textContent = 'Preparando la foto…'; }
+                window.DHFotoDataUrl(f, function(dataUrl){
+                    if (!dataUrl) {
+                        if (msg) { msg.className = 'err'; msg.textContent = 'No se pudo leer: elegí un archivo de imagen (JPG, PNG, WEBP).'; }
+                        return;
+                    }
+                    if (inpFoto) inpFoto.value = dataUrl;
+                    actualizarPreviewFoto();
+                    actualizarBotonLimpiar();
+                    if (msg) { msg.className = 'ok'; msg.textContent = 'Foto lista. Se guarda al pulsar Guardar.'; }
+                });
+            });
+            const panelForm = document.querySelector('details.add-persona');
+            if (panelForm) {
+                panelForm.addEventListener('input', actualizarBotonLimpiar);
+                panelForm.addEventListener('change', actualizarBotonLimpiar);
+            }
+            actualizarPreviewFoto();
+            actualizarBotonLimpiar();
+            setModo(null);
+        })();
+
+        function mostrarPuertas(data, side) {
+            const linI = data.inconscientes_lineas || [];
+            const linC = data.conscientes_lineas || [];
+            const contIncon = document.getElementById(`puertas-inconscientes-${side}`);
+            const contCon = document.getElementById(`puertas-conscientes-${side}`);
+            contIncon.innerHTML = '';
+            data.puertas_inconscientes.forEach((p, i) => {
+                const item = document.createElement('span');
+                item.className = 'puerta-badge inconsciente';
+                item.textContent = fmtPuertaLinea(p, linI[i]);
+                item.setAttribute('data-gate', p);
+                if (linI[i] != null) item.title = `Puerta ${p} línea ${linI[i]}`;
+                contIncon.appendChild(item);
+            });
+            contCon.innerHTML = '';
+            data.puertas_conscientes.forEach((p, i) => {
+                const item = document.createElement('span');
+                item.className = 'puerta-badge consciente';
+                item.textContent = fmtPuertaLinea(p, linC[i]);
+                item.setAttribute('data-gate', p);
+                if (linC[i] != null) item.title = `Puerta ${p} línea ${linC[i]}`;
+                contCon.appendChild(item);
+            });
+        }
+
+        function textoSobrePlaneta(hex) {
+            try {
+                let r, g, b;
+                const m = String(hex || '').match(/rgba?\(([^)]+)\)/);
+                if (m) {
+                    const n = m[1].split(',').map(x => parseFloat(x));
+                    r = n[0] / 255; g = n[1] / 255; b = n[2] / 255;
+                } else {
+                    let h = String(hex || '').replace('#', '').trim();
+                    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+                    if (h.length !== 6) return '#1F1A17';
+                    r = parseInt(h.slice(0, 2), 16) / 255; g = parseInt(h.slice(2, 4), 16) / 255; b = parseInt(h.slice(4, 6), 16) / 255;
+                }
+                const f = c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+                return (0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)) < 0.4 ? '#FFFFFF' : '#1F1A17';
+            } catch (e) { return '#1F1A17'; }
+        }
+        function setGateTextState(svgScope, gate, active) {
+            const paths = svgScope.querySelectorAll(`[id="puerta_${gate}_texto"], [id="pueta_${gate}_texto"]`);
+            paths.forEach(p => {
+                if (active) {
+                    p.style.opacity = '1';
+                    let fondo = '';
+                    try {
+                        const cid = (typeof gateToCircleMap !== 'undefined') ? gateToCircleMap[gate] : null;
+                        const circ = cid ? svgScope.querySelector('#' + cid) : null;
+                        fondo = circ ? (circ.style.fill || '') : '';
+                    } catch (e) {}
+                    p.style.fill = fondo ? textoSobrePlaneta(fondo) : '#1F1A17';
+                } else {
+                    p.style.opacity = '0.4';
+                    p.style.fill = '#888888';
+                }
+            });
+        }
+
+        // Canales: visibles siempre; inactivos al 1% (fantasma, con hover) vía dataset.activo.
+        // Los del modo estudio (dataset.estudio) quedan al 50%.
+        function opacidadBaseCanal(canal) {
+            if (canal.dataset.activo === '1') return '1';
+            if (canal.dataset.estudio === '1') return '0.5';
+            // Genérico de estudio (sin personas): canales al 10% de fondo.
+            if (canal.dataset.gen === '1') return '0.10';
+            return '0.01';
+        }
+        function setCanalEstado(canal, activo) {
+            delete canal.dataset.ghost;
+            delete canal.dataset.gen;
+            if (!canalesOn()) {
+                canal.dataset.activo = activo ? '1' : '0';
+                canal.style.visibility = 'hidden';
+                canal.style.opacity = '0';
+                return;
+            }
+            canal.dataset.activo = activo ? '1' : '0';
+            canal.style.visibility = 'visible';
+            canal.style.opacity = activo ? '1' : (canal.dataset.estudio === '1' ? '0.5' : '0.01');
+        }
+
+        // Vista previa fantasma: canal al 15% + sus dos tramos si estaban ocultos.
+        let canalGhostActual = null;
+        let ghostPuertas = [];
+        function setGhostCanal(el, on) {
+            const m = el.id.match(/^c(\d+)-(\d+)$/);
+            if (!m || el.dataset.activo === '1') return;
+            const root = el.closest('svg');
+            if (!root) return;
+            const gates = [parseInt(m[1], 10), parseInt(m[2], 10)];
+            if (on) {
+                el.dataset.ghost = '1';
+                el.style.opacity = '0.15';
+                ghostPuertas = gates;
+                // Con Simpl=ON no se previsualizan tramos largos: solo muñones.
+                if (typeof simplOn === 'function' && simplOn()) return;
+                gates.forEach(n => {
+                    const tramo = root.querySelector(`#tramo${n}`);
+                    if (tramo && tramo.style.visibility === 'hidden') {
+                        tramo.dataset.ghost = '1';
+                        tramo.dataset.ghostPrev = tramo.style.visibility;
+                        tramo.style.visibility = 'visible';
+                        tramo.style.opacity = '0.15';
+                    }
+                });
+            } else {
+                delete el.dataset.ghost;
+                el.style.opacity = opacidadBaseCanal(el);
+                gates.forEach(n => {
+                    const tramo = root.querySelector(`#tramo${n}`);
+                    if (tramo && tramo.dataset.ghost) {
+                        delete tramo.dataset.ghost;
+                        tramo.style.opacity = '';
+                        tramo.style.visibility = tramo.dataset.ghostPrev || 'hidden';
+                        delete tramo.dataset.ghostPrev;
+                    }
+                });
+                ghostPuertas = [];
+            }
+        }
+        const GHOST_SELECTOR = '#svg-persona-a [id^="c"], #svg-persona-b [id^="c"], #svg-compuesto [id^="c"]';
+        document.addEventListener('mouseover', (e) => {
+            const c = e.target.closest ? e.target.closest(GHOST_SELECTOR) : null;
+            if (c && /^c\d+-\d+$/.test(c.id) && c.dataset.activo !== '1') {
+                if (canalGhostActual && canalGhostActual !== c) setGhostCanal(canalGhostActual, false);
+                canalGhostActual = c;
+                setGhostCanal(c, true);
+            }
+        });
+        document.addEventListener('mouseout', (e) => {
+            if (!canalGhostActual) return;
+            const rt = e.relatedTarget;
+            // Si pasa a un tramo del mismo circuito, mantener la vista previa.
+            if (rt && rt.id && rt.closest && rt.closest('svg') === canalGhostActual.closest('svg') &&
+                (rt.id === `tramo${ghostPuertas[0]}` || rt.id === `tramo${ghostPuertas[1]}`)) return;
+            if (!(rt && canalGhostActual.contains(rt))) {
+                setGhostCanal(canalGhostActual, false);
+                canalGhostActual = null;
+            }
+        });
+
+        // Pestañas plegadas con el nombre de cada cuadro (referencia para pedidos).
+
+        // Overlay del tránsito actual con trama gris sobre los 3 gráficos.
+        let overlayTransitoOn = false;
+        let TRANSITO_ACTUAL = null;
+        function marcarTransitoEn(svgScope) {
+            // Limpieza idempotente: evita acumulación de clones en ON/OFF/cambio de fecha
+            svgScope.querySelectorAll('[data-transito-clon]').forEach(el => el.remove());
+            // Compatibilidad: limpiar marcas del modo anterior que mutaba el nodo original
+            svgScope.querySelectorAll('[data-transito="1"]').forEach(el => {
+                delete el.dataset.transito;
+                el.style.stroke = '';
+                el.style.strokeOpacity = '';
+                el.style.strokeWidth = '';
+                el.style.strokeDasharray = '';
+            });
+            if (!overlayTransitoOn || !TRANSITO_ACTUAL) return;
+            const colT = (document.getElementById('color-transito') || {}).value || '#B0BEC5';
+            const opacT = parseFloat((document.getElementById('opac-transito') || {}).value) || 0.55;
+            const punteado = (document.getElementById('chk-transito-punteado') || {}).checked;
+            const dashTramo = punteado ? '6 5' : '';
+            const dashCircle = punteado ? '4 3' : '';
+            const dashCanal = punteado ? '6 4' : '';
+            const setT = new Set([...new Set(TRANSITO_ACTUAL.conscientes)]);
+            [...setT].forEach(g => {
+                const tramoOrig = svgScope.querySelector(`#tramo${g}`);
+                if (tramoOrig) {
+                    const clon = tramoOrig.cloneNode(true);
+                    clon.removeAttribute('id');
+                    clon.setAttribute('data-transito-clon', '1');
+                    clon.setAttribute('data-transito-tramo', String(g));
+                    clon.style.visibility = 'visible';
+                    clon.style.stroke = colT;
+                    clon.style.strokeOpacity = String(opacT);
+                    clon.style.strokeWidth = '10px';
+                    clon.style.strokeDasharray = dashTramo;
+                    clon.style.fill = 'none';
+                    clon.style.pointerEvents = 'none';
+                    clon.style.opacity = '';
+                    tramoOrig.parentNode.appendChild(clon);
+                }
+                const circleOrig = svgScope.querySelector(`#${gateToCircleMap[g]}`);
+                if (circleOrig) {
+                    // Círculo y número como puerta normal (no gris)
+                    circleOrig.style.visibility = 'visible';
+                    circleOrig.style.opacity = '';
+                    circleOrig.style.stroke = '';
+                    circleOrig.style.strokeOpacity = '';
+                    circleOrig.style.strokeWidth = '';
+                    circleOrig.style.strokeDasharray = '';
+                    setGateTextState(svgScope, g, true);
+                }
+            });
+            // Centros y canales que aparecen por el tránsito:
+            // - electromagnético persona↔tránsito
+            // - canal completo dentro del propio tránsito
+            // Se colorean los centros que quedan definidos (misma lógica que la grilla de tránsitos)
+            let setP;
+            let baseCanales = [];
+            if (svgScope === svgContainerA) {
+                setP = dataPersonaA ? new Set(dataPersonaA.todas_puertas) : new Set();
+                baseCanales = (window._canalesA || []).slice();
+            } else if (svgScope === svgContainerB) {
+                setP = dataPersonaB ? new Set(dataPersonaB.todas_puertas) : new Set();
+                baseCanales = (window._canalesB || []).slice();
+            } else if (svgScope === svgContainerComp) {
+                const uni = new Set([...(dataPersonaA ? dataPersonaA.todas_puertas : []), ...(dataPersonaB ? dataPersonaB.todas_puertas : [])]);
+                setP = uni;
+                baseCanales = [];
+                svgScope.querySelectorAll('[id^="c"]').forEach(c => {
+                    if (c.dataset.activo === '1') {
+                        const m = c.id.match(/^c(\d+)-(\d+)$/);
+                        if (m) baseCanales.push(normCanalKey(`${m[1]}-${m[2]}`));
+                    }
+                });
+            } else {
+                setP = new Set();
+                baseCanales = [];
+            }
+            const setBase = new Set(baseCanales.map(normCanalKey));
+            const extraCanales = [];
+            svgScope.querySelectorAll('[id^="c"]').forEach(canal => {
+                const m = canal.id.match(/^c(\d+)-(\d+)$/);
+                if (!m) return;
+                const p1 = parseInt(m[1], 10), p2 = parseInt(m[2], 10);
+                const electro = (setP.has(p1) && setT.has(p2)) || (setP.has(p2) && setT.has(p1));
+                const propio = (setT.has(p1) && setT.has(p2));
+                if (electro || propio) {
+                    const kn = normCanalKey(`${p1}-${p2}`);
+                    if (!setBase.has(kn) && !extraCanales.includes(kn)) extraCanales.push(kn);
+                }
+            });
+            extraCanales.forEach(kn => {
+                if (typeof canalesOn === 'function' && !canalesOn()) return;
+                const parts = kn.split('-');
+                let el = svgScope.querySelector(`#c${parts[0]}-${parts[1]}`) || svgScope.querySelector(`#c${parts[1]}-${parts[0]}`);
+                if (!el) {
+                    svgScope.querySelectorAll('[id^="c"]').forEach(c => {
+                        if (normCanalKey(c.id.substring(1)) === kn) el = c;
+                    });
+                }
+                if (el) {
+                    const clon = el.cloneNode(true);
+                    clon.removeAttribute('id');
+                    clon.setAttribute('data-transito-clon', '1');
+                    clon.setAttribute('data-transito-canal', kn);
+                    clon.style.visibility = 'visible';
+                    clon.style.stroke = colT;
+                    clon.style.strokeOpacity = String(Math.min(1, opacT + 0.05));
+                    clon.style.strokeWidth = '3.2px';
+                    clon.style.strokeDasharray = dashCanal;
+                    clon.style.fill = 'none';
+                    clon.style.pointerEvents = 'none';
+                    clon.style.opacity = '';
+                    el.parentNode.appendChild(clon);
+                }
+            });
+            if (extraCanales.length) {
+                // Guardar outlines del compuesto antes de recalcular centros: el negro de
+                // compatibilidad (igual estado) y el punteado índigo (solo en pareja).
+                let outlineGuardado = null, parejaGuardada = null;
+                if (svgScope === svgContainerComp) {
+                    outlineGuardado = new Set();
+                    parejaGuardada = new Set();
+                    svgScope.querySelectorAll('[id]').forEach(el => {
+                        if (el.style.strokeWidth === '3.5px') outlineGuardado.add(el.id);
+                        if (el.dataset.pareja === '1') parejaGuardada.add(el.id);
+                    });
+                }
+                const combined = [...new Set([...baseCanales.map(normCanalKey), ...extraCanales])];
+                actualizarCentros(svgScope, combined);
+                if (outlineGuardado && outlineGuardado.size) {
+                    outlineGuardado.forEach(id => {
+                        const elem = svgScope.querySelector(`#${id}`);
+                        if (elem) { elem.style.stroke = '#111111'; elem.style.strokeWidth = '3.5px'; }
+                    });
+                }
+                if (parejaGuardada && parejaGuardada.size) {
+                    parejaGuardada.forEach(id => {
+                        const elem = svgScope.querySelector(`#${id}`);
+                        if (elem) { elem.style.stroke = '#4f46e5'; elem.style.strokeWidth = '2.5px'; elem.style.strokeDasharray = '6 4'; }
+                    });
+                }
+            }
+        }
+
+        // ---------- Mapa de tránsitos (centros / canales / planetas) ----------
+        // Comparte la única hora de tránsito (TRANSITO_ACTUAL.t_ms). El SVG se
+        // arma entero y el alto del panel se ajusta al contenido (sin scroll
+        // vertical interno); el zoom y el arrastre son horizontales/verticales.
+        function transitoEstadoActual() {
+            // La línea de tiempo depende solo de Persona 1, no del botón de overlay.
+            if (!dataPersonaA || !TRANSITO_ACTUAL || !Array.isArray(TRANSITO_ACTUAL.detalle)) return null;
+            const detalle = TRANSITO_ACTUAL.detalle.slice().sort((a, b) => {
+                const ia = PLANETAS_ORDEN.indexOf(a.planeta), ib = PLANETAS_ORDEN.indexOf(b.planeta);
+                return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+            });
+            const gates = [...new Set(detalle.map(d => parseInt(d.puerta, 10)).filter(n => n >= 1 && n <= 64))]
+                .sort((a, b) => a - b);
+            const setG = new Set(gates);
+            let canales = [];
+            try {
+                canales = Object.keys(CANAL_CENTROS).filter(k => {
+                    const p = String(k).split('-').map(Number);
+                    return p.length === 2 && setG.has(p[0]) && setG.has(p[1]);
+                }).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+            } catch (e) {}
+            const setCan = new Set(canales.map(normCanalKey));
+            const centros = ORDEN_CENTROS.filter(id => {
+                const lista = (typeof CENTRO_CANALES !== 'undefined' && CENTRO_CANALES[id]) || [];
+                return lista.some(c => setCan.has(normCanalKey(c)));
+            });
+            return { detalle, gates, canales, centros };
+        }
+
+        // Repintado liviano: solo los 3 SVG (sin rehacer listas laterales ni
+        // filtros) + el mapa. Se usa al mover el slider, no al cambiar personas.
+        function transitoRepintarGraficos() {
+            try {
+                if (dataPersonaA) {
+                    actualizarSVGIndividual(svgContainerA, dataPersonaA, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto);
+                }
+                if (dataPersonaB) {
+                    actualizarSVGIndividual(svgContainerB, dataPersonaB, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto);
+                }
+                if (dataPersonaA || dataPersonaB) actualizarCompuesto();
+            } catch (e) { console.error('transitoRepintarGraficos:', e); }
+            try { renderMapaTransitos(); } catch (e) { console.error('renderMapaTransitos:', e); }
+        }
+
+        // ---------- Línea de tiempo del tránsito ----------
+        // Eje X = tiempo real del rango Atrás/Adelante. Una fila por centro y
+        // una por planeta; cada barra dice desde/hasta cuándo está encendido o
+        // en qué puerta está (sin subdivisiones por línea). Se recorre
+        // arrastrando o con la barra horizontal.
+        const TM_VIEW = { init: false, pxDia: 165, serie: null, geo: null };
+        let TRANSITO_SERIE = null;   // lo arma el controlador al cargar el rango
+
+        // Convierte las muestras (1 por hora) en tramos con inicio y fin: un
+        // cambio de puerta/estado se ubica en la mitad entre las dos muestras.
+        // Un canal se enciende de dos maneras: con las dos puertas en el cielo
+        // (completo en el tránsito) o con una puerta del cielo y la otra de la
+        // carta de la persona (electromagnético: p. ej. Marte en 7 con la 31 de
+        // la persona = canal 7-31).
+        function tmSerieDesdeFilas(filas, puertasPersona) {
+            if (!Array.isArray(filas) || filas.length < 2) return null;
+            const setP = new Set((puertasPersona || []).map(Number).filter(n => n >= 1 && n <= 64));
+            const personaKey = [...setP].sort((a, b) => a - b).join(',');
+            const t0 = filas[0].t, t1 = filas[filas.length - 1].t;
+            const abierto = new Map(), tramos = new Map();
+            const paso = (clave, valor, corte) => {
+                const ab = abierto.get(clave);
+                if (!ab) { abierto.set(clave, { valor, ini: t0 }); tramos.set(clave, []); return; }
+                if (ab.valor !== valor) {
+                    tramos.get(clave).push({ valor: ab.valor, ini: ab.ini, fin: corte });
+                    ab.valor = valor;
+                    ab.ini = corte;
+                }
+            };
+            const canales = [];
+            try {
+                Object.values(CENTRO_CANALES).forEach(lista => (lista || []).forEach(c => {
+                    const k = normCanalKey(c);
+                    if (canales.indexOf(k) < 0) canales.push(k);
+                }));
+            } catch (e) {}
+            filas.forEach((f, i) => {
+                const corte = i === 0 ? t0 : Math.round((filas[i - 1].t + f.t) / 2);
+                (f.planetas || []).forEach(pl => paso('P:' + pl.planeta, pl.puerta, corte));
+                const setG = new Set(f.puertas || []);
+                // Canal activo por cualquiera de las dos vías: completo en el
+                // cielo, o una puerta del cielo y la otra de la persona.
+                const setCan = new Set();
+                canales.forEach(k => {
+                    const p = k.split('-').map(Number);
+                    const cielo = setG.has(p[0]) && setG.has(p[1]);
+                    const conPersona = setP.size > 0 && (
+                        (setG.has(p[0]) && setP.has(p[1])) || (setG.has(p[1]) && setP.has(p[0])));
+                    if (cielo || conPersona) setCan.add(k);
+                });
+                canales.forEach(k => {
+                    paso('K:' + k, setCan.has(k) ? 1 : 0, corte);
+                });
+                // Se define el centro si alguno de sus canales quedó activo,
+                // sea por el cielo o con las puertas de la persona.
+                ORDEN_CENTROS.forEach(id => {
+                    const def = ((CENTRO_CANALES && CENTRO_CANALES[id]) || []).some(c => setCan.has(normCanalKey(c)));
+                    paso('C:' + id, def ? 1 : 0, corte);
+                });
+            });
+            abierto.forEach((ab, clave) => {
+                const lista = tramos.get(clave);
+                if (lista) lista.push({ valor: ab.valor, ini: ab.ini, fin: t1 });
+            });
+            return {
+                t0, t1,
+                // Muestras y firma de puertas de la persona: sirven para rearmar
+                // la serie si se cambia de Persona 1 sin recargar el rango.
+                filas, personaKey,
+                planetas: PLANETAS_ORDEN.filter(p => tramos.has('P:' + p))
+                    .map(p => ({ planeta: p, tramos: tramos.get('P:' + p) })),
+                // Solo los canales que se forman en algún momento del rango:
+                // entre dos puertas del cielo, o entre una del cielo y una de
+                // la persona.
+                canales: canales.map(k => ({
+                    k,
+                    centro: ((typeof CANAL_CENTROS !== 'undefined' && CANAL_CENTROS[k]) || [])[0] || '',
+                    tramos: tramos.get('K:' + k) || []
+                })).filter(c => c.tramos.some(t => t.valor))
+                  .sort((a, b) => a.k.localeCompare(b.k, undefined, { numeric: true })),
+                centros: ORDEN_CENTROS.map(id => ({ id, tramos: tramos.get('C:' + id) || [] }))
+            };
+        }
+
+        // Firma de las puertas de Persona 1: si cambia, la serie quedó vieja.
+        function tmFirmaPersona(gates) {
+            return [...new Set((gates || []).map(Number).filter(n => n >= 1 && n <= 64))]
+                .sort((a, b) => a - b).join(',');
+        }
+        function tmPuertasPersona() {
+            return (dataPersonaA && dataPersonaA.todas_puertas) || [];
+        }
+        function tmRefrescarSeriePersona() {
+            const S = TRANSITO_SERIE;
+            if (!S || !Array.isArray(S.filas)) return;
+            const gates = tmPuertasPersona();
+            if (S.personaKey !== tmFirmaPersona(gates)) {
+                TRANSITO_SERIE = tmSerieDesdeFilas(S.filas, gates);
+            }
+        }
+
+        function tmAplicarVista() {
+            const vp = document.getElementById('transitos-mapa-viewport');
+            if (!vp) return;
+            const svg = vp.querySelector('svg');
+            if (!svg) return;
+            const W = parseFloat(svg.dataset.vbw) || 1000;
+            const H = parseFloat(svg.dataset.vbh) || 400;
+            svg.style.width = W + 'px';
+            svg.style.height = H + 'px';
+            // Alto justo al contenido (sin scroll vertical). El alto final suma
+            // bordes + barra horizontal, que se descuentan del área visible.
+            vp.style.height = (H + 2) + 'px';
+            const extra = vp.offsetHeight - vp.clientHeight;
+            vp.style.height = (H + Math.max(2, extra)) + 'px';
+        }
+
+        function tmMarcarAhora(ms) {
+            const vp = document.getElementById('transitos-mapa-viewport');
+            const svg = vp && vp.querySelector('svg');
+            const g = TM_VIEW.geo;
+            if (!svg || !g) return;
+            const linea = svg.querySelector('#tm-linea-ahora');
+            if (!linea) return;
+            const x = g.gutter + ((ms - g.t0) / (g.t1 - g.t0)) * g.plotW;
+            linea.setAttribute('x1', x.toFixed(1));
+            linea.setAttribute('x2', x.toFixed(1));
+            // Si la hora elegida se va de la vista, se acompaña con el scroll.
+            const vis = vp.scrollLeft, ancho = vp.clientWidth;
+            if (ancho > 0 && (x < vis + 24 || x > vis + ancho - 24)) {
+                vp.scrollLeft = Math.max(0, x - ancho / 2);
+            }
+        }
+
+        function tmInitPan() {
+            if (TM_VIEW.init) return;
+            const vp = document.getElementById('transitos-mapa-viewport');
+            if (!vp) return;
+            TM_VIEW.init = true;
+            let drag = null;
+            vp.addEventListener('pointerdown', (e) => {
+                if (e.button !== 0) return;
+                drag = { x: e.clientX, sl: vp.scrollLeft };
+                vp.classList.add('arrastrando');
+                try { vp.setPointerCapture(e.pointerId); } catch (err) {}
+            });
+            vp.addEventListener('pointermove', (e) => {
+                if (!drag) return;
+                vp.scrollLeft = drag.sl - (e.clientX - drag.x);
+            });
+            const fin = () => { drag = null; vp.classList.remove('arrastrando'); };
+            vp.addEventListener('pointerup', fin);
+            vp.addEventListener('pointercancel', fin);
+            // Doble clic: volver a centrar la hora elegida.
+            vp.addEventListener('dblclick', () => {
+                const g = TM_VIEW.geo;
+                if (!g || !TRANSITO_ACTUAL) return;
+                const x = g.gutter + ((TRANSITO_ACTUAL.t_ms - g.t0) / (g.t1 - g.t0)) * g.plotW;
+                vp.scrollLeft = Math.max(0, x - vp.clientWidth / 2);
+            });
+        }
+
+        function renderMapaTransitos() {
+            const vp = document.getElementById('transitos-mapa-viewport');
+            const hora = document.getElementById('tm-hora');
+            if (!vp) return;
+            // Si cambió Persona 1, los canales que forma con el tránsito se
+            // recalculan antes de dibujar.
+            try { tmRefrescarSeriePersona(); } catch (e) {}
+            const S = TRANSITO_SERIE;
+            const st = transitoEstadoActual();
+            if (!S || !st) {
+                vp.innerHTML = '<div class="tm-vacio">Elegí Persona 1 para ver el cielo en el tiempo.</div>';
+                vp.style.height = '';
+                if (hora) hora.textContent = '—';
+                TM_VIEW.geo = null;
+                return;
+            }
+            // Si la serie no cambió, solo se mueve la marca de la hora elegida:
+            // evita reconstruir el SVG completo (costoso) en cada movimiento.
+            if (TM_VIEW.serie === S && vp.querySelector('svg')) {
+                if (hora) hora.textContent = '🕒 ' + _fmtFechaMVD(TRANSITO_ACTUAL.t_ms);
+                tmMarcarAhora(TRANSITO_ACTUAL.t_ms);
+                return;
+            }
+            const p2 = (n) => String(n).padStart(2, '0');
+
+            if (hora) hora.textContent = '🕒 ' + _fmtFechaMVD(TRANSITO_ACTUAL.t_ms);
+
+            const gutter = 112, axisH = 30, rowH = 20, grupoH = 16;
+            const dias = Math.max(0.5, (S.t1 - S.t0) / 86400000);
+            const plotW = Math.round(dias * TM_VIEW.pxDia);
+            const W = gutter + plotW + 8;
+            const yC = axisH + grupoH;
+            const yK = yC + S.centros.length * rowH + grupoH;
+            const yP = yK + S.canales.length * rowH + grupoH;
+            const H = yP + S.planetas.length * rowH + 8;
+            const EMP = (typeof emojisPuerta === 'function' ? (emojisPuerta() || {}) : {});
+            if (!Object.keys(EMP).length && (TM_VIEW.reintentosEmoji || 0) < 3) {
+                // El SVG de Persona A puede no estar listo en el primer pase.
+                TM_VIEW.reintentosEmoji = (TM_VIEW.reintentosEmoji || 0) + 1;
+                setTimeout(() => { try { renderMapaTransitos(); } catch (e) {} }, 400);
+            }
+            const X = (t) => gutter + ((t - S.t0) / (S.t1 - S.t0)) * plotW;
+            const txt = (x, y, t, cls, size, weight, anchor, extra) =>
+                `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="${cls || 'tm-text'}" font-size="${size || 10}"` +
+                `${weight ? ` font-weight="${weight}"` : ''}${anchor ? ` text-anchor="${anchor}"` : ''}${extra ? ' ' + extra : ''}>${escHtml(t)}</text>`;
+            const fmt = (ms) => {
+                const d = new Date(ms);
+                return `${p2(d.getDate())}/${p2(d.getMonth() + 1)} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+            };
+            let s = '';
+
+            // Eje X graduado: marcas cada 6 h y una línea por día (medianoche
+            // local) con su fecha.
+            const MS6 = 6 * 3600000;
+            for (let t = Math.ceil(S.t0 / MS6) * MS6; t <= S.t1; t += MS6) {
+                const x = X(t);
+                s += `<line x1="${x.toFixed(1)}" y1="${axisH}" x2="${x.toFixed(1)}" y2="${H}" stroke="var(--borde)" stroke-width="1" opacity="0.28"/>`;
+                s += `<line x1="${x.toFixed(1)}" y1="${axisH - 4}" x2="${x.toFixed(1)}" y2="${axisH}" stroke="var(--muted)" stroke-width="1" opacity="0.45"/>`;
+            }
+            const dIni = new Date(S.t0);
+            const dDia = new Date(dIni.getFullYear(), dIni.getMonth(), dIni.getDate());
+            while (dDia.getTime() <= S.t1) {
+                if (dDia.getTime() >= S.t0) {
+                    const x = X(dDia.getTime());
+                    s += `<line x1="${x.toFixed(1)}" y1="${axisH}" x2="${x.toFixed(1)}" y2="${H}" stroke="var(--borde)" stroke-width="1"/>`;
+                    s += `<line x1="${x.toFixed(1)}" y1="${axisH - 8}" x2="${x.toFixed(1)}" y2="${axisH}" stroke="var(--muted)" stroke-width="1"/>`;
+                    const etq = `${p2(dDia.getDate())}/${p2(dDia.getMonth() + 1)}`;
+                    // La última fecha no se sale del recuadro: se alinea a la izquierda del trazo.
+                    if (x + 34 > W) s += txt(x - 3, 15, etq, 'tm-muted', 9.5, 700, 'end');
+                    else s += txt(x + 3, 15, etq, 'tm-muted', 9.5, 700);
+                }
+                dDia.setDate(dDia.getDate() + 1);
+            }
+            s += `<line x1="${gutter}" y1="${axisH}" x2="${W}" y2="${axisH}" stroke="var(--borde)" stroke-width="1"/>`;
+
+            // Rótulos de grupo.
+            s += txt(8, yC - 4, 'CENTROS', 'tm-muted', 8.5, 800, null, 'letter-spacing=".6"');
+            s += txt(8, yK - 4, 'CANALES', 'tm-muted', 8.5, 800, null, 'letter-spacing=".6"');
+            s += txt(8, yP - 4, 'PLANETAS', 'tm-muted', 8.5, 800, null, 'letter-spacing=".6"');
+
+            // Filas: centros (encendido = barra llena).
+            S.centros.forEach((c, i) => {
+                const y = yC + i * rowH;
+                const col = CENTRO_COLOR[c.id] || '#9e9e9e';
+                s += txt(8, y + 14, CENTRO_EMOJI[c.id] || '●', 'tm-emoji', 11);
+                s += txt(24, y + 14, c.id, 'tm-text', 10, 600);
+                c.tramos.forEach(tr => {
+                    if (!tr.valor) return;
+                    const x1 = X(tr.ini), x2 = X(tr.fin);
+                    s += `<rect x="${x1.toFixed(1)}" y="${(y + 4).toFixed(1)}" width="${Math.max(2, x2 - x1 - 1).toFixed(1)}" ` +
+                        `height="${rowH - 9}" rx="3" fill="${col}" fill-opacity="0.85">` +
+                        `<title>${escHtml(`${c.id} definido · ${fmt(tr.ini)} → ${fmt(tr.fin)}`)}</title></rect>`;
+                });
+            });
+
+            // Filas: canales que se forman por tránsito (barra = canal activo).
+            S.canales.forEach((c, i) => {
+                const y = yK + i * rowH;
+                const col = CENTRO_COLOR[c.centro] || '#9e9e9e';
+                const gg = c.k.split('-').map(Number);
+                const emK = [EMP[gg[0]] || '', EMP[gg[1]] || ''].filter(Boolean).join(' ');
+                s += txt(8, y + 14, c.k, 'tm-text', 10, 700);
+                c.tramos.forEach(tr => {
+                    if (!tr.valor) return;
+                    const x1 = X(tr.ini), x2 = X(tr.fin);
+                    const w = Math.max(2, x2 - x1 - 1);
+                    s += `<rect x="${x1.toFixed(1)}" y="${(y + 4).toFixed(1)}" width="${w.toFixed(1)}" height="${rowH - 9}" rx="3" ` +
+                        `fill="${col}" fill-opacity="0.18" stroke="${col}" stroke-width="1">` +
+                        `<title>${escHtml(`Canal ${c.k}${c.centro ? ' · ' + c.centro : ''} · ${fmt(tr.ini)} → ${fmt(tr.fin)}`)}</title></rect>`;
+                    if (emK && w >= 34) s += txt(x1 + w / 2, y + 14, emK, 'tm-emoji', 10, 400, 'middle');
+                });
+            });
+
+            // Filas: planetas (barra = puerta ocupada, con número + emoji adentro).
+            S.planetas.forEach((p, i) => {
+                const y = yP + i * rowH;
+                const col = PLANETA_COLOR[p.planeta] || '#616161';
+                s += txt(8, y + 14, PLANETA_EMOJI[p.planeta] || '●', 'tm-emoji', 11);
+                s += txt(24, y + 14, p.planeta, 'tm-text', 10, 600);
+                p.tramos.forEach(tr => {
+                    const x1 = X(tr.ini), x2 = X(tr.fin);
+                    const w = Math.max(2, x2 - x1 - 1);
+                    s += `<rect x="${x1.toFixed(1)}" y="${(y + 4).toFixed(1)}" width="${w.toFixed(1)}" height="${rowH - 9}" rx="3" ` +
+                        `fill="${col}" fill-opacity="0.22" stroke="${col}" stroke-width="1">` +
+                        `<title>${escHtml(`${p.planeta} · puerta ${tr.valor} · ${fmt(tr.ini)} → ${fmt(tr.fin)}`)}</title></rect>`;
+                    if (w >= 34) {
+                        const emP = EMP[tr.valor] || '';
+                        s += `<text x="${(x1 + w / 2).toFixed(1)}" y="${(y + 14).toFixed(1)}" text-anchor="middle" ` +
+                            `font-size="10" font-weight="800" fill="${col}">${tr.valor}` +
+                            (emP ? `<tspan class="tm-emoji" dx="3">${escHtml(emP)}</tspan>` : '') + `</text>`;
+                    }
+                });
+            });
+
+            // Marca de la hora elegida.
+            const mx = X(TRANSITO_ACTUAL.t_ms);
+            s += `<line id="tm-linea-ahora" x1="${mx.toFixed(1)}" y1="${axisH - 8}" x2="${mx.toFixed(1)}" y2="${H}" ` +
+                `stroke="var(--indigo)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" ` +
+                `data-vbw="${W}" data-vbh="${H}" width="${W}" height="${H}" role="img" ` +
+                `aria-label="Línea de tiempo de tránsitos: centros, canales y planetas">` +
+                `<rect x="0" y="0" width="${W}" height="${H}" class="tm-fondo"/>` + s + `</svg>`;
+            const mismaSerie = TM_VIEW.serie === S;
+            const previo = vp.scrollLeft;
+            vp.innerHTML = svg;
+            tmAplicarVista();
+            const destino = mismaSerie ? previo : Math.max(0, mx - vp.clientWidth / 2);
+            vp.scrollLeft = destino;
+            TM_VIEW.serie = S;
+            TM_VIEW.geo = { t0: S.t0, t1: S.t1, gutter, plotW };
+            // Puntos de cambio (gates/centros) para los triángulos del rail.
+            const cambios = new Set();
+            [S.centros, S.canales, S.planetas].forEach(arr => (arr || []).forEach(row => (row.tramos || []).forEach(tr => { cambios.add(tr.ini); cambios.add(tr.fin); })));
+            TM_VIEW.cambios = [...cambios].filter(t => t > S.t0 && t < S.t1).sort((a, b) => a - b);
+            tmInitPan();
+            if (!mismaSerie) {
+                // El panel puede estar plegado o sin ancho en este pase: se
+                // reintenta centrar la hora elegida cuando ya hay ancho.
+                let intentos = 0;
+                const centrar = () => {
+                    if (vp.clientWidth > 0) {
+                        // Solo si nadie movió la línea de tiempo mientras tanto.
+                        if (vp.scrollLeft === 0) vp.scrollLeft = Math.max(0, mx - vp.clientWidth / 2);
+                        return;
+                    }
+                    if (intentos++ < 30) setTimeout(centrar, 100);
+                };
+                setTimeout(centrar, 90);
+            }
+        }
+        function repintarTodo() {
+            if (dataPersonaA) {
+                mostrarPuertas(dataPersonaA, 'a');
+                actualizarSVGIndividual(svgContainerA, dataPersonaA, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto);
+            } else {
+                limpiarPanel('a');
+                limpiarSVG(svgContainerA);
+                try { olvidarNotaFiltros('a'); } catch (e) {}
+            }
+            if (dataPersonaB) {
+                mostrarPuertas(dataPersonaB, 'b');
+                actualizarSVGIndividual(svgContainerB, dataPersonaB, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto);
+            } else {
+                limpiarPanel('b');
+                limpiarSVG(svgContainerB);
+                try { olvidarNotaFiltros('b'); } catch (e) {}
+            }
+            actualizarCompuesto();
+            try { if (typeof aplicarInflu === 'function') aplicarInflu(); } catch (e) {}
+            try { renderListaFiltrada(); } catch (e) {}
+            try { if (window.aplicarEmojisSN) window.aplicarEmojisSN(); } catch (e) {}
+            try { if (typeof refrescarAdicionales === 'function') refrescarAdicionales(); } catch (e) {}
+        }
+        // ===== Personas adicionales (P3, P4...) =====
+        let personasAdicionales = []; // {nombre, data}
+        const adicionalesCont = document.getElementById('adicionales-contenedor');
+        const adicionalesVacio = document.getElementById('adicionales-vacio');
+        function actualizarAdicionalesVacio(){
+            if (!adicionalesCont || !adicionalesVacio) return;
+            adicionalesVacio.style.display = personasAdicionales.length ? 'none' : '';
+        }
+        function crearMiniCard(nombre, data, idx){
+            const card = document.createElement('div');
+            card.className = 'mini-grafico-card';
+            card.draggable = true;
+            card.dataset.nombre = nombre;
+            card.dataset.idx = idx;
+            card.title = 'Clic para cargar como P2 · Arrastrá hacia P1 o P2';
+            const titulo = document.createElement('div');
+            titulo.className = 'mini-titulo';
+            titulo.textContent = `P${idx+3} — ${nombre}`;
+            const sub = document.createElement('div');
+            sub.className = 'mini-sub';
+            try {
+                const ta = (typeof calcularTipoAutoridad === 'function' && data.todas_puertas) ? calcularTipoAutoridad(
+                    (()=>{ const canales=[]; try{ const setC=new Set((data.todas_puertas||[])); document.querySelectorAll('[id^="c"]').forEach(el=>{ const m=el.id.match(/^c(\d+)-(\d+)$/); if(!m) return; if(setC.has(parseInt(m[1],10))&&setC.has(parseInt(m[2],10))) canales.push(`${m[1]}-${m[2]}`);}); }catch(e){} return canales; })(),
+                    (()=>{ const def=new Set(); try{ const canales=[]; const setC=new Set((data.todas_puertas||[])); document.querySelectorAll('[id^="c"]').forEach(el=>{ const m=el.id.match(/^c(\d+)-(\d+)$/); if(!m) return; if(setC.has(parseInt(m[1],10))&&setC.has(parseInt(m[2],10))) canales.push(`${m[1]}-${m[2]}`);}); const setCan=new Set(canales.map(normCanalKey)); Object.entries(CENTRO_CANALES).forEach(([cid,lista])=>{ if(lista.some(c=>setCan.has(normCanalKey(c)))) def.add(cid);}); }catch(e){} return def; })()
+                ) : null;
+                sub.textContent = data.perfil ? `${data.perfil}` : (ta ? `${ta.tipo}` : '');
+            } catch(e){ sub.textContent = data.perfil || ''; }
+            const btnX = document.createElement('button');
+            btnX.className = 'mini-close';
+            btnX.type = 'button';
+            btnX.textContent = '×';
+            btnX.title = 'Quitar de la lista';
+            btnX.addEventListener('click', (ev)=>{ ev.stopPropagation(); quitarAdicional(nombre); });
+            const box = document.createElement('div');
+            box.className = 'svg-box';
+            // clonar SVG base (pelado: sin clones ni marcas del usuario pintado)
+            try {
+                const src = svgContainerA && svgContainerA.querySelector('svg');
+                if (src) {
+                    const clone = src.cloneNode(true);
+                    // limpiar ids duplicados que puedan colisionar
+                    clone.removeAttribute('id');
+                    try {
+                        clone.querySelectorAll('[data-simpl]').forEach(el => el.remove());
+                        clone.querySelectorAll('[data-transito-clon]').forEach(el => el.remove());
+                        clone.querySelectorAll('linearGradient[id^="grad-comp-simpl-"]').forEach(el => el.remove());
+                        clone.querySelectorAll('[data-simpl-oculto]').forEach(t => { delete t.dataset.simplOculto; });
+                        quitarDescripcionesP1(clone); // las Descr son de P1: los mini-gráficos salen limpios
+                        quitarFotoPublica(clone); // la foto pública es solo de P1
+                        clone.querySelectorAll('#Capa_panel_planetas').forEach(el => el.remove()); // tabla planetas solo en P1/P2
+                    } catch (e2) {}
+                    box.appendChild(clone);
+                }
+            } catch(e){}
+            card.appendChild(btnX);
+            card.appendChild(titulo);
+            card.appendChild(sub);
+            card.appendChild(box);
+            // pintar contenido
+            try { actualizarSVGIndividual(box, data, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto); } catch(e){}
+            try { actualizarCapasLineasEmojis(); } catch(e){}
+            // clic carga como P2
+            card.addEventListener('click', (ev)=>{
+                if (ev.target.closest('.mini-close')) return;
+                cargarComoP2(nombre);
+            });
+            // drag
+            card.addEventListener('dragstart', (ev)=>{
+                try { ev.dataTransfer.setData('text/plain', nombre); ev.dataTransfer.effectAllowed='copy'; } catch(e){}
+                card.classList.add('dragging');
+            });
+            card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
+            return card;
+        }
+        function renderAdicionales(){
+            if (!adicionalesCont) return;
+            adicionalesCont.innerHTML = '';
+            if (!personasAdicionales.length){
+                const vac = document.createElement('div');
+                vac.className = 'adicionales-vacio';
+                vac.textContent = 'Elegí personas en “Persona adicional” (columna derecha). Aparecerán aquí como P3, P4… al 50%. Clic para cargar como P2 · Arrastrá hacia P1 o P2 · X para quitar.';
+                adicionalesCont.appendChild(vac);
+                return;
+            }
+            personasAdicionales.forEach((it, idx)=>{
+                const card = crearMiniCard(it.nombre, it.data, idx);
+                adicionalesCont.appendChild(card);
+            });
+            try { refrescarAdicionales(); } catch(e){}
+        }
+        function refrescarAdicionales(){
+            // repintar cada mini con controles actuales (filtros, transito, lineas)
+            if (!adicionalesCont) return;
+            const cards = adicionalesCont.querySelectorAll('.mini-grafico-card');
+            cards.forEach((card, idx)=>{
+                let it = null;
+                try {
+                    const nom = card.dataset && card.dataset.nombre;
+                    if (nom && typeof personasAdicionales !== 'undefined') it = personasAdicionales.find(x => x && x.nombre === nom) || null;
+                } catch(e){}
+                if (!it) it = personasAdicionales[idx];
+                if (!it) return;
+                const box = card.querySelector('.svg-box');
+                if (!box) return;
+                try { actualizarSVGIndividual(box, it.data, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto); } catch(e){}
+            });
+            try { actualizarCapasLineasEmojis(); } catch(e){}
+        }
+        const KEY_P2 = 'dhP2Inicio';
+        const KEY_ADIC = 'dhAdicionales';
+        // Repone la P1/P2 guardada en este navegador después de rearmar la lista
+        // de personas: rearmar el <select> deja el valor vacío y, si nadie lo
+        // repone, P1/P2 "se olvidan" al recargar (según qué pedido llegue último).
+        window._reponerPersonasGuardadas = function () {
+            if (window._reponiendoPersonas) return;
+            window._reponiendoPersonas = true;
+            try {
+                const reponer = (sel, clave) => {
+                    if (!sel || sel.value) return;      // ya hay alguien elegido
+                    let nom = '';
+                    try { nom = localStorage.getItem(clave) || ''; } catch (e) { return; }
+                    if (!nom) return;
+                    if (![...sel.options].some(o => o.value === nom)) return;
+                    sel.value = nom;
+                    try { sel.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+                };
+                reponer(document.getElementById('selector-persona-a'), 'dhP1Inicio');
+                reponer(document.getElementById('selector-persona-b'), 'dhP2Inicio');
+            } finally {
+                window._reponiendoPersonas = false;
+            }
+        };
+        function guardarP2(){
+            try{
+                const v = (document.getElementById('selector-persona-b')||{}).value || '';
+                if(v) localStorage.setItem(KEY_P2, v); else localStorage.removeItem(KEY_P2);
+            }catch(e){}
+        }
+        function guardarAdicionales(){
+            try{
+                const lista = personasAdicionales.map(x=>x.nombre).filter(Boolean);
+                if(lista.length) localStorage.setItem(KEY_ADIC, JSON.stringify(lista));
+                else localStorage.removeItem(KEY_ADIC);
+            }catch(e){}
+        }
+        function quitarAdicional(nombre){
+            const i = personasAdicionales.findIndex(x=>x.nombre===nombre);
+            if (i>=0) personasAdicionales.splice(i,1);
+            renderAdicionales();
+            guardarAdicionales();
+            try { if (dataPersonaA) mostrarCompatibilidades(dataPersonaA); } catch(e){}
+        }
+        async function agregarAdicional(nombre){
+            if (!nombre) return;
+            if (personasAdicionales.some(x=>x.nombre===nombre)) return;
+            try {
+                const r = await fetch(`/api/persona/${encodeURIComponent(nombre)}`);
+                const d = await r.json();
+                if (!r.ok || !d || d.error) throw new Error(d.error||'Error');
+                personasAdicionales.push({nombre, data:d});
+                renderAdicionales();
+                guardarAdicionales();
+                try { if (dataPersonaA) mostrarCompatibilidades(dataPersonaA); } catch(e){}
+                // scroll al final
+                try { adicionalesCont.scrollLeft = adicionalesCont.scrollWidth; } catch(e){}
+            } catch(e){ console.error('agregarAdicional:', e); }
+        }
+        function cargarComoP2(nombre){
+            const selB = document.getElementById('selector-persona-b');
+            if (!selB) return;
+            selB.value = nombre;
+            selB.dispatchEvent(new Event('change'));
+        }
+        function cargarComoP1(nombre){
+            const selA = document.getElementById('selector-persona-a');
+            if (!selA) return;
+            selA.value = nombre;
+            selA.dispatchEvent(new Event('change'));
+        }
+        // selector Persona adicional
+        (function(){
+            const selAd = document.getElementById('selector-persona-adicional');
+            if (selAd) selAd.addEventListener('change', (e)=>{
+                const v = e.target.value;
+                if (!v) return;
+                agregarAdicional(v);
+                e.target.value = '';
+            });
+        })();
+        // drag & drop hacia P1 / P2
+        (function(){
+            const cardA = document.getElementById('card-grafico-a');
+            const cardB = document.getElementById('card-grafico-b');
+            [cardA, cardB].forEach((el, idx)=>{
+                if (!el) return;
+                el.addEventListener('dragover', (ev)=>{ ev.preventDefault(); try{ ev.dataTransfer.dropEffect='copy'; }catch(e){} el.classList.add('drop-hover'); });
+                el.addEventListener('dragleave', ()=> el.classList.remove('drop-hover'));
+                el.addEventListener('drop', (ev)=>{
+                    ev.preventDefault();
+                    el.classList.remove('drop-hover');
+                    let nombre='';
+                    try{ nombre=ev.dataTransfer.getData('text/plain'); }catch(e){}
+                    if (!nombre) return;
+                    if (idx===0) cargarComoP1(nombre); else cargarComoP2(nombre);
+                });
+            });
+        })();
+        // desplegable Personas adicionales
+        (function(){
+            const panel = document.getElementById('panel-personas-adicionales');
+            if (!panel) return;
+            const h = panel.querySelector('h4.desplegable');
+            if (!h) return;
+            // con memoria: abierta salvo que se la haya dejado cerrada (dhPanel_personas-adicionales)
+            let paAbierto = null;
+            try { paAbierto = localStorage.getItem('dhPanel_personas-adicionales'); } catch (e) {}
+            if (paAbierto === '0') panel.classList.add('colapsada');
+            else panel.classList.remove('colapsada');
+            h.addEventListener('click', () => {
+                panel.classList.toggle('colapsada');
+                try { localStorage.setItem('dhPanel_personas-adicionales', panel.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+            });
+            // también desplazable ya por ser flex con scroll
+        })();
+        // persistencia P2 y adicionales como P1 (localStorage)
+        (function(){
+            const selB = document.getElementById('selector-persona-b');
+            if(selB) selB.addEventListener('change', guardarP2);
+            // mutation observer por si se reconstruyen opciones
+            try{
+                const sel = document.getElementById('selector-persona-b');
+                // Al rearmarse la lista (childList) queda vacío: reponer la P2 guardada.
+                if(sel) new MutationObserver(()=>{ try{ if (typeof window._reponerPersonasGuardadas === 'function') window._reponerPersonasGuardadas(); }catch(e){} }).observe(sel,{childList:true});
+            }catch(e){}
+            window._cargarP2YAdicionales = async function(){
+                try{
+                    const v = localStorage.getItem(KEY_P2)||'';
+                    const selB2 = document.getElementById('selector-persona-b');
+                    if(v && selB2 && [...selB2.options].some(o=>o.value===v)){
+                        selB2.value = v;
+                        selB2.dispatchEvent(new Event('change',{bubbles:true}));
+                    }
+                }catch(e){}
+                try{
+                    const raw = localStorage.getItem(KEY_ADIC);
+                    if(!raw) return;
+                    const lista = JSON.parse(raw);
+                    if(!Array.isArray(lista) || !lista.length) return;
+                    for(const nom of lista){
+                        if(typeof nom!=='string' || !nom) continue;
+                        if(personasAdicionales.some(x=>x.nombre===nom)) continue;
+                        if(![...(document.getElementById('selector-persona-adicional')||{options:[]}).options].some(o=>o.value===nom) && ![...document.getElementById('selector-persona-b').options].some(o=>o.value===nom)) continue;
+                        try{
+                            const r = await fetch(`/api/persona/${encodeURIComponent(nom)}`);
+                            const d = await r.json();
+                            if(r.ok && d && !d.error) personasAdicionales.push({nombre:nom, data:d});
+                        }catch(e){}
+                    }
+                    renderAdicionales();
+                    try { if (dataPersonaA) mostrarCompatibilidades(dataPersonaA); } catch(e){}
+                }catch(e){}
+            };
+        })();
+
+        document.getElementById('btn-overlay-transito').addEventListener('click', async (e) => {
+            const btn = e.currentTarget;
+            if (!overlayTransitoOn) {
+                btn.textContent = 'Cargando...';
+                const ok = (typeof window._transitoActivar === 'function')
+                    ? await window._transitoActivar()
+                    : await obtenerTransito(document.getElementById('fecha-transito').value);
+                const dato = (ok && typeof ok === 'object') ? ok : null;
+                if (!ok) { btn.textContent = 'Superponer tránsito: OFF'; return; }
+                if (dato) TRANSITO_ACTUAL = dato;
+                overlayTransitoOn = true;
+            } else {
+                overlayTransitoOn = false;
+                if (typeof window._transitoDesactivar === 'function') window._transitoDesactivar();
+            }
+            btn.textContent = overlayTransitoOn ? 'Superponer tránsito: ON' : 'Superponer tránsito: OFF';
+            btn.classList.toggle('on', overlayTransitoOn);
+            repintarTodo();
+            try { renderMapaTransitos(); } catch (err) {}
+        });
+        async function obtenerTransito(fechaStr) {
+            try {
+                const url = fechaStr ? `/api/transito?fecha=${encodeURIComponent(fechaStr)}` : '/api/transito';
+                const r = await fetch(url);
+                const d = await r.json();
+                return r.ok ? d : null;
+            } catch (err) { return null; }
+        }
+        document.getElementById('fecha-transito').addEventListener('change', async () => {
+            if (typeof window._transitoFechaManual === 'function') {
+                const ok = await window._transitoFechaManual();
+                if (ok) {
+                    if (!overlayTransitoOn) {
+                        overlayTransitoOn = true;
+                        const btn = document.getElementById('btn-overlay-transito');
+                        if (btn) { btn.textContent = 'Superponer tránsito: ON'; btn.classList.add('on'); }
+                    }
+                    repintarTodo();
+                    try { renderMapaTransitos(); } catch (err) {}
+                }
+                return;
+            }
+            const d = await obtenerTransito(document.getElementById('fecha-transito').value);
+            if (d) {
+                TRANSITO_ACTUAL = d;
+                if (!overlayTransitoOn) {
+                    overlayTransitoOn = true;
+                    const btn = document.getElementById('btn-overlay-transito');
+                    if (btn) { btn.textContent = 'Superponer tránsito: ON'; btn.classList.add('on'); }
+                }
+                repintarTodo();
+                try { renderMapaTransitos(); } catch (err) {}
+            }
+        });
+
+        async function actualizarTransitos() {
+            const cont = document.getElementById('transitos-tabla');
+            if (!cont) return;
+            const cardTr = document.getElementById('card-transitos-contacto');
+            if (cardTr && cardTr.classList.contains('plegado')) return;
+            if (!dataPersonaA) { cont.innerHTML = '-'; return; }
+            const [dias, pasoH] = document.getElementById('rango-transitos').value.split('-').map(Number);
+            cont.innerHTML = 'Calculando...';
+            try {
+                const r = await fetch('/api/transitos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ puertas: dataPersonaA.todas_puertas, dias, paso_horas: pasoH })
+                });
+                const d = await r.json();
+                if (!r.ok) { cont.textContent = d.error || 'Error'; return; }
+                renderTimeline(cont, d.filas);
+                // No auto-desplegar: solo pinta si ya estaba abierto (guarda de arriba).
+            } catch (e) { cont.textContent = 'Error de red'; }
+        }
+
+        // Notas prácticas de tránsitos: solo lo nuevo con lectura práctica concreta.
+        // Claves de canal normalizadas (10-20, no 20-10).
+        const PRACTICO_CANAL = {
+            '34-57': 'Esos días podés responder rápido y sostener esfuerzo físico.',
+            '10-20': 'Buenos días para actuar según tu verdad, malos para fingir rol.'
+        };
+        const PRACTICO_CENTRO = {
+            'Sacro': 'Podés trabajar de forma sostenida; no desde la mente.',
+            'Plexo': 'Clima emocional amplificado. No decidas en el pico de la ola; esperá.',
+            'Garganta': 'Expresión/manifiesto disponible. Lo dicho tiene impacto; mejor si fuiste invitado/reconocido según tu tipo.'
+        };
+        // Color de trazo de cada canal tomado del SVG (agrupa por circuito).
+        const COLOR_CANAL = {
+            '2-14': '#84C225', '3-60': '#84C225', '1-8': '#84C225', '9-52': '#0093DD',
+            '10-20': '#FFF500', '10-34': '#84C225', '11-56': '#E88728', '5-15': '#0093DD',
+            '17-62': '#0093DD', '18-58': '#0093DD', '19-49': '#8F5444', '20-34': '#DB2C24',
+            '21-45': '#8F5444', '12-22': '#84C225', '28-38': '#84C225', '7-31': '#0093DD',
+            '32-54': '#8F5444', '13-33': '#E88728', '35-36': '#E88728', '37-40': '#8F5444',
+            '39-55': '#84C225', '30-41': '#E88728', '42-53': '#E88728', '23-43': '#84C225',
+            '26-44': '#8F5444', '29-46': '#E88728', '16-48': '#0093DD', '27-50': '#8F5444',
+            '25-51': '#84C225', '10-57': '#989B9F', '20-57': '#84C225', '34-57': '#80639E',
+            '6-59': '#8F5444', '24-61': '#84C225', '4-63': '#0093DD', '47-64': '#E88728'
+        };
+        const CIRCUITO_COLOR = {
+            '#84C225': 'Individual', '#FFF500': 'Individual', '#DB2C24': 'Individual',
+            '#989B9F': 'Individual', '#80639E': 'Individual',
+            '#0093DD': 'Colectivo Lógico', '#E88728': 'Colectivo Abstracto',
+            '#8F5444': 'Tribal'
+        };
+
+        // Timeline: filas = canales NUEVOS que forma el tránsito (+ centros que se
+        // definen y la persona no tenía), columnas = tiempo. Se excluyen los
+        // canales que la persona ya tiene completos y los centros ya definidos.
+        // Dos orígenes: ⚡ electromagnético (tránsito+persona) y ☁ propio del
+        // cielo (completo en el tránsito aunque la persona no aporte puerta,
+        // ej. 30-41 con Nodo en 30 y Plutón en 41). Cada fila de cuadros lleva
+        // debajo su renglón de descripción para captura y reenvío.
+        function renderTimeline(cont, filas) {
+            cont.innerHTML = '';
+            if (!filas.length) { cont.textContent = '-'; return; }
+            const setA = new Set(window._canalesA || []);
+            const defsA = svgContainerA._centrosDefinidos || new Set();
+            const normList = (f, k) => (f[k] || []).map(normCanalKey);
+            const compDefs = (f) => {
+                const comp = new Set([...setA, ...normList(f, 'canales'), ...normList(f, 'canales_transito')]);
+                const d = new Set();
+                Object.entries(CENTRO_CANALES).forEach(([id, lista]) => {
+                    if (lista.some(c => comp.has(normCanalKey(c)))) d.add(id);
+                });
+                return d;
+            };
+            const defsSlots = filas.map(compDefs);
+            const centrosFilas = ORDEN_CENTROS.filter(id =>
+                !defsA.has(id) && defsSlots.some(d => d.has(id)));
+            const electroFilas = [...new Set(filas.flatMap(f => normList(f, 'canales')))]
+                .filter(k => !setA.has(k));
+            const propiosFilas = [...new Set(filas.flatMap(f => normList(f, 'canales_transito')))]
+                .filter(k => !setA.has(k));
+            const canalesFilas = [...new Set([...electroFilas, ...propiosFilas])]
+                .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+            if (!centrosFilas.length && !canalesFilas.length) {
+                cont.textContent = 'Sin contactos nuevos en el rango.';
+                return;
+            }
+            const electroPorSlot = filas.map(f => new Set(normList(f, 'canales')));
+            const propioPorSlot = filas.map(f => new Set(normList(f, 'canales_transito')));
+            const detPorSlot = filas.map(f => {
+                const m = {};
+                (f.contactos || []).forEach(c => {
+                    (m[normCanalKey(c.canal)] = m[normCanalKey(c.canal)] || []).push(`${c.t}↔${c.socio}`);
+                });
+                return m;
+            });
+            const formaPorCanal = {};
+            canalesFilas.forEach(k => {
+                const formas = new Set();
+                filas.forEach(f => {
+                    if (new Set(normList(f, 'canales')).has(k)) {
+                        (f.contactos || []).forEach(c => {
+                            if (normCanalKey(c.canal) === k) formas.add(`tránsito ${c.t} ↔ persona ${c.socio}`);
+                        });
+                    }
+                    if (new Set(normList(f, 'canales_transito')).has(k)) formas.add(`completo en el cielo (${k.split('-').join('+')})`);
+                });
+                formaPorCanal[k] = [...formas].join(' · ');
+            });
+            // Cabecera: días (con abreviatura Lun/Mar/...) con colspan + horas.
+            let dias = '', horas = '', diaAct = null, dowAct = '', span = 0;
+            const cierraDia = () => {
+                if (diaAct !== null) dias += `<th colspan="${span}" class="tl-dia">${escHtml(dowAct)} ${escHtml(diaAct)}</th>`;
+            };
+            filas.forEach(f => {
+                const [dia, hh] = f.fecha.split(' ');
+                if (dia !== diaAct) { cierraDia(); diaAct = dia; dowAct = f.dow || ''; span = 0; }
+                span++;
+                horas += `<th>${escHtml(hh.slice(0, 2))}</th>`;
+            });
+            cierraDia();
+            const ncol = filas.length + 1;
+            let s = `<div class="tl-legend"><span class="tl-swatch sw-electro"></span> con la persona (⚡)` +
+                ` <span class="tl-swatch sw-sky"></span> completo en el cielo (☁)` +
+                ` — el renglón bajo cada canal describe su aporte (capturable)</div>` +
+                `<div class="tl-scroll"><table class="tl-grid"><thead>` +
+                `<tr><th></th>${dias}</tr><tr><th></th>${horas}</tr></thead><tbody>`;
+            centrosFilas.forEach(id => {
+                const desc = centroDescMap[`${id.toLowerCase()}|definido`] || '';
+                const pract = PRACTICO_CENTRO[id] || '';
+                const tip = (desc + (desc && pract ? ' — ' : '') + pract) ||
+                    'Centro que se define con el tránsito.';
+                s += `<tr><th title="${escHtml(tip)}">◆ ${escHtml(id)}</th>`;
+                defsSlots.forEach(d => { s += d.has(id) ? `<td class="on-c"></td>` : `<td></td>`; });
+                s += `</tr>`;
+            });
+            canalesFilas.forEach(k => {
+                const kn = normCanalKey(k);
+                const color = COLOR_CANAL[kn] || '#78909c';
+                const circ = CIRCUITO_COLOR[color] ? `Circuito ${CIRCUITO_COLOR[color]}. ` : '';
+                const desc = canalDescMap[kn] || 'Sin descripción en canales.csv.';
+                const pract = PRACTICO_CANAL[kn] || '';
+                const esElectro = electroFilas.includes(kn), esPropio = propiosFilas.includes(kn);
+                const marca = `${esElectro ? ' ⚡' : ''}${esPropio ? ' ☁' : ''}`;
+                const tip = `${circ}${desc}${pract ? ` — ${pract}` : ''}`;
+                s += `<tr class="tl-ch"><th title="${escHtml(tip)}">${escHtml(k)}<span class="tl-badge">${marca}</span></th>`;
+                filas.forEach((f, i) => {
+                    const e = electroPorSlot[i].has(k), p = propioPorSlot[i].has(k);
+                    const det = (detPorSlot[i][k] || []).join(', ');
+                    if (e) s += `<td class="on-ch" style="background:${color}" title="${escHtml(det || tip)}"></td>`;
+                    else if (p) s += `<td class="on-sky" title="${escHtml('Completo en el cielo. ' + tip)}"></td>`;
+                    else s += `<td></td>`;
+                });
+                s += `</tr>`;
+                const aporte = `${circ}${desc}${pract ? ` Aporte: ${pract}` : ''}` +
+                    (formaPorCanal[k] ? ` Se forma: ${formaPorCanal[k]}.` : '');
+                s += `<tr class="tl-desc-row"><td colspan="${ncol}" title="${escHtml(tip)}">${escHtml(aporte)}</td></tr>`;
+            });
+            s += `</tbody></table></div>`;
+            cont.innerHTML = s;
+        }
+        document.getElementById('btn-transitos').addEventListener('click', () => actualizarTransitos());
+        document.getElementById('rango-transitos').addEventListener('change', () => {
+            if (dataPersonaA) actualizarTransitos();
+        });
+
+        // ---------- Gráfica de Tránsitos (solo cielo, sin personas) ----------
+        // Ventana fija ref-3d..ref+7d en slots de 4h (ref = fecha de tránsito o ahora).
+        // Todo queda en window.GRAFICA_TRANSITOS (slots, rachas, próximos) para
+        // consulta directa y futuras preguntas a la IA.
+        window.GRAFICA_TRANSITOS = null;
+        const MES3 = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        let EMOJI_PUERTA = null;
+        function emojisPuerta() {
+            // Mapa puerta -> emoji leído una vez del SVG (capa_emojis: <text id="emoji_N">EMOJI<title>N ·…).
+            if (EMOJI_PUERTA) return EMOJI_PUERTA;
+            EMOJI_PUERTA = {};
+            try {
+                const scope = (typeof svgContainerA !== 'undefined' && svgContainerA) ? svgContainerA : document;
+                const svg = (scope.querySelector && (scope.querySelector('svg') || scope)) || document;
+                const capa = svg.querySelector ? svg.querySelector('[id="capa_emojis"]') : null;
+                if (!capa) return EMOJI_PUERTA;
+                capa.querySelectorAll('text').forEach(t => {
+                    let gate = null;
+                    const title = t.querySelector('title');
+                    if (title) { const m = title.textContent.trim().match(/^(\d+)\b/); if (m) gate = parseInt(m[1], 10); }
+                    if (gate == null && t.id) { const m2 = t.id.match(/emoji[-_](\d+)/); if (m2) gate = parseInt(m2[1], 10); }
+                    if (gate == null || gate < 1 || gate > 64) return;
+                    let em = '';
+                    t.childNodes.forEach(nd => { if (nd.nodeType === 3 && nd.nodeValue.trim()) em += nd.nodeValue.trim(); });
+                    if (em) EMOJI_PUERTA[gate] = em;
+                });
+            } catch (e) {}
+            // Si la capa todavía no está dibujada no se cachea el vacío: la
+            // próxima consulta vuelve a leer el SVG.
+            if (!Object.keys(EMOJI_PUERTA).length) { EMOJI_PUERTA = null; return {}; }
+            return EMOJI_PUERTA;
+        }
+        function _diaCortoMVD(ms) {
+            // Formato 13/Ago (hora Montevideo).
+            try {
+                const parts = new Intl.DateTimeFormat('es-UY', { timeZone: 'America/Montevideo', day: 'numeric', month: 'numeric' }).formatToParts(new Date(ms));
+                const g = (t) => (parts.find(p => p.type === t) || {}).value || '';
+                return `${g('day')}/${MES3[(parseInt(g('month'), 10) || 1) - 1]}`;
+            } catch (e) {
+                const d = new Date(ms);
+                return `${d.getDate()}/${MES3[d.getMonth()]}`;
+            }
+        }
+        function _relDias(refMs, ms) {
+            const d = Math.round((ms - refMs) / 86400000);
+            if (d === 0) return 'hoy';
+            if (d === 1) return 'en 1 día';
+            if (d > 1) return `en ${d} días`;
+            if (d === -1) return 'hace 1 día';
+            return `hace ${-d} días`;
+        }
+        function _diaHoraMVD(ms) {
+            try {
+                const parts = new Intl.DateTimeFormat('es-UY', { timeZone: 'America/Montevideo', day: '2-digit', month: '2-digit', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(ms));
+                const g = (t) => (parts.find(p => p.type === t) || {}).value || '';
+                return { dia: `${g('day')}/${g('month')}`, dow: g('weekday'), hh: `${g('hour')}:${g('minute')}` };
+            } catch (e) {
+                const d = new Date(ms);
+                const p2 = (x) => String(x).padStart(2, '0');
+                return { dia: `${p2(d.getDate())}/${p2(d.getMonth() + 1)}`, dow: '', hh: `${p2(d.getHours())}:${p2(d.getMinutes())}` };
+            }
+        }
+        function _tipRangoGT(etiqueta, r) {
+            const pls = (r.planetas || []).join(',');
+            let s = `${etiqueta} ${_fmtFechaMVD(r.ini_ms)} → ${_fmtFechaMVD(r.fin_ms)} (${pls})`;
+            if (r.toca_ini) s += r.ini_real_ms ? ` · viene desde ${_fmtFechaMVD(r.ini_real_ms)}` : ` · viene de antes`;
+            if (r.toca_fin) s += r.fin_real_ms ? ` · sigue hasta ${_fmtFechaMVD(r.fin_real_ms)}` : ` · sigue más allá`;
+            return s;
+        }
+        function _tipProxGT(etiqueta, p) {
+            if (!p || !p.entrada_ms) return `${etiqueta} sin aparición en 200 días.`;
+            const pls = ((p.planetas && p.planetas.length) ? p.planetas : [p.planeta]).filter(Boolean).join(',');
+            return `Próximo ${etiqueta}: ${pls || '?'} ${_fmtFechaMVD(p.entrada_ms)} → ${p.salida_ms ? _fmtFechaMVD(p.salida_ms) : 'más allá de +200d'}`;
+        }
+        function renderGraficaTransitos(cont, data) {
+            window.GRAFICA_TRANSITOS = data;
+            cont.innerHTML = '';
+            const slots = data.slots || [];
+            if (!slots.length) { cont.textContent = '-'; return; }
+            const nombreRef = data.ref_nombre || 'actual';
+            const refMs = data.ref_ms || Date.now();
+            // Columna del momento de referencia: línea negra vertical (clases col-ahora/th-ahora).
+            let idxAhora = 0;
+            slots.forEach((s, i) => { if (Math.abs(s.t - refMs) < Math.abs(slots[idxAhora].t - refMs)) idxAhora = i; });
+            const ahoraCls = (i) => (i === idxAhora ? ' col-ahora' : '');
+            const idxPorT = {};
+            slots.forEach((s, i) => { idxPorT[s.t] = i; });
+            const marcar = (runs) => {
+                const arr = new Array(slots.length).fill(null);
+                (runs || []).forEach(r => {
+                    const s = idxPorT[r.ini_ms], e = idxPorT[r.fin_ms];
+                    if (s == null || e == null) return;
+                    for (let i = s; i <= e; i++) arr[i] = { run: r, first: i === s, last: i === e };
+                });
+                return arr;
+            };
+            const celdaPuerta = {}, celdaCanal = {};
+            Object.entries(data.rangos_puertas || {}).forEach(([g, runs]) => { celdaPuerta[g] = marcar(runs); });
+            Object.entries(data.rangos_canales || {}).forEach(([k, runs]) => { celdaCanal[k] = marcar(runs); });
+            let dias = '', horas = '', diaAct = null, dowAct = '', span = 0;
+            const cierraDia = () => { if (diaAct !== null) dias += `<th colspan="${span}" class="tl-dia">${escHtml(dowAct)} ${escHtml(diaAct)}</th>`; };
+            slots.forEach((s, i) => {
+                const dh = _diaHoraMVD(s.t);
+                if (dh.dia !== diaAct) { cierraDia(); diaAct = dh.dia; dowAct = dh.dow; span = 0; }
+                span++;
+                horas += (i === idxAhora)
+                    ? `<th class="th-ahora" title="Momento de referencia (${escHtml(nombreRef)})">${escHtml(dh.hh.slice(0, 2))}</th>`
+                    : `<th>${escHtml(dh.hh.slice(0, 2))}</th>`;
+            });
+            cierraDia();
+            const EM = emojisPuerta();
+            const proxP = data.proximos_puertas || {}, proxC = data.proximos_canales || {};
+            // Orden por próxima aparición: inicio de la primera racha en ventana,
+            // o entrada del próximo rango (sin aparición al final).
+            const claveAparicion = (runs, prox) =>
+                (runs && runs.length) ? runs[0].ini_ms
+                : (prox && prox.entrada_ms ? prox.entrada_ms : Infinity);
+            const ordenP = [];
+            for (let g = 1; g <= 64; g++) {
+                ordenP.push({ g, key: claveAparicion((data.rangos_puertas || {})[String(g)], proxP[String(g)]) });
+            }
+            ordenP.sort((a, b) => a.key - b.key);
+            const ordenC = [...new Set(Object.keys(canalDescMap))].map(k => ({
+                k, key: claveAparicion((data.rangos_canales || {})[k], proxC[k])
+            })).sort((a, b) => (a.key - b.key) || String(a.k).localeCompare(String(b.k), undefined, { numeric: true }));
+            // Celda "Próx": siempre en negrita, formato 13/Ago (en X días) + duración.
+            const celdaProx = (runs, prox, etiqueta) => {
+                const r0 = (runs && runs.length) ? runs[0] : null;
+                const ini = r0 ? (r0.ini_real_ms || r0.ini_ms) : (prox ? prox.entrada_ms : null);
+                if (ini == null) return `<td class="gt-prox">—</td>`;
+                const fin = r0 ? (r0.fin_real_ms || r0.fin_ms) : (prox ? prox.salida_ms : null);
+                const dur = (fin != null && fin > ini) ? ` · ${_fmtDuracion(fin - ini)}` : (fin == null ? ' · sigue' : '');
+                const tip = r0 ? _tipRangoGT(etiqueta + ':', r0) : _tipProxGT(etiqueta, prox);
+                return `<td class="gt-prox" title="${escHtml(tip)}"><b>${escHtml(_diaCortoMVD(ini))} (${escHtml(_relDias(refMs, ini))})${escHtml(dur)}</b></td>`;
+            };
+            let s = `<div class="tl-legend">Solo cielo (sin personas) · ${escHtml(nombreRef)} −3d/+7d · ordenado por próxima aparición · ` +
+                `<span class="tl-swatch" style="background:#00897b"></span> puerta activa (número = línea 1-6)` +
+                ` <span class="tl-swatch sw-sky"></span> canal completo` +
+                ` <span class="tl-swatch on-next"></span> sin actividad (title = próximo rango)` +
+                ` <span class="tl-swatch" style="background:#111"></span> momento de referencia` +
+                ` · ◀ ▶ = se extiende fuera de la ventana</div>` +
+                `<div class="tl-scroll"><table class="tl-grid"><thead>` +
+                `<tr><th rowspan="2"></th><th rowspan="2" title="Próximo inicio en negrita: 13/Ago (en X días) + duración">Próx</th>${dias}</tr><tr>${horas}</tr></thead><tbody>`;
+            const tdVacio = (i) => `<td${ahoraCls(i)}></td>`;
+            const vacias = (desde, n) => { let h = ''; for (let i = 0; i < n; i++) h += tdVacio(desde + i); return h; };
+            ordenP.forEach(({ g }) => {
+                const gs = String(g);
+                const runs = (data.rangos_puertas || {})[gs];
+                const arr = celdaPuerta[gs];
+                const corta = primeraOracion(puertaDescMap[gs] || '');
+                const em = EM[g] || '';
+                if (!arr) {
+                    const tip = `${corta ? corta + ' — ' : ''}${_tipProxGT('puerta ' + g, proxP[gs])}`;
+                    s += `<tr><th title="${escHtml(tip)}">${g}${em ? ' ' + em : ''}</th>${celdaProx(null, proxP[gs], 'puerta ' + g)}<td class="on-next${ahoraCls(0)}" title="${escHtml(tip)}"></td>${vacias(1, slots.length - 1)}</tr>`;
+                    return;
+                }
+                const tipHead = `${corta ? corta + ' — ' : ''}` + runs.map(r => _tipRangoGT('Puerta ' + g + ':', r)).join(' · ');
+                s += `<tr><th title="${escHtml(tipHead)}">${g}${em ? ' ' + em : ''}</th>${celdaProx(runs, null, 'Puerta ' + g)}`;
+                arr.forEach((c, i) => {
+                    if (!c) { s += tdVacio(i); return; }
+                    const lin = ((slots[i] && slots[i].lineas && slots[i].lineas[gs]) || []).join('·');
+                    const pls = ((slots[i] && slots[i].quienes && slots[i].quienes[gs]) || []).join(',');
+                    const pre = (c.first && c.run.toca_ini ? '◀' : '');
+                    const post = (c.last && c.run.toca_fin ? '▶' : '');
+                    const tipCell = `Puerta ${g} línea ${lin || '?'}${pls ? ' (' + pls + ')' : ''} — ${_tipRangoGT('Puerta ' + g + ':', c.run)}`;
+                    s += `<td class="on-ch${ahoraCls(i)}" title="${escHtml(tipCell)}">${pre}${escHtml(lin)}${post}</td>`;
+                });
+                s += `</tr>`;
+            });
+            ordenC.forEach(({ k }) => {
+                const arr = celdaCanal[k];
+                const corta = primeraOracion(canalDescMap[k] || '');
+                const ab = String(k).split('-').map(Number);
+                const ems = `${EM[ab[0]] || ''}${EM[ab[1]] || ''}`;
+                if (!arr) {
+                    const tip = `${corta ? corta + ' — ' : ''}${_tipProxGT('canal ' + k, proxC[k])}`;
+                    s += `<tr class="tl-ch"><th title="${escHtml(tip)}">${escHtml(k)}${ems ? ' ' + ems : ''}</th>${celdaProx(null, proxC[k], 'canal ' + k)}<td class="on-next${ahoraCls(0)}" title="${escHtml(tip)}"></td>${vacias(1, slots.length - 1)}</tr>`;
+                    return;
+                }
+                const runs = data.rangos_canales[k] || [];
+                const tipHead = `${corta ? corta + ' — ' : ''}` + runs.map(r => _tipRangoGT('Canal ' + k + ':', r)).join(' · ');
+                s += `<tr class="tl-ch"><th title="${escHtml(tipHead)}">${escHtml(k)}${ems ? ' ' + ems : ''}</th>${celdaProx(runs, null, 'Canal ' + k)}`;
+                arr.forEach((c, i) => {
+                    if (!c) { s += tdVacio(i); return; }
+                    const marca = `${c.first && c.run.toca_ini ? '◀' : ''}${c.last && c.run.toca_fin ? '▶' : ''}`;
+                    s += `<td class="on-sky${ahoraCls(i)}" title="${escHtml(_tipRangoGT('Canal ' + k + ':', c.run))}">${marca}</td>`;
+                });
+                s += `</tr>`;
+            });
+            s += `</tbody></table></div>`;
+            cont.innerHTML = s;
+            try {
+                const v = document.getElementById('grafica-trans-ventana');
+                if (v) v.textContent = `Ventana ${_fmtFechaMVD(data.desde_ms)} → ${_fmtFechaMVD(data.hasta_ms)} · ref ${nombreRef}.`;
+            } catch (e) {}
+        }
+        async function actualizarGraficaTransitos() {
+            const cont = document.getElementById('grafica-trans-tabla');
+            if (!cont) return;
+            const w0 = document.getElementById('card-grafica-transitos-3-7');
+            if (w0 && !w0.classList.contains('abierta')) return;
+            cont.innerHTML = 'Calculando...';
+            try {
+                const r = await fetch('/api/grafica_transitos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fecha: _fechaTransitoStr() })
+                });
+                const d = await r.json();
+                if (!r.ok) { cont.textContent = d.error || 'Error'; return; }
+                renderGraficaTransitos(cont, d);
+                const w = document.getElementById('card-grafica-transitos-3-7');
+                if (w) w.classList.add('abierta');
+            } catch (e) { cont.textContent = 'Error de red'; }
+        }
+        document.getElementById('btn-grafica-trans').addEventListener('click', () => actualizarGraficaTransitos());
+
+        // Pinta un tramo con cuadros alternos de dos colores siguiendo la línea
+        // (degradado userSpaceOnUse con paradas duras). Así se ven ambos dueños.
+        function pintarBicolor(tramo, svg, i, cA, cB) {
+            const defs = svg.querySelector('defs');
+            const gid = `grad-comp-${i}`;
+            const viejo = defs ? defs.querySelector(`#${gid}`) : null;
+            if (viejo) viejo.remove();
+            let p0 = null, p1 = null, len = 0;
+            try {
+                len = tramo.getTotalLength();
+                p0 = tramo.getPointAtLength(0);
+                p1 = tramo.getPointAtLength(Math.max(len - 0.01, 0));
+            } catch (e) { /* sin geometría: color plano */ }
+            if (!defs || !p0 || !len) {
+                tramo.style.stroke = cA;
+                return;
+            }
+            const NS = 'http://www.w3.org/2000/svg';
+            const gr = document.createElementNS(NS, 'linearGradient');
+            gr.setAttribute('id', gid);
+            gr.setAttribute('gradientUnits', 'userSpaceOnUse');
+            gr.setAttribute('x1', p0.x);
+            gr.setAttribute('y1', p0.y);
+            gr.setAttribute('x2', p1.x);
+            gr.setAttribute('y2', p1.y);
+            const n = Math.max(2, Math.round(len / 7));
+            for (let k = 0; k < n; k++) {
+                const c = k % 2 === 0 ? cA : cB;
+                [[k / n, c], [(k + 1) / n, c]].forEach(([o, cc]) => {
+                    const s = document.createElementNS(NS, 'stop');
+                    s.setAttribute('offset', o);
+                    s.setAttribute('stop-color', cc);
+                    gr.appendChild(s);
+                });
+            }
+            defs.appendChild(gr);
+            tramo.style.stroke = `url(#${gid})`;
+            tramo.style.strokeDasharray = '';
+            tramo.style.strokeLinecap = 'butt';
+        }
+        function colorPuertaLado(i, lado, colors, setIncon, setConsc) {
+            const incon = setIncon.has(i), consc = setConsc.has(i);
+            if (lado === 'a') return (incon && consc) ? colors.aMixto : (incon ? colors.aIncon : colors.aConsc);
+            return (incon && consc) ? colors.bMixto : (incon ? colors.bIncon : colors.bConsc);
+        }
+
+        // Limpieza de estilos dinámicos (overlay, punteados, fantasmas) antes de repintar.
+        function limpiarEstiloTramo(tramo) {
+            tramo.style.opacity = '';
+            tramo.style.strokeDasharray = '';
+            tramo.style.strokeLinecap = '';
+            tramo.style.strokeWidth = '';
+            tramo.style.strokeOpacity = '';
+            delete tramo.dataset.ghost;
+        }
+        function limpiarEstiloCirculo(c) {
+            c.style.stroke = '';
+            c.style.strokeOpacity = '';
+            c.style.strokeDasharray = '';
+            c.style.fill = '';
+            delete c.dataset.planetas;
+        }
+        function canalesOn() {
+            const el = document.getElementById('chk-canales');
+            return !el || el.checked;
+        }
+        // Influ: transparencia de tramos largos por planeta (solo tramos, no Simpl).
+        const INFLU_ALPHA = {Sol:1.0,Tierra:1.0,Luna:0.70,NodoN:0.60,NodoS:0.60,Mercurio:0.45,Venus:0.45,Marte:0.45,Jupiter:0.35,Saturno:0.35,Urano:0.25,Neptuno:0.25,Pluton:0.25};
+        function influOn() {
+            const el = document.getElementById('chk-influ');
+            return !!(el && el.checked);
+        }
+        function aplicarInflu() {
+            try {
+                const on = influOn();
+                const scopes = [];
+                if (typeof svgContainerA !== 'undefined' && svgContainerA) scopes.push([svgContainerA, (typeof dataPersonaA !== 'undefined') ? dataPersonaA : null]);
+                if (typeof svgContainerB !== 'undefined' && svgContainerB) scopes.push([svgContainerB, (typeof dataPersonaB !== 'undefined') ? dataPersonaB : null]);
+                if (typeof svgContainerComp !== 'undefined' && svgContainerComp) scopes.push([svgContainerComp, null]);
+                scopes.forEach(([scope, data]) => {
+                    let gateMap = {};
+                    try {
+                        if (scope === svgContainerComp) {
+                            if (typeof dataPersonaA !== 'undefined' && dataPersonaA) gateMap = mergeMaps(gateMap, buildGateEntries(dataPersonaA));
+                            if (typeof dataPersonaB !== 'undefined' && dataPersonaB) gateMap = mergeMaps(gateMap, buildGateEntries(dataPersonaB));
+                        } else if (data) {
+                            gateMap = buildGateEntries(data);
+                        }
+                    } catch (e) {}
+                    for (let g = 1; g <= 64; g++) {
+                        const tramo = scope.querySelector('#tramo' + g);
+                        if (!tramo) continue;
+                        if (tramo.hasAttribute('data-simpl') || tramo.hasAttribute('data-simpl-base')) continue;
+                        if (!on) { tramo.style.strokeOpacity = ''; continue; }
+                        const entries = gateMap[g] || [];
+                        if (!entries.length) continue;
+                        let a = 0;
+                        entries.forEach(e => { const v = INFLU_ALPHA[e.planeta]; if (v != null && v > a) a = v; });
+                        if (a > 0) tramo.style.strokeOpacity = String(a);
+                    }
+                });
+            } catch (e) {}
+        }
+        // Círculos de puertas con color del planeta asociado (3s alterna si hay varios).
+        // Incluye tránsito cuando el overlay está ON.
+        let _idxColorPlaneta = 0;
+        function planetasPorPuerta(scope) {
+            let m = {};
+            try {
+                if (scope === svgContainerA) {
+                    if (typeof dataPersonaA !== 'undefined' && dataPersonaA) m = mergeMaps(m, buildGateEntries(dataPersonaA));
+                } else if (scope === svgContainerB) {
+                    if (typeof dataPersonaB !== 'undefined' && dataPersonaB) m = mergeMaps(m, buildGateEntries(dataPersonaB));
+                } else if (scope === svgContainerComp) {
+                    if (typeof dataPersonaA !== 'undefined' && dataPersonaA) m = mergeMaps(m, buildGateEntries(dataPersonaA));
+                    if (typeof dataPersonaB !== 'undefined' && dataPersonaB) m = mergeMaps(m, buildGateEntries(dataPersonaB));
+                } else if (scope && scope.classList && scope.classList.contains('svg-box')) {
+                    try {
+                        let it = null;
+                        try { const dx = (typeof datosExtraBox === 'function') ? datosExtraBox(scope) : null; if (dx) it = { data: dx }; } catch (e0) {}
+                        if (!it) {
+                            const card = scope.closest('.mini-grafico-card');
+                            const idx = card ? [...card.parentNode.querySelectorAll('.mini-grafico-card')].indexOf(card) : -1;
+                            it = (typeof personasAdicionales !== 'undefined' && idx >= 0) ? personasAdicionales[idx] : null;
+                        }
+                        if (it && it.data) m = mergeMaps(m, buildGateEntries(it.data));
+                    } catch (e) {}
+                }
+                if (typeof overlayTransitoOn !== 'undefined' && overlayTransitoOn && typeof TRANSITO_ACTUAL !== 'undefined' && TRANSITO_ACTUAL) {
+                    m = mergeMaps(m, buildTransitoEntries(TRANSITO_ACTUAL));
+                }
+            } catch (e) {}
+            return m;
+        }
+        function pintarCirculosPlaneta() {
+            const scopes = [];
+            try {
+                if (typeof svgContainerA !== 'undefined' && svgContainerA) scopes.push(svgContainerA);
+                if (typeof svgContainerB !== 'undefined' && svgContainerB) scopes.push(svgContainerB);
+                if (typeof svgContainerComp !== 'undefined' && svgContainerComp) scopes.push(svgContainerComp);
+                document.querySelectorAll('.mini-grafico-card .svg-box, .clan-card .svg-box').forEach(b => scopes.push(b));
+            } catch (e) {}
+            scopes.forEach(scope => {
+                const mp = planetasPorPuerta(scope);
+                for (let g = 1; g <= 64; g++) {
+                    const cid = (typeof gateToCircleMap !== 'undefined') ? gateToCircleMap[g] : null;
+                    if (!cid) continue;
+                    const circ = scope.querySelector('#' + cid);
+                    if (!circ) continue;
+                    if (circ.style.visibility === 'hidden') continue;
+                    const entries = mp[g] || [];
+                    if (!entries.length) { circ.style.fill = ''; continue; }
+                    const uniq = [...new Set(entries.map(e => e.planeta))];
+                    try {
+                        if (typeof PLANETAS_ORDEN !== 'undefined') {
+                            uniq.sort((a, b) => PLANETAS_ORDEN.indexOf(a) - PLANETAS_ORDEN.indexOf(b));
+                        }
+                    } catch (e) {}
+                    const pl = uniq[0];
+                    circ.style.fill = (typeof PLANETA_COLOR !== 'undefined' && PLANETA_COLOR[pl]) || '#000000';
+                    circ.dataset.planetas = uniq.join(',');
+                    try {
+                        const tinta = (typeof textoSobrePlaneta === 'function') ? textoSobrePlaneta(circ.style.fill) : '#1F1A17';
+                        scope.querySelectorAll(`[id="puerta_${g}_texto"], [id="pueta_${g}_texto"]`).forEach(p => { p.style.opacity = '1'; p.style.fill = tinta; });
+                    } catch (e) {}
+                    let t = circ.querySelector('title');
+                    if (!t || !t.textContent || t.textContent.indexOf('Miedo') !== 0) {
+                        // no pisar titles de miedos/roles/amores; tooltip con todos los planetas
+                        const txt = uniq.join(' + ');
+                        let tt = circ.querySelector('title');
+                        if (!tt) {
+                            tt = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                            circ.appendChild(tt);
+                        }
+                        tt.textContent = txt;
+                    }
+                }
+            });
+        }
+        // color fijo: primer planeta (mayor influencia), sin alternado
+        function aplicarVisibilidadCanales() {
+            const on = canalesOn();
+            document.querySelectorAll('#svg-persona-a svg, #svg-persona-b svg, #svg-compuesto svg, .mini-grafico-card .svg-box svg, .clan-card .svg-box svg').forEach(svg => {
+                svg.querySelectorAll('[id^="c"]').forEach(c => {
+                    if (!/^c\d+-\d+$/.test(c.id)) return;
+                    if (!on) { c.style.visibility = 'hidden'; c.style.opacity = '0'; }
+                    else { c.style.visibility = 'visible'; c.style.opacity = opacidadBaseCanal(c); }
+                });
+                svg.querySelectorAll('[data-transito-clon]').forEach(cl => {
+                    const esCanalT = cl.hasAttribute('data-transito-canal');
+                    if (esCanalT && !on) { cl.style.display = 'none'; }
+                    else if (esCanalT) { cl.style.display = ''; }
+                });
+            });
+            try {
+                const ghost = document.querySelectorAll('.mini-grafico-card');
+                void ghost;
+            } catch(e) {}
+        }
+        // ---------- Simplificar (piloto): muñones por línea ----------
+        // Todas las puertas activas (formen canal o no) muestran sus muñones
+        // sobre la traza (mismo grosor, largo LL/6*n, color planeta).
+        // Las que NO forman canal ocultan el tramo; las que SÍ lo conservan
+        // completo. Cada muñón lleva su borde debajo (ancho + 2, un poco más
+        // largo) en el color de la persona; los de tránsito solo llevan el
+        // borde gris, el muñón conserva el color de su planeta.
+        function simplOn() {
+            const el = document.getElementById('chk-simpl');
+            return !!el && el.checked;
+        }
+        let _LL_CACHE = null;
+        function simplLL() {
+            if (_LL_CACHE) return _LL_CACHE;
+            try {
+                const root = (typeof svgContainerA !== 'undefined' && svgContainerA) ? svgContainerA : document;
+                let min = Infinity;
+                root.querySelectorAll('[id^="tramo"]').forEach(t => {
+                    if (!/^tramo\d+$/.test(t.id || '')) return;
+                    let L = 0;
+                    try { L = t.getTotalLength(); } catch (e) {
+                        if ((t.tagName || '').toLowerCase() === 'line') {
+                            L = Math.hypot(parseFloat(t.getAttribute('x2')) - parseFloat(t.getAttribute('x1')),
+                                parseFloat(t.getAttribute('y2')) - parseFloat(t.getAttribute('y1')));
+                        }
+                    }
+                    if (L > 0 && L < min) min = L;
+                });
+                if (isFinite(min) && min > 0) _LL_CACHE = min;
+            } catch (e) {}
+            return _LL_CACHE || 20;
+        }
+        function datosExtraBox(box) {
+            // Dato de un gráfico extra (mini o clan) sin depender del orden
+            // en el DOM: minis por nombre de tarjeta, clan por referencia.
+            try {
+                if (box && box._clanEntry) return box._clanEntry.data || null;
+                if (box && box.classList && box.classList.contains('svg-box')) {
+                    const card = box.closest('.mini-grafico-card');
+                    if (card && card.dataset && card.dataset.nombre && typeof personasAdicionales !== 'undefined') {
+                        const it = personasAdicionales.find(x => x && x.nombre === card.dataset.nombre);
+                        if (it) return it.data || null;
+                    }
+                }
+            } catch (e) {}
+            return null;
+        }
+        function datosDeScopeSimpl(scope) {
+            try {
+                if (typeof svgContainerA !== 'undefined' && scope === svgContainerA) return (typeof dataPersonaA !== 'undefined') ? dataPersonaA : null;
+                if (typeof svgContainerB !== 'undefined' && scope === svgContainerB) return (typeof dataPersonaB !== 'undefined') ? dataPersonaB : null;
+                if (scope && scope.classList && scope.classList.contains('svg-box')) {
+                    try {
+                        const dx = (typeof datosExtraBox === 'function') ? datosExtraBox(scope) : null;
+                        if (dx) return dx;
+                    } catch (e0) {}
+                    try {
+                        const card = scope.closest('.mini-grafico-card');
+                        const idx = card ? [...card.parentNode.querySelectorAll('.mini-grafico-card')].indexOf(card) : -1;
+                        const it = (typeof personasAdicionales !== 'undefined' && idx >= 0) ? personasAdicionales[idx] : null;
+                        return it ? it.data : null;
+                    } catch (e1) {}
+                }
+            } catch (e) {}
+            return null;
+        }
+        function colorBaseSimpl(scope, g) {
+            const grisT = ((document.getElementById('color-transito') || {}).value) || '#B0BEC5';
+            try {
+                if (typeof svgContainerComp !== 'undefined' && scope === svgContainerComp) {
+                    const colors = (typeof getColors === 'function') ? getColors() : null;
+                    const fA = (typeof filtrarPuertas === 'function') ? filtrarPuertas((typeof dataPersonaA !== 'undefined') ? dataPersonaA : null) : null;
+                    const fB = (typeof filtrarPuertas === 'function') ? filtrarPuertas((typeof dataPersonaB !== 'undefined') ? dataPersonaB : null) : null;
+                    const visA = fA ? fA.vis : new Set(), visB = fB ? fB.vis : new Set();
+                    const hA = visA.has(g), hB = visB.has(g);
+                    if (hA && hB && colors) return { grad: [colorPuertaLado(g, 'a', colors, fA.incon, fA.consc), colorPuertaLado(g, 'b', colors, fB.incon, fB.consc)] };
+                    if (hA && colors) return { solid: colorPuertaLado(g, 'a', colors, fA.incon, fA.consc) };
+                    if (hB && colors) return { solid: colorPuertaLado(g, 'b', colors, fB.incon, fB.consc) };
+                    return { solid: grisT };
+                }
+                const FIJOS = (typeof COLORES_FIJOS !== 'undefined') ? COLORES_FIJOS : { incon: '#FF0000', consc: '#000000', mixto: '#00AA00' };
+                const f = (typeof filtrarPuertas === 'function') ? filtrarPuertas(datosDeScopeSimpl(scope)) : null;
+                if (f && f.vis.has(g)) {
+                    const ii = f.incon.has(g), cc = f.consc.has(g);
+                    return { solid: (ii && cc) ? FIJOS.mixto : (ii ? FIJOS.incon : FIJOS.consc) };
+                }
+            } catch (e) {}
+            return { solid: ((document.getElementById('color-transito') || {}).value) || '#B0BEC5' };
+        }
+        let _PARES_CANAL = null;
+        function paresCanal() {
+            if (_PARES_CANAL) return _PARES_CANAL;
+            _PARES_CANAL = [];
+            try {
+                const root = (typeof svgContainerA !== 'undefined' && svgContainerA) ? svgContainerA : document;
+                root.querySelectorAll('[id^="c"]').forEach(c => {
+                    const m = c.id.match(/^c(\d+)-(\d+)$/);
+                    if (m) _PARES_CANAL.push([parseInt(m[1], 10), parseInt(m[2], 10)]);
+                });
+            } catch (e) {}
+            return _PARES_CANAL;
+        }
+        function visPersonaScope(scope) {
+            try {
+                if (typeof svgContainerComp !== 'undefined' && scope === svgContainerComp) {
+                    const s = new Set();
+                    const fA = (typeof filtrarPuertas === 'function') ? filtrarPuertas((typeof dataPersonaA !== 'undefined') ? dataPersonaA : null) : null;
+                    const fB = (typeof filtrarPuertas === 'function') ? filtrarPuertas((typeof dataPersonaB !== 'undefined') ? dataPersonaB : null) : null;
+                    if (fA) fA.vis.forEach(x => s.add(x));
+                    if (fB) fB.vis.forEach(x => s.add(x));
+                    return s;
+                }
+                const f = (typeof filtrarPuertas === 'function') ? filtrarPuertas(datosDeScopeSimpl(scope)) : null;
+                return f ? f.vis : new Set();
+            } catch (e) { return new Set(); }
+        }
+        function puertasEnCanalSimpl(scope, setT) {
+            const en = new Set();
+            try {
+                const setP = visPersonaScope(scope);
+                // Solo cuenta canal natal (persona / A+B en compuesto).
+                // El tránsito aporta muñones pero nunca deja tramo completo.
+                paresCanal().forEach(([p1, p2]) => {
+                    if (setP.has(p1) && setP.has(p2)) { en.add(p1); en.add(p2); }
+                });
+            } catch (e) {}
+            return en;
+        }
+        function limpiarSimpl(scope) {
+            try {
+                scope.querySelectorAll('[data-simpl]').forEach(el => el.remove());
+                scope.querySelectorAll('linearGradient[id^="grad-comp-simpl-"]').forEach(el => el.remove());
+                scope.querySelectorAll('[data-simpl-oculto]').forEach(t => {
+                    // Restaurar solo si la puerta sigue activa en ESTE gráfico
+                    // (círculo visible). Si no, era residuo de otro usuario o de
+                    // un filtro: se mantiene oculta en vez de revivirla.
+                    let vis = true;
+                    try {
+                        const m = ((t.id || '').match(/^tramo(\d+)$/));
+                        const g = m ? parseInt(m[1], 10) : null;
+                        if (g && typeof gateToCircleMap !== 'undefined' && gateToCircleMap[g]) {
+                            let c = null;
+                            try { c = scope.querySelector('#' + CSS.escape(gateToCircleMap[g])); }
+                            catch (e2) { try { c = scope.querySelector('#' + gateToCircleMap[g]); } catch (e3) {} }
+                            if (c && c.style.visibility === 'hidden') vis = false;
+                        }
+                    } catch (e4) {}
+                    delete t.dataset.simplOculto;
+                    t.style.visibility = vis ? 'visible' : 'hidden';
+                });
+            } catch (e) {}
+        }
+        function aplicarSimpl() {
+            const todos = [];
+            try {
+                if (typeof svgContainerA !== 'undefined' && svgContainerA) todos.push(svgContainerA);
+                if (typeof svgContainerB !== 'undefined' && svgContainerB) todos.push(svgContainerB);
+                if (typeof svgContainerComp !== 'undefined' && svgContainerComp) todos.push(svgContainerComp);
+                document.querySelectorAll('.mini-grafico-card .svg-box, .clan-card .svg-box').forEach(b => todos.push(b));
+            } catch (e) {}
+            todos.forEach(s => { try { limpiarSimpl(s); } catch (e) {} });
+            if (!simplOn()) return;
+            const LL = simplLL();
+            const NS = 'http://www.w3.org/2000/svg';
+            const EXTRA_BORDE = 1.5;
+            // Ya no hace falta mover a mano (14, 29, 27): el desplazamiento se calcula solo.
+            const NUDGE = {};
+            // Distancia que el muñón debe correrse a lo largo del tramo para empezar justo
+            // en el borde del centro (y no escondido debajo de él). Usa la geometría real.
+            const MARGEN_CENTRO = 0.8; // aire extra tras el borde, en unidades del SVG
+            const insetCentro = (svg, tramo, L, delCirculo, cx, cy) => {
+                try {
+                    const centros = Array.from(svg.querySelectorAll('#Capa_de_centros > *'))
+                        .filter(el => typeof el.isPointInFill === 'function');
+                    const dentro = (el, x, y) => {
+                        const p = new DOMPoint(x, y);
+                        return el.isPointInFill(p) || el.isPointInStroke(p);
+                    };
+                    const centro = centros.find(el => dentro(el, cx, cy));
+                    if (!centro) return 0;
+                    const tope = Math.min(L, 40);
+                    for (let d = 0; d <= tope; d += 0.5) {
+                        const q = tramo.getPointAtLength(delCirculo ? d : L - d);
+                        if (!dentro(centro, q.x, q.y)) return d === 0 ? 0 : d + MARGEN_CENTRO;
+                    }
+                } catch (e) {}
+                return 0;
+            };
+            let setT = new Set();
+            try { const tr = (typeof getTransitoMapYSet === 'function') ? getTransitoMapYSet() : null; if (tr) setT = tr.set; } catch (e) {}
+            todos.forEach(scope => {
+                let svg = null;
+                try { svg = scope.querySelector('svg') || scope; } catch (e) { return; }
+                if (!svg) return;
+                const mp = (typeof planetasPorPuerta === 'function') ? planetasPorPuerta(scope) : {};
+                const enCanal = puertasEnCanalSimpl(scope, setT);
+                for (let g = 1; g <= 64; g++) {
+                    // Blindaje: ocultar primero el tramo largo si no forma canal
+                    // natal, sin depender de círculo/geometría (los `continue`
+                    // de abajo solo saltan los muñones, nunca el ocultado).
+                    try {
+                        const _tr0 = svg.querySelector('#tramo' + g);
+                        if (_tr0 && !enCanal.has(g)) {
+                            let _toca = false;
+                            try {
+                                const _sp = (typeof visPersonaScope === 'function') ? visPersonaScope(scope) : new Set();
+                                _toca = _sp.has(g) || (setT && setT.has(g));
+                            } catch (e2) {}
+                            if (_toca) {
+                                _tr0.dataset.simplOculto = '1';
+                                _tr0.style.visibility = 'hidden';
+                                svg.querySelectorAll('[data-transito-tramo="' + g + '"]').forEach(cl => { cl.dataset.simplOculto = '1'; cl.style.visibility = 'hidden'; });
+                            }
+                        }
+                    } catch (eH) {}
+                    const cid = (typeof gateToCircleMap !== 'undefined') ? gateToCircleMap[g] : null;
+                    if (!cid) continue;
+                    let circ = null;
+                    try { circ = svg.querySelector('#' + CSS.escape(cid)); } catch (e) { try { circ = svg.querySelector('#' + cid); } catch (e2) {} }
+                    if (!circ || circ.style.visibility === 'hidden') continue;
+                    const entries = mp[g] || [];
+                    if (!entries.length) continue;
+                    const tramo = svg.querySelector('#tramo' + g);
+                    if (!tramo) continue;
+                    let L = 0;
+                    try { L = tramo.getTotalLength(); } catch (e) {}
+                    if (!(L > 0)) continue;
+                    const cx = parseFloat(circ.getAttribute('cx')), cy = parseFloat(circ.getAttribute('cy'));
+                    if (isNaN(cx) || isNaN(cy)) continue;
+                    let p0 = null, p1 = null;
+                    try {
+                        p0 = tramo.getPointAtLength(0);
+                        p1 = tramo.getPointAtLength(Math.max(L - 0.01, 0));
+                    } catch (e) { continue; }
+                    const d0 = (p0.x - cx) * (p0.x - cx) + (p0.y - cy) * (p0.y - cy);
+                    const d1 = (p1.x - cx) * (p1.x - cx) + (p1.y - cy) * (p1.y - cy);
+                    const delCirculo = d0 <= d1;
+                    const eps = Math.min(2, L / 10 || 1);
+                    let tang = null;
+                    try {
+                        if (delCirculo) {
+                            const q = tramo.getPointAtLength(Math.min(eps, L));
+                            tang = { x: q.x - p0.x, y: q.y - p0.y };
+                        } else {
+                            const q = tramo.getPointAtLength(Math.max(L - eps, 0));
+                            tang = { x: p1.x - q.x, y: p1.y - q.y };
+                        }
+                    } catch (e) { continue; }
+                    const mod = Math.hypot(tang.x, tang.y);
+                    if (!(mod > 0)) continue;
+                    tang.x /= mod; tang.y /= mod;
+                    const norm = { x: -tang.y, y: tang.x };
+                    const n = entries.length;
+                    let W = 0;
+                    try { W = parseFloat(tramo.style.strokeWidth) || parseFloat(window.getComputedStyle(tramo).strokeWidth) || 0; } catch (e) {}
+                    if (!(W > 0)) W = 8.47;
+                    const totalW = n * W;
+                    const lineas = entries.map(e => parseInt(e.linea, 10) || 1);
+                    const completa = enCanal.has(g);
+                    if (!completa) {
+                        tramo.dataset.simplOculto = '1';
+                        tramo.style.visibility = 'hidden';
+                        svg.querySelectorAll('[data-transito-tramo="' + g + '"]').forEach(cl => { cl.dataset.simplOculto = '1'; cl.style.visibility = 'hidden'; });
+                    } else {
+                        try {
+                            svg.querySelectorAll('[data-transito-tramo="' + g + '"]').forEach(cl => { delete cl.dataset.simplOculto; cl.style.visibility = 'visible'; });
+                            let enPersona = false;
+                            if (typeof svgContainerComp !== 'undefined' && scope === svgContainerComp) {
+                                const fA = (typeof filtrarPuertas === 'function') ? filtrarPuertas((typeof dataPersonaA !== 'undefined') ? dataPersonaA : null) : null;
+                                const fB = (typeof filtrarPuertas === 'function') ? filtrarPuertas((typeof dataPersonaB !== 'undefined') ? dataPersonaB : null) : null;
+                                enPersona = !!(fA && fA.vis.has(g)) || !!(fB && fB.vis.has(g));
+                            } else {
+                                const f = (typeof filtrarPuertas === 'function') ? filtrarPuertas(datosDeScopeSimpl(scope)) : null;
+                                enPersona = !!(f && f.vis.has(g));
+                            }
+                            if (enPersona) { delete tramo.dataset.simplOculto; tramo.style.visibility = 'visible'; }
+                        } catch (e) {}
+                    }
+                    const base = colorBaseSimpl(scope, g);
+                    const grisT = ((document.getElementById('color-transito') || {}).value) || '#B0BEC5';
+                    const nu = NUDGE[g] || [0, 0];
+                    const inset = insetCentro(svg, tramo, L, delCirculo, cx, cy);
+                    const mkClon = (off, S, color, ancho, ini) => {
+                        ini = ini || 0;
+                        const cl = tramo.cloneNode(false);
+                        cl.removeAttribute('id');
+                        cl.setAttribute('data-simpl', '1');
+                        cl.setAttribute('data-gate', String(g));
+                        cl.style.visibility = 'visible';
+                        cl.style.stroke = color;
+                        if (ancho) cl.style.strokeWidth = String(ancho);
+                        cl.style.strokeLinecap = 'butt';
+                        cl.style.strokeDasharray = S + ' ' + (L + 10);
+                        cl.style.strokeDashoffset = delCirculo ? String(-ini) : String(S - L + ini);
+                        cl.style.fill = 'none';
+                        cl.style.pointerEvents = 'visiblePainted';
+                        cl.style.opacity = '';
+                        cl.setAttribute('transform', 'translate(' + (norm.x * off + nu[0]) + ' ' + (norm.y * off + nu[1]) + ')');
+                        return cl;
+                    };
+                    let pos = -totalW / 2;
+                    const maxLinea = Math.max(...lineas);
+                    const plMax = ((entries.find(x => parseInt(x.linea, 10) === maxLinea) || {}).planeta) || '';
+                    entries.forEach((e, i) => {
+                        const S = LL / 6 * lineas[i];
+                        // Corrimiento hacia afuera del centro, sin pasarse del largo del tramo.
+                        const ini = Math.min(inset, Math.max(0, L - S - EXTRA_BORDE));
+                        const off = pos + W / 2;
+                        pos += W;
+                        const esT = !!e.transito;
+                        const colorBorde = esT ? grisT : (e.stroke || base.solid || '#000000');
+                        const bl = mkClon(off, S + EXTRA_BORDE, colorBorde, W + 2, ini);
+                        bl.setAttribute('data-simpl-base', String(g));
+                        bl.setAttribute('data-simpl-gate', String(g));
+                        bl.setAttribute('data-simpl-linea', String(lineas[i]));
+                        bl.setAttribute('data-simpl-planeta', e.planeta || '');
+                        if (!esT && base.grad) {
+                            try { pintarBicolor(bl, scope, 'simpl-base-' + g + '-' + i, base.grad[0], base.grad[1]); } catch (e) {}
+                            bl.style.strokeDasharray = (S + EXTRA_BORDE) + ' ' + (L + 10);
+                            bl.style.strokeDashoffset = delCirculo ? String(-ini) : String(S + EXTRA_BORDE - L + ini);
+                        }
+                        tramo.parentNode.appendChild(bl);
+                        const cl = mkClon(off, S, e.fill || '#000000', null, ini);
+                        cl.setAttribute('data-simpl-gate', String(g));
+                        cl.setAttribute('data-simpl-linea', String(lineas[i]));
+                        cl.setAttribute('data-simpl-planeta', e.planeta || '');
+                        tramo.parentNode.appendChild(cl);
+                    });
+                }
+            });
+            try { window._simplDebug = { ll: LL, setT: [...setT].sort((a, b) => a - b) }; } catch (e) {}
+        }
+
+        function actualizarSVGIndividual(svgScope, data, colorIncon, colorConsc, colorMixto) {
+            const set_todas = new Set(data.todas_puertas);
+            // Filtros de estudio: se aplican a ambos gráficos individuales (A y B).
+            // Paneles, _canalesA/B, tipo/autoridad y análisis siguen con datos completos.
+            const conj = filtrarPuertas(data);
+            const setInconVis = conj.incon;
+            const setConscVis = conj.consc;
+            const setVis = conj.vis;
+            const hayFiltroA = conj.filtrado;
+            const ff = hayFiltroA ? leerFiltrosA() : null;
+            for (let i = 1; i <= 64; i++) {
+                const tramo = svgScope.querySelector(`#tramo${i}`);
+                if (tramo) {
+                    tramo.style.visibility = 'hidden';
+                    limpiarEstiloTramo(tramo);
+                }
+                const circleId = gateToCircleMap[i];
+                const circle = svgScope.querySelector(`#${circleId}`);
+                const isActive = hayFiltroA ? setVis.has(i) : set_todas.has(i);
+                if (circle) {
+                    circle.style.visibility = isActive ? 'visible' : 'hidden';
+                    limpiarEstiloCirculo(circle);
+                }
+                setGateTextState(svgScope, i, isActive);
+            }
+            // Pintar respetando el filtro: la mixta con un solo color ON se pinta
+            // con el color restante (no con el mixto).
+            setInconVis.forEach(puerta => {
+                if (setConscVis.has(puerta)) return; // mixta visible: se pinta abajo
+                const tramo = svgScope.querySelector(`#tramo${puerta}`);
+                if (tramo) {
+                    tramo.style.stroke = colorIncon;
+                    tramo.style.visibility = 'visible';
+                }
+            });
+            setConscVis.forEach(puerta => {
+                if (setInconVis.has(puerta)) return; // mixta visible: se pinta abajo
+                const tramo = svgScope.querySelector(`#tramo${puerta}`);
+                if (tramo) {
+                    tramo.style.stroke = colorConsc;
+                    tramo.style.visibility = 'visible';
+                }
+            });
+            setInconVis.forEach(puerta => {
+                if (!setConscVis.has(puerta)) return;
+                const tramo = svgScope.querySelector(`#tramo${puerta}`);
+                if (tramo) {
+                    const soloIncon = hayFiltroA && !ff.negras;
+                    const soloConsc = hayFiltroA && !ff.rojas;
+                    tramo.style.stroke = soloIncon ? colorIncon : (soloConsc ? colorConsc : colorMixto);
+                    tramo.style.visibility = 'visible';
+                }
+            });
+            const canalesCompletos = [];
+            const canalesDisplay = [];
+            // Modo estudio: si queda un único circuito ON, se muestran TODOS sus
+            // canales al 50% aunque la persona no los tenga.
+            const estudio = circuitoEstudioActivo();
+            svgScope.querySelectorAll('[id^="c"]').forEach(canal => {
+                const m = canal.id.match(/^c(\d+)-(\d+)$/);
+                if (!m) return;
+                const p1 = parseInt(m[1], 10);
+                const p2 = parseInt(m[2], 10);
+                const completo = set_todas.has(p1) && set_todas.has(p2);
+                const completoVis = setVis.has(p1) && setVis.has(p2);
+                const activoDisplay = hayFiltroA ? completoVis : completo;
+                const esEstudio = !!(estudio && !activoDisplay &&
+                    estudioDeCanal(normCanalKey(`${p1}-${p2}`)) === estudio);
+                if (esEstudio) canal.dataset.estudio = '1';
+                else delete canal.dataset.estudio;
+                setCanalEstado(canal, activoDisplay);
+                if (completo) canalesCompletos.push(`${p1}-${p2}`);
+                if (completoVis) canalesDisplay.push(`${p1}-${p2}`);
+            });
+            const canalesGraf = hayFiltroA ? canalesDisplay : canalesCompletos;
+            const side = (svgScope === svgContainerA) ? 'a' : 'b';
+            const definidos = actualizarCentros(svgScope, canalesGraf, set_todas);
+            // Tipo/autoridad y panel lateral: siempre con datos COMPLETOS (la persona
+            // real no cambia; el filtro es solo ayuda visual de estudio).
+            const definidosFull = hayFiltroA ? (() => {
+                const setC = new Set(canalesCompletos.map(normCanalKey));
+                const d = new Set();
+                try {
+                    Object.entries(CENTRO_CANALES).forEach(([id, lista]) => {
+                        if (lista.some(c => setC.has(normCanalKey(c)))) d.add(id);
+                    });
+                } catch (e) { return definidos; }
+                return d;
+            })() : definidos;
+            // _centrosDefinidos siempre describe a la persona REAL (completa): el
+            // compuesto, la compatibilidad y el timeline leen esto y no deben
+            // alterarse por un filtro visual de estudio. El pintado del SVG ya
+            // quedó con los centros filtrados arriba.
+            if (hayFiltroA) svgScope._centrosDefinidos = definidosFull;
+            const ta = calcularTipoAutoridad(canalesCompletos, definidosFull);
+            pintarAuraTipo(svgScope, ta, canalesCompletos, definidosFull);
+            const sub = document.getElementById(side === 'a' ? 'subtitulo-grafico-a' : 'subtitulo-grafico-b');
+            if (sub) {
+                const baseSub = `${ta.tipo} — Autoridad ${ta.autoridad}` + (data.perfil ? ` — Perfil ${data.perfil}` : '') +
+                    (hayFiltroA ? ` — filtrado (${setVis.size}/${set_todas.size})` : '');
+                let est = estrategiaTexto(ta.tipo, ta.autoridad);
+                sub.innerHTML = '';
+                sub.appendChild(document.createTextNode(baseSub));
+                if (est) {
+                    sub.appendChild(document.createElement('br'));
+                    const sp = document.createElement('span');
+                    sp.style.cssText = 'font-size:11px;font-weight:400;color:var(--muted)';
+                    sp.innerHTML = 'Estrategia: ' + est;
+                    sub.appendChild(sp);
+                }
+            }
+            try { actualizarNotaFiltrosA(setVis.size, set_todas.size, side); } catch (e) {}
+            // Panel lateral correlacionado con el gráfico: mismas fuentes
+            // (canales leídos del SVG + centros derivados de esos canales + puertas activas).
+            // Detalles protegidos: si uno falla, el gráfico ya quedó pintado arriba.
+            try { mostrarCentrosDetalle(side, definidosFull); } catch (err) { console.error('mostrarCentrosDetalle:', err); }
+            try { mostrarCanalesDetalle(side, canalesCompletos); } catch (err) { console.error('mostrarCanalesDetalle:', err); }
+            try { mostrarPuertasDetalle(side, data); } catch (err) { console.error('mostrarPuertasDetalle:', err); }
+            if (side === 'a') {
+                window._canalesA = [...new Set(canalesCompletos.map(normCanalKey))];
+                try { mostrarCondicionamientos(data); } catch (err) { console.error('mostrarCondicionamientos:', err); }
+                try { mostrarCompatibilidades(data); } catch (err) { console.error('mostrarCompatibilidades:', err); }
+            } else if (side === 'b') {
+                window._canalesB = [...new Set(canalesCompletos.map(normCanalKey))];
+            }
+            try { marcarTransitoEn(svgScope); } catch (err) { console.error('marcarTransitoEn:', err); }
+            try{ actualizarCapasLineasEmojis(); }catch(e){}
+        }
+
+        const CENTRO_CANALES = {
+            'Raiz':     ['18-58','38-28','54-32','53-42','60-3','52-9','19-49','39-55','41-30'],
+            'Sacro':    ['5-15','14-2','29-46','59-6','9-52','3-60','42-53','27-50','34-57','34-10','34-20'],
+            'Bazo':     ['48-16','57-34','57-20','57-10','44-26','50-27','32-54','28-38','18-58'],
+            'Plexo':    ['6-59','37-40','49-19','55-39','30-41','36-35','22-12'],
+            'Ego':      ['21-45','40-37','26-44','51-25'],
+            'G':        ['1-8','2-14','7-31','13-33','10-20','10-34','10-57','25-51','15-5','46-29'],
+            'Garganta': ['16-48','20-57','20-34','20-10','31-7','8-1','33-13','35-36','12-22','45-21','62-17','23-43','56-11'],
+            'Ajna':     ['11-56','24-61','43-23','47-64','4-63','17-62'],
+            'Corona':   ['61-24','63-4','64-47']
+        };
+
+        // Canal normalizado -> los dos centros que conecta (para tipo/autoridad).
+        const MOTORES = ['Sacro', 'Ego', 'Plexo', 'Raiz'];
+        const CANAL_CENTROS = {};
+        Object.entries(CENTRO_CANALES).forEach(([centro, lista]) => {
+            lista.forEach(c => {
+                const k = normCanalKey(c);
+                if (!CANAL_CENTROS[k]) CANAL_CENTROS[k] = [];
+                if (!CANAL_CENTROS[k].includes(centro)) CANAL_CENTROS[k].push(centro);
+            });
+        });
+
+        // ===== Temas numéricos de conexión (lectura del vínculo) =====
+        // Clave = `${centros definidos en el compuesto}-${centros abiertos}`.
+        // Visible: clave + nombre ("8-1 A divertirse"). Tooltip: glosa sola + energía de pareja.
+        const TEMAS_CONEXION = {
+            '9-0': { nombre: 'Vínculo cerrado', en: 'Nowhere to Go',
+                desc: 'se definen los 9 centros en la pareja. Es una conexión sumamente envolvente donde no hay espacio para terceros: en su versión sana es una unión sólida, y en el No-Ser o en relaciones disfuncionales genera un encierro del que cuesta un enorme esfuerzo salir.' },
+            '8-1': { nombre: 'A divertirse', en: 'Have Some Fun',
+                desc: 'ese centro abierto compartido actúa como una ventana hacia el mundo para explorar e investigar juntos.' },
+            '7-2': { nombre: 'Trabajo por hacer', en: 'Work To Do',
+                desc: 'es un vínculo completo pero que exige independencia: es fundamental respetar las actividades y espacios propios de cada uno.' },
+            '6-3': { nombre: 'Mejor estar libres', en: 'Better To Be Free',
+                desc: 'requiere mucha libertad y tiempo a solas.' },
+            '5-4': { nombre: 'Mundos propios', en: 'Not a Relationship Anymore',
+                desc: 'mucha diversidad e intereses contrapuestos: puede ser un canal de constante descubrimiento o de fricción si falta tolerancia.' }
+        };
+        // Fallback para parejas con menos de 5 centros definidos (p.ej. Reflector).
+        const TEMA_FUERA = { nombre: 'Mayoría abierta', en: 'Mostly undefined',
+            desc: 'la mayoría de los centros quedan abiertos: el vínculo aporta mucho más de lo que ninguno trae definido.' };
+        // Los 5 temas van de 9-0 a 5-4; de ahí hacia abajo es fallback.
+        // gatesA/gatesB son opcionales pero hacen falta para la energía de pareja: un canal
+        // se completa por PUERTAS, no por centros definidos (un centro puede estar abierto y
+        // aun así tener el otro extremo del canal cerrado por la otra persona).
+        function temaConexion(defsA, defsB, gatesA, gatesB) {
+            if (!defsA || !defsB) return null;
+            const def = new Set([...defsA, ...defsB]);
+            const nDef = def.size;
+            const nAb = 9 - nDef;
+            const clave = `${nDef}-${nAb}`;
+            const t = TEMAS_CONEXION[clave] || TEMA_FUERA;
+            // Canales que ninguno de los dos tiene completos pero que se cierran juntos.
+            let relacionales = 0;
+            const centrosRelacionales = new Set();
+            if (gatesA && gatesB) {
+                const sA = new Set(gatesA), sB = new Set(gatesB);
+                Object.entries(CANAL_CENTROS).forEach(([canal, pares]) => {
+                    if (pares.length !== 2) return;
+                    const [g1, g2] = canal.split('-').map(Number);
+                    if (isNaN(g1) || isNaN(g2)) return;
+                    const enA = sA.has(g1) && sA.has(g2);
+                    const enB = sB.has(g1) && sB.has(g2);
+                    const enPareja = (sA.has(g1) || sB.has(g1)) && (sA.has(g2) || sB.has(g2));
+                    if (enPareja && !enA && !enB) {
+                        relacionales++;
+                        centrosRelacionales.add(pares[0]);
+                        centrosRelacionales.add(pares[1]);
+                    }
+                });
+            }
+            const soloA = [...defsA].filter(c => !defsB.has(c)).length;
+            const soloB = [...defsB].filter(c => !defsA.has(c)).length;
+            const soloALista = [...defsA].filter(c => !defsB.has(c));
+            const soloBLista = [...defsB].filter(c => !defsA.has(c));
+            const enComunLista = [...defsA].filter(c => defsB.has(c));
+            // Centros que NINGUNO de los dos define y que se definen solo en la pareja:
+            // hay que mirar los centros que tocan los canales relacionales, no la unión
+            // (en la unión están siempre los de alguno de los dos, así que filtrar ahí daba 0).
+            const centrosParejaLista = [...centrosRelacionales].filter(c => !defsA.has(c) && !defsB.has(c));
+            const centrosPareja = centrosParejaLista.length;
+            return { clave, nDef, nAb, tema: t, relacionales, soloA, soloB, centrosPareja, centrosParejaLista,
+                     soloALista, soloBLista, enComunLista,
+                     texto: `${nDef}-${nAb} ${t.nombre}` };
+        }
+
+        // La cuenta abierta: qué centros forman el número del tema.
+        // "8 definidos = 5 en común + 1 solo P1 (Bazo) + 2 solo P2 (Garganta, Ajna)".
+        // Los que se encienden solo en la pareja van aparte: no están en el 8-1 porque
+        // ninguno de los dos los trae definidos (se suman al dibujo, no al tema).
+        function textoSumaTema(tc) {
+            if (!tc) return '';
+            const comun = tc.enComunLista || [];
+            const sA = tc.soloALista || [];
+            const sB = tc.soloBLista || [];
+            const par = tc.centrosParejaLista || [];
+            let t = `${tc.nDef} definidos = ${comun.length} en común` +
+                (comun.length ? ` (${comun.join(', ')})` : '') +
+                ` + ${sA.length} solo P1` + (sA.length ? ` (${sA.join(', ')})` : '') +
+                ` + ${sB.length} solo P2` + (sB.length ? ` (${sB.join(', ')})` : '');
+            if (par.length) t += ` · +${par.length} solo en pareja (${par.join(', ')})`;
+            return t;
+        }
+
+        // Texto largo del tema: glosa primero (lo que se ve al pasar el mouse) y después
+        // la energía de pareja. Es el mismo texto en el compuesto y en cada fila del índice.
+        const ADVERTENCIA_ENERGIA =
+            'Advertencia: engancharse a la energía de la relación. Disfrutá la vitalidad, la seguridad o la claridad que se enciende en pareja como un regalo temporal mientras dura el encuentro, sin volverte dependiente ni perder la raíz individual.';
+        function textoTemaLargo(tc) {
+            if (!tc) return '';
+            const rel = tc.centrosParejaLista || [];
+            let t = tc.tema.desc;
+            // La cuenta abierta, en el title: qué centros forman el número del tema.
+            t += `\n\nLa cuenta: ${textoSumaTema(tc)}.`;
+            t += `\n\nEnergía de pareja: ${tc.relacionales} canal${tc.relacionales === 1 ? '' : 'es'} que ninguno de los dos tiene completos se cierra${tc.relacionales === 1 ? '' : 'n'} junto${tc.relacionales === 1 ? '' : 's'}`;
+            t += rel.length
+                ? ` y define ${rel.length} centro${rel.length === 1 ? '' : 's'} que ninguno de los dos tiene: ${rel.join(', ')}.`
+                : '.';
+            t += ` Solo P1: ${tc.soloA} centro${tc.soloA === 1 ? '' : 's'}. Solo P2: ${tc.soloB} centro${tc.soloB === 1 ? '' : 's'}.`;
+            t += `\n\n${ADVERTENCIA_ENERGIA}`;
+            return t;
+        }
+
+        // Definición = bloques separados de centros definidos. Mismo criterio que
+        // app.py _hd_definicion: la adyacencia sale de los canales COMPLETOS de la
+        // persona (no de cualquier canal posible entre dos centros definidos).
+        const DEFINICION_DESC = {
+            'ninguna':   'Sin centros definidos (Reflector).',
+            'única':     'Todos los centros definidos conectados en una sola red.',
+            'dividida':  'Dos bloques separados de centros definidos.',
+            'triple':    'Tres bloques separados de centros definidos.',
+            'cuádruple': 'Cuatro bloques separados de centros definidos.'
+        };
+        function definicionDe(defs, canales) {
+            if (!defs || !defs.size) return { tipo: 'ninguna', bloques: 0, desc: DEFINICION_DESC['ninguna'] };
+            const adj = {};
+            const enlazar = (x, y) => {
+                if (!defs.has(x) || !defs.has(y)) return;
+                (adj[x] = adj[x] || []).push(y);
+                (adj[y] = adj[y] || []).push(x);
+            };
+            (canales || []).forEach(k => {
+                const pares = CANAL_CENTROS[normCanalKey(k)] || [];
+                if (pares.length !== 2) return;
+                enlazar(pares[0], pares[1]);
+            });
+            const vis = new Set();
+            let bloques = 0;
+            defs.forEach(c => {
+                if (vis.has(c)) return;
+                bloques++;
+                const cola = [c]; vis.add(c);
+                while (cola.length) {
+                    const n = cola.pop();
+                    (adj[n] || []).forEach(v => { if (!vis.has(v)) { vis.add(v); cola.push(v); } });
+                }
+            });
+            const tipo = bloques === 1 ? 'única' : bloques === 2 ? 'dividida' : bloques === 3 ? 'triple' : 'cuádruple';
+            return { tipo, bloques, desc: DEFINICION_DESC[tipo] };
+        }
+
+        // Score de definición 0..10: la definición partida es la que aprende y enseña cómo
+        // funciona un vínculo; la única (todo en una red) opera como "no necesito a
+        // nadie" y no siente la completitud que aporta el otro.
+        function scoreDefinicion(defA, defB) {
+            if (!defA || !defB) return null;
+            if (defA === 'ninguna' || defB === 'ninguna') return 7;   // Reflector: toma del ambiente
+            const partida = t => t === 'dividida' || t === 'triple' || t === 'cuádruple';
+            const n = (partida(defA) ? 1 : 0) + (partida(defB) ? 1 : 0);
+            return n === 2 ? 10 : n === 1 ? 8 : 4;                     // ambas únicas = 4
+        }
+        // Matriz de armonía de perfiles: mismas líneas en consciente e inconsciente.
+        const PERFILES_ARMONICOS = new Set(['1/3|4/6','4/6|1/3','2/4|5/1','5/1|2/4','3/5|6/2','6/2|3/5','1/4|4/1','4/1|1/4','2/5|5/2','5/2|2/5','3/6|6/3','6/3|3/6']);
+        const ARMONIA_TIPOS = {
+            '1/3': 'el que explora y enfrenta desafíos', '4/6': 'el que busca estabilidad en relaciones',
+            '2/4': 'el que florece cuando lo llaman', '5/1': 'el que se reserva pero impone su influencia',
+            '2/5': 'el que impondrá su influencia',   '5/2': 'el que es naturalmente talentoso, llamado a participar',
+            '3/5': 'el que transforma dificultades en sabiduría', '6/2': 'el que vive el ensayo y error y lidera con ejemplo',
+            '3/6': 'el que transforman dificultades en sabiduría', '6/3': 'el que vive el ensayo y error intensamente',
+            '1/4': 'el que entiende a la gente', '4/1': 'el que entiende a la gente'
+        };
+        // Armónico no es "mejor": es una combinación de Notice/Approvals que se
+        // complementan. Se muestra como etiqueta, nunca como puntaje del índice.
+        function armoniaPerfil(pA, pB) {
+            if (!pA || !pB) return null;
+            if (!PERFILES_ARMONICOS.has(`${pA}|${pB}`)) return null;
+            return {
+                par: `${pA}↔${pB}`,
+                texto: `${pA}↔${pB}`,
+                desc: `${pA} (${ARMONIA_TIPOS[pA] || '—'}) con ${pB} (${ARMONIA_TIPOS[pB] || '—'}). Combinación de Notice y Approvals que se complementan: uno aporta lo que al otro le falta para entender a la gente y conectar. No es "mejor": es un potencial a cultivar.`
+            };
+        }
+
+        function gargantaConectadaAMotor(canalesCompletos, definidos) {
+            const adj = {};
+            canalesCompletos.forEach(c => {
+                const par = CANAL_CENTROS[normCanalKey(c)] || [];
+                if (par.length !== 2) return;
+                const [x, y] = par;
+                if (!definidos.has(x) || !definidos.has(y)) return;
+                (adj[x] = adj[x] || []).push(y);
+                (adj[y] = adj[y] || []).push(x);
+            });
+            const vis = new Set(['Garganta']);
+            const cola = ['Garganta'];
+            while (cola.length) {
+                const n = cola.pop();
+                if (MOTORES.includes(n)) return true;
+                (adj[n] || []).forEach(v => { if (!vis.has(v)) { vis.add(v); cola.push(v); } });
+            }
+            return false;
+        }
+
+        function calcularTipoAutoridad(canalesCompletos, definidos) {
+            const motorThroat = gargantaConectadaAMotor(canalesCompletos, definidos);
+            let tipo;
+            if (definidos.has('Sacro') && motorThroat) tipo = 'Generador Manifestante';
+            else if (definidos.has('Sacro')) tipo = 'Generador';
+            else if (motorThroat) tipo = 'Manifestador';
+            else if (definidos.size === 0) tipo = 'Reflector';
+            else tipo = 'Proyector';
+            let autoridad = 'Lunar';
+            if (definidos.has('Plexo')) autoridad = 'Emocional';
+            else if (definidos.has('Sacro')) autoridad = 'Sacral';
+            else if (definidos.has('Bazo')) autoridad = 'Esplénica';
+            else if (definidos.has('Ego')) autoridad = 'del Ego';
+            else if (definidos.has('G')) autoridad = 'Autoproyectada';
+            else if (definidos.has('Ajna')) autoridad = 'Mental';
+            return { tipo, autoridad };
+        }
+
+        // Puertas únicas de cada centro (sin importar canal ni cuántos planetas la traen).
+        const PUERTA_CENTRO = {
+            'Corona':   [61, 63, 64],
+            'Ajna':     [4, 11, 17, 24, 43, 47],
+            'Garganta': [8, 12, 16, 20, 23, 31, 33, 35, 45, 56, 62],
+            'G':        [1, 2, 7, 10, 13, 15, 25, 46],
+            'Ego':      [21, 26, 40, 51],
+            'Plexo':    [6, 22, 30, 36, 37, 49, 55],
+            'Sacro':    [3, 5, 9, 14, 27, 29, 34, 42, 59],
+            'Bazo':     [18, 28, 32, 44, 48, 50, 57],
+            'Raiz':     [19, 38, 39, 41, 52, 53, 54, 58, 60]
+        };
+
+        // Estrategia por Tipo para la gráfica (línea bajo el subtítulo,
+        // misma letra que la nota del gráfico compuesto: 11px normal).
+        // La autoridad Emocional integra "tras completar la ola emocional".
+        function estrategiaTexto(tipo, autoridad) {
+            const emo = (autoridad === 'Emocional');
+            if (tipo === 'Generador') {
+                return 'No iniciar. Esperar y <b>Responder</b>; si el cuerpo dice Sí, actuar'
+                    + (emo ? ' tras completar la ola emocional.' : '.');
+            }
+            if (tipo === 'Generador Manifestante') {
+                return 'No iniciar. Esperar y si el cuerpo dice Sí'
+                    + (emo ? ', tras completar la ola emocional' : '')
+                    + ': <b>Informar</b> e iniciar la acción.';
+            }
+            if (tipo === 'Manifestador') return 'Estrategia para evitar resistencia: <b>informar</b> antes de actuar.';
+            if (tipo === 'Proyector') return 'No iniciar. Esperar <b>invitación</b> y reconocimiento.';
+            if (tipo === 'Reflector') return '<b>Esperar</b> el ciclo lunar (28 días).';
+            return '';
+        }
+
+        // Aureolas de Tipo: brillo difuminado sobre el centro (como el dorado
+        // S/NS). Sacro rojo y ancho en Generadores; Garganta verde en
+        // Manifestador; el Generador Manifestante lleva rojo en Sacro (su
+        // naturaleza) + marca verde chica en el canal motor→Garganta.
+        // Aureola de la Garganta: cuadrado difuminado que sigue la forma del
+        // centro (sin radio). Contenido para no correrse a los canales.
+        function agregarAura(svgScope, centroId, clase) {
+            try {
+                const svg = svgScope.querySelector('svg');
+                const centro = svgScope.querySelector('#' + centroId);
+                if (!svg || !centro) return;
+                const clon = centro.cloneNode(true);
+                clon.removeAttribute('id');
+                clon.setAttribute('data-aura-disco', '1');
+                clon.classList.add(clase);
+                clon.style.pointerEvents = 'none';
+                const primeraCapa = Array.from(svg.children).find(el => el.tagName && el.tagName.toLowerCase() === 'g');
+                svg.insertBefore(clon, primeraCapa || svg.firstChild);
+            } catch (e) {}
+        }
+        function haloRedondoGarganta(svgScope) {
+            agregarAura(svgScope, 'Garganta', 'aura-garganta');
+        }
+        function pintarAuraTipo(svgScope, ta, canalesCompletos, definidosFull) {
+            try {
+                svgScope.querySelectorAll('.aura-sacro').forEach(el => el.classList.remove('aura-sacro'));
+                svgScope.querySelectorAll('.aura-garganta').forEach(el => el.classList.remove('aura-garganta'));
+                svgScope.querySelectorAll('[data-aura-disco]').forEach(el => el.remove());
+                svgScope.querySelectorAll('.canal-motor-garganta').forEach(el => el.classList.remove('canal-motor-garganta'));
+            } catch (e) {}
+            if (!ta) return;
+            try {
+                if (ta.tipo === 'Generador' || ta.tipo === 'Generador Manifestante') {
+                    agregarAura(svgScope, 'Sacro', 'aura-sacro');
+                }
+                if (ta.tipo === 'Manifestador') {
+                    haloRedondoGarganta(svgScope);
+                }
+                if (ta.tipo === 'Generador Manifestante') {
+                    // Aureola amarilla en la Garganta (no en los canales).
+                    haloRedondoGarganta(svgScope);
+                }
+            } catch (e) {}
+        }
+
+        function actualizarCentros(svgScope, canalesActivos, puertasPersona) {
+            const setCanales = new Set(canalesActivos.map(c => {
+                const parts = c.split('-').map(Number).sort((a,b) => a-b);
+                return parts.join('-');
+            }));
+            const setPuertas = new Set([...(puertasPersona || [])].map(Number));
+            const definidos = new Set();
+            Object.entries(CENTRO_CANALES).forEach(([centroId, canalesDeCentro]) => {                const elem = svgScope.querySelector(`#${centroId}`);
+                const tieneCanal = canalesDeCentro.some(canal => {
+                    const parts = canal.split('-').map(Number).sort((a,b) => a-b);
+                    return setCanales.has(parts.join('-'));
+                });
+                if (tieneCanal) definidos.add(centroId);
+                if (!elem) return;
+                // Outline graduado por nº de puertas ÚNICAS definidas del centro
+                // (0 → gris 50%/1px · 7 o más → negro 100%/5px, interpolado).
+                const puertasCentro = PUERTA_CENTRO[centroId] || [];
+                let n = 0;
+                puertasCentro.forEach(g => { if (setPuertas.has(g)) n++; });
+                if (n > 7) n = 7;
+                const gris = Math.round(128 - 128 * n / 7);
+                const hex = '#' + gris.toString(16).padStart(2, '0').repeat(3);
+                const grosor = (1 + 4 * n / 7).toFixed(1) + 'px';
+                if (tieneCanal) {
+                    elem.style.fill = '';
+                } else {
+                    elem.style.fill = 'white';
+                }
+                elem.style.stroke = hex;
+                elem.style.strokeWidth = grosor;
+            });
+            svgScope._centrosDefinidos = definidos;
+            // Recolorear números de puertas inactivas: gris claro sobre centros
+            // blancos (indefinidos) y gris 50% (#808080) sobre centros con color
+            // (definidos), para que se vean sobre el fondo coloreado.
+            try {
+                for (let g = 1; g <= 64; g++) {
+                    let centroId = null;
+                    for (const [cid, gates] of Object.entries(PUERTA_CENTRO)) {
+                        if ((gates || []).indexOf(g) !== -1) { centroId = cid; break; }
+                    }
+                    const circleId = (typeof gateToCircleMap !== 'undefined') ? gateToCircleMap[g] : null;
+                    const circle = circleId ? svgScope.querySelector('#' + circleId) : null;
+                    const inactivo = !circle || circle.style.visibility === 'hidden' ||
+                        circle.style.display === 'none' || circle.style.opacity === '0';
+                    if (!inactivo) continue;
+                    const elem = centroId ? svgScope.querySelector('#' + centroId) : null;
+                    let centroConColor = false;
+                    let fillCentro = '';
+                    if (elem) {
+                        fillCentro = String(elem.style.fill || '').trim();
+                        if (fillCentro === '' || fillCentro.toLowerCase() === 'none') {
+                            centroConColor = true;
+                            fillCentro = (typeof CENTRO_COLOR !== 'undefined' && CENTRO_COLOR[centroId]) || '';
+                        } else if (fillCentro.toLowerCase() !== 'white' && fillCentro.toLowerCase() !== '#ffffff' && fillCentro.toLowerCase() !== 'rgb(255, 255, 255)') {
+                            centroConColor = true;
+                        }
+                    }
+                    // Si el centro está en el set de definidos, también tiene color.
+                    if (centroId && definidos && definidos.has(centroId)) {
+                        centroConColor = true;
+                        if (!fillCentro) fillCentro = (typeof CENTRO_COLOR !== 'undefined' && CENTRO_COLOR[centroId]) || '';
+                    }
+                    let color, opacidad;
+                    if (!centroConColor) {
+                        color = '#888888';
+                        opacidad = '0.4';
+                    } else {
+                        // Gris oscuro, sin transparencia, para que se vea sobre el color.
+                        color = '#424242';
+                        opacidad = '1';
+                    }
+                    svgScope.querySelectorAll(`[id="puerta_${g}_texto"], [id="pueta_${g}_texto"]`).forEach(p => {
+                        p.style.opacity = opacidad;
+                        p.style.fill = color;
+                    });
+                }
+            } catch (e) {}
+            return definidos;
+        }
+
+        function limpiarAnimaciones(svgScope) {
+            svgScope.classList.remove('resaltando-canal');
+            svgScope.querySelectorAll('.tenue, .canal-focus').forEach(el => {
+                el.classList.remove('tenue', 'canal-focus');
+            });
+            svgScope.querySelectorAll('.anim-compania, .anim-electro-a, .anim-electro-b, .anim-dominio-canal, .anim-dominio-puerta, .anim-compromiso-puerta').forEach(el => {
+                el.classList.remove('anim-compania', 'anim-electro-a', 'anim-electro-b', 'anim-dominio-canal', 'anim-dominio-puerta', 'anim-compromiso-puerta');
+                if (/^c\d+-\d+$/.test(el.id)) {
+                    el.style.opacity = opacidadBaseCanal(el);
+                } else {
+                    el.style.opacity = '';
+                }
+            });
+        }
+
+        function primeraLineaCanal(desc) {
+            if (!desc) return '';
+            const partes = String(desc).split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+            if (partes.length) return partes[0];
+            return String(desc).trim().split('\n')[0].trim();
+        }
+        // Contacto son dos personas: pluraliza Te/vos/tu/voseo/reflexivos.
+        function adaptarContactoLos(txt) {
+            if (!txt) return txt || '';
+            let s = String(txt);
+            s = s.replace(/^Te\b/, 'Los');
+            s = s.replace(/\bvos mismo\b/g, 'ustedes mismos');
+            s = s.replace(/\bvos\b/g, 'ustedes');
+            s = s.replace(/\btus\b/g, 'sus');
+            s = s.replace(/\bTus\b/g, 'Sus');
+            s = s.replace(/\btu\b/g, 'su');
+            s = s.replace(/\bTu\b/g, 'Su');
+            s = s.replace(/\btuyo\b/g, 'suyo');
+            s = s.replace(/\btuya\b/g, 'suya');
+            s = s.replace(/\btuyos\b/g, 'suyos');
+            s = s.replace(/\btuyas\b/g, 'suyas');
+            s = s.replace(/\bte\b/g, 'les');
+            s = s.replace(/\ba ti mismo\b/g, 'a ustedes mismos');
+            s = s.replace(/\bsentís\b/g, 'sienten');
+            s = s.replace(/\bdeseás\b/g, 'desean');
+            s = s.replace(/\bamás\b/g, 'aman');
+            s = s.replace(/\bvendés\b/g, 'venden');
+            s = s.replace(/\b([A-Za-zÁÉÍÓÚáéíóúñÑ]+)(ar|er|ir)te\b/g, '$1$2se');
+            return s;
+        }
+        // Canales de los cuadros de contacto: cada canal en una fila + primer renglón de su descripción.
+        function renderCanalesContacto(el, lista) {
+            el.innerHTML = '';
+            const uniq = [...new Set((lista || []).map(normCanalKey))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+            if (!uniq.length) { el.textContent = '-'; return; }
+            uniq.forEach(c => {
+                const k = normCanalKey(c);
+                const desc = canalDescMap[k] || '';
+                const primera = adaptarContactoLos(primeraLineaCanal(desc));
+                const fila = document.createElement('div');
+                fila.className = 'canal-fila';
+                const s = document.createElement('span');
+                s.className = 'canal-tag';
+                s.dataset.canal = c;
+                // Números + enter + emojis (primera puerta -> primer emoji, segunda -> segundo, sin invertir)
+                s.appendChild(document.createTextNode(c));
+                try {
+                    const partes = String(c).split('-');
+                    const p1 = parseInt(partes[0], 10), p2 = parseInt(partes[1], 10);
+                    const em = (typeof mapaEmojis === 'function' ? mapaEmojis() : {});
+                    const e1 = em[p1] || '', e2 = em[p2] || '';
+                    if (e1 || e2) {
+                        s.appendChild(document.createElement('br'));
+                        const es = document.createElement('span');
+                        es.style.fontSize = '13px';
+                        es.style.fontWeight = '400';
+                        es.textContent = (e1 || '·') + ' - ' + (e2 || '·');
+                        s.appendChild(es);
+                    }
+                } catch (e) {}
+                s.style.textAlign = 'center';
+                s.style.lineHeight = '1.15';
+                fila.appendChild(s);
+                if (primera) {
+                    const d = document.createElement('span');
+                    d.className = 'canal-desc';
+                    d.textContent = ' — ' + primera;
+                    d.title = adaptarContactoLos(desc);
+                    fila.appendChild(d);
+                }
+                el.appendChild(fila);
+            });
+        }
+        function anexarCanalesTransito(el, lista) {
+            const uniq = [...new Set((lista || []).map(normCanalKey))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+            if (!uniq.length) return;
+            if (el.textContent.trim() !== '-') {
+                const sep = document.createElement('hr');
+                sep.className = 'contacto-separador';
+                el.appendChild(sep);
+            } else if (el.textContent.trim() === '-') {
+                // Si solo había '-', limpiarlo y no poner separador arriba
+                el.innerHTML = '';
+            } else {
+                const sep = document.createElement('hr');
+                sep.className = 'contacto-separador';
+                el.appendChild(sep);
+            }
+            uniq.forEach(c => {
+                const k = normCanalKey(c);
+                const desc = canalDescMap[k] || '';
+                const primera = adaptarContactoLos(primeraLineaCanal(desc));
+                const fila = document.createElement('div');
+                fila.className = 'canal-fila transito';
+                const s = document.createElement('span');
+                s.className = 'canal-tag';
+                s.dataset.canal = c;
+                s.appendChild(document.createTextNode(c));
+                try {
+                    const partes = String(c).split('-');
+                    const p1 = parseInt(partes[0], 10), p2 = parseInt(partes[1], 10);
+                    const em = (typeof mapaEmojis === 'function' ? mapaEmojis() : {});
+                    const e1 = em[p1] || '', e2 = em[p2] || '';
+                    if (e1 || e2) {
+                        s.appendChild(document.createElement('br'));
+                        const es = document.createElement('span');
+                        es.style.fontSize = '13px';
+                        es.style.fontWeight = '400';
+                        es.textContent = (e1 || '·') + ' - ' + (e2 || '·');
+                        s.appendChild(es);
+                    }
+                } catch (e) {}
+                s.style.textAlign = 'center';
+                s.style.lineHeight = '1.15';
+                fila.appendChild(s);
+                if (primera) {
+                    const d = document.createElement('span');
+                    d.className = 'canal-desc';
+                    d.textContent = ' — ' + primera;
+                    d.title = adaptarContactoLos(desc) + ' (por tránsito)';
+                    fila.appendChild(d);
+                }
+                el.appendChild(fila);
+            });
+        }
+
+        // Hover sobre un canal de contacto: apaga/atena todo lo demás del
+        // compuesto y deja solo el canal elegido (con sus dos puertas).
+        function resaltarCanalEnCompuesto(claveNorm) {
+            const svg = svgContainerComp;
+            const partes = String(claveNorm).split('-').map(Number);
+            svg.classList.add('resaltando-canal');
+            svg.querySelectorAll('[id^="c"]').forEach(canal => {
+                const m = canal.id.match(/^c(\d+)-(\d+)$/);
+                if (!m) return;
+                const esElegido = normCanalKey(`${m[1]}-${m[2]}`) === claveNorm;
+                canal.classList.toggle('tenue', !esElegido);
+                canal.classList.toggle('canal-focus', esElegido);
+            });
+            for (let i = 1; i <= 64; i++) {
+                const implicada = (i === partes[0] || i === partes[1]);
+                const tramo = svg.querySelector(`#tramo${i}`);
+                if (tramo) tramo.classList.toggle('tenue', !implicada);
+                const circle = svg.querySelector(`#${gateToCircleMap[i]}`);
+                if (circle) circle.classList.toggle('tenue', !implicada);
+            }
+        }
+        function quitarResaltadoCanal() {
+            svgContainerComp.classList.remove('resaltando-canal');
+            svgContainerComp.querySelectorAll('.tenue, .canal-focus').forEach(el => {
+                el.classList.remove('tenue', 'canal-focus');
+            });
+        }
+        document.addEventListener('mouseover', (e) => {
+            const tag = e.target.closest('.canal-tag');
+            if (tag && tag.dataset.canal) resaltarCanalEnCompuesto(normCanalKey(tag.dataset.canal));
+        });
+        document.addEventListener('mouseout', (e) => {
+            const tag = e.target.closest('.canal-tag');
+            if (tag && !(e.relatedTarget && tag.contains(e.relatedTarget))) quitarResaltadoCanal();
+        });
+        function actualizarCompuesto() {
+            limpiarSVG(svgContainerComp);
+            limpiarAnimaciones(svgContainerComp);
+            svgContainerComp.querySelectorAll('linearGradient[id^="grad-comp-"]').forEach(e => e.remove());
+
+            const divElectro = document.getElementById('contacto-electro');
+            const divCompania = document.getElementById('contacto-compania');
+            const divDomA = document.getElementById('contacto-dominio-a');
+            const divDomB = document.getElementById('contacto-dominio-b');
+            const divCompA = document.getElementById('contacto-compromiso-a');
+            const divCompB = document.getElementById('contacto-compromiso-b');
+            divElectro.textContent = '-';
+            divCompania.textContent = '-';
+            if (divDomA) divDomA.textContent = '-';
+            if (divDomB) divDomB.textContent = '-';
+            if (divCompA) divCompA.textContent = '-';
+            if (divCompB) divCompB.textContent = '-';
+
+            const nombreA = (selectorA && selectorA.value) ? selectorA.value : 'Persona 1';
+            const nombreB = (selectorB && selectorB.value) ? selectorB.value : 'Persona 2';
+            const subDomA = document.getElementById('subtitulo-dominio-a');
+            const subDomB = document.getElementById('subtitulo-dominio-b');
+            const subCompA = document.getElementById('subtitulo-compromiso-a');
+            const subCompB = document.getElementById('subtitulo-compromiso-b');
+            if (subDomA) subDomA.textContent = `Dominio de ${nombreA}`;
+            if (subDomB) subDomB.textContent = `Dominio de ${nombreB}`;
+            if (subCompA) subCompA.textContent = `Compromiso sobre ${nombreA}`;
+            if (subCompB) subCompB.textContent = `Compromiso sobre ${nombreB}`;
+
+            if (!dataPersonaA && !dataPersonaB) { actualizarVisibilidad(); return; }
+
+            const colors = getColors();
+            // Filtros de estudio: el compuesto también refleja lo visible (puertas y
+            // contactos). Paneles y análisis usan datos completos.
+            const fA = filtrarPuertas(dataPersonaA);
+            const fB = filtrarPuertas(dataPersonaB);
+            const setA_incon = fA.incon;
+            const setA_consc = fA.consc;
+            const setA_todas = fA.vis;
+            const setB_incon = fB.incon;
+            const setB_consc = fB.consc;
+            const setB_todas = fB.vis;
+            const estudioComp = circuitoEstudioActivo();
+            const isAnimActive = checkAnimaciones.checked;
+
+            for (let i = 1; i <= 64; i++) {
+                const hasA = setA_todas.has(i);
+                const hasB = setB_todas.has(i);
+                const circleId = gateToCircleMap[i];
+                const circle = svgContainerComp.querySelector(`#${circleId}`);
+                const tramo = svgContainerComp.querySelector(`#tramo${i}`);
+                if (circle) {
+                    circle.style.visibility = (hasA || hasB) ? 'visible' : 'hidden';
+                    limpiarEstiloCirculo(circle);
+                }
+                setGateTextState(svgContainerComp, i, (hasA || hasB));
+                if (tramo) {
+                    limpiarEstiloTramo(tramo);
+                    if (hasA && hasB) {
+                        // Puerta compartida: cuadros alternos con los colores de ambas.
+                        pintarBicolor(tramo, svgContainerComp, i,
+                            colorPuertaLado(i, 'a', colors, setA_incon, setA_consc),
+                            colorPuertaLado(i, 'b', colors, setB_incon, setB_consc));
+                        tramo.style.visibility = 'visible';
+                    } else if (hasA) {
+                        const esIncon = setA_incon.has(i);
+                        const esConsc = setA_consc.has(i);
+                        tramo.style.stroke = (esIncon && esConsc) ? colors.aMixto : (esIncon ? colors.aIncon : colors.aConsc);
+                        tramo.style.visibility = 'visible';
+                    } else if (hasB) {
+                        const esIncon = setB_incon.has(i);
+                        const esConsc = setB_consc.has(i);
+                        tramo.style.stroke = (esIncon && esConsc) ? colors.bMixto : (esIncon ? colors.bIncon : colors.bConsc);
+                        tramo.style.visibility = 'visible';
+                    } else {
+                        tramo.style.visibility = 'hidden';
+                    }
+                }
+            }
+
+            const electroList = [];
+            const companiaList = [];
+            const dominioAList = [];
+            const dominioBList = [];
+            const compromisoAList = [];
+            const compromisoBList = [];
+
+            svgContainerComp.querySelectorAll('[id^="c"]').forEach(canal => {
+                const m = canal.id.match(/^c(\d+)-(\d+)$/);
+                if (!m) return;
+                const p1 = parseInt(m[1], 10);
+                const p2 = parseInt(m[2], 10);
+                const canalLabel = `${p1}-${p2}`;
+                const a1 = setA_todas.has(p1);
+                const a2 = setA_todas.has(p2);
+                const b1 = setB_todas.has(p1);
+                const b2 = setB_todas.has(p2);
+                const fullA = a1 && a2;
+                const fullB = b1 && b2;
+                const activeInComp = (a1 || b1) && (a2 || b2);
+                // Modo estudio: canales del circuito único ON al 50% en el compuesto.
+                const esEstComp = !!(estudioComp && !activeInComp &&
+                    estudioDeCanal(normCanalKey(`${p1}-${p2}`)) === estudioComp);
+                if (esEstComp) canal.dataset.estudio = '1';
+                else delete canal.dataset.estudio;
+                setCanalEstado(canal, activeInComp);
+                if (!dataPersonaA || !dataPersonaB) return;
+
+                const tramo1 = svgContainerComp.querySelector(`#tramo${p1}`);
+                const tramo2 = svgContainerComp.querySelector(`#tramo${p2}`);
+
+                if (fullA && fullB) {
+                    companiaList.push(canalLabel);
+                    if (isAnimActive) {
+                        if (tramo1) tramo1.classList.add('anim-compania');
+                        if (tramo2) tramo2.classList.add('anim-compania');
+                    }
+                } else if ((a1 && !a2 && !b1 && b2) || (a2 && !a1 && !b2 && b1)) {
+                    electroList.push(canalLabel);
+                    if (isAnimActive) {
+                        if (a1 && tramo1) tramo1.classList.add('anim-electro-a');
+                        if (a2 && tramo2) tramo2.classList.add('anim-electro-a');
+                        if (b1 && tramo1) tramo1.classList.add('anim-electro-b');
+                        if (b2 && tramo2) tramo2.classList.add('anim-electro-b');
+                    }
+                }
+                // Dominio: canal completo en uno y ninguna puerta en el otro (se muestra para ambos)
+                if (fullA && !b1 && !b2) {
+                    dominioAList.push(canalLabel);
+                    if (isAnimActive) {
+                        canal.classList.add('anim-dominio-canal');
+                        if (tramo1) tramo1.classList.add('anim-dominio-puerta');
+                        if (tramo2) tramo2.classList.add('anim-dominio-puerta');
+                    }
+                }
+                if (fullB && !a1 && !a2) {
+                    dominioBList.push(canalLabel);
+                    if (isAnimActive) {
+                        canal.classList.add('anim-dominio-canal');
+                        if (tramo1) tramo1.classList.add('anim-dominio-puerta');
+                        if (tramo2) tramo2.classList.add('anim-dominio-puerta');
+                    }
+                }
+                // Compromiso: canal completo en uno y una sola puerta en el otro
+                if (fullB && (a1 !== a2)) {
+                    compromisoAList.push(canalLabel);
+                    if (isAnimActive) {
+                        if (a1 && tramo1) tramo1.classList.add('anim-compromiso-puerta');
+                        if (a2 && tramo2) tramo2.classList.add('anim-compromiso-puerta');
+                    }
+                }
+                if (fullA && (b1 !== b2)) {
+                    compromisoBList.push(canalLabel);
+                    if (isAnimActive) {
+                        if (b1 && tramo1) tramo1.classList.add('anim-compromiso-puerta');
+                        if (b2 && tramo2) tramo2.classList.add('anim-compromiso-puerta');
+                    }
+                }
+            });
+
+            renderCanalesContacto(divElectro, electroList);
+            renderCanalesContacto(divCompania, companiaList);
+            if (divDomA) renderCanalesContacto(divDomA, dominioAList);
+            if (divDomB) renderCanalesContacto(divDomB, dominioBList);
+            if (divCompA) renderCanalesContacto(divCompA, compromisoAList);
+            if (divCompB) renderCanalesContacto(divCompB, compromisoBList);
+
+            // Tránsito como campo común: (P1 ∪ T) vs (P2 ∪ T), igual que la Línea de
+            // tiempo. Solo anexa extras en gris; las listas base P1↔P2 no se tocan.
+            // Si el tránsito completa una compañía, esa compañía tiene prioridad y el canal
+            // no se anexa además como compromiso/electro/dominio.
+            const _extraCompaniaT = [];
+            const _extraElectroT = [];
+            const _extraDomAT = [];
+            const _extraDomBT = [];
+            const _extraCompAT = [];
+            const _extraCompBT = [];
+            const _diffBase = (amp, base) => {
+                const sBase = new Set(base.map(normCanalKey));
+                return [...new Set(amp.map(normCanalKey))].filter(k => !sBase.has(k)).map(k => k);
+            };
+            if (overlayTransitoOn && TRANSITO_ACTUAL && dataPersonaA && dataPersonaB) {
+                const setT = new Set(TRANSITO_ACTUAL.conscientes);
+                const setAmpA = new Set([...setA_todas, ...setT]);
+                const setAmpB = new Set([...setB_todas, ...setT]);
+                // mismas reglas que arriba pero en campo común con tránsito en ambos lados
+                const ampElectro = [], ampCompania = [], ampDomA = [], ampDomB = [], ampCompA = [], ampCompB = [];
+                svgContainerComp.querySelectorAll('[id^="c"]').forEach(canal => {
+                    const m = canal.id.match(/^c(\d+)-(\d+)$/);
+                    if (!m) return;
+                    const p1 = parseInt(m[1], 10), p2 = parseInt(m[2], 10);
+                    // Campo común: P1+tránsito vs P2+tránsito (ej. Jorge 46-29 vs Daniel 46 + tránsito 29)
+                    {
+                        const a1 = setAmpA.has(p1), a2 = setAmpA.has(p2);
+                        const b1 = setAmpB.has(p1), b2 = setAmpB.has(p2);
+                        const fullA = a1 && a2, fullB = b1 && b2;
+                        if (fullA && fullB) ampCompania.push(`${p1}-${p2}`);
+                        else if ((a1 && !a2 && !b1 && b2) || (a2 && !a1 && !b2 && b1)) ampElectro.push(`${p1}-${p2}`);
+                        if (fullA && !b1 && !b2) ampDomA.push(`${p1}-${p2}`);
+                        if (fullB && !a1 && !a2) ampDomB.push(`${p1}-${p2}`);
+                        if (fullB && (a1 !== a2)) ampCompA.push(`${p1}-${p2}`);
+                        if (fullA && (b1 !== b2)) ampCompB.push(`${p1}-${p2}`);
+                    }
+                });
+                _extraCompaniaT.push(..._diffBase(ampCompania, companiaList));
+                _extraElectroT.push(..._diffBase(ampElectro, electroList));
+                _extraDomAT.push(..._diffBase(ampDomA, dominioAList));
+                _extraDomBT.push(..._diffBase(ampDomB, dominioBList));
+                _extraCompAT.push(..._diffBase(ampCompA, compromisoAList));
+                _extraCompBT.push(..._diffBase(ampCompB, compromisoBList));
+            }
+            // Contactos directos P1 ↔ Tránsito solo sin P2 (cuando hay P2 el lugar de
+            // T lo ocupa P2 y todo se genera como campo común P1+T vs P2+T; si no,
+            // el mismo canal saldría duplicado como P1-T y como P1-P2 condicionado).
+            // Simplificación: los planetas no son personas, así que no se listan
+            // "Dominio de P1 sobre el tránsito" (P1 completo, tránsito vacío) ni
+            // "Compromiso de P1 sobre el tránsito" (P1 completo, tránsito con una sola
+            // puerta). Se conservan los casos donde el tránsito condiciona a P1
+            // (compañía/electro con tránsito, dominio del tránsito, compromiso del
+            // tránsito sobre P1).
+            if (overlayTransitoOn && TRANSITO_ACTUAL && dataPersonaA && !dataPersonaB) {
+                const setT2 = new Set(TRANSITO_ACTUAL.conscientes);
+                const p1tElectro=[], p1tCompania=[], p1tDomB=[], p1tComA=[];
+                svgContainerComp.querySelectorAll('[id^="c"]').forEach(canal => {
+                    const m=canal.id.match(/^c(\d+)-(\d+)$/); if(!m) return;
+                    const p1=parseInt(m[1],10), p2=parseInt(m[2],10);
+                    const a1=setA_todas.has(p1), a2=setA_todas.has(p2), t1=setT2.has(p1), t2=setT2.has(p2);
+                    const fullA=a1&&a2, fullT=t1&&t2;
+                    if(fullA&&fullT) p1tCompania.push(`${p1}-${p2}`);
+                    else if((a1&&!a2&&!t1&&t2)||(a2&&!a1&&!t2&&t1)) p1tElectro.push(`${p1}-${p2}`);
+                    if(fullT&&!a1&&!a2) p1tDomB.push(`${p1}-${p2}`);
+                    if(fullT&&(a1!==a2)) p1tComA.push(`${p1}-${p2}`);
+                });
+                _extraCompaniaT.push(..._diffBase(p1tCompania, companiaList));
+                _extraElectroT.push(..._diffBase(p1tElectro, electroList));
+                _extraDomBT.push(..._diffBase(p1tDomB, dominioBList));
+                _extraCompAT.push(..._diffBase(p1tComA, compromisoAList));
+            }
+            // Anexar extras de tránsito en gris con prioridad a compañía: un canal que
+            // ya es compañía por tránsito no se repite como compromiso/electro/dominio.
+            if (overlayTransitoOn && TRANSITO_ACTUAL && (dataPersonaA || dataPersonaB)) {
+                const setCompT = new Set([...new Set(_extraCompaniaT)].map(normCanalKey));
+                const sinCompT = (lista) => [...new Set(lista.map(normCanalKey))].filter(k => !setCompT.has(k));
+                const uniqComp = [...setCompT];
+                const uniqElectro = sinCompT(_extraElectroT);
+                const uniqDomA = sinCompT(_extraDomAT);
+                const uniqDomB = sinCompT(_extraDomBT);
+                const uniqCompA = sinCompT(_extraCompAT);
+                const uniqCompB = sinCompT(_extraCompBT);
+                if (uniqElectro.length) anexarCanalesTransito(divElectro, uniqElectro);
+                if (uniqComp.length) anexarCanalesTransito(divCompania, uniqComp);
+                if (divDomA && uniqDomA.length) anexarCanalesTransito(divDomA, uniqDomA);
+                if (divDomB && uniqDomB.length) anexarCanalesTransito(divDomB, uniqDomB);
+                if (divCompA && uniqCompA.length) anexarCanalesTransito(divCompA, uniqCompA);
+                if (divCompB && uniqCompB.length) anexarCanalesTransito(divCompB, uniqCompB);
+            }
+
+            const canalesActivosComp = [];
+            svgContainerComp.querySelectorAll('[id^="c"]').forEach(canal => {
+                const mc = canal.id.match(/^c(\d+)-(\d+)$/);
+                if (mc && canal.dataset.activo === '1') {
+                    canalesActivosComp.push(`${mc[1]}-${mc[2]}`);
+                }
+            });
+            actualizarCentros(svgContainerComp, canalesActivosComp);
+            // Compatibilidad: outline negro en centros con igual estado en ambos.
+            // (El punteado índigo de "solo en pareja" se pinta más abajo, con el tema.)
+            const defsA = (dataPersonaA && svgContainerA._centrosDefinidos) || null;
+            const defsB = (dataPersonaB && svgContainerB._centrosDefinidos) || null;
+            let compatN = 0;
+            Object.keys(CENTRO_CANALES).forEach(id => {
+                const elem = svgContainerComp.querySelector(`#${id}`);
+                if (!elem) return;
+                delete elem.dataset.pareja;
+                elem.style.strokeDasharray = '';
+                if (defsA && defsB && (defsA.has(id) === defsB.has(id))) {
+                    compatN++;
+                    elem.style.stroke = '#111111';
+                    elem.style.strokeWidth = '3.5px';
+                }
+            });
+            document.getElementById('compat-count').textContent =
+                (defsA && defsB) ? `${compatN}/9` : '–';
+            // Tema numérico de conexión: "8-1 A divertirse". Es el conteo de las pautas:
+            // cuántos centros quedan definidos al superponer A + B (unión, no igual estado).
+            // Visible: clave + nombre. Tooltip: glosa sola + energía de pareja.
+            // Las puertas van SIN filtro de estudio para que el tema no cambie con los filtros.
+            const elTema = document.getElementById('compat-tema');
+            if (elTema) {
+                const tc = temaConexion(defsA, defsB,
+                    dataPersonaA ? dataPersonaA.todas_puertas : null,
+                    dataPersonaB ? dataPersonaB.todas_puertas : null);
+                if (!tc) { elTema.textContent = '–'; elTema.removeAttribute('title'); }
+                else {
+                    elTema.textContent = tc.texto;
+                    elTema.title = textoTemaLargo(tc);
+                    // Punteado índigo: centros que se encienden solo en la pareja
+                    // (ninguno de los dos los trae definidos). Se pinta después del negro
+                    // y lo pisa: esos centros están abiertos en ambos (igual estado) pero
+                    // lo informativo es que se encienden juntos. Siguen contando en el N/9.
+                    (tc.centrosParejaLista || []).forEach(id => {
+                        const elem = svgContainerComp.querySelector(`#${id}`);
+                        if (elem) {
+                            elem.dataset.pareja = '1';
+                            elem.style.stroke = '#4f46e5';
+                            elem.style.strokeWidth = '2.5px';
+                            elem.style.strokeDasharray = '6 4';
+                        }
+                    });
+                }
+            }
+            // Refrescar etiquetas de contacto del detalle de B solo si cambió A, B o el filtro.
+            const sigB = dataPersonaB ? JSON.stringify([
+                dataPersonaA ? dataPersonaA.todas_puertas : null,
+                dataPersonaB.todas_puertas,
+                document.getElementById('chk-contacto-b').checked
+            ]) : null;
+            if (sigB && sigB !== window._detalleBsig) {
+                window._detalleBsig = sigB;
+                mostrarPuertasDetalle('b', dataPersonaB);
+            } else if (!sigB) {
+                window._detalleBsig = null;
+            }
+            marcarTransitoEn(svgContainerComp);
+            actualizarVisibilidad();
+            try{ actualizarCapasLineasEmojis(); }catch(e){}
+        }
+
+        // Visibilidad progresiva: cada zona aparece solo cuando tiene sentido.
+        // Sin nada: solo los dos selectores. P1 muestra datos y gráfico al
+        // cargarse; B, compuesto y contactos solo con Persona 2; controles con
+        // algo cargado (colores y foco solo con ambas).
+        function actualizarVisibilidad() {
+            const hayA = !!dataPersonaA, hayB = !!dataPersonaB;
+            const ambos = hayA && hayB, algo = hayA || hayB;
+            const cardA = document.getElementById('card-grafico-a');
+            const cardB = document.getElementById('card-grafico-b');
+            const cardComp = document.getElementById('card-grafico-compuesto');
+            const fila = document.querySelector('.graficos-fila');
+            const listaP1 = document.querySelector('.panel-izq .info-scroll');
+            const compatA = document.querySelector('[data-caja="P1-Compatibilidades"]');
+            const listaP2 = document.querySelector('.panel-der .info-scroll');
+            const gridContactos = document.querySelector('.contactos-grid');
+            const panelControles = document.getElementById('panel-controles');
+            const cardTr = document.getElementById('card-transitos-contacto');
+            if (cardA) cardA.style.display = '';
+            if (cardB) cardB.style.display = hayB ? '' : 'none';
+            if (cardComp) cardComp.style.display = ambos ? '' : 'none';
+            if (fila) {
+                fila.style.display = '';
+                fila.classList.toggle('solo-a', hayA && !hayB);
+            }
+            if (listaP1) listaP1.style.display = hayA ? '' : 'none';
+            if (compatA) compatA.style.display = hayA ? '' : 'none';
+            if (listaP2) listaP2.style.display = hayB ? '' : 'none';
+            if (gridContactos) gridContactos.style.display = '';
+            if (panelControles) {
+                panelControles.style.display = '';
+                const paletas = panelControles.querySelector('.paletas-wrap');
+                if (paletas) paletas.style.display = ambos ? '' : 'none';
+                const filtrosA = document.getElementById('filtros-grafico-a');
+                if (filtrosA) filtrosA.style.display = (hayA || hayB) ? '' : 'none';
+                const listaF = document.getElementById('filtros-lista-wrap');
+                if (listaF) listaF.style.display = (hayA || hayB) ? '' : 'none';
+            }
+            const focoWrap = document.getElementById('foco-dc-wrap');
+            if (focoWrap) focoWrap.style.display = ambos ? '' : 'none';
+            // Las animaciones solo animan el compuesto: sin ambas personas se ocultan.
+            const animWrap = document.getElementById('anim-wrap');
+            if (animWrap) animWrap.style.display = ambos ? '' : 'none';
+            if (cardTr) cardTr.style.display = hayA ? '' : 'none';
+            // Datos por persona: ni siquiera cerrados hasta elegirla.
+            document.querySelectorAll('[data-caja="P1-Centros"], [data-caja="P1-Canales"], [data-caja="P1-Puertas"], [data-caja="P1-Condicionamientos"]')
+                .forEach(el => { el.style.display = hayA ? '' : 'none'; });
+            document.querySelectorAll('[data-caja="P2-Centros"], [data-caja="P2-Canales"], [data-caja="P2-Puertas"]')
+                .forEach(el => { el.style.display = hayB ? '' : 'none'; });
+        }
+
+        function limpiarPanel(side) {
+            document.getElementById(`puertas-inconscientes-${side}`).innerHTML = "";
+            document.getElementById(`puertas-conscientes-${side}`).innerHTML = "";
+            document.getElementById(`centros-detalle-${side}`).innerHTML = "-";
+            document.getElementById(`canales-detalle-${side}`).innerHTML = "-";
+            document.getElementById(`puertas-detalle-${side}`).innerHTML = "-";
+            document.getElementById(side === 'a' ? 'subtitulo-grafico-a' : 'subtitulo-grafico-b').textContent = "-";
+            const cd = document.getElementById(`condic-detalle-${side}`);
+            if (cd) cd.innerHTML = "-";
+            const cp = document.getElementById(`compat-detalle-${side}`);
+            if (cp) cp.innerHTML = "-";
+        }
+
+        function limpiarSVG(svgScope) {
+            // Sin residuos del usuario anterior: clones de simpl/tránsito fuera,
+            // marcas de ocultado y fantasma reseteadas antes de repintar.
+            try { quitarDescripcionesP1(svgScope && svgScope.querySelector ? svgScope.querySelector('svg') : null); } catch (e) {}
+            try {
+                svgScope.querySelectorAll('.aura-sacro').forEach(el => el.classList.remove('aura-sacro'));
+                svgScope.querySelectorAll('.aura-garganta').forEach(el => el.classList.remove('aura-garganta'));
+                svgScope.querySelectorAll('[data-aura-disco]').forEach(el => el.remove());
+                svgScope.querySelectorAll('.canal-motor-garganta').forEach(el => el.classList.remove('canal-motor-garganta'));
+            } catch (e) {}
+            try {
+                svgScope.querySelectorAll('[data-simpl]').forEach(el => el.remove());
+                svgScope.querySelectorAll('[data-transito-clon]').forEach(el => el.remove());
+                svgScope.querySelectorAll('linearGradient[id^="grad-comp-simpl-"]').forEach(el => el.remove());
+            } catch (e) {}
+            for (let i = 1; i <= 64; i++) {
+                const tramo = svgScope.querySelector(`#tramo${i}`);
+                if (tramo) {
+                    limpiarEstiloTramo(tramo);
+                    delete tramo.dataset.simplOculto;
+                    delete tramo.dataset.ghost;
+                    delete tramo.dataset.ghostPrev;
+                    tramo.style.visibility = 'visible';
+                    tramo.style.opacity = '0.01';
+                }
+                const circleId = gateToCircleMap[i];
+                const circle = svgScope.querySelector(`#${circleId}`);
+                if (circle) {
+                    limpiarEstiloCirculo(circle);
+                    circle.style.visibility = 'visible';
+                    circle.style.opacity = '1';
+                }
+                setGateTextState(svgScope, i, false);
+            }
+            // Estado vacío = gráfico genérico de estudio: números de puerta en
+            // negro, tramos (todos) con el color de su canal (circuito, leído
+            // del propio SVG) y canales al 10% al fondo. Los tooltips de
+            // puertas/tramos/canales ya funcionan con el propio popup del mouse.
+            svgScope.querySelectorAll('[id^="c"]').forEach(canal => {
+                const m = canal.id.match(/^c(\d+)-(\d+)$/);
+                if (m) {
+                    canal.dataset.activo = '0';
+                    canal.dataset.gen = '1';
+                    delete canal.dataset.ghost;
+                    delete canal.dataset.estudio;
+                    if (typeof canalesOn === 'function' && !canalesOn()) {
+                        canal.style.visibility = 'hidden';
+                        canal.style.opacity = '0';
+                    } else {
+                        canal.style.visibility = 'visible';
+                        canal.style.opacity = '0.10';
+                    }
+                }
+            });
+            const coloresCircuitoGen = {};
+            svgScope.querySelectorAll('[id^="c"]').forEach(canal => {
+                const m = canal.id.match(/^c(\d+)-(\d+)$/);
+                if (!m) return;
+                try {
+                    const st = window.getComputedStyle(canal).stroke;
+                    if (st && st !== 'none') {
+                        coloresCircuitoGen[parseInt(m[1], 10)] = st;
+                        coloresCircuitoGen[parseInt(m[2], 10)] = st;
+                    }
+                } catch (err) {}
+            });
+            for (let i = 1; i <= 64; i++) {
+                const tramo = svgScope.querySelector(`#tramo${i}`);
+                if (tramo && coloresCircuitoGen[i]) {
+                    tramo.style.stroke = coloresCircuitoGen[i];
+                    tramo.style.opacity = '1';
+                    tramo.style.visibility = 'visible';
+                    delete tramo.dataset.ghost;
+                    delete tramo.dataset.ghostPrev;
+                    delete tramo.dataset.simplOculto;
+                }
+                // Números de dos dígitos: 1 path POR DÍGITO, ambos con el mismo
+                // id → pintar todos los paths del número (querySelector solo
+                // trae el primero y dejaba el segundo dígito gris).
+                svgScope.querySelectorAll(`#puerta_${i}_texto, #pueta_${i}_texto`).forEach(txt => {
+                    txt.style.fill = '#000000';
+                    txt.style.opacity = '1';
+                });
+            }
+            actualizarCentros(svgScope, []);
+        }
+
+        // ---------- Modo Experiencias (Persona 1 -> candidatas a Persona 2) ----------
+        let modoExperiencias = false;
+        let cachePuertasPersonas = null;
+
+        // Recarga el caché de puertas de todas las personas (no falla: ignora errores).
+        async function recargarPuertasPersonas(exigir) {
+            try {
+                const r = await fetch('/api/puertas_personas');
+                if (!r.ok) { if (exigir) throw new Error('HTTP ' + r.status); return; }
+                cachePuertasPersonas = await r.json();
+            } catch (e) { if (exigir) throw e; /* condicionamientos/experiencias sin datos */ }
+        }
+        let paresPuerta = null; // puerta -> [puertas complementarias] según los canales del SVG
+        let listaCanalesSVG = []; // canales normalizados del SVG, ej. ["10-20"]
+
+        function construirParesPuerta() {
+            paresPuerta = {};
+            const setC = new Set();
+            svgContainerA.querySelectorAll('[id^="c"]').forEach(canal => {
+                const m = canal.id.match(/^c(\d+)-(\d+)$/);
+                if (!m) return;
+                const a = parseInt(m[1], 10), b = parseInt(m[2], 10);
+                setC.add(normCanalKey(`${a}-${b}`));
+                (paresPuerta[a] = paresPuerta[a] || new Set()).add(b);
+                (paresPuerta[b] = paresPuerta[b] || new Set()).add(a);
+            });
+            listaCanalesSVG = [...setC].sort((x, y) => x.localeCompare(y, undefined, { numeric: true }));
+            Object.keys(paresPuerta).forEach(k => { paresPuerta[k] = [...paresPuerta[k]].sort((x, y) => x - y); });
+        }
+
+        function esVinculado(v, nombreA) {
+            if (!v) return false;
+            const nj = (v.vinc_jorge || '').toLowerCase(), nr = (v.vinc_ref || '').toLowerCase();
+            if (nj === 'nada' || nr === 'nada') return false;
+            if (v.vinc_jorge || v.vinc_ref) return true;
+            return !!(v.referente && v.referente === nombreA);
+        }
+
+        function etiquetaVinculo(v, nombreA) {
+            if (!v) return '';
+            if (nombreA === 'Jorge' && v.vinc_jorge) return v.vinc_jorge;
+            if (v.referente && v.referente === nombreA && v.vinc_ref) return v.vinc_ref;
+            if (v.vinc_ref) return v.vinc_ref;
+            if (v.vinc_jorge) return v.vinc_jorge;
+            if (v.referente) return 'círculo ' + v.referente;
+            return '';
+        }
+
+        function dentroRangoEdad(nombreA, nombreC) {
+            if (!filtroEdad) return true;
+            const eA = vincMap[String(nombreA).trim().toLowerCase()];
+            const eC = vincMap[String(nombreC).trim().toLowerCase()];
+            if (!eA || eA.edad == null || !eC || eC.edad == null) return false;
+            return Math.abs(eA.edad - eC.edad) <= filtroEdad;
+        }
+
+        // Centros definidos a partir de una lista de puertas (misma regla que el gráfico).
+        function definidosDePuertas(todas) {
+            const setT = new Set(todas);
+            const comp = new Set();
+            listaCanalesSVG.forEach(k => {
+                const [p1, p2] = k.split('-').map(Number);
+                if (setT.has(p1) && setT.has(p2)) comp.add(k);
+            });
+            const defs = new Set();
+            Object.entries(CENTRO_CANALES).forEach(([id, lista]) => {
+                if (lista.some(c => comp.has(normCanalKey(c)))) defs.add(id);
+            });
+            return defs;
+        }
+        function canalesCompletosDe(todas) {
+            const setT = new Set(todas);
+            const comp = new Set();
+            listaCanalesSVG.forEach(k => {
+                const [p1, p2] = k.split('-').map(Number);
+                if (setT.has(p1) && setT.has(p2)) comp.add(normCanalKey(k));
+            });
+            return comp;
+        }
+        function tipoDePuertas(todas) {
+            const comp = [...canalesCompletosDe(todas)];
+            const defs = definidosDePuertas(todas);
+            return calcularTipoAutoridad(comp, defs).tipo;
+        }
+        // Scores 0..10 para Tipo y Perfil. Tablas HD consensuadas, ponderación configurable abajo.
+        const T_SCORE_MAP = {
+            'Generador|Generador': 9, 'Generador|Generador Manifestante': 9, 'Generador|Manifestador': 4, 'Generador|Proyector': 8, 'Generador|Reflector': 5,
+            'Generador Manifestante|Generador Manifestante': 9, 'Generador Manifestante|Manifestador': 5, 'Generador Manifestante|Proyector': 8, 'Generador Manifestante|Reflector': 5,
+            'Manifestador|Manifestador': 6, 'Manifestador|Proyector': 7, 'Manifestador|Reflector': 5,
+            'Proyector|Proyector': 6, 'Proyector|Reflector': 7,
+            'Reflector|Reflector': 8
+        };
+        function scoreTipo(tA, tB) {
+            if (!tA || !tB) return 5;
+            if (tA === tB) {
+                const k = `${tA}|${tB}`;
+                return T_SCORE_MAP[k] != null ? T_SCORE_MAP[k] : 7;
+            }
+            const k1 = `${tA}|${tB}`, k2 = `${tB}|${tA}`;
+            return T_SCORE_MAP[k1] != null ? T_SCORE_MAP[k1] : (T_SCORE_MAP[k2] != null ? T_SCORE_MAP[k2] : 5);
+        }
+        function scorePerfil(pA, pB) {
+            if (!pA || !pB) return null;
+            if (pA === pB) return 10;
+            const [a1,a2] = pA.split('/'), [b1,b2] = pB.split('/');
+            if (a1===b1 || a2===b2) return 8;
+            if (a1===b2 || a2===b1) return 7;
+            if (PERFILES_ARMONICOS.has(`${pA}|${pB}`)) return 6;
+            return 4;
+        }
+
+        // Compatibilidad P1 vs P2 + adicionales: centros + canales compañía + tipo + perfil → índice.
+        // Pesos amistad (compañía manda): C 30% | Ch 40% | T 15% | P 15% (si P null → T absorbe 30%).
+        async function mostrarCompatibilidades(data) {
+            const cont = document.getElementById('compat-detalle-a');
+            const panel = document.querySelector('[data-caja="P1-Compatibilidades"]');
+            if (!cont) return;
+            if (!paresPuerta) construirParesPuerta();
+            const nombreA = selectorA.value;
+            const defsA = definidosDePuertas(data.todas_puertas);
+            const compA = canalesCompletosDe(data.todas_puertas);
+            const tipoA = tipoDePuertas(data.todas_puertas);
+            const perfilA = data.perfil || null;
+            const defA = definicionDe(defsA, compA);   // bloques de centros definidos de P1
+            const fOrden = (document.getElementById('filtro-comp-orden') || {}).value || 'indice';
+            // Solo P2 + adicionales (P3...), sin árbol ni filtros de círculo/vínculo.
+            const candidatos = [];
+            const vistos = new Set([String(nombreA || '').trim().toLowerCase()]);
+            const pushCand = (nombre, todas, perfil, rol) => {
+                if (!nombre) return;
+                const kl = String(nombre).trim().toLowerCase();
+                if (!kl || vistos.has(kl)) return;
+                if (!Array.isArray(todas) || !todas.length) return;
+                vistos.add(kl);
+                candidatos.push({ nombre, todas, perfil: perfil || null, rol: rol || '' });
+            };
+            try {
+                const nomB = (typeof selectorB !== 'undefined' && selectorB) ? selectorB.value : '';
+                if (nomB) {
+                    if (typeof dataPersonaB !== 'undefined' && dataPersonaB && dataPersonaB.todas_puertas) {
+                        pushCand(nomB, dataPersonaB.todas_puertas, dataPersonaB.perfil, 'P2');
+                    } else if (cachePuertasPersonas && cachePuertasPersonas[nomB]) {
+                        pushCand(nomB, cachePuertasPersonas[nomB].todas, cachePuertasPersonas[nomB].perfil, 'P2');
+                    }
+                }
+            } catch(e){}
+            try {
+                (personasAdicionales || []).forEach((it, idx) => {
+                    if (it && it.nombre && it.data && it.data.todas_puertas) pushCand(it.nombre, it.data.todas_puertas, it.data.perfil, 'P' + (idx + 3));
+                });
+            } catch(e){}
+            if (!candidatos.length) { if (panel) panel.style.display = 'none'; cont.innerHTML = ''; return; }
+            if (panel) panel.style.display = '';
+            const filas = [];
+            candidatos.forEach((cand) => {
+                const nombre = cand.nombre, d = { todas: cand.todas, perfil: cand.perfil };
+                const defs = definidosDePuertas(d.todas);
+                const comp = canalesCompletosDe(d.todas);
+                const tc = temaConexion(defsA, defs, data.todas_puertas, cand.todas);  // n definidos / n abiertos en la pareja
+                // C = pauta: centros que quedan DEFINIDOS al superponer los dos gráficos
+                // (unión defsA ∪ defs), no centros en igual estado.
+                const n = tc ? tc.nDef : 0;
+                const chList = [...compA].filter(k => comp.has(k)).sort((a,b)=> a.localeCompare(b,undefined,{numeric:true}));
+                const ch = chList.length;
+                const tipoB = tipoDePuertas(d.todas);
+                const perfilB = d.perfil || null;
+                const tScore = scoreTipo(tipoA, tipoB);
+                const pScore = scorePerfil(perfilA, perfilB);
+                const defB = definicionDe(defs, comp);          // bloques de P2 (en caliente)
+                const arm = armoniaPerfil(perfilA, perfilB);
+                const C_norm = (n/9)*10;
+                const denCh = 3; // tope amistad: 1 canal=3.3, 2=6.6, 3+=10 (fijo, no penaliza a quien tiene muchos canales)
+                const Ch_norm = Math.min(10, (ch/denCh)*10);
+                // Definición partida: 10% del índice. Si falta P, T y D se reparten su peso.
+                const dScore = scoreDefinicion(defA.tipo, defB.tipo);
+                let wC=0.25, wCh=0.35, wT=0.15, wP=0.15, wD=0.10;
+                let indice;
+                if (pScore == null) { wT = 0.25; wP = 0; }
+                if (dScore == null) { wD = 0; wT += 0.10; }
+                indice = wC*C_norm + wCh*Ch_norm + wT*tScore + wP*(pScore == null ? 0 : pScore) + wD*(dScore == null ? 0 : dScore);
+                const indice100 = Math.round(indice*10);
+                // Índice de centros: SOLO pautas (C tema + DEF partida + armonía). Sin Ch/T/P.
+                // C 60% + D 25% + Arm 15%; si falta D o Arm se renormaliza; Arm=0 si hay perfiles no armónicos.
+                const armScore = arm ? 10 : ((perfilA && perfilB) ? 0 : null);
+                let iC;
+                if (dScore == null && armScore == null) iC = C_norm;
+                else if (dScore == null) iC = (0.80*C_norm + 0.20*armScore) / 1.0;
+                else if (armScore == null) iC = (0.70*C_norm + 0.30*dScore) / 1.0;
+                else iC = 0.60*C_norm + 0.25*dScore + 0.15*armScore;
+                const indiceC100 = Math.round(iC*10);
+                let etClassic = '';
+                try{ etClassic = etiquetaVinculo(vincMap[nombre.trim().toLowerCase()], nombreA); }catch(e){}
+                const etiqueta = [cand.rol, etClassic].filter(Boolean).join(' · ');
+                filas.push({ nombre, n, ch, chList, tipoB, perfilB, tScore, pScore, dScore, C_norm, Ch_norm, indice, indice100, indiceC100, armScore,
+                    defA, defB, arm, tc, etiqueta });
+            });
+            if (fOrden === 'companias') filas.sort((a,b)=> b.ch - a.ch || b.indice - a.indice || a.nombre.localeCompare(b.nombre));
+            else if (fOrden === 'centros') filas.sort((a,b)=> b.indiceC100 - a.indiceC100 || b.n - a.n || a.nombre.localeCompare(b.nombre));
+            else filas.sort((a,b)=> b.indice - a.indice || b.ch - a.ch || b.n - a.n || a.nombre.localeCompare(b.nombre));
+            cont.innerHTML = '';
+            if (!filas.length) { if (panel) panel.style.display = 'none'; return; }
+            filas.forEach(f => {
+                const item = document.createElement('div');
+                item.className = 'info-item';
+                const chTxt = f.ch ? f.chList.join(', ') : '—';
+                const perfilATxt = perfilA || '—';
+                const perfilBTxt = f.perfilB || '—';
+                const pBadge = f.pScore==null ? '—' : `${f.pScore}/10`;
+                // Renglón de perfiles: definición partida de cada uno (pesa 10% del índice),
+                // tema del compuesto (formato "8-1 A divertirse") y armonía de líneas.
+                const compTxt = f.tc ? f.tc.texto : '—';
+                const compTitle = f.tc ? textoTemaLargo(f.tc) : 'Sin Persona 2 para calcular el compuesto.';
+                const armTxt = f.arm ? `${f.arm.texto} ✓` : '—';
+                const dBadge = f.dScore==null ? '—' : `${f.dScore}/10`;
+                const cTitle = f.tc
+                    ? `C = centros que quedan definidos al superponer los dos gráficos: ${f.tc.nDef} de 9 (${f.tc.nAb} abiertos en la pareja). Es el mismo número que da el tema.`
+                    : 'C = centros definidos al superponer ambos gráficos.';
+                const defTitle = `Definición de P1: ${f.defA.desc} Definición de ${f.nombre}: ${f.defB.desc}` +
+                    (f.arm ? `\n\n${f.arm.desc}` : '\n\nEste par de perfiles no está en la matriz de armonía.') +
+                    (f.tc ? `\n\n${compTitle}` : '');
+                const esC = (fOrden === 'centros');
+                const badgeNum = esC ? f.indiceC100 : f.indice100;
+                const badgeTitle = esC ? 'Índice de centros: solo pautas C60% + DEF25% + Armonía15%' : 'Índice ponderado C25% Ch35% T15% P15% D10%';
+                item.innerHTML = `<div class="info-head"><span class="info-num">${escHtml(f.nombre)}</span>` +
+                    `<span class="estado-badge ${badgeNum>=60 ? 'definido' : 'indefinido'}" title="${badgeTitle}">${badgeNum}</span></div>` +
+                    `<div class="info-desc" style="font-size:10.5px;line-height:1.4">` +
+                    `<b>C:</b> <span title="${escHtml(cTitle)}">${f.n}/9</span> &nbsp; <b>Ch:</b> ${f.ch} <span title="${escHtml(chTxt)}">${escHtml(chTxt)}</span> &nbsp; <b>T:</b> ${escHtml(f.tipoB)} ${f.tScore}/10 &nbsp; <b>P:</b> ${escHtml(perfilATxt)}↔${escHtml(perfilBTxt)} ${pBadge}` +
+                    `</div>` +
+                    `<div class="info-desc" style="font-size:10px;line-height:1.35" title="${escHtml(defTitle)}">` +
+                    `<b>DEF:</b> P1 ${escHtml(f.defA.tipo)} ↔ ${escHtml(f.defB.tipo)} ${dBadge} &nbsp; <b>Comp:</b> <span title="${escHtml(compTitle)}">${escHtml(compTxt)}</span> &nbsp; <b>Armonía:</b> ${escHtml(armTxt)}` +
+                    `</div>` +
+                    (f.etiqueta ? `<div class="info-desc">${escHtml(f.etiqueta)}</div>` : '');
+                // click carga como Persona 2
+                item.style.cursor = 'pointer';
+                item.title = 'Clic para cargar como Persona 2';
+                item.addEventListener('click', ()=>{
+                    if ([...selectorB.options].some(o=>o.value===f.nombre)) { selectorB.value=f.nombre; selectorB.dispatchEvent(new Event('change')); }
+                });
+                cont.appendChild(item);
+            });
+        }
+
+        let publicasCanalesCache = null;
+        async function cargarPublicasCanales() {
+            if (publicasCanalesCache) return publicasCanalesCache;
+            try {
+                const r = await fetch('/api/publicas_canales');
+                if (!r.ok) return [];
+                publicasCanalesCache = await r.json();
+                return publicasCanalesCache;
+            } catch (e) { console.error('cargarPublicasCanales:', e); return []; }
+        }
+        function normCanalStr(s){ const p=String(s).split('-').map(Number); if(p.length!==2||p.some(isNaN)) return String(s).trim(); return Math.min(p[0],p[1])+'-'+Math.max(p[0],p[1]); }
+var EMOJI={"1": "\ud83c\udfa8", "2": "\ud83e\udded", "3": "\ud83e\uddec", "4": "\ud83d\udca1", "5": "\u23f3", "6": "\ud83d\udee1\ufe0f", "7": "\ud83e\uddd1\u200d\u2708\ufe0f", "8": "\ud83c\udf81", "9": "\ud83d\udd0d", "10": "\ud83e\ude9e", "11": "\ud83d\udcad", "12": "\ud83c\udfa4", "13": "\ud83d\udc42", "14": "\ud83d\udcb0", "15": "\ud83c\udf17", "16": "\ud83c\udfb8", "17": "\ud83e\udd14", "18": "\ud83d\udd28", "19": "\ud83e\udef4", "20": "\u26a1", "21": "\ud83d\udd79\ufe0f", "22": "\ud83c\udf39", "23": "\ud83d\udde3\ufe0f", "24": "\u262f\ufe0f", "25": "\ud83e\udd0d", "26": "\ud83c\udfa9", "27": "\ud83e\udd32", "28": "\u2694\ufe0f", "29": "\u270b", "30": "\ud83d\udd25", "31": "\ud83d\udce2", "32": "\ud83d\udee3\ufe0f", "33": "\ud83d\udcbe", "34": "\ud83d\udcaa", "35": "\ud83d\ude80", "36": "\ud83c\udf0a", "37": "\ud83c\udfe0", "38": "\ud83e\udd4a", "39": "\ud83d\ude08", "40": "\ud83e\udd1d", "41": "\ud83c\udf31", "42": "\ud83d\udcc8", "43": "\ud83d\udc8e", "44": "\ud83d\udc3e", "45": "\ud83d\udc51", "46": "\ud83e\uddcd", "47": "\ud83e\udde9", "48": "\ud83d\udd73\ufe0f", "49": "\u2696\ufe0f", "50": "\ud83c\udfdb\ufe0f", "51": "\u26a1", "52": "\ud83e\uddd8", "53": "\ud83c\udf05", "54": "\ud83c\udfc6", "55": "\ud83c\udfb6", "56": "\ud83d\udcd6", "57": "\ud83d\udc41\ufe0f", "58": "\ud83d\ude04", "59": "\ud83d\udc9e", "60": "\ud83e\uddf1", "61": "\ud83d\udd2e", "62": "\ud83c\udff7\ufe0f", "63": "\u2753", "64": "\ud83c\udf2b\ufe0f"};
+var CANAL_ORDEN={"1-8":"1-8","2-14":"14-2","3-60":"60-3","4-63":"63-4","5-15":"5-15","6-59":"59-6","7-31":"7-31","9-52":"52-9","10-20":"10-20","10-34":"34-10","10-57":"57-10","11-56":"11-56","12-22":"22-12","13-33":"13-33","16-48":"48-16","17-62":"17-62","18-58":"58-18","19-49":"19-49","20-34":"34-20","20-57":"57-20","21-45":"21-45","23-43":"43-23","24-61":"61-24","25-51":"51-25","26-44":"44-26","27-50":"27-50","28-38":"38-28","29-46":"29-46","30-41":"41-30","32-54":"54-32","34-57":"34-57","35-36":"36-35","37-40":"37-40","39-55":"39-55","42-53":"53-42","47-64":"64-47"};
+        function pcEmo(g){return (typeof EMOJI!=="undefined" && EMOJI[g])?EMOJI[g]:g;}
+        function pcCanalOrden(ck){var p=ck.split("-").map(Number);if(p.length!==2||isNaN(p[0])||isNaN(p[1]))return ck;var k=Math.min(p[0],p[1])+"-"+Math.max(p[0],p[1]);return (typeof CANAL_ORDEN!=="undefined" && CANAL_ORDEN[k])?CANAL_ORDEN[k]:ck;}
+        function pcEmoPar(ck){var p=pcCanalOrden(ck).split("-");return pcEmo(+p[0])+pcEmo(+p[1]);}
+        let pcCanalesActivos = new Set();
+        let pcCurrentData = null;
+        async function mostrarPublicosCanales(data) {
+            pcCurrentData = data;
+            const cardPC = document.getElementById('card-publicos-canales');
+            if (cardPC && cardPC.classList.contains('colapsada')) return;
+            const box = document.getElementById('publicos-canales-box');
+            if (!box) return;
+            if (!data) { box.innerHTML = ''; return; }
+            const p1name = (typeof selectorA !== 'undefined' && selectorA && selectorA.value) ? selectorA.value : 'P1';
+            const h4 = document.querySelector('#card-publicos-canales h4');
+            if (h4) h4.textContent = 'Personajes con parecidos a ' + p1name;
+            const canalesA = new Set((window._canalesA || []).map(normCanalStr));
+            const filtrosBox = document.getElementById('pc-filtros');
+            if (filtrosBox) {
+                filtrosBox.innerHTML = '';
+                const lbl = document.createElement('span');
+                lbl.textContent = 'Filtrar por: ';
+                lbl.style.cssText = 'font-size:11px;color:var(--muted);align-self:center;margin-right:2px;';
+                filtrosBox.appendChild(lbl);
+                pcCanalesActivos = new Set(canalesA);
+                // boton discreto: solo personajes con mas canales totales que P1
+                if (!window.pcSoloMasCanales) window.pcSoloMasCanales = false;
+                const btnMas = document.createElement('button');
+                btnMas.className = 'pc-filtro-btn' + (window.pcSoloMasCanales ? '' : ' off');
+                btnMas.textContent = '≫';
+                btnMas.title = 'Solo con menos o igual canales que P1';
+                btnMas.style.marginLeft = 'auto';
+                btnMas.addEventListener('click', () => {
+                    window.pcSoloMasCanales = !window.pcSoloMasCanales;
+                    btnMas.classList.toggle('off', !window.pcSoloMasCanales);
+                    pcPintar();
+                });
+                [...canalesA].sort().forEach(ch => {
+                    const btn = document.createElement('button');
+                    btn.className = 'pc-filtro-btn';
+                    btn.textContent = pcEmoPar(ch);
+                    btn.title = ch;
+                    btn.dataset.canal = ch;
+                    btn.classList.toggle('off', !pcCanalesActivos.has(ch));
+                    btn.addEventListener('click', () => {
+                        if (pcCanalesActivos.has(ch)) pcCanalesActivos.delete(ch);
+                        else pcCanalesActivos.add(ch);
+                        btn.classList.toggle('off', !pcCanalesActivos.has(ch));
+                        pcPintar();
+                    });
+                    filtrosBox.appendChild(btn);
+                });
+                filtrosBox.appendChild(btnMas);
+            }
+            pcCurrentData = data;
+            await pcPintar();
+        }
+
+
+        async function pcPintar() {
+            const data = pcCurrentData;
+            if (!data) return;
+            const box = document.getElementById('publicos-canales-box');
+            if (!box) return;
+            const p1name = (typeof selectorA !== 'undefined' && selectorA && selectorA.value) ? selectorA.value : 'P1';
+            const h4 = document.querySelector('#card-publicos-canales h4');
+            if (h4) h4.textContent = 'Personajes con parecidos a ' + p1name;
+            const canalesA = new Set((window._canalesA || []).map(normCanalStr));
+            const tipoATxt = (typeof tipoDePuertas === 'function') ? (tipoDePuertas(data.todas_puertas) || '') : (data.tipo || '');
+            const perfilA = data.perfil || null;
+            const lista = await cargarPublicasCanales();
+            const items = [];
+            for (const p of (lista || [])) {
+                const chs = (p.canales || []).map(normCanalStr);
+                const comunes = chs.filter(c => canalesA.has(c));
+                if (!comunes.length) continue;
+                if (!comunes.some(c => pcCanalesActivos.has(c))) continue;
+                if (window.pcSoloMasCanales && new Set(chs).size > canalesA.size) continue;
+                const tipoMatch = !!(p.tipo && tipoATxt && p.tipo === tipoATxt);
+                const perfilMatch = !!(p.perfil && perfilA && p.perfil === perfilA);
+                let prio = 0;
+                if (tipoMatch && perfilMatch) prio = 3;
+                else if (tipoMatch) prio = 2;
+                else if (perfilMatch) prio = 1;
+                const diff = new Set(chs).size - comunes.length;
+                const mismoNro = (new Set(chs).size === canalesA.size) && (comunes.length === canalesA.size);
+                items.push({ p, comunes, prio, tipoMatch, perfilMatch, diff, frio: mismoNro });
+            }
+            box.innerHTML = '';
+            if (!items.length) { box.innerHTML = '<div class="exp-vacio">Sin públicos con canales en común.</div>'; return; }
+
+            const renderSection = (arr) => {
+                const grupos = {};
+                arr.forEach(it => { const k = it.comunes.length; (grupos[k] = grupos[k] || []).push(it); });
+                Object.keys(grupos).map(Number).sort((a,b) => b-a).forEach(k => {
+                    const g = grupos[k].slice().sort((a,b) => (b.frio?1:0) - (a.frio?1:0) || b.prio - a.prio || a.diff - b.diff || a.p.nombre.localeCompare(b.p.nombre));
+                    const titulo = document.createElement('div');
+                    titulo.className = 'pc-grupo-titulo';
+                    titulo.textContent = k + (k === 1 ? ' Canal' : ' Canales');
+                    box.appendChild(titulo);
+                    const grid = document.createElement('div');
+                    grid.className = 'pc-grid';
+                    g.forEach(it => {
+                        const p = it.p;
+                        const cell = document.createElement('div');
+                        cell.className = 'pc-cell';
+                        cell.style.position = 'relative';
+                        cell.style.width = '69px';
+                        cell.style.height = '69px';
+                        let color = '';
+                        if (it.frio) {
+                            if (it.tipoMatch && it.perfilMatch) color = '#8e24aa';
+                            else if (it.tipoMatch) color = '#1e88e5';
+                            else if (it.perfilMatch) color = '#29b6f6';
+                            else color = '#4caf50';
+                        } else {
+                            if (it.tipoMatch && it.perfilMatch) color = '#e53935';
+                            else if (it.tipoMatch) color = '#ff9800';
+                            else if (it.perfilMatch) color = '#fdd835';
+                        }
+                        const ring = color ? `box-shadow:0 0 0 3px ${color};` : '';
+                        const img = document.createElement('img');
+                        img.className = 'pc-foto';
+                        img.loading = 'lazy';
+                        img.decoding = 'async';
+                        img.src = p.foto || '';
+                        img.alt = '';
+                        img.style.cssText = ring + 'width:69px;height:69px;object-fit:cover;border-radius:6px;cursor:pointer;';
+                        if (!p.foto) img.style.display = 'none';
+                        img.onerror = () => { img.style.display = 'none'; };
+                        img.onmouseover = () => { clearTimeout(window._pcHideTimer); abrirPopupPublico(p, it.comunes, it.tipoMatch, it.perfilMatch, img); };
+                        img.onmouseout = () => { window._pcHideTimer = setTimeout(() => { const _pp=document.getElementById('pc-popup'); if(_pp && !_pp.matches(':hover')) _pp.style.display='none'; }, 320); };
+                        img.addEventListener('click', () => { cargarPublicoComoP2(p.nombre); });
+                        cell.appendChild(img);
+                        const lab = document.createElement('span');
+                        lab.textContent = p.nombre;
+                        lab.style.cssText = 'position:absolute;left:0;right:0;bottom:1px;text-align:center;font-size:8px;line-height:1;color:#fff;text-shadow:0 0 2px #000,0 0 2px #000;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                        cell.appendChild(lab);
+                        grid.appendChild(cell);
+                    });
+                    box.appendChild(grid);
+                });
+            };
+
+            // Un solo renglon por cantidad de canales; frios primero dentro del renglon.
+            renderSection(items);
+        }
+
+        function abrirPopupPublico(p, comunes, tipoMatch, perfilMatch, anchor) {
+            let pop = document.getElementById('pc-popup');
+            if (!pop) {
+                pop = document.createElement('div');
+                pop.id = 'pc-popup';
+                pop.style.cssText = 'position:fixed;z-index:9999;display:none;background:#fff;border:1px solid #b0b8c4;border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.25);padding:10px;font-size:12px;max-width:260px;';
+                document.body.appendChild(pop);
+                pop.onmouseover = () => { clearTimeout(window._pcHideTimer); };
+                pop.onmouseout = () => { window._pcHideTimer = setTimeout(() => { pop.style.display = 'none'; }, 320); };
+            }
+            const imgHtml = p.foto ? `<img src="${escHtml(p.foto)}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;float:left;margin-right:8px;" onerror="this.style.display='none'">` : '';
+            const badges = (tipoMatch ? 'Mismo Tipo ' : '') + (perfilMatch ? 'Mismo Perfil' : '');
+            const bio = p.bio ? `<br><span style="font-size:11px;color:var(--muted);">${escHtml(p.bio)}</span>` : '';
+            pop.innerHTML = `${imgHtml}<div style="overflow:hidden;"><b>${escHtml(p.nombre)}</b><br>` +
+                `Tipo: ${escHtml(p.tipo || '—')}<br>Perfil: ${escHtml(p.perfil || '—')}<br>` +
+                `Canales: ${(p.canales||[]).map(c => comunes.includes(normCanalStr(c)) ? '<b>'+escHtml(c)+'</b>' : escHtml(c)).join(', ')}` +
+                (badges ? `<br><span style="color:#e53935;font-weight:700;">${escHtml(badges.trim())}</span>` : '') +
+                bio +
+                `</div><div style="clear:both;margin-top:8px;text-align:right;"><button type="button" style="font-size:11px;padding:2px 8px;cursor:pointer;" onclick="document.getElementById('pc-popup').style.display='none'">Cerrar</button></div>`;
+            pop.style.display = 'block';
+            if (anchor && anchor.getBoundingClientRect) {
+                const r = anchor.getBoundingClientRect();
+                let left = r.left;
+                if (left + pop.offsetWidth > window.innerWidth - 6) left = window.innerWidth - pop.offsetWidth - 6;
+                if (left < 6) left = 6;
+                let top = r.top - pop.offsetHeight - 6;
+                if (top < 6) top = r.bottom + 6;
+                pop.style.left = left + 'px';
+                pop.style.top = top + 'px';
+            } else {
+                pop.style.left = (window.innerWidth/2 - pop.offsetWidth/2) + 'px';
+                pop.style.top = (window.innerHeight/2 - pop.offsetHeight/2) + 'px';
+            }
+        }
+
+        async function cargarPublicoComoP2(nombre) {
+            if (!nombre) return;
+            const gen = ++genPersonaB;
+            const tituloB = document.getElementById('titulo-grafico-b');
+            if (tituloB) tituloB.textContent = nombre;
+            let f = null;
+            if (publicasCanalesCache) {
+                f = publicasCanalesCache.find(x => x.nombre === nombre);
+            }
+            if (!f) {
+                try {
+                    const r = await fetch(`/api/publica/${encodeURIComponent(nombre)}`);
+                    if (gen !== genPersonaB) return;
+                    if (!r.ok) return;
+                    f = await r.json();
+                    if (!f || f.error) return;
+                } catch (err) { console.error('cargarPublicoComoP2 fetch:', err); return; }
+            }
+            if (gen !== genPersonaB) return;
+            if (gen !== genPersonaB) return;
+            dataPersonaB = {
+                puertas_inconscientes: f.puertas_incon || [],
+                puertas_conscientes: f.puertas_con || [],
+                inconscientes_lineas: f.lineas_incon || [],
+                conscientes_lineas: f.lineas_con || [],
+                todas_puertas: f.todas_puertas || [...new Set([...(f.puertas_incon||[]), ...(f.puertas_con||[])])].sort((a,b)=>a-b),
+                perfil: f.perfil || null,
+                tiene_sns: false
+            };
+            try { mostrarPuertas(dataPersonaB, 'b'); } catch (err) { console.error('mostrarPuertas B:', err); }
+            try { actualizarSVGIndividual(svgContainerB, dataPersonaB, COLORES_FIJOS.incon, COLORES_FIJOS.consc, COLORES_FIJOS.mixto); } catch (err) { console.error('actualizarSVGIndividual B:', err); }
+            try { pintarFotoPublicaB(f.foto || ''); } catch (e) {}
+            try { actualizarCompuesto(); } catch (err) { console.error('actualizarCompuesto B:', err); }
+            try { if (typeof aplicarSimpl === 'function') aplicarSimpl(); } catch (err) {}
+            try { renderListaFiltrada(); } catch (err) { console.error('renderListaFiltrada B:', err); }
+            try { actualizarVisibilidad(); } catch (err) {}
+            try { if (dataPersonaA) mostrarCompatibilidades(dataPersonaA); } catch (err) {}
+        }
+        document.addEventListener('click', (e) => {
+            const pop = document.getElementById('pc-popup');
+            if (pop && pop.style.display === 'block' && !pop.contains(e.target)) pop.style.display = 'none';
+        });
+        function poblarFiltrosCompat() {
+            const selO = document.getElementById('filtro-comp-orden');
+            if (!selO) return;
+            // Solo orden por índice: P2 + adicionales, sin filtros de círculo/vínculo.
+            selO.onchange = () => { if (dataPersonaA) mostrarCompatibilidades(dataPersonaA); };
+        }
+
+        function mostrarCondicionamientos(data) {
+            const cont = document.getElementById('condic-detalle-a');
+            if (!cont) return;
+            cont.innerHTML = '';
+            const nombreA = selectorA.value;
+            const setA = new Set(data.todas_puertas);
+            // Libertad: tronco = padres/abuelos con datos (sin P1).
+            const tronco = (window._clanTronco || []).filter(e => e && e.key !== 'p1' && e.nombre !== nombreA && Array.isArray(e.puertas));
+            if (!tronco.length) { cont.innerHTML = '<div class="exp-vacio">Cargá el clan (padres/abuelos) para ver libertad.</div>'; return; }
+            const mapaEmo = (() => {
+                try { if (typeof mapaEmojis === 'function') return mapaEmojis() || {}; } catch(e){}
+                try { if (typeof emojisPuerta === 'function') return emojisPuerta() || {}; } catch(e){}
+                try {
+                    const svg = (typeof svgContainerA !== 'undefined' && svgContainerA.querySelector('svg')) || document.querySelector('#svg-persona-a svg');
+                    const capa = svg && svg.querySelector('[id="capa_emojis"]');
+                    const m = {};
+                    if (capa) capa.querySelectorAll('text').forEach(t => {
+                        let gate = null;
+                        const title = t.querySelector('title');
+                        if (title) { const mm = title.textContent.trim().match(/^(\d+)\b/); if (mm) gate = parseInt(mm[1], 10); }
+                        if (gate == null && t.id) { const m2 = t.id.match(/emoji[-_](\d+)/); if (m2) gate = parseInt(m2[1], 10); }
+                        if (gate == null) return;
+                        let em = '';
+                        t.childNodes.forEach(n => { if (n.nodeType === 3) em += n.nodeValue; });
+                        em = em.trim();
+                        if (em) m[gate] = em;
+                    });
+                    return m;
+                } catch(e){ return {}; }
+            })();
+            const emoG = (g) => (mapaEmo[g] ? ` ${escHtml(mapaEmo[g])}` : '');
+            try {
+                const setTronco = new Set();
+                tronco.filter(e => e && e.key !== 'p1').forEach(e => (e.puertas || []).forEach(p => setTronco.add(Number(p))));
+                // Libertad: ni P1 ni el tronco las traen. 30, 8, 2 entran acá.
+                const libres = [];
+                for (let g = 1; g <= 64; g++) { if (!setA.has(g) && !setTronco.has(g)) libres.push(g); }
+                const renderLib = () => {
+                    cont.innerHTML = '';
+                    // Encabezado: las X puertas en blanco
+                    const tit = document.createElement('div');
+                    tit.className = 'exp-sec-titulo';
+                    tit.textContent = `En blanco (${libres.length}): ${libres.join(', ')}`;
+                    cont.appendChild(tit);
+                    const barra = document.createElement('div');
+                    barra.style.cssText = 'display:flex;gap:8px;align-items:center;font-size:11px;color:#616161;margin:4px 0;';
+                    barra.innerHTML = `<label style="display:flex;gap:4px;align-items:center;cursor:pointer;"><input type="checkbox" id="chk-ver-ocultos" ${verOcultos ? 'checked' : ''}> ver ocultos</label>
+                        <span id="condic-ocultos-n"></span>`;
+                    cont.appendChild(barra);
+                    barra.querySelector('#chk-ver-ocultos').addEventListener('change', (ev) => {
+                        verOcultos = ev.target.checked;
+                        try { window._refrescarCondicClan(); } catch (e) {}
+                    });
+                    let filas = [];
+                    let nOcultos = 0;
+                    if (cachePuertasPersonas) {
+                        const setLib = new Set(libres);
+                        Object.entries(cachePuertasPersonas).forEach(([nombre, d]) => {
+                            if (nombre === nombreA) return;
+                            const tiene = (d.todas || []).filter(g => setLib.has(Number(g)));
+                            if (!tiene.length) return;
+                            const est = estadoConocido(nombre);
+                            if (est !== 'activo') {
+                                nOcultos++;
+                                if (!verOcultos) return;
+                            }
+                            tiene.sort((a, b) => a - b);
+                            filas.push({ nombre, tiene, estado: est });
+                        });
+                    }
+                    // Orden: más puertas en común primero, luego nombre
+                    filas.sort((a, b) => b.tiene.length - a.tiene.length || a.nombre.localeCompare(b.nombre));
+                    let hayLib = !!filas.length;
+                    filas.slice(0, 60).forEach(({ nombre, tiene, estado }) => {
+                        const item = document.createElement('div');
+                        item.className = 'info-item';
+                        item.style.cursor = 'pointer';
+                        item.title = 'Clic para cargar como Persona 2';
+                        const badge = (estado && estado !== 'activo') ? ` <span style="font-size:10px;color:#9e9e9e;">[${escHtml(estado)}]</span>` : '';
+                        item.innerHTML = `<div class="info-head"><span class="info-num">${escHtml(nombre)} (${tiene.length})${badge}</span>` +
+                            `<span style="margin-left:auto;display:inline-flex;gap:4px;align-items:center;">` +
+                            `<select data-motivo title="Motivo" style="font-size:10px;max-width:110px;">` +
+                            `<option value="no_conozco"${estado === 'no_conozco' ? ' selected' : ''}>no conozco</option>` +
+                            `<option value="muerto"${estado === 'muerto' ? ' selected' : ''}>muerto</option>` +
+                            `<option value="sin_contacto"${estado === 'sin_contacto' ? ' selected' : ''}>sin contacto</option>` +
+                            `<option value="activo"${(!estado || estado === 'activo') ? ' selected' : ''}>activo</option>` +
+                            `</select>` +
+                            `<button data-x title="Ocultar (X)" style="font-size:11px;padding:0 6px;cursor:pointer;">×</button>` +
+                            `</span></div>` +
+                            `<div class="info-desc">${tiene.map(g => `P${g}${emoG(g)}`).join(', ')}</div>`;
+                        item.querySelector('[data-x]').addEventListener('click', (ev) => {
+                            ev.stopPropagation();
+                            const mot = item.querySelector('[data-motivo]').value || 'no_conozco';
+                            marcarConocido(nombre, mot).then(() => { try { window._refrescarCondicClan(); } catch (e) {} });
+                        });
+                        item.querySelector('[data-motivo]').addEventListener('click', (ev) => ev.stopPropagation());
+                        item.querySelector('[data-motivo]').addEventListener('change', (ev) => {
+                            ev.stopPropagation();
+                            marcarConocido(nombre, ev.target.value).then(() => { try { window._refrescarCondicClan(); } catch (e) {} });
+                        });
+                        item.addEventListener('click', () => {
+                            try {
+                                const selB = document.getElementById('selector-b');
+                                if (selB && [...selB.options].some(o => o.value === nombre)) { selB.value = nombre; selB.dispatchEvent(new Event('change')); }
+                            } catch (e) {}
+                        });
+                        cont.appendChild(item);
+                    });
+                    if (filas.length > 60) {
+                        const mas = document.createElement('div');
+                        mas.className = 'exp-vacio';
+                        mas.textContent = `…y ${filas.length - 60} más.`;
+                        cont.appendChild(mas);
+                    }
+                    if (!hayLib) {
+                        cont.innerHTML = cachePuertasPersonas
+                            ? '<div class="exp-vacio">Nadie fuera del clan trae esas puertas libres.</div>'
+                            : '<div class="exp-vacio">Cargando personas…</div>';
+                    }
+                };
+                renderLib();
+                try { const el = document.getElementById('condic-ocultos-n'); if (el) el.textContent = nOcultos ? `ocultos: ${nOcultos}` : ''; } catch (e) {}
+                if (!cachePuertasPersonas || !Object.keys(CONOCIDOS_MAP).length) {
+                    recargarConocidos().then(() => { try { renderLib(); const el2 = document.getElementById('condic-ocultos-n'); if (el2) el2.textContent = ''; } catch (e) {} }).catch(() => {});
+                    if (cachePuertasPersonas) return;
+                    recargarPuertasPersonas().then(() => { try { window._refrescarCondicClan(); } catch (e) {} }).catch(() => {});
+                }
+                if (!cachePuertasPersonas) recargarPuertasPersonas().then(() => { try { renderLib(); } catch (e) {} }).catch(() => {});
+            } catch (eLib) {}
+        }
+        // Refresca panel 1 cuando cambia el clan (combos del árbol).
+        window._refrescarCondicClan = function(){
+            try{ recargarConocidos().then(() => { try{ if (typeof dataPersonaA !== 'undefined' && dataPersonaA) mostrarCondicionamientos(dataPersonaA); }catch(e){} }); }catch(e){}
+        };
+        try{ window.removeEventListener('clan-actualizado', window._onClanActualizado); }catch(e){}
+        window._onClanActualizado = function(){ try{ window._refrescarCondicClan(); }catch(e){} };
+        try{ window.addEventListener('clan-actualizado', window._onClanActualizado); }catch(e){}
+
+        function numeroPuertaDe(el) {
+            if (el.dataset && el.dataset.gate) return parseInt(el.dataset.gate, 10);
+            if (el.id && el.id.startsWith('tramo')) return parseInt(el.id.replace('tramo', ''), 10);
+            if (el.id && circleToGateMap[el.id] != null) return circleToGateMap[el.id];
+            return null;
+        }
+
+        function esPuertaDePersonaA(el) {
+            if (svgContainerA.contains(el)) return true;
+            if (el.dataset && el.dataset.gate && el.closest('.panel-izq')) return true;
+            return false;
+        }
+
+        function experienciasPopupContent(g) {
+            const nombreA = selectorA.value;
+            const setA = new Set(dataPersonaA ? dataPersonaA.todas_puertas : []);
+            if (!nombreA || !setA.has(g) || !cachePuertasPersonas || !paresPuerta) return null;
+            const socios = paresPuerta[g] || [];
+            const electro = [];
+            const compr = [];
+            Object.entries(cachePuertasPersonas).forEach(([nombre, d]) => {
+                if (nombre === nombreA || !dentroRangoEdad(nombreA, nombre) || !pasaFiltroVinculo(nombre) || !pasaFiltroConocido(nombre)) return;
+                const setT = new Set(d.todas);
+                const trae = socios.filter(h => setT.has(h));
+                if (trae.length) electro.push({ nombre, trae });
+                const completos = socios.filter(h => setT.has(g) && setT.has(h))
+                    .map(h => normCanalKey(`${g}-${h}`));
+                if (completos.length) compr.push({ nombre, canales: completos });
+            });
+            electro.sort((x, y) => x.nombre.localeCompare(y.nombre));
+            compr.sort((x, y) => x.nombre.localeCompare(y.nombre));
+            let html = `<div class="exp-sec-titulo">Contacto Electromagnético (${electro.length})</div>`;
+            html += electro.length ? electro.map(e =>
+                `<span style="display:inline-flex;gap:2px;align-items:center;"><button class="exp-btn" data-cargar-b="${escHtml(e.nombre)}">${escHtml(e.nombre)} <span>(${e.trae.join(', ')})</span></button><button class="exp-x" data-ocultar="${escHtml(e.nombre)}" title="Ocultar de Conocidos (X)">×</button></span>`
+            ).join('') : `<div class="exp-vacio">Nadie tiene la puerta complementaria${filtroEdad ? ` en ±${filtroEdad} años` : ''}.</div>`;
+            html += `<div class="exp-sec-titulo">Contacto de Compromiso (${compr.length})</div>`;
+            html += compr.length ? compr.map(e =>
+                `<span style="display:inline-flex;gap:2px;align-items:center;"><button class="exp-btn" data-cargar-b="${escHtml(e.nombre)}">${escHtml(e.nombre)} <span>(${e.canales.join(', ')})</span></button><button class="exp-x" data-ocultar="${escHtml(e.nombre)}" title="Ocultar de Conocidos (X)">×</button></span>`
+            ).join('') : `<div class="exp-vacio">Nadie tiene el canal completo${filtroEdad ? ` en ±${filtroEdad} años` : ''}.</div>`;
+            const filtrosActivos = [];
+            if (filtroEdad) filtrosActivos.push(`edad ±${filtroEdad}`);
+            if (filtroVinculo) filtrosActivos.push(`vínculo: ${filtroVinculo}s`);
+            if (filtrosActivos.length) html += `<div class="exp-vacio">Filtros: ${filtrosActivos.join(' · ')}.</div>`;
+            return { title: `Puerta ${g} — Experiencias (${nombreA})`, content: html, exp: true };
+        }
+
+        document.getElementById('btn-experiencias').addEventListener('click', async (e) => {
+            const btn = e.currentTarget;
+            if (!modoExperiencias) {
+                btn.textContent = 'Cargando...';
+                try {
+                    if (!paresPuerta) construirParesPuerta();
+                    if (!cachePuertasPersonas) await recargarPuertasPersonas(true);
+                    await recargarConocidos();
+                    if (!cachePuertasPersonas) throw new Error('sin datos');
+                    modoExperiencias = true;
+                } catch (err) {
+                    btn.textContent = 'Error: reinicia el servidor (INICIAR.cmd)';
+                    setTimeout(() => { if (!modoExperiencias) btn.textContent = 'Experiencias: OFF'; }, 3000);
+                    return;
+                }
+            } else {
+                modoExperiencias = false;
+                if (!window.popupManager.isPinned()) window.popupManager.hide();
+            }
+            btn.textContent = modoExperiencias ? 'Experiencias: ON' : 'Experiencias: OFF';
+            btn.classList.toggle('on', modoExperiencias);
+            document.getElementById('card-grafico-a').classList.toggle('experiencias-on', modoExperiencias);
+            document.getElementById('filtros-exp').style.display = modoExperiencias ? 'inline' : 'none';
+            if (!modoExperiencias) {
+                filtroEdad = 0;
+                document.getElementById('filtro-edad').value = '0';
+                filtroVinculo = '';
+                document.getElementById('filtro-vinculo').value = '';
+            }
+        });
+
+        document.getElementById('filtro-edad').addEventListener('change', (e) => {
+            filtroEdad = parseInt(e.target.value, 10) || 0;
+        });
+        document.getElementById('filtro-vinculo').addEventListener('change', (e) => {
+            filtroVinculo = e.target.value || '';
+        });
+
+        document.addEventListener('click', (e) => {
+            const x = e.target.closest('.exp-x');
+            if (x && x.dataset.ocultar) {
+                e.stopPropagation();
+                const nombre = x.dataset.ocultar;
+                marcarConocido(nombre, 'no_conozco').then(() => {
+                    try { window.popupManager.hide(); } catch (err) {}
+                    try { window._refrescarCondicClan(); } catch (err2) {}
+                });
+                return;
+            }
+            const b = e.target.closest('.exp-btn');
+            if (!b || !b.dataset.cargarB) return;
+            e.stopPropagation();
+            const nombre = b.dataset.cargarB;
+            if (![...selectorB.options].some(o => o.value === nombre)) return;
+            selectorB.value = nombre;
+            selectorB.dispatchEvent(new Event('change'));
+        });
+        // ---------- Autocompletado de lugar (Open-Meteo + fallback local) ----------
+        // Escribís la ciudad -> sugiere "Ciudad, Admin, País (Zona)" con lat/lon.
+        // Al elegir se guardan lat/lon/tz_name y el cálculo usa el offset real de esa fecha (DST).
+        // Sin internet o sin resultados: fallback a /api/lugares y "lat, lon, tz" manual.
+        function initAutocompleteLugar() {
+            const inp = document.getElementById('nuevo-lugar');
+            const sug = document.getElementById('geo-sug');
+            const elegido = document.getElementById('lugar-elegido');
+            if (!inp || !sug) return;
+            let timer = null, items = [], activa = -1;
+
+            function limpiarSel() { delete inp.dataset.lat; delete inp.dataset.lon; delete inp.dataset.tzname; if (elegido) elegido.textContent = ''; }
+            function pintar(lista, nota) {
+                items = lista; activa = -1;
+                if (!lista.length) {
+                    sug.innerHTML = `<div style="padding:8px;font-size:12px;color:#777;">${nota || 'Sin resultados. Probá otra grafía o usá “lat, lon, tz” abajo.'}</div>`;
+                    sug.style.display = 'block';
+                    document.getElementById('wrap-coords').style.display = '';
+                    return;
+                }
+                sug.innerHTML = lista.map((c, i) =>
+                    `<button type="button" data-i="${i}">${escHtml(c.label)}<br><span class="geo-sub">${escHtml(c.lat)}, ${escHtml(c.lon)}${c.tz_name ? ' · ' + escHtml(c.tz_name) : ''}</span></button>`
+                ).join('');
+                sug.style.display = 'block';
+            }
+            function fallbackLocal(q) {
+                const fb = (window._lugaresFallback || []).filter(l =>
+                    l.label.toLowerCase().includes(q.toLowerCase())).slice(0, 8)
+                    .map(l => ({ label: l.label, lat: '', lon: '', tz_name: '', lugarId: l.id }));
+                pintar(fb, 'Geocoding sin conexión: lista local.');
+            }
+            async function buscar(q) {
+                if (q.length < 2) { sug.style.display = 'none'; return; }
+                try {
+                    const r = await fetch(`/api/geo?q=${encodeURIComponent(q)}`);
+                    const d = await r.json();
+                    if (!r.ok || d.error || !Array.isArray(d)) { fallbackLocal(q); return; }
+                    if (!d.length) {
+                        // ¿Es "lat, lon, tz" pegado? ofrecerlo directo.
+                        const m = q.replace(';', ',').split(',');
+                        if (m.length >= 2 && !isNaN(parseFloat(m[0])) && !isNaN(parseFloat(m[1]))) {
+                            pintar([{ label: `Coordenadas: ${q}`, lat: m[0].trim(), lon: m[1].trim(), tz_name: (m[2] || '').trim() }]);
+                        } else fallbackLocal(q);
+                        return;
+                    }
+                    pintar(d);
+                } catch (e) { fallbackLocal(q); }
+            }
+            inp.addEventListener('input', () => {
+                limpiarSel();
+                clearTimeout(timer);
+                const q = inp.value.trim();
+                timer = setTimeout(() => buscar(q), 350);
+            });
+            inp.addEventListener('focus', () => { if (inp.value.trim().length >= 2) buscar(inp.value.trim()); });
+            inp.addEventListener('keydown', (e) => {
+                const btns = [...sug.querySelectorAll('button')];
+                if (!btns.length || sug.style.display === 'none') return;
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activa = (activa + (e.key === 'ArrowDown' ? 1 : -1) + btns.length) % btns.length;
+                    btns.forEach((b, i) => b.classList.toggle('activa', i === activa));
+                } else if (e.key === 'Enter' && activa >= 0) {
+                    e.preventDefault();
+                    btns[activa].click();
+                } else if (e.key === 'Escape') { sug.style.display = 'none'; }
+            });
+            sug.addEventListener('click', (e) => {
+                const b = e.target.closest('button[data-i]');
+                if (!b) return;
+                const c = items[+b.dataset.i];
+                if (!c) return;
+                inp.value = c.label;
+                if (c.lat !== '' && c.lon !== '') {
+                    inp.dataset.lat = c.lat; inp.dataset.lon = c.lon;
+                    if (c.tz_name) inp.dataset.tzname = c.tz_name;
+                    if (elegido) elegido.textContent = `✓ ${c.lat}, ${c.lon}${c.tz_name ? ' · ' + c.tz_name : ''}`;
+                    document.getElementById('wrap-coords').style.display = 'none';
+                } else if (c.lugarId) {
+                    // Fallback local: el backend resuelve el alias.
+                    inp.value = c.lugarId;
+                    if (elegido) elegido.textContent = `✓ ${c.label} (lista local)`;
+                }
+                sug.style.display = 'none';
+                calcularPreview();
+                actualizarPanelDia();
+            });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.lugar-wrap')) sug.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Paralelo: los 4 fetch iniciales no dependen entre sí (~4x más rápido que en cadena).
+            const pGate = loadGateInfo().catch((e) => console.error('gate_info:', e));
+            const pLineas = loadLineasInfo().catch((e) => console.error('lineas_info:', e));
+            const pPuertas = recargarPuertasPersonas().catch((e) => console.error('puertas_personas:', e));
+            const pLugares = (async () => {
+                try {
+                    const rl = await fetch('/api/lugares');
+                    if (rl.ok) window._lugaresFallback = await rl.json();
+                } catch (e) {}
+            })();
+            try { renderListaFiltrada(); } catch (e) {}
+            await Promise.all([pGate, pLineas, pPuertas, pLugares]);
+            // Cargar las personas de la cuenta (Neon) sin bloquear el arranque.
+            fetch('/api/personas', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+                if (j && j.personas && typeof refrescarSelectores === 'function') refrescarSelectores(j.personas, null);
+            }).catch(function(){});
+            masterPersonas = [...selectorA.options].map(o => o.value).filter(Boolean);
+            poblarFiltrosCompat();
+            poblarVinculoRef();
+            poblarTiposVinculo();
+            initAutocompleteLugar();
+            ocultarFilaPuertas();
+            // Temas visuales: claro (actual), oscuro, crema, acero. Botón circular.
+            const TEMAS = ['crema', 'claro', 'oscuro', 'acero'];
+            let temaActual = 'crema';
+            try { temaActual = localStorage.getItem('temaDH') || 'crema'; } catch (e) {}
+            if (!TEMAS.includes(temaActual)) temaActual = 'crema';
+            document.documentElement.dataset.tema = temaActual;
+            const btnTema = document.getElementById('btn-tema');
+            const refrescarBtnTema = () => { if (btnTema) btnTema.title = `Tema: ${temaActual} (clic para cambiar)`; };
+            refrescarBtnTema();
+            if (btnTema) btnTema.addEventListener('click', () => {
+                temaActual = TEMAS[(TEMAS.indexOf(temaActual) + 1) % TEMAS.length];
+                document.documentElement.dataset.tema = temaActual;
+                try { localStorage.setItem('temaDH', temaActual); } catch (e) {}
+                refrescarBtnTema();
+            });
+            // Tránsitos plegable: inicia abierto solo si se lo dejó abierto
+            // (localStorage dhTransitosAbierto), si no inicia cerrado.
+            const cardTr0 = document.getElementById('card-transitos-contacto');
+            if (cardTr0) {
+                let trAbierto = null;
+                try { trAbierto = localStorage.getItem('dhTransitosAbierto'); } catch (e) {}
+                if (trAbierto === '1') cardTr0.classList.remove('plegado');
+                else cardTr0.classList.add('plegado');
+                const labTr = cardTr0.querySelector('.paleta-grupo > span');
+                if (labTr) {
+                    labTr.title = 'Clic para plegar/desplegar';
+                    labTr.addEventListener('click', () => {
+                        cardTr0.classList.toggle('plegado');
+                        try { localStorage.setItem('dhTransitosAbierto', cardTr0.classList.contains('plegado') ? '0' : '1'); } catch (e) {}
+                        if (!cardTr0.classList.contains('plegado')) { try { actualizarTransitos(); } catch (e) {} }
+                    });
+                }
+            }
+            // Controles plegable: inicia cerrado, salvo que se lo haya dejado abierto
+            // (estado guardado en localStorage y restaurado en cada recarga).
+            const panelControles = document.getElementById('panel-controles');
+            if (panelControles) {
+                let abiertoGuardado = null;
+                try { abiertoGuardado = localStorage.getItem('dhControlesAbierto'); } catch (e) {}
+                if (abiertoGuardado === '1') panelControles.classList.remove('colapsada');
+                else panelControles.classList.add('colapsada');
+                const hControles = panelControles.querySelector('h4.desplegable');
+                if (hControles) hControles.addEventListener('click', () => {
+                    panelControles.classList.toggle('colapsada');
+                    try { localStorage.setItem('dhControlesAbierto', panelControles.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                });
+            }
+            // Briefing plegable (1): antes siempre desplegado porque no tenía
+            // handler de colapso. Inicia cerrado salvo que se lo haya dejado
+            // abierto (localStorage dhBriefingAbierto), igual que Controles.
+            const cardBriefing = document.getElementById('card-briefing');
+            if (cardBriefing) {
+                let brAbierto = null;
+                try { brAbierto = localStorage.getItem('dhBriefingAbierto'); } catch (e) {}
+                if (brAbierto === '1') cardBriefing.classList.remove('colapsada');
+                else cardBriefing.classList.add('colapsada');
+                const hBriefing = cardBriefing.querySelector('h4.desplegable');
+                if (hBriefing) {
+                    if (!hBriefing.title) hBriefing.title = 'Clic para plegar/desplegar';
+                    hBriefing.addEventListener('click', () => {
+                        cardBriefing.classList.toggle('colapsada');
+                        try { localStorage.setItem('dhBriefingAbierto', cardBriefing.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                    });
+                }
+            }
+            // Contactos plegable: inicia abierto, recuerda estado.
+            const cardSerNoSer = document.getElementById('card-sernoser');
+            if (cardSerNoSer) {
+                let snAbierto = null;
+                try { snAbierto = localStorage.getItem('dhSerNoSerAbierto'); } catch (e) {}
+                if (snAbierto === '1') cardSerNoSer.classList.remove('colapsada');
+                else cardSerNoSer.classList.add('colapsada');
+                const hSerNoSer = cardSerNoSer.querySelector('h4.desplegable');
+                if (hSerNoSer) {
+                    if (!hSerNoSer.title) hSerNoSer.title = 'Clic para plegar/desplegar';
+                    hSerNoSer.addEventListener('click', () => {
+                        cardSerNoSer.classList.toggle('colapsada');
+                        try { localStorage.setItem('dhSerNoSerAbierto', cardSerNoSer.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                    });
+                }
+            }
+            const cardContactos = document.getElementById('card-contactos');
+            if (cardContactos) {
+                let coAbierto = null;
+                try { coAbierto = localStorage.getItem('dhContactosAbierto'); } catch (e) {}
+                if (coAbierto === '0') cardContactos.classList.add('colapsada');
+                else cardContactos.classList.remove('colapsada');
+                const hContactos = cardContactos.querySelector('h4.desplegable');
+                if (hContactos) hContactos.addEventListener('click', () => {
+                    cardContactos.classList.toggle('colapsada');
+                    try { localStorage.setItem('dhContactosAbierto', cardContactos.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                });
+            }
+            const cardPublicosCanales = document.getElementById('card-publicos-canales');
+            if (cardPublicosCanales) {
+                let pcAbierto = null;
+                try { pcAbierto = localStorage.getItem('dhPublicosCanalesAbierto'); } catch (e) {}
+                if (pcAbierto === '0') cardPublicosCanales.classList.add('colapsada');
+                else cardPublicosCanales.classList.remove('colapsada');
+                const hPC = cardPublicosCanales.querySelector('h4.desplegable');
+                if (hPC) hPC.addEventListener('click', () => {
+                    cardPublicosCanales.classList.toggle('colapsada');
+                    try { localStorage.setItem('dhPublicosCanalesAbierto', cardPublicosCanales.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                    if (!cardPublicosCanales.classList.contains('colapsada')) {
+                        try { mostrarPublicosCanales(pcCurrentData || (typeof dataPersonaA !== 'undefined' ? dataPersonaA : null)); } catch (e) { console.error('mostrarPublicosCanales:', e); }
+                    }
+                });
+            }
+            // Lista de puertas/líneas filtradas: plegable, recuerda si se la dejó abierta.
+            const flWrap = document.getElementById('filtros-lista-wrap');
+            if (flWrap) {
+                let flAbierta = null;
+                try { flAbierta = localStorage.getItem('dhFiltrosListaAbierta'); } catch (e) {}
+                if (flAbierta === '1') flWrap.classList.add('abierta');
+                const flTog = document.getElementById('filtros-lista-toggle');
+                if (flTog) flTog.addEventListener('click', () => {
+                    flWrap.classList.toggle('abierta');
+                    try { localStorage.setItem('dhFiltrosListaAbierta', flWrap.classList.contains('abierta') ? '1' : '0'); } catch (e) {}
+                });
+            }
+            // Gráfica de Tránsitos: plegable, recuerda si se la dejó abierta.
+            const gtWrap = document.getElementById('card-grafica-transitos-3-7');
+            if (gtWrap) {
+                let gtAbierta = null;
+                try { gtAbierta = localStorage.getItem('dhGraficaTransAbierta'); } catch (e) {}
+                if (gtAbierta === '1') gtWrap.classList.add('abierta');
+                const gtTog = document.getElementById('grafica-trans-toggle');
+                if (gtTog) gtTog.addEventListener('click', () => {
+                    gtWrap.classList.toggle('abierta');
+                    try { localStorage.setItem('dhGraficaTransAbierta', gtWrap.classList.contains('abierta') ? '1' : '0'); } catch (e) {}
+                    if (gtWrap.classList.contains('abierta')) { try { actualizarGraficaTransitos(); } catch (e) {} }
+                });
+            }
+            // Mapa de tránsitos: plegable, abierto por defecto.
+            const tmWrap = document.getElementById('card-transitos-mapa');
+            if (tmWrap) {
+                let tmAbierto = null;
+                try { tmAbierto = localStorage.getItem('dhMapaTransitosAbierto'); } catch (e) {}
+                if (tmAbierto === '0') tmWrap.classList.add('colapsada');
+                else tmWrap.classList.remove('colapsada');
+                const tmTog = tmWrap.querySelector('h4.desplegable');
+                if (tmTog) tmTog.addEventListener('click', () => {
+                    tmWrap.classList.toggle('colapsada');
+                    try { localStorage.setItem('dhMapaTransitosAbierto', tmWrap.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                    if (!tmWrap.classList.contains('colapsada')) { try { tmAplicarVista(); } catch (e) {} }
+                });
+            }
+            document.querySelectorAll('.panel-lateral .card > h4').forEach(h => {
+                h.classList.add('desplegable');
+                if (!h.title) h.title = 'Clic para plegar/desplegar';
+                const cardLat = h.parentElement;
+                const keyLat = 'dhLat_' + ((cardLat && cardLat.dataset && cardLat.dataset.caja) || h.textContent.trim().slice(0, 24) || 'panel');
+                let abiertoLat = null;
+                try { abiertoLat = localStorage.getItem(keyLat); } catch (e) {}
+                if (abiertoLat === '1') cardLat.classList.remove('colapsada');
+                else cardLat.classList.add('colapsada');
+                h.addEventListener('click', (e) => {
+                    if (e.target.closest('select, input, label')) return;
+                    cardLat.classList.toggle('colapsada');
+                    try { localStorage.setItem(keyLat, cardLat.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                });
+            });
+            actualizarVisibilidad();
+            if (selectorA) selectorA.focus();
+            limpiarPanel('a');
+            limpiarPanel('b');
+            limpiarSVG(svgContainerA);
+            limpiarSVG(svgContainerB);
+            limpiarSVG(svgContainerComp);
+            // Reorden central por arrastre (3+5): los paneles debajo de los
+            // gráficos se arrastran desde la barra del título (fuera del texto,
+            // que sigue plegando/desplegando). Orden por defecto: Controles
+            // inmediatamente debajo de las gráficas. Se guarda en
+            // dhOrdenCentralV2 y no toca laterales ni la fila de gráficos.
+            (function initReordenCentral() {
+                const cont = document.querySelector('.panel-central');
+                if (!cont) return;
+                const KEY = 'dhOrdenCentralV2';
+                const DEFECTO = ['panel-controles', 'card-contactos', 'card-briefing', 'card-sernoser', 'filtros-lista-wrap',
+                    'card-grafica-transitos-3-7', 'card-transitos-mapa', 'card-transitos-contacto', 'card-timeline-svg', 'card-autoconocimiento'];
+                const esMovible = (el) => el && el.tagName === 'DIV' && !el.classList.contains('graficos-fila');
+                const lista = () => [...cont.children].filter(esMovible);
+                const porId = () => { const m = {}; lista().forEach(p => { if (p.id) m[p.id] = p; }); return m; };
+                // Aplicar orden: guardado > defecto (5). Solo reordena si conoce los ids.
+                try {
+                    const raw = localStorage.getItem(KEY);
+                    const orden = raw ? JSON.parse(raw) : DEFECTO;
+                    if (Array.isArray(orden) && orden.length) {
+                        const m = porId();
+                        let ok = false;
+                        const vistos = new Set();
+                        orden.forEach(id => { if (m[id]) { cont.appendChild(m[id]); vistos.add(id); ok = true; } });
+                        if (!ok) { const m2 = porId(); DEFECTO.forEach(id => { if (m2[id]) cont.appendChild(m2[id]); }); }
+                        // Paneles nuevos que no estaban en el orden guardado: al final,
+                        // sin perder su lugar respecto del resto.
+                        lista().forEach(p => { if (p.id && !vistos.has(p.id) && !orden.includes(p.id)) cont.appendChild(p); });
+                        if (!orden.includes('card-autoconocimiento')) { const m3 = porId(); if (m3['card-autoconocimiento']) cont.appendChild(m3['card-autoconocimiento']); }
+                    }
+                } catch (e) {
+                    try { const m = porId(); DEFECTO.forEach(id => { if (m[id]) cont.appendChild(m[id]); }); } catch (e2) {}
+                }
+                const guardar = () => {
+                    try { localStorage.setItem(KEY, JSON.stringify(lista().map(p => p.id).filter(Boolean))); } catch (e) {}
+                };
+                const cabeceraDe = (panel) => {
+                    let h = panel.querySelector(':scope > h4');
+                    if (h) return h;
+                    const sp = panel.querySelector('.paleta-grupo > span:first-child');
+                    return sp || null;
+                };
+                let arr = null; // {panel, header, x0, y0, enArrastre, indicador}
+                lista().forEach(panel => {
+                    const header = cabeceraDe(panel);
+                    if (!header) return;
+                    const grip = document.createElement('span');
+                    grip.className = 'panel-mover';
+                    grip.textContent = '⠿';
+                    grip.title = 'Arrastrar para subir/bajar el panel (el texto pliega/despliega)';
+                    header.insertBefore(grip, header.firstChild);
+                    header.addEventListener('pointerdown', (e) => {
+                        if (e.button !== undefined && e.button !== 0) return;
+                        // En táctil solo desde el grip, para no bloquear el scroll.
+                        if (e.pointerType === 'touch' && e.target !== grip) return;
+                        arr = { panel, header, x0: e.clientX, y0: e.clientY, enArrastre: false, indicador: null };
+                        try { header.setPointerCapture(e.pointerId); } catch (err) {}
+                    });
+                    header.addEventListener('pointermove', (e) => {
+                        if (!arr || arr.panel !== panel) return;
+                        if (!arr.enArrastre) {
+                            const dx = (e.clientX || 0) - arr.x0, dy = (e.clientY || 0) - arr.y0;
+                            if (Math.hypot(dx, dy) < 7) return;
+                            arr.enArrastre = true;
+                            panel.classList.add('arrastrando');
+                            document.body.style.userSelect = 'none';
+                            const ind = document.createElement('div');
+                            ind.id = 'reorden-indicador';
+                            arr.indicador = ind;
+                        }
+                        // Destino: panel bajo el puntero (mitad superior/inferior).
+                        const els = lista().filter(p => p !== panel);
+                        let destino = null, antes = true;
+                        for (const otro of els) {
+                            const r = otro.getBoundingClientRect();
+                            if ((e.clientY || 0) < r.top + r.height / 2) { destino = otro; antes = true; break; }
+                            destino = otro; antes = false;
+                        }
+                        if (arr.indicador) {
+                            if (!destino) cont.appendChild(arr.indicador);
+                            else cont.insertBefore(arr.indicador, antes ? destino : destino.nextSibling);
+                        }
+                    });
+                    const terminar = (e) => {
+                        if (!arr || arr.panel !== panel) return;
+                        const fueArrastre = arr.enArrastre;
+                        const ind = arr.indicador;
+                        if (fueArrastre) {
+                            if (ind && ind.parentNode === cont) {
+                                cont.insertBefore(panel, ind);
+                                guardar();
+                            }
+                            // Suprime el clic de pliegue que sigue al arrastre. Los
+                            // toggles están en el header (fase target); por eso se
+                            // frena en CAPTURA desde el contenedor padre, que corre
+                            // antes y sí puede detener la propagación.
+                            const suprime = (ev) => {
+                                if (header.contains(ev.target)) {
+                                    ev.stopPropagation();
+                                    ev.preventDefault();
+                                }
+                                cont.removeEventListener('click', suprime, true);
+                            };
+                            cont.addEventListener('click', suprime, true);
+                            setTimeout(() => { try { cont.removeEventListener('click', suprime, true); } catch (e) {} }, 600);
+                        }
+                        if (ind && ind.parentNode) ind.parentNode.removeChild(ind);
+                        panel.classList.remove('arrastrando');
+                        document.body.style.userSelect = '';
+                        arr = null;
+                    };
+                    header.addEventListener('pointerup', terminar);
+                    header.addEventListener('pointercancel', terminar);
+                });
+            })();
+            // Pestañas con el nombre de cada cuadro.
+            document.querySelectorAll('[data-caja]').forEach(el => {
+                const tab = document.createElement('span');
+                tab.className = 'corner-tab';
+                const nm = document.createElement('span');
+                nm.className = 'corner-name';
+                nm.textContent = el.dataset.caja;
+                tab.appendChild(nm);
+                el.appendChild(tab);
+            });
+            // Fecha/hora actual de Montevideo (UTC-3) como valor inicial del tránsito.
+            (() => {
+                const d = new Date(Date.now() - 3 * 3600 * 1000);
+                const p = (n) => String(n).padStart(2, '0');
+                document.getElementById('fecha-transito').value =
+                    `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}T${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
+            })();
+            // P1 al inicio: si hay persona guardada ("Cargar al inicio: ON"), se carga
+            // AQUÍ al final del init, después de limpiarPanel/limpiarSVG, para que
+            // el gráfico-A se pinte y no lo borre la limpieza inicial.
+            try { if (typeof window._cargarP1Inicio === 'function') window._cargarP1Inicio(); } catch (e) {}
+            try { if (typeof window._cargarP2YAdicionales === 'function') window._cargarP2YAdicionales(); } catch (e) {}
+        });
+
+        // ---------- Informe IA: prompt con lo visible (P1 / P2 / compuesto / tránsito) ----------
+        const NOTEBOOK_DH_ID = '0ff512ba-f7b1-428b-b093-a064a10cb96b';
+        const NOTEBOOK_DH_URL = 'https://notebook.google.com/notebook/0ff512ba-f7b1-428b-b093-a064a10cb96b';
+        const SKILL_INFORME = [
+            'CÓMO HACER EL INFORME (seguilo así):',
+            '- Tono simple y claro, nada coloquial ni técnico. Escribí para que cualquiera lo entienda y lo recuerde.',
+            '- Citá cada idea así: puerta (10), canal (1-8), centro (Garganta). No escribas "puerta 10", usá (10).',
+            '- Evitá palabras como electromagnético, compromiso, compañía, dominio salvo que las expliques con un ejemplo de la vida diaria.',
+            '- Con cada punto da 1 ejemplo práctico y concreto (trabajo, casa, pareja, descanso).',
+            '- Corto y didáctico: frases breves, ideas separadas, fácil de memorizar.',
+            '- Solo usá los libros del cuaderno como fuente. Si falta un dato, decilo y no lo inventes.',
+            '- Orden: 1) Resumen en 5 líneas. 2) Tus puntos fuertes con ejemplos. 3) Tus puntos abiertos con ejemplos de qué te ayuda. 4) Si hay 2 personas: cómo se llevan con ejemplos. 5) Si hay tránsito: qué cambia estos días con ejemplos. 6) Cierre: 3 pasos simples para esta semana y 1 pregunta para pensar.'
+        ].join('\n');
+        if (typeof window._BASE_IA === 'undefined') window._BASE_IA = '';
+        async function _cargarBaseIA() {
+            if (typeof window._BASE_IA === 'string' && window._BASE_IA) return window._BASE_IA;
+            if (window._BASE_IA_PROM && typeof window._BASE_IA_PROM.then === 'function') {
+                try { return await window._BASE_IA_PROM; } catch (e) { return ''; }
+            }
+            try {
+                window._BASE_IA_PROM = fetch('/api/ia_base').then(r => r.json()).then(j => {
+                    window._BASE_IA = String(((j || {}).base) || '');
+                    return window._BASE_IA;
+                }).catch(() => { window._BASE_IA = ''; return ''; });
+                return await window._BASE_IA_PROM;
+            } catch (e) { window._BASE_IA = ''; return ''; }
+        }
+        try { _cargarBaseIA(); } catch (e) {}
+
+        function puertaConLinea(p, l) {
+            return (l != null && l !== '') ? `(${p}.${l})` : `(${p})`;
+        }
+
+        function _unaLineaInforme(s) {
+            return String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+        }
+        function _descPuertaCorta(g) {
+            try {
+                const d = (typeof puertaDescMap !== 'undefined') ? puertaDescMap[String(g)] : '';
+                if (!d) return '';
+                if (typeof primeraOracion === 'function') return _unaLineaInforme(primeraOracion(d));
+                return _unaLineaInforme(String(d).split('\n')[0]);
+            } catch (e) { return ''; }
+        }
+        function _descLineaInforme(g, l) {
+            try {
+                if (l == null || l === '' || isNaN(l)) return '';
+                const info = (typeof lineaInfoMap !== 'undefined') ? (lineaInfoMap[`${g}.${l}`] || {}) : {};
+                let t = '';
+                if (info.arquetipo) t += _unaLineaInforme(info.arquetipo);
+                if (info.rasgo) t += (t ? ' — ' : '') + _unaLineaInforme(info.rasgo);
+                return t;
+            } catch (e) { return ''; }
+        }
+        function _fmtPuertaLineaDesc(g, l) {
+            return (l != null && l !== '' && !isNaN(l)) ? `(${g}.${l})` : `(${g})`;
+        }
+        // Centros PROPIOS de la persona desde sus canales (nunca desde el SVG,
+        // porque el SVG queda contaminado por el overlay de tránsito).
+        function _centrosPropiosDesdeCanales(canales) {
+            try {
+                if (typeof CENTRO_CANALES !== 'undefined') {
+                    const setC = new Set((canales || []).map(k => normCanalKey(k)));
+                    const defs = new Set();
+                    Object.entries(CENTRO_CANALES).forEach(([id, lista]) => {
+                        if (lista.some(c => setC.has(normCanalKey(c)))) defs.add(id);
+                    });
+                    return defs;
+                }
+            } catch (e) {}
+            return new Set();
+        }
+
+        function bloquePersona(nombre, data, svgScope, canales, otroNombre) {
+            if (!nombre || !data) return null;
+            const sub = document.getElementById(svgScope === svgContainerA ? 'subtitulo-grafico-a' : 'subtitulo-grafico-b');
+            // OJO: no usar svgScope._centrosDefinidos (incluye centros del tránsito
+            // cuando el overlay está ON). Se recalcula solo con los canales propios.
+            const defsSet = _centrosPropiosDesdeCanales(canales);
+            const defs = [...defsSet].sort();
+            const abiertos = (typeof ORDEN_CENTROS !== 'undefined' ? ORDEN_CENTROS : []).filter(c => !defsSet.has(c));
+            // Desglose consciente / inconsciente con puerta.línea + descripciones.
+            const fmtLista = (puertas, lineas) => (puertas || []).map((p, i) => {
+                const l = (lineas || [])[i];
+                return '  - ' + _fmtPuertaLineaDesc(p, l);
+            });
+            const inconTxt = fmtLista(data.puertas_inconscientes, data.inconscientes_lineas).join('\n');
+            const conscTxt = fmtLista(data.puertas_conscientes, data.conscientes_lineas).join('\n');
+            // Puertas sueltas: activas que no forman canal en esta persona
+            let colgadas = [];
+            try {
+                const enCanal = new Set();
+                (canales || []).forEach(k => k.split('-').forEach(n => enCanal.add(parseInt(n, 10))));
+                colgadas = [...new Set(data.todas_puertas || [])].filter(g => !enCanal.has(g)).sort((a, b) => a - b).map(g => `(${g})`);
+            } catch (e) {}
+            // Vínculo SOLO si es entre las dos personas visibles (P1 <-> P2).
+            let vincTxt = '';
+            try {
+                const v = (typeof vincMap !== 'undefined') ? vincMap[String(nombre).trim().toLowerCase()] : null;
+                const otro = (otroNombre || '').trim().toLowerCase();
+                if (v && otro && String(v.referente || '').trim().toLowerCase() === otro) {
+                    vincTxt = ` — Vínculo con ${otroNombre}: ${v.vinc_jorge || v.vinc_ref || ''}`;
+                }
+            } catch (e) {}
+            const canalesTxt = (canales || []).map(k => {
+                let d = '';
+                try { d = (typeof canalDescMap !== 'undefined') ? (canalDescMap[normCanalKey(k)] || '') : ''; } catch (e) {}
+                if (d && typeof primeraLineaCanal === 'function') d = primeraLineaCanal(d);
+                d = _unaLineaInforme(d);
+                return d ? `(${normCanalKey(k)}) ${d}` : `(${normCanalKey(k)})`;
+            }).join('\n  - ');
+            return [
+                `Persona: ${nombre}${vincTxt}`,
+                `Base: ${sub ? sub.textContent.trim() : '-'}${data.perfil ? ` — Perfil ${data.perfil}` : ' (faltan datos, no inventar)'}`,
+                `Puertas INCONSCIENTES (Diseño, rojas):`,
+                inconTxt ? '  - ' + inconTxt.slice(4) : '  - -',
+                `Puertas CONSCIENTES (Personalidad, negras):`,
+                conscTxt ? '  - ' + conscTxt.slice(4) : '  - -',
+                `Canales propios:\n  - ${canalesTxt || '-'}`,
+                `Puertas sueltas (activas sin canal propio): ${colgadas.join(' ') || '-'}`,
+                `Centros DEFINIDOS propios (SIN tránsito, solo con sus canales): ${defs.join(', ') || 'ninguno'}`,
+                `Centros ABIERTOS propios (SIN tránsito): ${abiertos.join(', ') || '-'}`
+            ].join('\n');
+        }
+
+        function bloqueTransitoInforme() {
+            if ((typeof TRANSITO_ACTUAL === 'undefined' || !TRANSITO_ACTUAL) || (typeof overlayTransitoOn !== 'undefined' && !overlayTransitoOn)) return null;
+            const t = TRANSITO_ACTUAL;
+            const fechaT = t.nombre || ((document.getElementById('fecha-transito') || {}).value) || 'actual';
+            const det = Array.isArray(t.detalle) ? t.detalle : [];
+            const lineas = [];
+            const setT = new Set();
+            if (det.length) {
+                det.forEach(d => {
+                    setT.add(d.puerta);
+                    lineas.push(`  - ${d.planeta || '?'} ${_fmtPuertaLineaDesc(d.puerta, d.linea)}`);
+                });
+            } else {
+                (t.conscientes || []).forEach(g => {
+                    setT.add(g);
+                    lineas.push(`  - ${_fmtPuertaLineaDesc(g, null)}`);
+                });
+            }
+            // Canales propios del tránsito + electromagnéticos con Persona 1 (aclarar).
+            let propiosT = [], electroP1 = [];
+            try {
+                const keys = (typeof canalDescMap !== 'undefined') ? Object.keys(canalDescMap) : [];
+                const setA = (typeof dataPersonaA !== 'undefined' && dataPersonaA) ? new Set(dataPersonaA.todas_puertas || []) : new Set();
+                keys.forEach(k => {
+                    const m = String(k).split('-').map(Number);
+                    if (m.length !== 2 || m.some(isNaN)) return;
+                    const [a, b] = m;
+                    if (setT.has(a) && setT.has(b)) propiosT.push(`(${normCanalKey(k)})`);
+                    if (((setA.has(a) && setT.has(b) && !setA.has(b) && !setT.has(a)) || (setA.has(b) && setT.has(a) && !setA.has(a) && !setT.has(b)))) {
+                        if (!electroP1.includes(`(${normCanalKey(k)})`)) electroP1.push(`(${normCanalKey(k)})`);
+                    }
+                });
+            } catch (e) {}
+            // Centros que el tránsito define por sí mismo (no mezclar con los de la persona).
+            let centrosT = [];
+            try {
+                const s = _centrosPropiosDesdeCanales(propiosT.map(s => s.slice(1, -1)));
+                centrosT = [...s].sort();
+            } catch (e) {}
+            return [
+                `Tránsito (${fechaT}) — SOLO cielo, no son puertas de la persona:`,
+                ...lineas,
+                `Canales completos DENTRO del tránsito: ${[...new Set(propiosT)].sort().join(' ') || '-'}`,
+                `Canales electromagnéticos tránsito↔Persona1: ${electroP1.sort().join(' ') || '-'}`,
+                `Centros definidos POR EL TRÁNSITO (no atribuir a la persona): ${centrosT.join(', ') || 'ninguno'}`
+            ].join('\n');
+        }
+
+        function bloqueGraficaTransitosInforme() {
+            const d = (typeof window !== 'undefined') ? window.GRAFICA_TRANSITOS : null;
+            if (!d || !Array.isArray(d.slots) || !d.slots.length) return null;
+            let F = (ms) => String(ms);
+            try { F = (ms) => _fmtFechaMVD(ms); } catch (e) {}
+            const lineas = [`Gráfica de Tránsitos — SOLO cielo, sin personas (${d.ref_nombre || 'actual'}): ventana ${F(d.desde_ms)} → ${F(d.hasta_ms)}.`];
+            Object.keys(d.rangos_puertas || {}).map(Number).sort((a, b) => a - b).forEach(g => {
+                (d.rangos_puertas[g] || []).forEach(r => {
+                    let s = `  - Puerta ${g}: ${F(r.ini_ms)} → ${F(r.fin_ms)} (${(r.planetas || []).join(',')})`;
+                    if (r.toca_ini && r.ini_real_ms) s += ` viene desde ${F(r.ini_real_ms)}`;
+                    if (r.toca_fin && r.fin_real_ms) s += ` sigue hasta ${F(r.fin_real_ms)}`;
+                    lineas.push(s);
+                });
+            });
+            Object.keys(d.rangos_canales || {}).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).forEach(k => {
+                (d.rangos_canales[k] || []).forEach(r => {
+                    lineas.push(`  - Canal ${k}: ${F(r.ini_ms)} → ${F(r.fin_ms)} (${(r.planetas || []).join(',')})`);
+                });
+            });
+            const prox = [];
+            Object.keys(d.proximos_puertas || {}).map(Number).sort((a, b) => a - b).forEach(g => {
+                const p = d.proximos_puertas[g];
+                if (p && p.entrada_ms) prox.push(`P${g}:${((p.planetas && p.planetas[0]) || p.planeta || '?')} ${F(p.entrada_ms)}`);
+            });
+            if (prox.length) lineas.push(`Próximos ingresos (puertas sin actividad en ventana): ${prox.join(' · ')}`);
+            return lineas.join('\n');
+        }
+
+        function construirPromptInforme() {
+            const nomA = (typeof selectorA !== 'undefined' && selectorA) ? selectorA.value : '';
+            const nomB = (typeof selectorB !== 'undefined' && selectorB) ? selectorB.value : '';
+            const partes = [];
+            if (typeof window._BASE_IA === 'string' && window._BASE_IA) partes.push(`BASE DH (guía de informes):\n${window._BASE_IA}\n`);
+            else if (typeof _cargarBaseIA === 'function') { try { _cargarBaseIA(); } catch (e) {} }
+            partes.push(`Cuaderno: ${NOTEBOOK_DH_URL}`);
+            partes.push(`notebook_id: ${NOTEBOOK_DH_ID}`);
+            partes.push('Informe de Diseño Humano con los gráficos visibles. Usá solo los libros del cuaderno.');
+            const bA = bloquePersona(nomA, (typeof dataPersonaA !== 'undefined') ? dataPersonaA : null, svgContainerA, window._canalesA || [], nomB);
+            const bB = bloquePersona(nomB, (typeof dataPersonaB !== 'undefined') ? dataPersonaB : null, svgContainerB, window._canalesB || [], nomA);
+            if (bA) partes.push('\n---\n' + bA);
+            else partes.push('\n---\nPersona 1: no seleccionada.');
+            if (bB) partes.push('\n---\n' + bB);
+            if (nomA && nomB) {
+                const comp = [];
+                try {
+                    svgContainerComp.querySelectorAll('[id^="c"]').forEach(c => {
+                        const m = c.id.match(/^c(\d+)-(\d+)$/);
+                        if (m && c.dataset.activo === '1') comp.push(`(${normCanalKey(`${m[1]}-${m[2]}`)})`);
+                    });
+                } catch (e) {}
+                const cc = document.getElementById('compat-count');
+                const ct = document.getElementById('compat-tema');
+                partes.push(`\n---\nLas dos personas juntas: canales ${[...new Set(comp)].sort().join(' ') || '-'} · centros en igual estado ${cc ? cc.textContent.trim() : '-'} · compuesto ${ct && ct.textContent.trim() !== '–' ? ct.textContent.trim() : '-'}`);
+                // Controles: electro/compañía + dominio/compromiso duplicados por persona
+                ['electro', 'compania', 'dominio-a', 'dominio-b', 'compromiso-a', 'compromiso-b', 'dominio', 'compromiso'].forEach(k => {
+                    const el = document.getElementById('contacto-' + k);
+                    if (el && el.textContent.trim() && el.textContent.trim() !== '-') partes.push(`${k}: ${el.textContent.trim().slice(0, 800)}`);
+                });
+            }
+            // Tránsito: solo se agrega si está superpuesto (con líneas y descripciones).
+            // Los centros del tránsito van separados: no mezclar con los de la persona.
+            const bT = (typeof bloqueTransitoInforme === 'function') ? bloqueTransitoInforme() : null;
+            if (bT) partes.push('\n---\n' + bT);
+            const bG = (typeof bloqueGraficaTransitosInforme === 'function') ? bloqueGraficaTransitosInforme() : null;
+            if (bG) partes.push('\n---\n' + bG);
+            partes.push('\n---\nPEDIDO: hacé el informe con ejemplos simples. Si falta la persona 2 o el tránsito, informá solo lo visible.');
+            partes.push(SKILL_INFORME);
+            return partes.join('\n');
+        }
+
+        function construirContextoChat() {
+            // Contexto SOLO para el chat (preguntas): P1/P2/compuesto/tránsito según
+            // lo visible, con avisos explícitos de lo que FALTA. Sin cuaderno ni skill
+            // (eso es solo para el botón 📋 de NotebookLM).
+            const nomA = (typeof selectorA !== 'undefined' && selectorA) ? selectorA.value : '';
+            const nomB = (typeof selectorB !== 'undefined' && selectorB) ? selectorB.value : '';
+            const partes = [];
+            partes.push('Datos visibles en pantalla (Diseño Humano). Respondé solo con esto.');
+            const bA = bloquePersona(nomA, (typeof dataPersonaA !== 'undefined') ? dataPersonaA : null, svgContainerA, window._canalesA || [], nomB);
+            const bB = bloquePersona(nomB, (typeof dataPersonaB !== 'undefined') ? dataPersonaB : null, svgContainerB, window._canalesB || [], nomA);
+            partes.push(bA ? '\n---\n' + bA : '\n---\nPersona 1: NO seleccionada en pantalla.');
+            partes.push(bB ? '\n---\n' + bB : '\n---\nPersona 2: NO seleccionada en pantalla.');
+            if (bA && bB) {
+                const comp = [];
+                try {
+                    svgContainerComp.querySelectorAll('[id^="c"]').forEach(c => {
+                        const m = c.id.match(/^c(\d+)-(\d+)$/);
+                        if (m && c.dataset.activo === '1') comp.push(`(${normCanalKey(`${m[1]}-${m[2]}`)})`);
+                    });
+                } catch (e) {}
+                const cc = document.getElementById('compat-count');
+                const ct = document.getElementById('compat-tema');
+                partes.push(`\n---\nLas dos personas juntas: canales ${[...new Set(comp)].sort().join(' ') || '-'} · centros en igual estado ${cc ? cc.textContent.trim() : '-'} · compuesto ${ct && ct.textContent.trim() !== '–' ? ct.textContent.trim() : '-'}`);
+                ['electro', 'compania', 'dominio-a', 'dominio-b', 'compromiso-a', 'compromiso-b', 'dominio', 'compromiso'].forEach(k => {
+                    const el = document.getElementById('contacto-' + k);
+                    if (el && el.textContent.trim() && el.textContent.trim() !== '-') partes.push(`${k}: ${el.textContent.trim().slice(0, 800)}`);
+                });
+            } else {
+                partes.push('\n---\nCompuesto: NO (falta Persona 1 o 2).');
+            }
+            const bT = (typeof bloqueTransitoInforme === 'function') ? bloqueTransitoInforme() : null;
+            if (bT) partes.push('\n---\n' + bT);
+            else partes.push('\n---\nTránsito: NO superpuesto en pantalla (overlay apagado o sin datos). Si te preguntan por tránsitos, decilo y pedí que activen "Superponer tránsito".');
+            const bG = (typeof bloqueGraficaTransitosInforme === 'function') ? bloqueGraficaTransitosInforme() : null;
+            if (bG) partes.push('\n---\n' + bG);
+            const txt = partes.join('\n');
+            try {
+                window._ultimoCtxResumen = {p1: !!bA, p2: !!bB, comp: !!(bA && bB),
+                    transito: !!bT, n: txt.length};
+            } catch (e) {}
+            return txt;
+        }
+
+        function refrescarTituloInforme() {
+            const btn = document.getElementById('btn-informe-ia');
+            if (!btn) return;
+            try {
+                // El title lleva el contenido completo de la consulta (pedido + datos + skill).
+                btn.title = construirPromptInforme();
+            } catch (e) {}
+        }
+
+        (function initInformeIA() {
+            const btn = document.getElementById('btn-informe-ia');
+            if (!btn) return;
+            btn.style.cssText = 'opacity:.55;border:1px solid #cfd8dc;background:#fff;border-radius:6px;padding:2px 7px;cursor:pointer;font-size:13px;margin-left:6px;';
+            let overlay = null;
+            let notebookId = NOTEBOOK_DH_ID;
+            function asegurarOverlay() {
+                if (overlay) return overlay;
+                overlay = document.createElement('div');
+                overlay.id = 'informe-ia-overlay';
+                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:9999;align-items:center;justify-content:center;padding:20px;';
+                overlay.innerHTML = `
+                    <div style="background:#fff;border-radius:10px;max-width:760px;width:100%;padding:16px;box-shadow:0 8px 30px rgba(0,0,0,.3);">
+                        <h3 style="margin-bottom:6px;font-size:15px;">Prompt-informe para la IA 📋</h3>
+                        <p style="font-size:12px;color:#555;margin-bottom:8px;">Incluye la base DH (guía de informes) + Persona 1 y/o Persona 2 y/o tránsito. Centros propios SIN tránsito (el tránsito va aparte). Puertas separadas conscientes/inconscientes solo como puerta.línea, sin descripción.</p>
+                        <label style="font-size:12px;display:block;margin-bottom:6px;">Cuaderno DH (para MCP):
+                            <input id="informe-ia-notebook" type="text" value="${NOTEBOOK_DH_ID}" style="width:100%;font-size:12px;padding:5px 7px;border:1px solid #ccc;border-radius:6px;margin-top:4px;font-family:monospace;">
+                        </label>
+                        <textarea id="informe-ia-txt" readonly style="width:100%;height:320px;font-size:12px;font-family:monospace;border:1px solid #ccc;border-radius:6px;padding:8px;white-space:pre-wrap;"></textarea>
+                        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;">
+                            <button id="informe-ia-copiar" type="button" style="padding:6px 12px;cursor:pointer;">Copiar</button>
+                            <button id="informe-ia-cerrar" type="button" style="padding:6px 12px;cursor:pointer;">Cerrar</button>
+                            <span id="informe-ia-msg" style="font-size:12px;color:#2e7d32;"></span>
+                        </div>
+                        <details style="font-size:11px;color:#555;margin-top:8px;">
+                            <summary style="cursor:pointer;font-weight:700;">Cómo usar el cuaderno por MCP</summary>
+                            <div style="margin-top:6px;line-height:1.5;">
+                            Cuaderno: <code>${NOTEBOOK_DH_URL}</code><br>
+                            1. Abrilo una vez en tu Google (queda en tu biblioteca).<br>
+                            2. En tu MCP (<code>notebooklm-mcp-2026</code>) hacé <code>login</code> con tu cuenta.<br>
+                            3. Llamá <code>query_notebook(notebook_id="${NOTEBOOK_DH_ID}", query=ESTE_TEXTO)</code>.<br>
+                            4. Sin MCP: pegá este texto en el chat del cuaderno.
+                            </div>
+                        </details>
+                    </div>`;
+                document.body.appendChild(overlay);
+                overlay.querySelector('#informe-ia-cerrar').addEventListener('click', () => { overlay.style.display = 'none'; });
+                overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+                overlay.querySelector('#informe-ia-notebook').addEventListener('input', (e) => {
+                    notebookId = e.target.value.trim() || NOTEBOOK_DH_ID;
+                    const txt = overlay.querySelector('#informe-ia-txt');
+                    txt.value = construirPromptInforme().split('\n').map(l => l.replace(NOTEBOOK_DH_ID, notebookId)).join('\n');
+                });
+                overlay.querySelector('#informe-ia-copiar').addEventListener('click', async () => {
+                    const txt = overlay.querySelector('#informe-ia-txt');
+                    const msg = overlay.querySelector('#informe-ia-msg');
+                    try {
+                        await navigator.clipboard.writeText(txt.value);
+                        msg.textContent = 'Copiado ✓ — pegalo en NotebookLM / consola MCP.';
+                    } catch (e) {
+                        txt.select();
+                        try { document.execCommand('copy'); msg.textContent = 'Copiado ✓'; }
+                        catch (err) { msg.textContent = 'Seleccioná y copiá manualmente (Ctrl+C).'; }
+                    }
+                });
+                return overlay;
+            }
+            btn.addEventListener('click', async () => {
+                const ov = asegurarOverlay();
+                const nbInput = ov.querySelector('#informe-ia-notebook');
+                notebookId = (nbInput && nbInput.value.trim()) || NOTEBOOK_DH_ID;
+                if (nbInput) nbInput.value = notebookId;
+                try { await _cargarBaseIA(); } catch (e) {}
+                const prompt = construirPromptInforme().split('\n').map(l => l.replace(NOTEBOOK_DH_ID, notebookId)).join('\n');
+                btn.title = prompt; // title = contenido completo de la consulta
+                ov.querySelector('#informe-ia-txt').value = prompt;
+                ov.querySelector('#informe-ia-msg').textContent = '';
+                ov.style.display = 'flex';
+            });
+            // Mantener el title sincronizado con lo visible (P1/P2/tránsito).
+            setInterval(function(){ if (!document.hidden) refrescarTituloInforme(); }, 3000);
+        })();
+
+        // ---------- Timeline de canales de contacto por tránsito (1 gráfico puntos) ----------
+        (function initTimelineContactos(){
+            const desdeEl=document.getElementById('tl-svg-desde');
+            const hastaEl=document.getElementById('tl-svg-hasta');
+            const colElec=document.getElementById('col-elec');
+            const colComp=document.getElementById('col-comp');
+            const colDomA=document.getElementById('col-domA');
+            const colDomB=document.getElementById('col-domB');
+            const colComA=document.getElementById('col-comA');
+            const colComB=document.getElementById('col-comB');
+            const colComp0=document.getElementById('col-comp0');
+            const colComp1=document.getElementById('col-comp1');
+            const btn=document.getElementById('btn-tl-svg-recalcular');
+            const chkAuto=document.getElementById('chk-tl-auto');
+            const info=document.getElementById('tl-svg-info');
+            const cont=document.getElementById('tl-svg-contenedor');
+            const card=document.getElementById('card-timeline-svg');
+            if(!desdeEl||!hastaEl||!btn||!cont) return;
+            if(card){
+                let tlAbierto = null;
+                try { tlAbierto = localStorage.getItem('dhPanel_card-timeline-svg'); } catch (e) {}
+                if (tlAbierto === '1') card.classList.remove('colapsada');
+                else card.classList.add('colapsada');
+                const h=card.querySelector('h4.desplegable');
+                if(h) h.addEventListener('click',()=>{
+                    card.classList.toggle('colapsada');
+                    try { localStorage.setItem('dhPanel_card-timeline-svg', card.classList.contains('colapsada') ? '0' : '1'); } catch (e) {}
+                });
+            }
+            function fmtLocal(d){
+                const p=n=>String(n).padStart(2,'0');
+                return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+            }
+            (function initFechas(){
+                const ahora=new Date(Date.now()-3*3600*1000);
+                const d0=new Date(ahora); d0.setHours(0,0,0,0);
+                const d1=new Date(d0); d1.setDate(d0.getDate()+14);
+                d1.setHours(0,0,0,0);
+                desdeEl.value=fmtLocal(d0);
+                hastaEl.value=fmtLocal(d1);
+            })();
+            function getListaCanalesBase(){
+                const set=new Set();
+                try{ Object.values(CENTRO_CANALES).forEach(arr=> arr.forEach(c=> set.add(normCanalKey(c)))); }catch(e){}
+                if(!set.size){
+                    document.querySelectorAll('#svg-persona-a svg [id^="c"], #svg-compuesto svg [id^="c"]').forEach(el=>{
+                        const m=el.id.match(/^c(\d+)-(\d+)$/); if(m) set.add(normCanalKey(`${m[1]}-${m[2]}`));
+                    });
+                }
+                return [...set].sort((a,b)=> a.localeCompare(b,undefined,{numeric:true}));
+            }
+            let listaCanalesBase=getListaCanalesBase();
+            if(!listaCanalesBase.length) setTimeout(()=>{ listaCanalesBase=getListaCanalesBase(); },800);
+            let listaCanales=listaCanalesBase.slice(); // orden dinámico post-cálculo
+            function getColores(){
+                return {
+                    electro: colElec.value||'#FF0000',
+                    compania: colComp.value||'#81C784',
+                    domA: colDomA.value||'#4169E1',
+                    domB: colDomB.value||'#BC8F8F',
+                    comA: colComA.value||'#795548',
+                    comB: colComB.value||'#000000',
+                    comp0: colComp0 ? colComp0.value : '#B0BEC5',
+                    comp1: colComp1 ? colComp1.value : '#E53935'
+                };
+            }
+            function clasificarContactos(setA, setB, lista){
+                const res={electro:[], compania:[], domA:[], domB:[], comA:[], comB:[]};
+                (lista||listaCanalesBase).forEach(k=>{
+                    const [p1,p2]=k.split('-').map(Number);
+                    const a1=setA.has(p1), a2=setA.has(p2), b1=setB.has(p1), b2=setB.has(p2);
+                    const fullA=a1&&a2, fullB=b1&&b2;
+                    if(fullA&&fullB) res.compania.push(k);
+                    else if((a1&&!a2&&!b1&&b2)||(a2&&!a1&&!b2&&b1)) res.electro.push(k);
+                    if(fullA&&!b1&&!b2) res.domA.push(k);
+                    if(fullB&&!a1&&!a2) res.domB.push(k);
+                    if(fullB&&(a1!==a2)) res.comA.push(k);
+                    if(fullA&&(b1!==b2)) res.comB.push(k);
+                });
+                return res;
+            }
+            function centrosDefinidosDeCanales(canales){
+                const set=new Set(canales.map(normCanalKey));
+                const defs=new Set();
+                Object.entries(CENTRO_CANALES).forEach(([id, lista])=>{
+                    if(lista.some(c=> set.has(normCanalKey(c)))) defs.add(id);
+                });
+                return defs;
+            }
+            let lastData=null;
+            let abortGen=0;
+            function dibujar(puntos, lineasFijas, t0, t1, compatPorSlot){
+                const colores=getColores();
+                const colorMap={electro:colores.electro, compania:colores.compania, domA:colores.domA, domB:colores.domB, comA:colores.comA, comB:colores.comB};
+                const opFijas=(document.getElementById('opac-fijas')? parseInt(document.getElementById('opac-fijas').value,10):12)/100;
+                const opTrans=(document.getElementById('opac-trans')? parseInt(document.getElementById('opac-trans').value,10):50)/100;
+                const opCompat=(document.getElementById('opac-compat')? parseInt(document.getElementById('opac-compat').value,10):85)/100;
+                const sizeP=parseInt(document.getElementById('size-punto')?.value||'10',10);
+                const sizeT=parseInt(document.getElementById('size-texto')?.value||'26',10);
+                const barH=Math.max(3, sizeP);
+                // Altura escalada para lectura doble de 10pt (≈26px): fila = texto + barra + aire
+                const rowH=Math.max(48, Math.ceil(sizeT*1.5 + barH + 8));
+                // Ancho dinámico: mínimo 46px por día para que las etiquetas no se apelotonen;
+                // si supera el contenedor, el div con overflow:auto muestra scroll horizontal.
+                const tSpanIni=(t1-t0)||1;
+                const estDias=Math.max(1, Math.ceil(tSpanIni/86400000));
+                const W=Math.max(1100, Math.ceil(estDias*46)+16), marginL=8, marginR=8, marginT=52, marginB=54;
+                const H=marginT+marginB+ listaCanales.length*rowH + 10;
+                const plotW=W-marginL-marginR, plotH=listaCanales.length*rowH;
+                const NS='http://www.w3.org/2000/svg';
+                const svg=document.createElementNS(NS,'svg');
+                svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+                svg.setAttribute('width','100%');
+                svg.style.height='auto'; svg.style.display='block'; svg.style.background='var(--card, #fff)';
+                svg.style.minWidth=W+'px'; // fuerza scroll horizontal en #tl-svg-contenedor (overflow:auto)
+                const bg=document.createElementNS(NS,'rect');
+                bg.setAttribute('x',0); bg.setAttribute('y',0); bg.setAttribute('width',W); bg.setAttribute('height',H);
+                bg.setAttribute('fill','white'); bg.setAttribute('opacity','0'); svg.appendChild(bg);
+                const tSpan=t1-t0||1;
+                const xFor=t=> marginL + ((t - t0)/tSpan)*plotW;
+                const slotsEst=Math.max(1, Math.round(tSpan/(4*3600*1000))+1);
+                const xStep=plotW/Math.max(1, slotsEst-1);
+                // líneas fijas (mismo tamaño que tránsito, no expande fila)
+                let fragFijas=document.createDocumentFragment();
+                lineasFijas.forEach(lf=>{
+                    const idx=listaCanales.indexOf(normCanalKey(lf.k));
+                    if(idx<0) return;
+                    const y=marginT+idx*rowH+rowH/2;
+                    const r=document.createElementNS(NS,'rect');
+                    r.setAttribute('x', marginL); r.setAttribute('y', y - barH/2);
+                    r.setAttribute('width', plotW); r.setAttribute('height', barH);
+                    r.setAttribute('fill', colorMap[lf.tipo]||'#999');
+                    r.setAttribute('opacity', String(opFijas));
+                    r.setAttribute('rx','1');
+                    fragFijas.appendChild(r);
+                });
+                svg.appendChild(fragFijas);
+                // cuadrados tránsito pegados formando línea continua
+                let fragPts=document.createDocumentFragment();
+                puntos.forEach(pt=>{
+                    const idx=listaCanales.indexOf(normCanalKey(pt.k));
+                    if(idx<0) return;
+                    const x=xFor(pt.t);
+                    const y=marginT+idx*rowH+rowH/2;
+                    const w=xStep+0.7;
+                    const r=document.createElementNS(NS,'rect');
+                    r.setAttribute('x', x - w/2); r.setAttribute('y', y - barH/2);
+                    r.setAttribute('width', w); r.setAttribute('height', barH);
+                    r.setAttribute('fill', colorMap[pt.tipo]||'#333');
+                    r.setAttribute('opacity', String(opTrans));
+                    r.setAttribute('rx','0.8');
+                    const ttl=`${pt.k} — ${pt.tipo} — ${new Date(pt.t).toLocaleString('es-UY')}`;
+                    const tit=document.createElementNS(NS,'title'); tit.textContent=ttl; r.appendChild(tit);
+                    fragPts.appendChild(r);
+                });
+                svg.appendChild(fragPts);
+                // etiquetas Y dentro, levemente sobre líneas, x-y / desc, adaptable a fondo oscuro, sin recorte
+                const isDark=document.documentElement.dataset.tema==='oscuro';
+                const colMain=isDark? '#e2e6ea' : '#000';
+                const colDesc=isDark? '#9aa4ae' : '#757575';
+                const halo=isDark? '#1e232a' : '#ffffff';
+                listaCanales.forEach((k, i)=>{
+                    const y=marginT+i*rowH+rowH/2;
+                    const desc=canalDescMap[k]||'';
+                    const prim=primeraLineaCanal(desc);
+                    const tx=document.createElementNS(NS,'text');
+                    tx.setAttribute('x', marginL+4); tx.setAttribute('y', y - barH/2 - 1.5);
+                    tx.setAttribute('font-size', String(sizeT)); tx.setAttribute('font-family','Segoe UI, sans-serif');
+                    tx.style.paintOrder='stroke'; tx.style.stroke=halo; tx.style.strokeWidth=String(Math.max(3, sizeT/5))+'px'; tx.style.strokeLinejoin='round';
+                    const t1=document.createElementNS(NS,'tspan');
+                    t1.setAttribute('fill', colMain); t1.setAttribute('font-weight','700');
+                    t1.textContent=k; tx.appendChild(t1);
+                    if(prim){
+                        const t2=document.createElementNS(NS,'tspan');
+                        t2.setAttribute('fill', colDesc); t2.setAttribute('dx','3');
+                        t2.textContent=' — '+prim; tx.appendChild(t2);
+                    }
+                    svg.appendChild(tx);
+                });
+                // compatibilidad zigzagueante 0-9 superpuesta cruzando sobre la gráfica de canales (mismo plot)
+                if(compatPorSlot && compatPorSlot.length){
+                    // polyline que cruza el plot: Y = marginT + (1-compat/9)*plotH
+                    let d='';
+                    compatPorSlot.forEach((cp, idx)=>{
+                        const x=xFor(cp.t);
+                        const y= marginT + (1 - cp.compat/9)*plotH;
+                        d += (idx===0? `M ${x} ${y}` : ` L ${x} ${y}`);
+                    });
+                    const path=document.createElementNS(NS,'path');
+                    path.setAttribute('d', d);
+                    path.setAttribute('fill','none');
+                    path.setAttribute('stroke', '#424242');
+                    path.setAttribute('stroke-width','1.4');
+                    path.setAttribute('opacity', String(opCompat));
+                    path.setAttribute('stroke-linejoin','round'); path.setAttribute('stroke-linecap','round');
+                    path.setAttribute('stroke-dasharray','0');
+                    svg.appendChild(path);
+                    // puntos superpuestos con color 0-4 gris / 5-9 rojo, por encima de los cuadrados
+                    compatPorSlot.forEach(cp=>{
+                        const x=xFor(cp.t);
+                        const y= marginT + (1 - cp.compat/9)*plotH;
+                        const col=cp.compat>=5? colores.comp1 : colores.comp0;
+                        const c=document.createElementNS(NS,'circle');
+                        c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r','2.8');
+                        c.setAttribute('fill', col); c.setAttribute('opacity', String(opCompat));
+                        c.setAttribute('stroke','none');
+                        const tit=document.createElementNS(NS,'title'); tit.textContent=`Compat ${cp.compat}/9 — ${new Date(cp.t).toLocaleString('es-UY')}`; c.appendChild(tit);
+                        svg.appendChild(c);
+                    });
+                }
+                // eje X: días tenues + semanas un poco más marcadas + meses + línea HOY
+                const monthStarts=[];
+                let cur=new Date(t0); cur.setDate(1); cur.setHours(0,0,0,0);
+                if(cur.getTime()<t0) cur.setMonth(cur.getMonth()+1);
+                for(let tm=cur.getTime(); tm<=t1; tm=new Date(tm).setMonth(new Date(tm).getMonth()+1)) monthStarts.push(new Date(tm).getTime());
+                const monthSet=new Set(monthStarts.map(t=> new Date(t).toDateString()));
+                // inicios de día (medianoche local) dentro del rango — bucle por fecha para no derivar con DST
+                const dayStarts=[];
+                let dcur=new Date(t0); dcur.setHours(0,0,0,0);
+                if(dcur.getTime()<t0-1000) dcur.setDate(dcur.getDate()+1);
+                for(let dd=new Date(dcur); dd.getTime()<=t1; dd.setDate(dd.getDate()+1)) dayStarts.push(dd.getTime());
+                const colDia=isDark? '#3a4047' : '#e9e9e9';
+                const colSem=isDark? '#626c76' : '#bdbdbd';
+                const colMes=isDark? '#9aa4ae' : '#9e9e9e';
+                const colTxtEje=isDark? '#c3ccd4' : '#424242';
+                dayStarts.forEach(t=>{
+                    const d=new Date(t);
+                    const isMonth=monthSet.has(d.toDateString());
+                    if(isMonth) return; // el mes se dibuja después, más fuerte
+                    const isWeek=d.getDay()===1; // lunes = separador semanal
+                    const x=xFor(t);
+                    const l=document.createElementNS(NS,'line');
+                    l.setAttribute('x1',x); l.setAttribute('x2',x);
+                    l.setAttribute('y1',marginT); l.setAttribute('y2',marginT+plotH);
+                    l.setAttribute('stroke', isWeek? colSem : colDia);
+                    l.setAttribute('stroke-width', isWeek? '0.9' : '0.5');
+                    l.setAttribute('opacity','0.95');
+                    if(isWeek) l.setAttribute('stroke-dasharray','4 2');
+                    const tit=document.createElementNS(NS,'title');
+                    tit.textContent=d.toLocaleDateString('es-UY',{weekday:'short', day:'numeric', month:'numeric'});
+                    l.appendChild(tit);
+                    svg.appendChild(l);
+                });
+                monthStarts.forEach(t=>{
+                    const x=xFor(t);
+                    const l=document.createElementNS(NS,'line');
+                    l.setAttribute('x1',x); l.setAttribute('x2',x);
+                    l.setAttribute('y1',marginT-8); l.setAttribute('y2',marginT+plotH);
+                    l.setAttribute('stroke',colMes); l.setAttribute('stroke-width','1');
+                    svg.appendChild(l);
+                    const d=new Date(t);
+                    const lab=`${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+                    const tx=document.createElementNS(NS,'text');
+                    tx.setAttribute('x',x); tx.setAttribute('y', 20);
+                    tx.setAttribute('text-anchor','middle'); tx.setAttribute('font-size','20'); tx.setAttribute('fill',colTxtEje); tx.setAttribute('font-weight','700');
+                    tx.textContent=lab; svg.appendChild(tx);
+                });
+                // etiquetas de día (nro) abajo, con paso adaptativo para no solaparse
+                const diasTotal=Math.max(1,(t1-t0)/86400000);
+                const pxPorDia=plotW/diasTotal;
+                const pasoDia=Math.max(1, Math.ceil(44/pxPorDia));
+                const sizeEje=20;
+                dayStarts.forEach((t,idx)=>{
+                    if(idx%pasoDia!==0 && idx!==dayStarts.length-1) return;
+                    // no pisar la etiqueta del primer día contra el borde
+                    const x=Math.min(Math.max(xFor(t), marginL+18), W-marginR-18);
+                    const d=new Date(t);
+                    const tx=document.createElementNS(NS,'text');
+                    tx.setAttribute('x',x); tx.setAttribute('y', H-12);
+                    tx.setAttribute('text-anchor','middle'); tx.setAttribute('font-size',String(sizeEje));
+                    tx.setAttribute('fill',colTxtEje); tx.setAttribute('font-weight', d.getDay()===1? '700':'400');
+                    tx.textContent=String(d.getDate());
+                    const tit=document.createElementNS(NS,'title');
+                    tit.textContent=d.toLocaleDateString('es-UY',{weekday:'long', day:'numeric', month:'long'});
+                    tx.appendChild(tit);
+                    svg.appendChild(tx);
+                });
+                // línea vertical HOY (si cae dentro del rango) + etiqueta
+                const ahoraMs=Date.now();
+                if(ahoraMs>=t0 && ahoraMs<=t1){
+                    const x=xFor(ahoraMs);
+                    const lh=document.createElementNS(NS,'line');
+                    lh.setAttribute('x1',x); lh.setAttribute('x2',x);
+                    lh.setAttribute('y1',24); lh.setAttribute('y2',marginT+plotH);
+                    lh.setAttribute('stroke','#E53935'); lh.setAttribute('stroke-width','2.4');
+                    const th=document.createElementNS(NS,'title');
+                    th.textContent='Hoy — '+new Date(ahoraMs).toLocaleString('es-UY');
+                    lh.appendChild(th);
+                    svg.appendChild(lh);
+                    const dh=new Date(ahoraMs);
+                    const txh=document.createElementNS(NS,'text');
+                    txh.setAttribute('x',Math.min(Math.max(x, marginL+52), W-marginR-52)); txh.setAttribute('y', 40);
+                    txh.setAttribute('text-anchor','middle'); txh.setAttribute('font-size','20'); txh.setAttribute('font-weight','700');
+                    txh.setAttribute('fill','#E53935');
+                    txh.style.paintOrder='stroke'; txh.style.stroke=halo; txh.style.strokeWidth='5px'; txh.style.strokeLinejoin='round';
+                    txh.textContent=`HOY ${String(dh.getDate()).padStart(2,'0')}/${String(dh.getMonth()+1).padStart(2,'0')}`;
+                    svg.appendChild(txh);
+                }
+                // borde plot tenue
+                const frame=document.createElementNS(NS,'rect');
+                frame.setAttribute('x',marginL); frame.setAttribute('y',marginT);
+                frame.setAttribute('width',plotW); frame.setAttribute('height',plotH);
+                frame.setAttribute('fill','none'); frame.setAttribute('stroke','#e0e0e0'); frame.setAttribute('stroke-width','0.5');
+                svg.appendChild(frame);
+                cont.innerHTML=''; cont.appendChild(svg);
+                const ley=document.createElement('div');
+                ley.style.fontSize='18px'; ley.style.color='var(--muted)'; ley.style.marginTop='6px';
+                // mostrar solo tipos presentes
+                const tiposPres=new Set([...lineasFijas.map(l=>l.tipo), ...puntos.map(p=>p.tipo)]);
+                const ordenLey=['compania','domA','electro','domB','comA','comB'].filter(t=> tiposPres.has(t));
+                const nombreMap={electro:'Electro', compania:'Compañía', domA:'Dom P1', domB:'Dom P2', comA:'Compr S/P1', comB:'Compr S/P2'};
+                ley.innerHTML=ordenLey.map(t=> `<span style="display:inline-block;width:9px;height:9px;background:${colorMap[t]};opacity:${opTrans};vertical-align:middle;margin-right:3px"></span>${nombreMap[t]}`).join(' · ') + ` · <span style="display:inline-block;width:9px;height:9px;background:${colores.comp0};vertical-align:middle;margin:0 3px"></span>Compat 0-4 · <span style="display:inline-block;width:9px;height:9px;background:${colores.comp1};vertical-align:middle;margin-left:3px"></span>Compat 5-9`;
+                cont.appendChild(ley);
+            }
+            function redibujarConColores(){
+                if(!lastData) return;
+                dibujar(lastData.puntos, lastData.lineasFijas, lastData.t0, lastData.t1, lastData.compatPorSlot);
+            }
+            async function recalcular(){
+                const gen=++abortGen;
+                const vD=desdeEl.value, vH=hastaEl.value;
+                if(!vD||!vH){ info.textContent='Elegí Desde y Hasta'; return; }
+                const d0=new Date(vD), d1=new Date(vH);
+                if(isNaN(d0)||isNaN(d1)||d1<=d0){ info.textContent='Rango inválido'; return; }
+                const incluirP2=document.getElementById('chk-tl-p2')?.checked ?? true;
+                if(!dataPersonaA){ info.textContent='Elegí Persona 1'; return; }
+                if(incluirP2 && !dataPersonaB){ info.textContent='Elegí Persona 2 o desactívala'; return; }
+                const pasoMs=4*3600*1000;
+                const slotsEst=Math.ceil((d1-d0)/pasoMs)+1;
+                if(slotsEst>5000){ info.textContent=`${slotsEst} slots (>5000) — acortá rango`; return; }
+                info.textContent=`${slotsEst} tiempos • calculando batch…`;
+                btn.textContent='Calculando…'; btn.disabled=true;
+                cont.innerHTML='<div style="font-size:12px;color:var(--muted);padding:12px">Calculando tránsitos cada 4h (batch)…</div>';
+                const baseLista=getListaCanalesBase();
+                const setA0=new Set(dataPersonaA.todas_puertas);
+                const setB0= incluirP2 && dataPersonaB ? new Set(dataPersonaB.todas_puertas) : new Set();
+                const baseClas= incluirP2 ? clasificarContactos(setA0,setB0) : {electro:[], compania:[], domA:[], domB:[], comA:[], comB:[]};
+                const lineasFijasBase=[];
+                Object.entries(baseClas).forEach(([tipo, arr])=> arr.forEach(k=> lineasFijasBase.push({k, tipo})));
+                let filas=[];
+                try{
+                    const r=await fetch('/api/transitos_rango', {
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        body: JSON.stringify({desde: vD, hasta: vH, paso_horas:4})
+                    });
+                    const d=await r.json();
+                    if(!r.ok){ info.textContent=d.error||'Error batch'; btn.textContent='Calcular'; btn.disabled=false; return; }
+                    filas=d.filas||[];
+                }catch(e){
+                    info.textContent='Error de red batch'; btn.textContent='Calcular'; btn.disabled=false; return;
+                }
+                if(gen!==abortGen) return;
+                const puntosBruto=[];
+                const compatPorSlot=[];
+                filas.forEach(row=>{
+                    const t=row.t;
+                    const puertas=row.puertas||[];
+                    const setT=new Set(puertas);
+                    if(incluirP2){
+                        const setA=new Set([...setA0, ...setT]);
+                        const setB=new Set([...setB0, ...setT]);
+                        const ampClas=clasificarContactos(setA,setB);
+                        const baseSet=new Set();
+                        Object.values(baseClas).forEach(arr=> arr.forEach(k=> baseSet.add(normCanalKey(k))));
+                        Object.entries(ampClas).forEach(([tipo, arr])=>{
+                            arr.forEach(k=>{
+                                const kn=normCanalKey(k);
+                                if(baseSet.has(kn)) return;
+                                puntosBruto.push({t, k:kn, tipo});
+                            });
+                        });
+                        const ampCanalesA=[]; baseLista.forEach(k=>{ const [p1,p2]=k.split('-').map(Number); if(setA.has(p1)&&setA.has(p2)) ampCanalesA.push(k); });
+                        const ampCanalesB=[]; baseLista.forEach(k=>{ const [p1,p2]=k.split('-').map(Number); if(setB.has(p1)&&setB.has(p2)) ampCanalesB.push(k); });
+                        const defA=centrosDefinidosDeCanales(ampCanalesA);
+                        const defB=centrosDefinidosDeCanales(ampCanalesB);
+                        // Misma regla que el C del índice: centros DEFINIDOS al superponer
+                        // (unión), no centros en igual estado.
+                        const compat=new Set([...defA, ...defB]).size;
+                        compatPorSlot.push({t, compat});
+                    } else {
+                        // solo P1 vs tránsito (sin P2) — mostrar cantidad de centros definidos con tránsito
+                        const ampClas=clasificarContactos(setA0, setT);
+                        Object.entries(ampClas).forEach(([tipo, arr])=>{
+                            arr.forEach(k=>{
+                                const kn=normCanalKey(k);
+                                puntosBruto.push({t, k:kn, tipo});
+                            });
+                        });
+                        const ampCanalesA=[]; baseLista.forEach(k=>{ const [p1,p2]=k.split('-').map(Number); const ampSet=new Set([...setA0, ...setT]); if(ampSet.has(p1)&&ampSet.has(p2)) ampCanalesA.push(k); });
+                        const defA=centrosDefinidosDeCanales(ampCanalesA);
+                        compatPorSlot.push({t, compat: defA.size});
+                    }
+                });
+                // ordenar canales: incluir también fijas para que no desaparezcan, pero filtrar a los que aparecen (puntos + fijas)
+                const counts={};
+                puntosBruto.forEach(pt=>{
+                    if(!counts[pt.k]) counts[pt.k]={electro:0, compania:0, domA:0, domB:0, comA:0, comB:0, total:0};
+                    counts[pt.k][pt.tipo]++; counts[pt.k].total++;
+                });
+                // incluir base fijas en el conjunto para que sus líneas tengan fila
+                lineasFijasBase.forEach(lf=>{
+                    const kn=normCanalKey(lf.k);
+                    if(!counts[kn]) counts[kn]={electro:0, compania:0, domA:0, domB:0, comA:0, comB:0, total:0};
+                    counts[kn][lf.tipo] = (counts[kn][lf.tipo]||0) + 0.01; // peso mínimo para que aparezca
+                    counts[kn].total+=0.01;
+                });
+                let canalesFiltrados=Object.keys(counts);
+                if(!canalesFiltrados.length){
+                    info.textContent='Sin canales en el rango';
+                    cont.innerHTML='<div style="font-size:12px;color:var(--muted);padding:12px">Sin canales en ese rango.</div>';
+                    btn.textContent='Calcular'; btn.disabled=false; return;
+                }
+                const dominante={};
+                canalesFiltrados.forEach(k=>{
+                    let best='electro', max=-1;
+                    ['electro','compania','domA','domB','comA','comB'].forEach(t=>{ if(counts[k][t]>max){ max=counts[k][t]; best=t; }});
+                    dominante[k]=best;
+                });
+                // separar fijos vs tránsito para compromiso: fijas S/P2 abajo del todo, fijas S/P1 debajo de tránsito S/P1
+                const esTransito=new Set(puntosBruto.map(pt=> pt.k));
+                const ordenGrupos=['compania','domA','electro','domB','comA','comB'];
+                const grupos={}; ordenGrupos.forEach(g=> grupos[g]=[]);
+                const gruposComATrans=[], gruposComAFijas=[], gruposComBTrans=[], gruposComBFijas=[];
+                canalesFiltrados.forEach(k=>{
+                    const g=dominante[k];
+                    const isTrans=esTransito.has(k);
+                    if(g==='comA'){
+                        if(isTrans) gruposComATrans.push(k); else gruposComAFijas.push(k);
+                    } else if(g==='comB'){
+                        if(isTrans) gruposComBTrans.push(k); else gruposComBFijas.push(k);
+                    } else {
+                        grupos[g].push(k);
+                    }
+                });
+                ['compania','domA','electro','domB'].forEach(g=>{
+                    grupos[g].sort((a,b)=> counts[b][g]-counts[a][g]);
+                });
+                gruposComATrans.sort((a,b)=> counts[a]['comA']-counts[b]['comA']);
+                gruposComAFijas.sort((a,b)=> counts[a]['comA']-counts[b]['comA']);
+                gruposComBTrans.sort((a,b)=> counts[a]['comB']-counts[b]['comB']);
+                gruposComBFijas.sort((a,b)=> counts[a]['comB']-counts[b]['comB']);
+                listaCanales=[];
+                listaCanales.push(...grupos['compania']);
+                listaCanales.push(...grupos['domA']);
+                listaCanales.push(...grupos['electro']);
+                listaCanales.push(...grupos['domB']);
+                listaCanales.push(...gruposComATrans);
+                listaCanales.push(...gruposComAFijas);
+                listaCanales.push(...gruposComBTrans);
+                listaCanales.push(...gruposComBFijas);
+                const codeMap={}; listaCanales.forEach((k,i)=> codeMap[k]=i+1);
+                const puntos=puntosBruto.filter(pt=> codeMap[pt.k]).map(pt=> ({...pt, code: codeMap[pt.k]}));
+                const lineasFijas=lineasFijasBase.filter(lf=> codeMap[normCanalKey(lf.k)]).map(lf=> ({...lf, k: normCanalKey(lf.k)}));
+                compatPorSlot.sort((a,b)=> a.t-b.t);
+                lastData={puntos, lineasFijas, t0:d0.getTime(), t1:d1.getTime(), compatPorSlot, orden: listaCanales.slice()};
+                requestAnimationFrame(()=> dibujar(puntos, lineasFijas, lastData.t0, lastData.t1, compatPorSlot));
+                info.textContent=`${puntos.length} cuadrados • ${lineasFijas.length} líneas fijas • ${Object.keys(counts).length} canales • ${filas.length} tiempos`;
+                btn.textContent='Calcular'; btn.disabled=false;
+            }
+            btn.addEventListener('click', recalcular);
+            // auto solo rangos cortos
+            let tAuto=null;
+            function progAuto(){
+                if(!chkAuto.checked) return;
+                clearTimeout(tAuto);
+                const d0=new Date(desdeEl.value), d1=new Date(hastaEl.value);
+                if(isNaN(d0)||isNaN(d1)||d1<=d0) return;
+                const slotsEst=Math.ceil((d1-d0)/(4*3600*1000))+1;
+                if(slotsEst>250) return; // Etapa 4: limite auto más estricto para no colgar UI
+                tAuto=setTimeout(recalcular, 500);
+            }
+            // recolorear sin recalcular si ya hay datos (colores, opacidades, tamaños)
+            [colElec,colComp,colDomA,colDomB,colComA,colComB].forEach(el=>{
+                el.addEventListener('input', ()=>{
+                    if(lastData) redibujarConColores();
+                    else progAuto();
+                });
+            });
+            ['opac-fijas','opac-trans','opac-compat','size-punto','size-texto','col-comp0','col-comp1'].forEach(id=>{
+                const el=document.getElementById(id);
+                if(el) el.addEventListener('input', ()=>{ if(lastData) redibujarConColores(); });
+            });
+            [desdeEl,hastaEl].forEach(el=> el.addEventListener('change', progAuto));
+            chkAuto.addEventListener('change', ()=>{ if(chkAuto.checked) progAuto(); });
+            const chkP2=document.getElementById('chk-tl-p2');
+            if(chkP2) chkP2.addEventListener('change', ()=>{ if(lastData) recalcular(); else progAuto(); });
+            setTimeout(()=>{ if(chkAuto.checked) progAuto(); },900);
+            window._tlTimelineRecalcular=recalcular;
+            window._tlTimelineRedibujar=redibujarConColores;
+        })();
+
+        // ---------- Deslizador de tránsito + evolución 5 curvas (4) ----------
+        // Atrás/Adelante (combo 1-31 escribible) definen el rango del slider
+        // central, que mueve la fecha del tránsito día a día y redibuja los
+        // gráficos (reusa el overlay + /api/transito existentes). El mismo rango
+        // alimenta la gráfica bajo Contactos: centros en igual estado + canales
+        // de contacto por categoría (electro/compañía/dominio/compromiso) con
+        // los colores de las tarjetas, 5 curvas, vía /api/transitos_rango 24h.
+        window.addEventListener('DOMContentLoaded', () => {
+            const elAtras = document.getElementById('transito-atras');
+            const elAdel = document.getElementById('transito-adelante');
+            const slider = document.getElementById('transito-slider');
+            const lblFecha = document.getElementById('transito-slider-fecha');
+            const elFecha = document.getElementById('fecha-transito');
+            const btnOverlay = document.getElementById('btn-overlay-transito');
+            if (!elAtras || !elAdel || !slider || !elFecha) return;
+            const KEY_RANGO = 'dhTransitoRangoV1';
+            const p2 = (n) => String(n).padStart(2, '0');
+            const fmtLocal = (d) => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}T${p2(d.getHours())}:${p2(d.getMinutes())}`;
+            const fmtCorto = (ms) => { const d = new Date(ms); return `${p2(d.getDate())}/${p2(d.getMonth() + 1)} ${p2(d.getHours())}:${p2(d.getMinutes())}`; };
+            const parseNum = (v, fb) => {
+                const n = parseInt(String(v == null ? '' : v).trim(), 10);
+                if (isNaN(n)) return fb;
+                return Math.max(0, Math.min(365, n));
+            };
+            let baseMs = null;
+            let msActual = null;
+            let cache = null;          // {key, filas, paso}
+            let cacheProm = null;      // {key, p}
+            let cacheSeq = 0;
+            let ultimaClave = '';
+            let rafPend = null;
+            let activando = null;
+            // Repintado agrupado: rAF para suavidad y, si el navegador no entrega
+            // frames (pestaña oculta o minimizada), un respaldo por tiempo.
+            const programarRepintado = () => {
+                if (rafPend) return; // ya hay uno encolado: coalesce
+                let hecho = false;
+                const pintar = () => {
+                    if (hecho) return;
+                    hecho = true;
+                    rafPend = null;
+                    try { transitoRepintarGraficos(); } catch (e) { console.error(e); }
+                };
+                rafPend = requestAnimationFrame(pintar);
+                setTimeout(pintar, 120);
+            };
+            const DAY = 86400000;
+            const vSlider = document.getElementById('transito-slider-v');
+            const rail = document.getElementById('transito-rail');
+            const railMin = document.getElementById('transito-rail-min');
+            const railMax = document.getElementById('transito-rail-max');
+            const railTime = document.getElementById('transito-rail-time');
+            const ahoraMVDms = () => {
+                const d = new Date(Date.now() - 3 * 3600000);
+                return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes()).getTime();
+            };
+            const leerBase = () => {
+                const v = elFecha.value;
+                const d = v ? new Date(v) : new Date();
+                if (isNaN(d)) return ahoraMVDms();
+                return d.getTime();
+            };
+            const rango = () => ({ a: parseNum(elAtras.value, 7), d: parseNum(elAdel.value, 7) });
+            const claveDetalle = (det) => (det || []).map(d => `${d.planeta}:${d.puerta}:${d.linea}`).sort().join('|');
+            const nombreTransito = (ms) => {
+                const d = new Date(ms);
+                return `Transito ${p2(d.getDate())}-${p2(d.getMonth() + 1)}-${String(d.getFullYear()).slice(2)} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+            };
+            const etiqueta = () => {
+                const ms = msActual == null ? baseMs : msActual;
+                const dif = (ms - baseMs) / DAY;
+                const s = Math.abs(dif) < 0.01 ? 'hoy' : ((dif > 0 ? '+' : '') + (Math.round(dif * 10) / 10) + 'd');
+                if (lblFecha) lblFecha.textContent = `${s} — ${fmtCorto(ms)}`;
+                if (railMin || railMax) {
+                    const r = rango();
+                    if (railMin) railMin.textContent = `−${r.a}d`;
+                    if (railMax) railMax.textContent = `+${r.d}d`;
+                }
+                if (railTime) {
+                    const d = new Date(ms);
+                    railTime.innerHTML = `<b>${p2(d.getDate())}/${p2(d.getMonth() + 1)}</b>${p2(d.getHours())}:${p2(d.getMinutes())}`;
+                    railTime.title = `Hora única del tránsito: ${fmtCorto(ms)} — clic para volver a la base`;
+                }
+            };
+            const actualizarHoraMapa = (ms) => {
+                const txt = _fmtFechaMVD(ms);
+                const h = document.getElementById('tm-hora');
+                if (h) h.textContent = '🕒 ' + txt;
+                tmMarcarAhora(ms);
+            };
+            const aplicarRango = (guardar) => {
+                const r = rango();
+                elAtras.value = String(r.a); elAdel.value = String(r.d);
+                slider.min = String(-r.a); slider.max = String(r.d);
+                let v = parseInt(slider.value || '0', 10) || 0;
+                v = Math.max(-r.a, Math.min(r.d, v));
+                slider.value = String(v);
+                if (vSlider) {
+                    vSlider.min = '0';
+                    vSlider.max = String((r.a + r.d) * 1440);
+                    vSlider.step = '10';
+                }
+                if (guardar !== false) { try { localStorage.setItem(KEY_RANGO, JSON.stringify(r)); } catch (e) {} }
+                etiqueta();
+            };
+            const snapshotDeCache = (ms) => {
+                if (!cache || !Array.isArray(cache.filas) || !cache.filas.length) return null;
+                const filas = cache.filas;
+                let lo = 0, hi = filas.length - 1;
+                while (lo < hi) {
+                    const mid = (lo + hi) >> 1;
+                    if (filas[mid].t < ms) lo = mid + 1; else hi = mid;
+                }
+                let idx = lo;
+                if (idx > 0 && Math.abs(filas[idx - 1].t - ms) < Math.abs(filas[idx].t - ms)) idx--;
+                const f = filas[idx];
+                const detalle = (f.planetas || []).map(p => ({ planeta: p.planeta, puerta: p.puerta, linea: p.linea }));
+                return {
+                    nombre: nombreTransito(ms),
+                    t_ms: ms,
+                    inconscientes: [],
+                    conscientes: (f.puertas || []).slice().sort((a, b) => a - b),
+                    detalle
+                };
+            };
+            const aplicarSnapshot = (ms, pintar) => {
+                const snap = snapshotDeCache(ms);
+                if (!snap) return false;
+                const clave = claveDetalle(snap.detalle) + '#' + snap.conscientes.join(',');
+                TRANSITO_ACTUAL = snap;
+                msActual = ms;
+                actualizarHoraMapa(ms);
+                if (clave !== ultimaClave) {
+                    ultimaClave = clave;
+                    if (pintar !== false) programarRepintado();
+                }
+                return true;
+            };
+            async function cacheCargar(force) {
+                if (!baseMs) baseMs = leerBase();
+                const r = rango();
+                const desde = new Date(baseMs - r.a * DAY);
+                const hasta = new Date(baseMs + r.d * DAY);
+                const horas = Math.max(1, (hasta - desde) / 3600000);
+                // 1h para ventanas cortas (precisión del overlay), más grueso solo si el rango es enorme.
+                const paso = horas <= 24 * 10 ? 1 : (horas <= 24 * 30 ? 2 : 4);
+                const key = `${fmtLocal(desde)}|${fmtLocal(hasta)}|${paso}`;
+                if (!force && cache && cache.key === key) return cache;
+                if (cacheProm && cacheProm.key === key) return cacheProm.p;
+                const seq = ++cacheSeq;
+                const p = (async () => {
+                    const resp = await fetch('/api/transitos_rango', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ desde: fmtLocal(desde), hasta: fmtLocal(hasta), paso_horas: paso })
+                    });
+                    const j = await resp.json();
+                    if (!resp.ok) throw new Error(j.error || 'Error batch');
+                    const filas = (j.filas || []).slice().sort((x, y) => x.t - y.t);
+                    if (!filas.length) throw new Error('Sin datos');
+                    return { key, filas, paso };
+                })();
+                cacheProm = { key, p };
+                try {
+                    const c = await p;
+                    if (seq === cacheSeq) {
+                        cache = c;
+                        // Serie de la línea de tiempo (tramos de centros y planetas).
+                        TRANSITO_SERIE = tmSerieDesdeFilas(c.filas, tmPuertasPersona());
+                    }
+                    return c;
+                } catch (e) {
+                    console.error('transitos_rango:', e);
+                    return null;
+                } finally {
+                    if (cacheProm && cacheProm.p === p) cacheProm = null;
+                }
+            }
+            function fijarTiempo(ms, opts) {
+                opts = opts || {};
+                if (!baseMs) baseMs = leerBase();
+                const r = rango();
+                const ini = baseMs - r.a * DAY, fin = baseMs + r.d * DAY;
+                ms = Math.max(ini, Math.min(fin, ms));
+                ms = Math.round(ms / 60000) * 60000;
+                msActual = ms;
+                elFecha.value = fmtLocal(new Date(ms));
+                slider.value = String(Math.max(-r.a, Math.min(r.d, Math.round((ms - baseMs) / DAY))));
+                if (vSlider) vSlider.value = String(Math.max(0, Math.min((r.a + r.d) * 1440, Math.round((ms - ini) / 60000))));
+                etiqueta();
+                if (overlayTransitoOn) {
+                    if (!aplicarSnapshot(ms, opts.pintar)) {
+                        // Cache todavía no lista (p. ej. cambio manual de fecha): reintentar al llegar.
+                        cacheCargar().then(c => { if (c && msActual === ms) aplicarSnapshot(ms, opts.pintar); });
+                    }
+                }
+                return ms;
+            }
+            async function activarOverlay() {
+                if (!elFecha.value) elFecha.value = fmtLocal(new Date(ahoraMVDms()));
+                baseMs = leerBase();
+                if (msActual == null) {
+                    const off = parseInt(slider.value || '0', 10) || 0;
+                    msActual = baseMs + off * DAY;
+                }
+                const c = await cacheCargar(true);
+                if (c) {
+                    aplicarSnapshot(msActual, false);
+                } else {
+                    const d = await obtenerTransito(fmtLocal(new Date(msActual)));
+                    if (!d) return false;
+                    TRANSITO_ACTUAL = d;
+                    ultimaClave = claveDetalle(d.detalle) + '#' + (d.conscientes || []).join(',');
+                }
+                if (rail) { rail.classList.add('visible'); rail.setAttribute('aria-hidden', 'false'); }
+                fijarTiempo(msActual, { pintar: false });
+                return true;
+            }
+            function desactivarOverlay() {
+                if (rail) { rail.classList.remove('visible'); rail.setAttribute('aria-hidden', 'true'); }
+                try { renderMapaTransitos(); } catch (e) {}
+            }
+            async function fechaManual() {
+                baseMs = leerBase();
+                cache = null; cacheProm = null; cacheSeq++;
+                msActual = baseMs;
+                aplicarRango(false);
+                fijarTiempo(msActual, { pintar: false });
+                const d = await obtenerTransito(fmtLocal(new Date(msActual)));
+                if (d) {
+                    TRANSITO_ACTUAL = d;
+                    ultimaClave = claveDetalle(d.detalle) + '#' + (d.conscientes || []).join(',');
+                    actualizarHoraMapa(msActual);
+                }
+                cacheCargar(true);
+                return !!d;
+            }
+            async function asegurarOverlayDesdeSlider() {
+                if (overlayTransitoOn) return;
+                if (activando) return activando;
+                activando = (async () => {
+                    if (btnOverlay) btnOverlay.textContent = 'Cargando...';
+                    const ok = await activarOverlay();
+                    if (ok) {
+                        overlayTransitoOn = true;
+                        if (btnOverlay) { btnOverlay.textContent = 'Superponer tránsito: ON'; btnOverlay.classList.add('on'); }
+                        try { repintarTodo(); } catch (e) {}
+                        try { renderMapaTransitos(); } catch (e) {}
+                    } else if (btnOverlay) {
+                        btnOverlay.textContent = 'Superponer tránsito: OFF';
+                    }
+                })();
+                try { await activando; } finally { activando = null; }
+            }
+            try {
+                const g = JSON.parse(localStorage.getItem(KEY_RANGO) || 'null');
+                if (g && typeof g === 'object') {
+                    if (g.a != null) elAtras.value = String(parseNum(g.a, 7));
+                    if (g.d != null) elAdel.value = String(parseNum(g.d, 7));
+                }
+            } catch (e) {}
+            // La fecha base la fija el init principal (Montevideo ahora); si aún
+            // no está, la fijamos acá con la misma convención UTC-3.
+            if (!elFecha.value) elFecha.value = fmtLocal(new Date(ahoraMVDms()));
+            baseMs = leerBase();
+            msActual = baseMs + (parseInt(slider.value || '0', 10) || 0) * DAY;
+            aplicarRango(false);
+            fijarTiempo(msActual, { pintar: false });
+            window._transitoActivar = activarOverlay;
+            window._transitoDesactivar = desactivarOverlay;
+            window._transitoFechaManual = fechaManual;
+            // El panel de línea de tiempo se alimenta con Persona 1, sin tocar
+            // el estado del overlay que controla el dibujo de los 3 gráficos.
+            window._transitoCargarDatos = async () => {
+                try {
+                    const c = await cacheCargar(true);
+                    if (c && msActual != null) aplicarSnapshot(msActual, false);
+                    return !!c;
+                } catch (e) { return false; }
+            };
+            // Deslizador vertical: recorre toda la ventana minuto a minuto.
+            if (vSlider) vSlider.addEventListener('input', () => {
+                const r = rango();
+                const ini = baseMs - r.a * DAY;
+                const ms = ini + (parseInt(vSlider.value || '0', 10) || 0) * 60000;
+                fijarTiempo(ms);
+                try { moverCursorEvol(); } catch (e) {}
+                if (!overlayTransitoOn) asegurarOverlayDesdeSlider();
+            });
+            if (railTime) railTime.addEventListener('click', () => {
+                fijarTiempo(baseMs);
+                try { moverCursorEvol(); } catch (e) {}
+            });
+            const railUp = document.getElementById('rail-tri-up');
+            const railDown = document.getElementById('rail-tri-down');
+            const saltarCambio = (dir) => {
+                const pts = TM_VIEW.cambios || [];
+                if (!pts.length) return;
+                const ms = msActual;
+                let destino = null;
+                if (dir > 0) {
+                    for (const t of pts) { if (t > ms + 60000) { destino = t; break; } }
+                } else {
+                    for (let i = pts.length - 1; i >= 0; i--) { if (pts[i] < ms - 60000) { destino = pts[i]; break; } }
+                }
+                if (destino == null) return;
+                const r = rango();
+                const ini = baseMs - r.a * DAY;
+                const val = Math.max(0, Math.min((r.a + r.d) * 1440, Math.round((destino - ini) / 60000)));
+                if (vSlider) { vSlider.value = String(val); vSlider.dispatchEvent(new Event('input', { bubbles: true })); }
+            };
+            if (railUp) railUp.addEventListener('click', () => saltarCambio(1));
+            if (railDown) railDown.addEventListener('click', () => saltarCambio(-1));
+            slider.addEventListener('input', () => {
+                const off = parseInt(slider.value || '0', 10) || 0;
+                fijarTiempo(baseMs + off * DAY);
+                try { moverCursorEvol(); } catch (e) {}
+                if (!overlayTransitoOn) asegurarOverlayDesdeSlider();
+            });
+            elAtras.addEventListener('change', () => {
+                aplicarRango(true);
+                cache = null; cacheProm = null; cacheSeq++;
+                if (overlayTransitoOn) {
+                    cacheCargar(true).then(c => { if (c) fijarTiempo(msActual); });
+                }
+                try { progEvolAuto(); } catch (e) {}
+            });
+            elAdel.addEventListener('change', () => {
+                aplicarRango(true);
+                cache = null; cacheProm = null; cacheSeq++;
+                if (overlayTransitoOn) {
+                    cacheCargar(true).then(c => { if (c) fijarTiempo(msActual); });
+                }
+                try { progEvolAuto(); } catch (e) {}
+            });
+
+            // --- Gráfica 5 curvas bajo Contactos ---
+            const btnEvol = document.getElementById('btn-contactos-evol');
+            const chartEl = document.getElementById('contactos-evol-chart');
+            const infoEl = document.getElementById('contactos-evol-info');
+            const COLORES5 = { centros: '#4527a0', electro: '#e91e63', compania: '#4caf50', dominio: '#2196f3', compromiso: '#ff9800' };
+            const NOMBRES5 = { centros: 'Centros igual estado', electro: 'Electromagnéticos', compania: 'Compañía', dominio: 'Dominio', compromiso: 'Compromiso' };
+            let evolData = null; // {dias:[{t, centros, electro, compania, dominio, compromiso}], atras}
+            let tEvolAuto = null;
+            const listaCanalesBase = () => {
+                const s = new Set();
+                try {
+                    if (typeof CENTRO_CANALES !== 'undefined')
+                        Object.values(CENTRO_CANALES).forEach(arr => arr.forEach(c => { try { s.add(normCanalKey(c)); } catch (e) {} }));
+                } catch (e) {}
+                return [...s];
+            };
+            const centrosDe = (setPuertas, baseLista) => {
+                const ampCh = baseLista.filter(k => {
+                    const pp = String(k).split('-').map(Number);
+                    return pp.length === 2 && setPuertas.has(pp[0]) && setPuertas.has(pp[1]);
+                });
+                const defs = new Set();
+                try {
+                    Object.entries(CENTRO_CANALES).forEach(([id, lista]) => {
+                        if (lista.some(c => { try { return ampCh.includes(normCanalKey(c)); } catch (e) { return false; } })) defs.add(id);
+                    });
+                } catch (e) {}
+                return { ampCh, defs };
+            };
+            function dibujarEvol() {
+                if (!chartEl || !evolData || !evolData.dias.length) return;
+                const dias = evolData.dias;
+                const NS = 'http://www.w3.org/2000/svg';
+                const W = 760, mL = 34, mR = 10, mT = 12, mB = 40;
+                const plotW = W - mL - mR, plotH = 190;
+                const H = mT + plotH + mB;
+                const maxY = Math.max(1, ...dias.map(d => Math.max(d.centros, d.electro, d.compania, d.dominio, d.compromiso)));
+                const xFor = (i) => mL + (dias.length === 1 ? plotW / 2 : (i / (dias.length - 1)) * plotW);
+                const yFor = (v) => mT + plotH - (v / maxY) * plotH;
+                const svg = document.createElementNS(NS, 'svg');
+                svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+                svg.setAttribute('width', '100%');
+                svg.style.height = 'auto'; svg.style.display = 'block';
+                svg.setAttribute('role', 'img');
+                for (let g = 0; g <= maxY; g++) {
+                    const y = yFor(g);
+                    const l = document.createElementNS(NS, 'line');
+                    l.setAttribute('x1', mL); l.setAttribute('x2', W - mR);
+                    l.setAttribute('y1', y); l.setAttribute('y2', y);
+                    l.setAttribute('stroke', g === 0 ? '#9e9e9e' : '#e0e0e0');
+                    l.setAttribute('stroke-width', g === 0 ? '1' : '0.5');
+                    svg.appendChild(l);
+                    const t = document.createElementNS(NS, 'text');
+                    t.setAttribute('x', mL - 5); t.setAttribute('y', y + 3);
+                    t.setAttribute('text-anchor', 'end'); t.setAttribute('font-size', '8'); t.setAttribute('fill', '#616161');
+                    t.textContent = String(g); svg.appendChild(t);
+                }
+                // Cursor del slider (línea vertical en el día actual del deslizador).
+                try {
+                    const off = parseInt(slider.value || '0', 10) || 0;
+                    const idx = off + (evolData.atras || 0);
+                    if (idx >= 0 && idx < dias.length) {
+                        const x = xFor(idx);
+                        const c = document.createElementNS(NS, 'line');
+                        c.setAttribute('x1', x); c.setAttribute('x2', x);
+                        c.setAttribute('y1', mT); c.setAttribute('y2', mT + plotH);
+                        c.setAttribute('stroke', '#263238'); c.setAttribute('stroke-width', '1.2');
+                        c.setAttribute('stroke-dasharray', '4 2'); c.setAttribute('opacity', '0.7');
+                        svg.appendChild(c);
+                    }
+                } catch (e) {}
+                const series = ['centros', 'electro', 'compania', 'dominio', 'compromiso'];
+                series.forEach(k => {
+                    let dAttr = '';
+                    dias.forEach((dd, i) => { dAttr += (i === 0 ? `M ${xFor(i)} ${yFor(dd[k])}` : ` L ${xFor(i)} ${yFor(dd[k])}`); });
+                    const path = document.createElementNS(NS, 'path');
+                    path.setAttribute('d', dAttr); path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', COLORES5[k]); path.setAttribute('stroke-width', '1.8');
+                    path.setAttribute('stroke-linejoin', 'round'); path.setAttribute('stroke-linecap', 'round');
+                    svg.appendChild(path);
+                    dias.forEach((dd, i) => {
+                        const c = document.createElementNS(NS, 'circle');
+                        c.setAttribute('cx', xFor(i)); c.setAttribute('cy', yFor(dd[k])); c.setAttribute('r', '2.4');
+                        c.setAttribute('fill', COLORES5[k]);
+                        const tit = document.createElementNS(NS, 'title');
+                        tit.textContent = `${NOMBRES5[k]}: ${dd[k]} — ${new Date(dd.t).toLocaleString('es-UY')}`;
+                        c.appendChild(tit); svg.appendChild(c);
+                    });
+                });
+                dias.forEach((dd, i) => {
+                    const d = new Date(dd.t);
+                    const lab = `${p2(d.getDate())}/${p2(d.getMonth() + 1)}`;
+                    const tx = document.createElementNS(NS, 'text');
+                    tx.setAttribute('x', xFor(i)); tx.setAttribute('y', H - 24);
+                    tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', dias.length > 40 ? '6.5' : '7.5');
+                    tx.setAttribute('fill', '#424242');
+                    tx.textContent = lab; svg.appendChild(tx);
+                });
+                const off0 = document.createElementNS(NS, 'text');
+                off0.setAttribute('x', mL); off0.setAttribute('y', H - 10);
+                off0.setAttribute('font-size', '7.5'); off0.setAttribute('fill', '#616161');
+                try {
+                    const a = parseNum(elAtras.value, 7);
+                    off0.textContent = `−${a}d · día 0 = ${fmtCorto(baseMs)} · cursor = slider`;
+                } catch (e) {}
+                svg.appendChild(off0);
+                chartEl.innerHTML = '';
+                chartEl.appendChild(svg);
+                const ley = document.createElement('div');
+                ley.style.fontSize = '10px'; ley.style.color = 'var(--muted)'; ley.style.marginTop = '4px';
+                ley.innerHTML = series.map(k => {
+                    const ult = dias[dias.length - 1][k];
+                    return `<span style="display:inline-block;width:10px;height:10px;background:${COLORES5[k]};vertical-align:middle;margin:0 3px 0 8px"></span>${NOMBRES5[k]} (${ult})`;
+                }).join('');
+                chartEl.appendChild(ley);
+            }
+            window._evolRedibujar = dibujarEvol;
+            function moverCursorEvol() { if (evolData) dibujarEvol(); }
+            async function calcularEvolucion() {
+                if (!chartEl) return;
+                if (typeof dataPersonaA === 'undefined' || !dataPersonaA) { chartEl.textContent = 'Elegí Persona 1.'; return; }
+                if (typeof dataPersonaB === 'undefined' || !dataPersonaB) { chartEl.textContent = 'Elegí Persona 2 (centros comunes y contactos requieren ambas).'; return; }
+                const a = parseNum(elAtras.value, 7), d = parseNum(elAdel.value, 7);
+                if (a + d > 400) { chartEl.textContent = 'Rango muy grande (máx 400 días en total).'; return; }
+                if (infoEl) infoEl.textContent = 'Calculando…';
+                chartEl.textContent = 'Calculando tránsitos día a día…';
+                if (btnEvol) { btnEvol.disabled = true; btnEvol.textContent = 'Calculando…'; }
+                try {
+                    const d0 = new Date(baseMs - a * 86400000), d1 = new Date(baseMs + d * 86400000);
+                    const r = await fetch('/api/transitos_rango', { method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ desde: fmtLocal(d0), hasta: fmtLocal(d1), paso_horas: 24 }) });
+                    const j = await r.json();
+                    if (!r.ok) throw new Error(j.error || 'Error batch');
+                    const filas = (j.filas || []).slice().sort((x, y) => x.t - y.t);
+                    if (!filas.length) throw new Error('Sin datos');
+                    const baseLista = listaCanalesBase();
+                    const setA0 = new Set(dataPersonaA.todas_puertas || []);
+                    const setB0 = new Set(dataPersonaB.todas_puertas || []);
+                    const dias = filas.map(row => {
+                        const setT = new Set(row.puertas || []);
+                        const setA = new Set([...setA0, ...setT]);
+                        const setB = new Set([...setB0, ...setT]);
+                        const rA = centrosDe(setA, baseLista), rB = centrosDe(setB, baseLista);
+                        let centros = 0;
+                        try { Object.keys(CENTRO_CANALES).forEach(id => { if (rA.defs.has(id) === rB.defs.has(id)) centros++; }); } catch (e) {}
+                        let electro = 0, compania = 0, dominio = 0, compromiso = 0;
+                        baseLista.forEach(k => {
+                            const pp = String(k).split('-').map(Number);
+                            if (pp.length !== 2) return;
+                            const a1 = setA.has(pp[0]), a2 = setA.has(pp[1]);
+                            const b1 = setB.has(pp[0]), b2 = setB.has(pp[1]);
+                            const fullA = a1 && a2, fullB = b1 && b2;
+                            if (fullA && fullB) compania++;
+                            else if ((a1 && !a2 && !b1 && b2) || (a2 && !a1 && !b2 && b1)) electro++;
+                            if ((fullA && !b1 && !b2) || (fullB && !a1 && !a2)) dominio++;
+                            if ((fullB && (a1 !== a2)) || (fullA && (b1 !== b2))) compromiso++;
+                        });
+                        return { t: row.t, centros, electro, compania, dominio, compromiso };
+                    });
+                    evolData = { dias, atras: a };
+                    dibujarEvol();
+                    if (infoEl) infoEl.textContent = `${dias.length} días • batch 24h • cursor = slider (${slider.value}d)`;
+                } catch (err) {
+                    chartEl.textContent = 'Error: ' + err;
+                    if (infoEl) infoEl.textContent = 'Falló — probá de nuevo.';
+                } finally {
+                    if (btnEvol) { btnEvol.disabled = false; btnEvol.textContent = 'Calcular evolución'; }
+                }
+            }
+            function progEvolAuto() {
+                if (!evolData) return;
+                clearTimeout(tEvolAuto);
+                tEvolAuto = setTimeout(calcularEvolucion, 600);
+            }
+            if (btnEvol) btnEvol.addEventListener('click', calcularEvolucion);
+            try {
+                if (typeof selectorA !== 'undefined' && selectorA) selectorA.addEventListener('change', progEvolAuto);
+                if (typeof selectorB !== 'undefined' && selectorB) selectorB.addEventListener('change', progEvolAuto);
+            } catch (e) {}
+            window._evolRecalcular = calcularEvolucion;
+        });
+
+        // ---------- Persistencia de configuración (localStorage, solo navegador) ----------
+        // Guarda colores, tamaños/opacidades, botones ON/OFF y filtros (no personas ni fechas);
+        // al recargar repone los controles y dispara los mismos eventos que si se movieran a mano.
+        // Personas siempre arrancan vacías para evitar esperas y recargas. Lo guardado viejo
+        // con personas se ignora.
+        (function initPersistenciaConfig(){
+            const KEY = 'dhConfigV1';
+            const COLORES = ['color-a-incon','color-a-consc','color-a-mixto','color-b-incon','color-b-consc',
+                'color-b-mixto','color-transito','col-elec','col-comp','col-domA','col-domB','col-comA',
+                'col-comB','col-comp0','col-comp1'];
+            const RANGOS = ['opac-transito','opac-fijas','opac-trans','opac-compat','size-punto','size-texto'];
+            const CHECKS = ['check-animaciones','chk-transito-punteado','chk-contacto-b','chk-tl-auto','chk-tl-p2','chk-lineas','chk-emojis','chk-canales','chk-simpl','chk-descr','chk-influ','flt-a-rojas','flt-a-negras','flt-c-indiv','flt-c-tribal','flt-c-colec','flt-lin-1','flt-lin-2','flt-lin-3','flt-lin-4','flt-lin-5','flt-lin-6'];
+            const SELECTS = ['rango-transitos','filtro-edad',
+                'filtro-vinculo','filtro-comp-orden'];
+            const TEXTOS = [];
+            const $ = (id) => document.getElementById(id);
+            const fabricaSelect = (el) => {
+                const sel = el.querySelector('option[selected]');
+                return sel ? sel.value : (el.options[0] ? el.options[0].value : '');
+            };
+            // Fábrica desde atributos originales del HTML (no del estado actual).
+            const FABRICA = {};
+            COLORES.forEach(id => { const el = $(id); if (el) FABRICA[id] = el.defaultValue || el.value; });
+            RANGOS.forEach(id => { const el = $(id); if (el) FABRICA[id] = el.defaultValue || el.value; });
+            CHECKS.forEach(id => { const el = $(id); if (el) FABRICA[id] = el.defaultChecked; });
+            SELECTS.forEach(id => { const el = $(id); if (el) FABRICA[id] = fabricaSelect(el); });
+            FABRICA['tema'] = 'crema';
+            FABRICA['overlayTransitoOn'] = false;
+            function leerActual() {
+                const o = {};
+                COLORES.forEach(id => { const el = $(id); if (el) o[id] = el.value; });
+                RANGOS.forEach(id => { const el = $(id); if (el) o[id] = el.value; });
+                CHECKS.forEach(id => { const el = $(id); if (el) o[id] = el.checked; });
+                SELECTS.forEach(id => { const el = $(id); if (el) o[id] = el.value; });
+                TEXTOS.forEach(id => { const el = $(id); if (el) o[id] = el.value; });
+                o['tema'] = document.documentElement.dataset.tema || 'crema';
+                try { o['controlesAbierto'] = !document.getElementById('panel-controles').classList.contains('colapsada'); }
+                catch (e) { o['controlesAbierto'] = false; }
+                try { o['listaFiltradaAbierta'] = document.getElementById('filtros-lista-wrap').classList.contains('abierta'); }
+                catch (e) { o['listaFiltradaAbierta'] = false; }
+                try { o['overlayTransitoOn'] = (typeof overlayTransitoOn !== 'undefined') ? !!overlayTransitoOn : false; }
+                catch (e) { o['overlayTransitoOn'] = false; }
+                return o;
+            }
+            let tSave = null;
+            function guardar() {
+                clearTimeout(tSave);
+                tSave = setTimeout(() => {
+                    try { localStorage.setItem(KEY, JSON.stringify(leerActual())); } catch (e) {}
+                }, 300);
+            }
+            function cargarGuardada() {
+                try {
+                    const raw = localStorage.getItem(KEY);
+                    return raw ? JSON.parse(raw) : null;
+                } catch (e) { return null; }
+            }
+            function disparar(el) {
+                if (!el) return;
+                el.dispatchEvent(new Event(el.type === 'checkbox' ? 'change' : 'input', { bubbles: true }));
+                if (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'datetime-local')
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            async function aplicar(cfg, opts) {
+                opts = opts || {};
+                Object.entries(cfg).forEach(([k, v]) => {
+                    if (k === 'tema' || k === 'overlayTransitoOn') return;
+                    if (k === 'selector-persona-a' || k === 'selector-persona-b' || k === 'fecha-transito' || k === 'tl-svg-desde' || k === 'tl-svg-hasta') return;
+                    const el = $(k);
+                    if (!el || v == null) return;
+                    try {
+                        if (el.type === 'checkbox') el.checked = !!v;
+                        else el.value = v;
+                    } catch (e) {}
+                });
+                if (cfg.tema && document.documentElement) {
+                    document.documentElement.dataset.tema = cfg.tema;
+                    try { localStorage.setItem('temaDH', cfg.tema); } catch (e) {}
+                }
+                // Repintar / refiltrar con los mismos handlers existentes (sin tocar su lógica).
+                COLORES.concat(RANGOS).forEach(id => disparar($(id)));
+                CHECKS.forEach(id => { if (id !== 'chk-tl-auto' && id !== 'chk-tl-p2') disparar($(id)); });
+                ['filtro-edad','filtro-vinculo','rango-transitos'].forEach(id => disparar($(id)));
+                // Overlay tránsito ON: simular 1 clic si estaba activo (parte de OFF).
+                if (opts.overlay && cfg.overlayTransitoOn) {
+                    try {
+                        if (typeof overlayTransitoOn !== 'undefined' && !overlayTransitoOn) {
+                            const btn = $('btn-overlay-transito');
+                            if (btn) btn.click();
+                        }
+                    } catch (e) {}
+                }
+            }
+            // Autoguardado ante cualquier cambio de controles.
+            document.addEventListener('input', (e) => {
+                if (e.target && (COLORES.includes(e.target.id) || RANGOS.includes(e.target.id) || TEXTOS.includes(e.target.id))) guardar();
+            });
+            document.addEventListener('change', (e) => {
+                if (e.target && (CHECKS.includes(e.target.id) || SELECTS.includes(e.target.id) || TEXTOS.includes(e.target.id))) guardar();
+            });
+            document.addEventListener('click', (e) => {
+                if (e.target && e.target.id === 'btn-overlay-transito') setTimeout(guardar, 600);
+                if (e.target && e.target.id === 'btn-tema') setTimeout(guardar, 100);
+            });
+            // Restaurar al arrancar: sin espera, sin personas.
+            window.addEventListener('DOMContentLoaded', async () => {
+                const cfg = cargarGuardada();
+                if (cfg) {
+                    await aplicar(cfg, { overlay: true });
+                }
+            });
+            // Botón ver-config: tabla solo-lectura del estado actual de configuración.
+            function asegurarOverlayCfg() {
+                let ov = $('cfg-estado-overlay');
+                if (ov) return ov;
+                ov = document.createElement('div');
+                ov.id = 'cfg-estado-overlay';
+                ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:9999;align-items:center;justify-content:center;padding:20px;';
+                ov.innerHTML = '<div style="background:#fff;border-radius:10px;max-width:560px;width:100%;padding:16px;box-shadow:0 8px 30px rgba(0,0,0,.3);max-height:85vh;overflow:auto;">' +
+                    '<h3 style="margin-bottom:8px;font-size:14px;">Configuración actual</h3>' +
+                    '<div id="cfg-estado-tabla" style="font-size:12px;font-family:monospace;white-space:pre-wrap;"></div>' +
+                    '<div style="margin-top:10px;display:flex;gap:8px;"><button id="cfg-estado-cerrar" type="button" style="padding:6px 12px;cursor:pointer;">Cerrar</button></div></div>';
+                document.body.appendChild(ov);
+                ov.querySelector('#cfg-estado-cerrar').addEventListener('click', () => { ov.style.display = 'none'; });
+                ov.addEventListener('click', (e) => { if (e.target === ov) ov.style.display = 'none'; });
+                return ov;
+            }
+            function fmtCfg(o) {
+                return Object.keys(o).sort().map(k => `${k}: ${o[k]}`).join('\n');
+            }
+            const btnVer = $('btn-ver-config');
+            if (btnVer) {
+                btnVer.style.cssText = 'opacity:.55;border:1px solid #cfd8dc;background:#fff;border-radius:6px;padding:2px 7px;cursor:pointer;font-size:13px;margin-left:6px;';
+                btnVer.addEventListener('click', () => {
+                    const ov = asegurarOverlayCfg();
+                    ov.querySelector('#cfg-estado-tabla').textContent = fmtCfg(leerActual());
+                    ov.style.display = 'flex';
+                });
+            }
+            // Botón reset-config: restablece fábrica; el hover muestra cómo quedarían los controles.
+            const btnReset = $('btn-reset-config');
+            if (btnReset) {
+                btnReset.style.cssText = 'opacity:.55;border:1px solid #cfd8dc;background:#fff;border-radius:6px;padding:2px 7px;cursor:pointer;font-size:13px;margin-left:6px;';
+                let prev = null;
+                function previewHtml() {
+                    const filas = Object.keys(FABRICA).sort().map(k =>
+                        `<div style="display:flex;justify-content:space-between;gap:12px;padding:1px 0;"><span>${k}</span><b>${FABRICA[k]}</b></div>`).join('') +
+                        '<div style="display:flex;justify-content:space-between;gap:12px;padding:1px 0;"><span>fecha-transito / tl-desde / tl-hasta</span><b>auto (ahora / hoy / +14d)</b></div>' +
+                        '<div style="display:flex;justify-content:space-between;gap:12px;padding:1px 0;"><span>tablero Controles</span><b>cerrado</b></div>' +
+                        '<div style="display:flex;justify-content:space-between;gap:12px;padding:1px 0;"><span>lista filtrada</span><b>cerrada</b></div>';
+                    return `<b>Así quedarían los controles:</b><div style="margin-top:6px;font-size:11px;font-family:monospace;">${filas}</div><div style="margin-top:6px;font-size:11px;color:#666;">Clic para aplicar. Las personas se vacían.</div>`;
+                }
+                btnReset.addEventListener('mouseenter', () => {
+                    prev = document.createElement('div');
+                    prev.id = 'cfg-reset-preview';
+                    prev.style.cssText = 'position:fixed;z-index:99999;background:#fff;border:1px solid #cfd8dc;border-radius:8px;padding:10px 12px;box-shadow:0 8px 30px rgba(0,0,0,.25);max-width:340px;font-size:12px;color:#222;';
+                    prev.innerHTML = previewHtml();
+                    document.body.appendChild(prev);
+                    const r = btnReset.getBoundingClientRect();
+                    prev.style.left = Math.max(8, Math.min(window.innerWidth - 360, r.left - 100)) + 'px';
+                    prev.style.top = (r.bottom + 10) + 'px';
+                });
+                btnReset.addEventListener('mouseleave', () => { if (prev) { prev.remove(); prev = null; } });
+                btnReset.addEventListener('click', async () => {
+                    if (prev) { prev.remove(); prev = null; }
+                    try { localStorage.removeItem(KEY); } catch (e) {}
+                    // Fábrica: tablero Controles cerrado (se olvida si se lo dejó abierto).
+                    try { localStorage.removeItem('dhControlesAbierto'); } catch (e) {}
+                    // Fábrica: lista filtrada cerrada.
+                    try { localStorage.removeItem('dhFiltrosListaAbierta'); } catch (e) {}
+                    try { document.getElementById('panel-controles').classList.add('colapsada'); } catch (e) {}
+                    try { document.getElementById('filtros-lista-wrap').classList.remove('abierta'); } catch (e) {}
+                    // Fábrica: colores/tamaños/checks/selects + fechas en auto + personas vacías + overlay OFF.
+                    await aplicar(Object.assign({}, FABRICA, {
+                        'selector-persona-a': '', 'selector-persona-b': '',
+                        'fecha-transito': '', 'tl-svg-desde': '', 'tl-svg-hasta': ''
+                    }), { personas: false, overlay: false });
+                    try {
+                        if (typeof overlayTransitoOn !== 'undefined' && overlayTransitoOn) {
+                            const b = $('btn-overlay-transito');
+                            if (b) b.click();
+                        }
+                    } catch (e) {}
+                    const a = $('selector-persona-a'), b2 = $('selector-persona-b');
+                    if (a) { a.value = ''; a.dispatchEvent(new Event('change', { bubbles: true })); }
+                    if (b2) { b2.value = ''; b2.dispatchEvent(new Event('change', { bubbles: true })); }
+                    guardar();
+                });
+            }
+        })();
