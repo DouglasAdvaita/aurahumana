@@ -38,22 +38,26 @@
             --acento: #00838f; --acento-os: #006064;
             color-scheme: light;
         }
+        #barra-superior {
+            position: fixed; top: 12px; right: 12px; z-index: 10001;
+            display: flex; align-items: center; gap: 10px;
+        }
         #btn-tema {
-            position: fixed; top: 12px; right: 12px; width: 42px; height: 42px;
+            flex: 0 0 auto;
+            width: 42px; height: 42px;
             border-radius: 50%; background: var(--card); color: var(--titulo);
             border: 2px solid var(--borde3); font-size: 20px; cursor: pointer;
-            z-index: 10001; box-shadow: 0 2px 8px rgba(0,0,0,.15); line-height: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,.15); line-height: 1;
         }
         #btn-tema:hover { border-color: var(--acento); }
         #fuente-bar {
-            position: absolute; top: 8px; right: 8px; z-index: 5;
-            display: flex; gap: 6px; align-items: center;
+            display: flex; gap: 6px; align-items: center; min-width: 0;
             background: var(--card); color: var(--titulo);
             border: 2px solid var(--borde3); border-radius: 8px;
             padding: 4px 8px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.15);
         }
         #fuente-bar select {
-            width: auto;
+            width: auto; max-width: 100%; min-width: 0;
         }
         #fuente-bar button {
             font: inherit; cursor: pointer; background: transparent; color: var(--titulo);
@@ -1479,16 +1483,17 @@
             body {
                 padding: 8px 6px;
             }
-            #btn-tema {
+            #barra-superior {
                 top: 8px;
                 right: 8px;
+                gap: 6px;
+            }
+            #btn-tema {
                 width: 36px;
                 height: 36px;
                 font-size: 17px;
             }
             #fuente-bar {
-                top: 8px;
-                right: 8px;
                 padding: 3px 6px;
                 font-size: 11px;
                 max-width: calc(100vw - 60px);

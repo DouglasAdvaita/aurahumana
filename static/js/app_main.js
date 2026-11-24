@@ -3380,7 +3380,7 @@
                     if (w >= 34) {
                         const emP = EMP[tr.valor] || '';
                         s += `<text x="${(x1 + w / 2).toFixed(1)}" y="${(y + 14).toFixed(1)}" text-anchor="middle" ` +
-                            `font-size="10" font-weight="800" fill="${col}">${tr.valor}` +
+                            `font-size="10" font-weight="800" fill="#000">${tr.valor}` +
                             (emP ? `<tspan class="tm-emoji" dx="3">${escHtml(emP)}</tspan>` : '') + `</text>`;
                     }
                 });

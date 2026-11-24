@@ -15,16 +15,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index_styles.css') }}">
 </head>
 <body>
-    <button id="btn-tema" type="button" title="Tema: crema (clic para cambiar)">◐</button>
-    <details class="add-persona" data-caja="Agregar-Persona">
-        <summary>Agregar nueva persona</summary>
+    <div id="barra-superior">
         <div id="fuente-bar">
-            <select id="fuente-xlsx-combo" title="Elegir la fuente de datos">
-              {% for x in xlsx_list %}<option value="{{ x }}">{{ x }}</option>{% endfor %}
+            <select id="fuente-xlsx-combo" title="Elegir la fuente de datos" autocomplete="off">
+              {% for x in xlsx_list %}<option value="{{ x }}"{% if x == fuente_sel %} selected{% endif %}>{{ x }}</option>{% endfor %}
+              {% if fuente_sel and fuente_sel not in xlsx_list %}<option value="{{ fuente_ruta }}" selected>{{ fuente_sel }}</option>{% endif %}
             </select>
             <a href="/cuenta" id="link-cuenta" title="Entrar o crear cuenta" style="margin-left:auto;font-size:12px;padding:2px 8px;border:1px solid var(--borde3);border-radius:4px;text-decoration:none;color:var(--texto)">Mi cuenta</a>
             <button id="btn-salir-nav" type="button" class="oculto" style="font-size:12px;padding:2px 8px;border:1px solid var(--borde3);border-radius:4px;background:#fff;color:var(--texto);cursor:pointer">Salir</button>
         </div>
+        <button id="btn-tema" type="button" title="Tema: crema (clic para cambiar)">◐</button>
+    </div>
+    <details class="add-persona" data-caja="Agregar-Persona">
+        <summary>Agregar nueva persona</summary>
         <div class="add-persona-form">
             <label>Nombre<input type="text" id="nuevo-nombre" placeholder="Nombre"></label>
             <label>Fecha nacimiento (DD/MM/AAAA)<input type="text" id="nuevo-fecha" placeholder="24/4/1968"></label>
@@ -103,6 +106,16 @@
                 const nn=document.getElementById('ac-nombre-num');
                 if(nn) nn.value=t.nombre||'';
                 QIDS.forEach((id,i)=>setSel(id,t[KEYS[i]]));
+                // Niveles de Maslow guardados
+                try{
+                    const ml = t.maslow ? JSON.parse(t.maslow) : null;
+                    if(Array.isArray(ml)){
+                        ml.forEach(function(m){
+                            const s=document.getElementById('ac-maslow-'+m.nivel);
+                            if(s) setSel('ac-maslow-'+m.nivel, m.v);
+                        });
+                    }
+                }catch(e){}
                 return true;
             };
             window._testCargar=async function(nom){
@@ -111,9 +124,7 @@
                     if(!r.ok){window._testLimpiar();return false;}
                     const t=await r.json();
                     if(!t||!t.nombre){window._testLimpiar();return false;}
-                    const nn=document.getElementById('ac-nombre-num');if(nn&&t.nombre)nn.value=t.nombre;
-                    QIDS.forEach((id,i)=>setSel(id,t[KEYS[i]]));
-                    return true;
+                    return window._testSet(t);
                 }catch(e){return false;}
             };
             function armarPayload(nomNum,nombreClave){
@@ -140,6 +151,9 @@
                 else if(coordsManual){const q=coordsEl.value.split(',');p.lat=(q[0]||'').trim();p.lon=(q[1]||'').trim();p.tz=(q[2]||'').trim();}
                 return p;
             }
+            window._testPayload=function(){
+                return armarPayload(v('ac-nombre-num')||'', v('nuevo-nombre')||'');
+            };
             window._testGuardar=async function(nombreClave){
                 const nomNum=v('ac-nombre-num')||nombreClave;
                 try{
@@ -233,7 +247,19 @@
             }
             REP.textContent = partes.length ? partes.join('\n') : '';
             CHART.innerHTML = con.length ? grafica(m) : '<div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5;padding-top:44px">Elegí los niveles de Maslow<br>para ver la gráfica</div>';
+            vistaPreviaInforme();
             posicionar();
+        }
+        async function vistaPreviaInforme(){
+            if(!window._testPayload) return;
+            const p=window._testPayload();
+            p.preview=true;
+            try{
+                const r=await fetch('/api/autoconocimiento',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
+                if(!r.ok){REP.textContent='';return;}
+                const j=await r.json();
+                REP.textContent=j.informe||'';
+            }catch(e){REP.textContent='';}
         }
         const CAJA=document.getElementById('test-reporte');
         function posicionar(){
@@ -270,6 +296,8 @@
         }).catch(function(){ REP.textContent='No se pudo leer la planilla de Maslow.'; });
         LAYOUT.addEventListener('change', informe);
         LAYOUT.addEventListener('input', informe);
+        LAYOUT.addEventListener('change', vistaPreviaInforme);
+        LAYOUT.addEventListener('input', vistaPreviaInforme);
     })();
     </script>
         <div class="add-persona-actions">
@@ -301,24 +329,26 @@
         var fx = document.getElementById('fuente-xlsx-combo');
         var jActivo = null;
 
-        function poblarCombo(lista) {
+        function poblarCombo(lista, activo, ruta) {
             if (!fx) return;
+            lista = lista || ['datos.csv'];
+            activo = activo || 'datos.csv';
             fx.innerHTML = '';
-            var optInicial = null;
+            // Si la fuente activa no está en el listado (xlsx elegido fuera de
+            // la carpeta), se agrega para que el selector nunca mienta.
+            if (lista.indexOf(activo) < 0) {
+                var oa = document.createElement('option');
+                oa.value = ruta || activo;
+                oa.textContent = activo;
+                fx.appendChild(oa);
+            }
             for (var i = 0; i < lista.length; i++) {
                 var o = document.createElement('option');
                 o.value = lista[i];
                 o.textContent = lista[i];
                 fx.appendChild(o);
-                if (lista[i] === (jActivo || '')) optInicial = o;
             }
-            if (optInicial) fx.value = optInicial.value;
-        }
-
-        function poblarComboDesdeXlsx() {
-            fetch('/api/fuente', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-                if (j && j.xlsx && j.xlsx.length) poblarCombo(j.xlsx);
-            }).catch(function(){});
+            fx.value = lista.indexOf(activo) < 0 ? (ruta || activo) : activo;
         }
 
         function pintar(nombre, tipo){
@@ -329,9 +359,10 @@
 
         function refrescar(){
             fetch('/api/fuente', {cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-                jActivo = j && j.activo;
-                if (j) pintar(j.activo, j.tipo);
-                poblarComboDesdeXlsx();
+                if (!j) return;
+                jActivo = j.activo || 'datos.csv';
+                pintar(j.activo, j.tipo);
+                poblarCombo(j.xlsx, jActivo, j.ruta);
             }).catch(function(){});
         }
 
@@ -368,6 +399,7 @@
             fx.addEventListener('change', function() {
                 var sel = fx.value || null;
                 if (!sel) { alert('Elegí un .xlsx del listado'); return; }
+                if (sel === (jActivo || 'datos.csv')) { return; }  // ya es la fuente activa
                 fx.disabled = true;
                 fetch('/api/fuente', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:sel})})
                   .then(function(r){return r.json();}).then(function(j){
@@ -381,6 +413,9 @@
             fetch('/api/fuente', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:null})})
               .then(function(r){return r.json();}).then(function(){ location.reload(); }).catch(function(){});
         });
+        // El navegador puede restaurar el <select> al recargar: re-sincronizar
+        // con la fuente real del servidor después de la restauración.
+        window.addEventListener('pageshow', function(){ refrescar(); });
         refrescar();
     })();
     </script>

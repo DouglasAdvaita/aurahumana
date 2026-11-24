@@ -1073,7 +1073,7 @@ TEST_CSV_PATH = Path("test.csv")
 TEST_CSV_COLS = ['nombre', 'fecha', 'hora', 'lugar', 'triada', 'modo', 'foco',
                  'sensorial', 'rutina', 'social', 'cuerpo', 'diges', 'sueno',
                  'busco', 'eneatipo', 'dosha_dom', 'vida', 'destino', 'solar',
-                 'luna', 'asc', 'informe',
+                 'luna', 'asc', 'informe', 'maslow',
                  'sernoser_fecha', 'sernoser_alin', 'sernoser_fugas', 'sernoser_resp']
 
 def _leer_test_rows():
@@ -1111,10 +1111,20 @@ def _upsert_test(fila):
             if leidas:
                 head = leidas[0] if leidas[0] else head
                 cuerpo = leidas[1:]
-        if 'nombre' not in [str(c or '').strip().lower() for c in head]:
-            head = list(TEST_CSV_COLS)
-            cuerpo = []
-        inom = [str(c or '').strip().lower() for c in head].index('nombre')
+        # asegurar columnas nuevas (p.ej. maslow en archivos viejos sin la columna)
+        lower_head = [str(c or '').strip().lower() for c in head]
+        for col in ('maslow',):
+            if col not in lower_head:
+                head.append(col)
+                for r in cuerpo:
+                    r.append('')
+                lower_head.append(col)
+        # serializar campos complejos a JSON para CSV
+        if 'maslow' in fila and fila['maslow'] not in (None, ''):
+            val = fila['maslow']
+            if not isinstance(val, str):
+                fila['maslow'] = _json.dumps(val, ensure_ascii=False)
+        inom = lower_head.index('nombre')
         nueva = [str(fila.get(c, '') or '') for c in head]
         clave = str(fila.get('nombre', '') or '').strip().lower()
         puesta = False
@@ -3789,6 +3799,7 @@ def _validar_xlsx(path):
 def _fuente_json():
     p = _FUENTE['path']
     return {'activo': p.name if p else None,
+            'ruta': str(p) if p else None,
             'tipo': 'xlsx' if p else 'csv',
             'entorno': 'render' if _es_render() else 'local',
             'datos_csv_propio': _datos_csv_utilizables(),
@@ -3945,6 +3956,9 @@ def index():
     puertas = cargar_puertas()
     xlsx_list = ['datos.csv'] + sorted(x.name for x in Path('.').glob('*.xlsx')
                        if not x.name.startswith('~$') and _validar_xlsx(x) == '')
+    _f_activa = fuente_activa()
+    fuente_sel = _f_activa.name if _f_activa else 'datos.csv'
+    fuente_ruta = str(_f_activa) if _f_activa else ''
     return render_template('index.html', 
                          svg_content=svg_content,
                          personas=personas,
@@ -3953,7 +3967,9 @@ def index():
                          centros=centros,
                          canales=canales,
                          puertas=puertas,
-                         xlsx_list=xlsx_list)
+                         xlsx_list=xlsx_list,
+                         fuente_sel=fuente_sel,
+                         fuente_ruta=fuente_ruta)
 
 @app.route('/lab')
 def lab():
@@ -5764,8 +5780,11 @@ def api_autoconocimiento():
                       f"{aviso_carta}")
     informe = "\n\n".join(p for p in partes if str(p or '').strip())
     guardado = False
+    _ml = data.get('maslow') or []
+    preview = bool(data.get('preview'))
     if informe:
-        guardado = bool(_upsert_test({
+        if not preview:
+            guardado = bool(_upsert_test({
             'nombre': str(data.get('nombre') or '').strip(),
             'fecha': str(data.get('fecha') or ''), 'hora': str(data.get('hora') or ''),
             'lugar': str(data.get('lugar') or ''),
@@ -5777,6 +5796,7 @@ def api_autoconocimiento():
             'eneatipo': str(enea or ''), 'dosha_dom': (dom if hay_dosha else ''),
             'vida': str(vida or ''), 'destino': str(destino or ''),
             'solar': str(sol or ''), 'luna': str(luna or ''), 'asc': str(asc or ''),
+            'maslow': _ml,
             'informe': informe,
         }))
     else:
@@ -7531,6 +7551,7 @@ def api_buscar_candidatos():
             return jsonify({'error': 'Tu persona base debe estar en público (Mi cuenta)'}), 400
         fb = _buscar_ficha(_dj(b))
         set_b = set(_hd_norm_canal(c) for c in fb['canales'])
+        centros_b = set(_hd_centros_definidos(fb['canales']))
         c = _c()
         try:
             cur = c.cursor()
@@ -7583,7 +7604,10 @@ def api_buscar_candidatos():
             item = {'cuenta_id': cid, 'nombre': nom, 'canales': chs,
                     'comunes': len(comunes), 'tipo': f['tipo'], 'perfil': f['perfil'],
                     'foto': '', 'tipo_match': tipo_match,
+                    'canales_comunes': comunes,
                     'centros': sorted(_hd_centros_definidos(f['canales'])),
+                    'centros_comunes': [x for x in sorted(_hd_centros_definidos(f['canales']))
+                                        if x in centros_b],
                     'bio': str((dj or {}).get('bio') or '').strip()[:280],
                     'perfil_match': perfil_match, 'fam_match': fam_match,
                     'prio': prio, 'diff': diff, 'frio': frio,
